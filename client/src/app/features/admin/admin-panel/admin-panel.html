@@ -1,0 +1,76 @@
+<div class="admin-page">
+  <div class="container">
+    <h1 class="page-title animate-fade-in">👑 Admin Panel</h1>
+
+    <div class="tabs">
+      <button class="tab" [class.active]="tab() === 'orders'" (click)="setTab('orders')">
+        📦 Orders ({{ orders().length }})
+      </button>
+      <button class="tab" [class.active]="tab() === 'disputes'" (click)="setTab('disputes')">
+        ⚠️ Disputes ({{ disputes().length }})
+      </button>
+      <button class="tab" [class.active]="tab() === 'restaurants'" (click)="setTab('restaurants')">
+        🏪 Restaurants ({{ restaurants().length }})
+      </button>
+    </div>
+
+    @if (tab() === 'orders') {
+      <div class="table-container card">
+        <table class="data-table">
+          <thead>
+            <tr><th>#</th><th>Status</th><th>Total</th><th>Date</th><th>Items</th></tr>
+          </thead>
+          <tbody>
+            @for (o of orders(); track o.id) {
+              <tr>
+                <td class="fw-700">{{ o.id }}</td>
+                <td><span class="status-pill" [class]="'status-' + o.status.toLowerCase()">{{ o.status }}</span></td>
+                <td>{{ o.totalAmount | currency:'GBP' }}</td>
+                <td>{{ o.createdAt | date:'short' }}</td>
+                <td>{{ o.items.length }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (tab() === 'disputes') {
+      @if (disputes().length === 0) {
+        <div class="empty-state card"><p>No disputed orders 🎉</p></div>
+      } @else {
+        <div class="disputes-grid">
+          @for (o of disputes(); track o.id) {
+            <div class="dispute-card card">
+              <h3>Order #{{ o.id }}</h3>
+              <p class="dispute-notes">{{ o.disputeNotes }}</p>
+              <p>Total: {{ o.totalAmount | currency:'GBP' }}</p>
+              <button class="btn btn-sm btn-primary" (click)="refund(o.id)">Issue Refund</button>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    @if (tab() === 'restaurants') {
+      <div class="restaurants-grid">
+        @for (r of restaurants(); track r.id) {
+          <div class="restaurant-card card">
+            <div class="r-header">
+              <h3>{{ r.name }}</h3>
+              <span class="active-badge" [class.active]="r.isActive">
+                {{ r.isActive ? '🟢 Active' : '🔴 Inactive' }}
+              </span>
+            </div>
+            <p class="r-address">{{ r.address }}</p>
+            <p class="r-hygiene">Hygiene: {{ '★'.repeat(r.hygieneRating) }}</p>
+            <button class="btn btn-sm" [class.btn-danger]="r.isActive" [class.btn-success]="!r.isActive"
+              (click)="toggleRestaurant(r.id)">
+              {{ r.isActive ? 'Deactivate' : 'Activate' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

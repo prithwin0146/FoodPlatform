@@ -1,0 +1,123 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-height);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-light);
+  transition: all var(--duration) var(--ease-out);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+
+  &-icon {
+    font-size: 1.75rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  &-text {
+    font-size: 1.25rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-link {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.938rem;
+  color: var(--text-secondary);
+  transition: all var(--duration) var(--ease-out);
+
+  &:hover {
+    background: var(--border-light);
+    color: var(--text);
+  }
+
+  &.active {
+    color: var(--primary);
+    background: var(--primary-bg);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.cart-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--primary-bg);
+  transition: all var(--duration) var(--ease-spring);
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .cart-icon { font-size: 1.25rem; }
+
+  .cart-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-size: 0.688rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.3s var(--ease-spring);
+  }
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-role {
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .nav { display: none; }
+  .user-role { display: none; }
+}

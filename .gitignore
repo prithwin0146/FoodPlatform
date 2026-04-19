@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.swp
+appsettings.Development.json
+
+# Angular
+client/node_modules/
+client/dist/
+client/.angular/
+
+# Misc
+.DS_Store
+*.log

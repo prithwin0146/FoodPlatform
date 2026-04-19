@@ -1,0 +1,69 @@
+<div class="dashboard-page">
+  <div class="container">
+    <h1 class="page-title animate-fade-in">🏪 Restaurant Dashboard</h1>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      @for (f of ['all','Pending','Accepted','Preparing','Cooking','Packed','OutForDelivery','Delivered']; track f) {
+        <button class="filter-btn" [class.active]="filter() === f" (click)="setFilter(f)">
+          {{ f === 'all' ? '📋 All' : getStatusEmoji(f) + ' ' + f }}
+        </button>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner-lg"></div>
+      </div>
+    } @else if (orders().length === 0) {
+      <div class="empty-state card">
+        <div class="empty-icon">📭</div>
+        <h3>No orders found</h3>
+        <p>Orders will appear here when customers place them.</p>
+      </div>
+    } @else {
+      <div class="orders-grid">
+        @for (order of orders(); track order.id; let idx = $index) {
+          <div class="order-card card" [style.animation-delay]="idx * 60 + 'ms'">
+            <div class="order-card-header">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="order-status" [class]="'status-' + order.status.toLowerCase()">
+                {{ getStatusEmoji(order.status) }} {{ order.status }}
+              </span>
+            </div>
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="order-item-row">
+                  <span>{{ item.quantity }}× {{ item.menuItemName }}</span>
+                  <span>{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
+                </div>
+              }
+            </div>
+            <div class="order-card-footer">
+              <div class="order-total">{{ order.totalAmount | currency:'GBP' }}</div>
+              <div class="order-date">{{ order.createdAt | date:'short' }}</div>
+            </div>
+
+            @if (order.status === 'Pending') {
+              <div class="order-actions">
+                <div class="est-input">
+                  <label>ETA (min)</label>
+                  <input type="number" [ngModel]="estimatedMinutes()"
+                    (ngModelChange)="estimatedMinutes.set($event)" min="5" max="120">
+                </div>
+                <button class="btn btn-sm btn-success" (click)="accept(order)">✅ Accept</button>
+                <button class="btn btn-sm btn-danger" (click)="reject(order)">❌ Reject</button>
+              </div>
+            } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
+              <div class="order-actions">
+                <button class="btn btn-sm btn-primary" (click)="advanceStatus(order)">
+                  Advance Status →
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

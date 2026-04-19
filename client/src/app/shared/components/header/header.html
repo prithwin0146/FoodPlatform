@@ -1,0 +1,44 @@
+<header class="header">
+  <div class="header-inner container">
+    <a routerLink="/" class="logo">
+      <span class="logo-icon">🍽️</span>
+      <span class="logo-text">FoodPlatform</span>
+    </a>
+
+    <nav class="nav">
+      @if (auth.isLoggedIn()) {
+        @if (auth.isCustomer()) {
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+            Restaurants
+          </a>
+          <a routerLink="/orders" routerLinkActive="active" class="nav-link">
+            My Orders
+          </a>
+        }
+        @if (dashboardLink()) {
+          <a [routerLink]="dashboardLink()" routerLinkActive="active" class="nav-link">
+            Dashboard
+          </a>
+        }
+      }
+    </nav>
+
+    <div class="actions">
+      @if (auth.isCustomer() && !cart.isEmpty()) {
+        <a routerLink="/checkout" class="cart-btn">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-badge">{{ cart.count() }}</span>
+        </a>
+      }
+
+      @if (auth.isLoggedIn()) {
+        <div class="user-menu">
+          <span class="user-role badge badge-primary">{{ auth.role() }}</span>
+          <button (click)="auth.logout()" class="btn btn-ghost btn-sm">Logout</button>
+        </div>
+      } @else {
+        <a routerLink="/login" class="btn btn-primary btn-sm">Sign In</a>
+      }
+    </div>
+  </div>
+</header>

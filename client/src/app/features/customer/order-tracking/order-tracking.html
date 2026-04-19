@@ -1,0 +1,84 @@
+<div class="tracking-page">
+  <div class="container">
+    <a routerLink="/" class="back-link">← Back to restaurants</a>
+
+    @if (loading()) {
+      <div class="card" style="padding: 40px; text-align: center">
+        <div class="spinner-lg"></div>
+        <p style="margin-top: 16px; color: var(--text-secondary)">Loading order...</p>
+      </div>
+    } @else if (order(); as o) {
+      <div class="order-header animate-fade-in">
+        <div class="order-status-badge" [class]="'status-' + o.status.toLowerCase()">
+          {{ getStatusEmoji(o.status) }} {{ getStatusLabel(o.status) }}
+        </div>
+        <h1>Order #{{ o.id }}</h1>
+        <p class="order-date">Placed {{ o.createdAt | date:'medium' }}</p>
+      </div>
+
+      @if (o.status !== 'Rejected' && o.status !== 'Cancelled') {
+        <!-- Progress Stepper -->
+        <div class="stepper card animate-fade-in" style="animation-delay:100ms">
+          <div class="stepper-track">
+            @for (step of statusSteps; track step; let idx = $index; let last = $last) {
+              <div class="step" [class.complete]="isStepComplete(step)" [class.active]="isActive(step)">
+                <div class="step-dot">
+                  @if (isStepComplete(step) && !isActive(step)) { ✓ }
+                  @else { {{ getStatusEmoji(step) }} }
+                </div>
+                <span class="step-label">{{ getStatusLabel(step) }}</span>
+              </div>
+              @if (!last) {
+                <div class="step-line" [class.complete]="isStepComplete(statusSteps[idx + 1])"></div>
+              }
+            }
+          </div>
+        </div>
+
+        @if (o.estimatedDeliveryTime) {
+          <div class="eta-card card animate-fade-in" style="animation-delay:200ms">
+            <span class="eta-icon">🕐</span>
+            <div>
+              <p class="eta-label">Estimated Delivery</p>
+              <p class="eta-time">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="status-message card animate-fade-in"
+          [class.rejected]="o.status === 'Rejected'" [class.cancelled]="o.status === 'Cancelled'">
+          <span class="status-icon">{{ getStatusEmoji(o.status) }}</span>
+          <h2>Order {{ o.status }}</h2>
+          @if (o.rejectionReason) {
+            <p>Reason: {{ o.rejectionReason }}</p>
+          }
+        </div>
+      }
+
+      <!-- Order Items -->
+      <div class="items-card card animate-fade-in" style="animation-delay:300ms">
+        <h2 class="section-title">Order Items</h2>
+        @for (item of o.items; track item.id) {
+          <div class="order-item">
+            <span class="item-qty">{{ item.quantity }}×</span>
+            <span class="item-name">{{ item.menuItemName }}</span>
+            <span class="item-price">{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
+          </div>
+        }
+        <div class="order-total">
+          <span>Total</span>
+          <span>{{ o.totalAmount | currency:'GBP' }}</span>
+        </div>
+      </div>
+
+      @if (canCancel()) {
+        <button class="btn btn-danger cancel-btn" (click)="cancelOrder()">Cancel Order</button>
+      }
+    } @else {
+      <div class="empty-state card">
+        <div class="empty-icon">🔍</div>
+        <h3>Order not found</h3>
+      </div>
+    }
+  </div>
+</div>

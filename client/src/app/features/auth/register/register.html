@@ -1,0 +1,39 @@
+<div class="auth-page">
+  <div class="auth-card card animate-scale-in">
+    <div class="auth-header">
+      <div class="logo-icon">🍽️</div>
+      <h1>Create Account</h1>
+      <p>Join FoodPlatform today</p>
+    </div>
+    <form (ngSubmit)="submit()" class="auth-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="you@example.com"
+          class="form-input" autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="Min 8 characters"
+          class="form-input" autocomplete="new-password" required>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••"
+          class="form-input" [class.invalid]="confirmPassword.length > 0 && !passwordsMatch" required>
+        @if (confirmPassword.length > 0 && !passwordsMatch) {
+          <span class="error-text">Passwords don't match</span>
+        }
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg auth-submit" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Creating...
+        } @else {
+          Create Account 🚀
+        }
+      </button>
+    </form>
+    <p class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </div>
+</div>

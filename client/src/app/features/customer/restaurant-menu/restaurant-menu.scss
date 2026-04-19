@@ -1,0 +1,271 @@
+.menu-page { padding-bottom: 100px; }
+
+.restaurant-header {
+  background: linear-gradient(135deg, #fff5f0, #fff, #f0f7ff);
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color var(--duration);
+  &:hover { color: var(--primary); }
+}
+
+.header-content { display: flex; gap: 24px; align-items: center; }
+
+.restaurant-name {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.restaurant-address {
+  color: var(--text-secondary);
+  font-size: 0.938rem;
+  margin-bottom: 12px;
+}
+
+.header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .badge {
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: white;
+    box-shadow: var(--shadow-sm);
+  }
+  .badge-hygiene .stars { color: #f59e0b; margin-right: 4px; }
+  .badge-open { color: var(--success); }
+  .badge-closed { color: var(--danger); }
+}
+
+// Layout
+.menu-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  padding-top: 32px;
+}
+
+// Category Nav
+.category-nav {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+
+  .nav-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+}
+
+.category-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration);
+
+  &:hover { background: var(--border-light); color: var(--text); }
+  &.active {
+    background: var(--primary-bg);
+    color: var(--primary);
+  }
+
+  .item-count {
+    font-size: 0.75rem;
+    background: var(--border-light);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+  }
+}
+
+// Items
+.category-section { margin-bottom: 40px; }
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-item {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  animation: fadeInUp var(--duration-slow) var(--ease-out) both;
+
+  &:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+}
+
+.item-emoji {
+  font-size: 2.5rem;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-bg);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.item-details { flex: 1; }
+.item-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.item-desc { font-size: 0.813rem; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5; }
+
+.dietary-tags {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+  .dietary-tag {
+    font-size: 0.688rem;
+    padding: 3px 8px;
+    background: #ecfdf5;
+    color: #047857;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+  }
+}
+
+.allergens {
+  font-size: 0.75rem;
+  color: var(--warning);
+  margin-bottom: 8px;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-price {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  width: 32px; height: 32px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.125rem; font-weight: 700;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease-spring);
+
+  &.plus {
+    background: var(--primary);
+    color: white;
+    &:hover { transform: scale(1.1); background: var(--primary-dark); }
+  }
+  &.minus {
+    background: white;
+    color: var(--primary);
+    &:hover { background: var(--primary-bg); }
+  }
+}
+
+.qty-count {
+  font-weight: 700;
+  font-size: 1rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+// Cart Bar
+.cart-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--accent);
+  color: white;
+  padding: 16px 0;
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+}
+
+.cart-bar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.cart-count { font-weight: 600; }
+.cart-total { font-size: 1.25rem; font-weight: 800; }
+
+.cart-btn {
+  background: var(--primary) !important;
+  &:hover { background: var(--primary-dark) !important; transform: scale(1.02); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  .empty-icon { font-size: 4rem; margin-bottom: 16px; }
+  h3 { font-size: 1.25rem; font-weight: 700; }
+  p { color: var(--text-secondary); }
+}
+
+.skeleton-item { padding: 24px; margin-bottom: 16px; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .menu-layout {
+    grid-template-columns: 1fr;
+  }
+  .category-nav {
+    position: static;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    .nav-title { display: none; }
+  }
+  .category-btn { white-space: nowrap; }
+}

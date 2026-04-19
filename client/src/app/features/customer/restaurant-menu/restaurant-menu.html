@@ -1,0 +1,122 @@
+<div class="menu-page">
+  <!-- Restaurant Header -->
+  @if (restaurant(); as r) {
+    <section class="restaurant-header">
+      <div class="container">
+        <a routerLink="/" class="back-link">← Back to restaurants</a>
+        <div class="header-content">
+          <div class="header-info">
+            <h1 class="restaurant-name animate-fade-in">{{ r.name }}</h1>
+            <p class="restaurant-address">📍 {{ r.address }}</p>
+            <div class="header-badges">
+              <span class="badge badge-hygiene">
+                <span class="stars">{{ getHygieneStars(r.hygieneRating) }}</span>
+                Hygiene
+              </span>
+              @if (r.isActive) {
+                <span class="badge badge-open">🟢 Open Now</span>
+              } @else {
+                <span class="badge badge-closed">🔴 Closed</span>
+              }
+              <span class="badge badge-delivery">🚴 {{ r.deliveryRadiusMiles }} mi delivery</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
+  <div class="container menu-layout">
+    <!-- Category Sidebar -->
+    <aside class="category-nav">
+      <h3 class="nav-title">Menu</h3>
+      @for (cat of availableCategories(); track cat.id) {
+        <button
+          class="category-btn"
+          [class.active]="activeCategory() === cat.id"
+          (click)="selectCategory(cat.id)"
+        >
+          {{ cat.name }}
+          <span class="item-count">{{ cat.items.length }}</span>
+        </button>
+      }
+    </aside>
+
+    <!-- Menu Items -->
+    <main class="menu-content">
+      @if (loading()) {
+        @for (i of [1,2,3,4]; track i) {
+          <div class="skeleton-item card">
+            <div class="skeleton skeleton-text" style="width: 60%; height: 20px"></div>
+            <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-top: 8px"></div>
+            <div class="skeleton skeleton-text" style="width: 30%; height: 18px; margin-top: 12px"></div>
+          </div>
+        }
+      } @else {
+        @for (cat of availableCategories(); track cat.id) {
+          <section class="category-section" [id]="'cat-' + cat.id">
+            <h2 class="category-title">{{ cat.name }}</h2>
+            <div class="items-grid">
+              @for (item of cat.items; track item.id; let idx = $index) {
+                @if (item.isAvailable) {
+                  <div class="menu-item card" [style.animation-delay]="idx * 60 + 'ms'">
+                    <div class="item-emoji">{{ getItemEmoji(item.name) }}</div>
+                    <div class="item-details">
+                      <h3 class="item-name">{{ item.name }}</h3>
+                      @if (item.description) {
+                        <p class="item-desc">{{ item.description }}</p>
+                      }
+                      @if (item.dietaryTags) {
+                        <div class="dietary-tags">
+                          @for (tag of item.dietaryTags.split(','); track tag) {
+                            <span class="dietary-tag">{{ getDietaryIcon(tag) }} {{ tag.trim() }}</span>
+                          }
+                        </div>
+                      }
+                      @if (item.allergens) {
+                        <p class="allergens">⚠️ {{ item.allergens }}</p>
+                      }
+                      <div class="item-footer">
+                        <span class="item-price">{{ item.price | currency: 'GBP' }}</span>
+                        <div class="quantity-controls">
+                          @if (cart.getQuantity(item.id) > 0) {
+                            <button class="qty-btn minus" (click)="removeFromCart(item)">−</button>
+                            <span class="qty-count">{{ cart.getQuantity(item.id) }}</span>
+                          }
+                          <button class="qty-btn plus" (click)="addToCart(item)">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </section>
+        }
+
+        @if (availableCategories().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No menu available</h3>
+            <p>This restaurant hasn't added any items yet.</p>
+          </div>
+        }
+      }
+    </main>
+  </div>
+
+  <!-- Floating Cart Bar -->
+  @if (!cart.isEmpty()) {
+    <div class="cart-bar animate-slide-up">
+      <div class="container cart-bar-content">
+        <div class="cart-info">
+          <span class="cart-count">{{ cart.count() }} item{{ cart.count() > 1 ? 's' : '' }}</span>
+          <span class="cart-total">{{ cart.total() | currency: 'GBP' }}</span>
+        </div>
+        <a routerLink="/checkout" class="btn btn-primary cart-btn">
+          View Cart →
+        </a>
+      </div>
+    </div>
+  }
+</div>
