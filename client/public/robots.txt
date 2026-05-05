@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Private / account-only pages — no indexing
+Disallow: /checkout
+Disallow: /orders/
+Disallow: /dashboard
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://seetheprep.vercel.app/sitemap.xml

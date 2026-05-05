@@ -1,0 +1,33 @@
+{
+  "name": "SeeThePrep",
+  "short_name": "SeeThePrep",
+  "description": "The UK's only food delivery platform where you watch your food being cooked live on camera.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#ff6b1a",
+  "background_color": "#fffcf7",
+  "lang": "en-GB",
+  "categories": ["food", "shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "label": "SeeThePrep — Watch your food being cooked live"
+    }
+  ]
+}

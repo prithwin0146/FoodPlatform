@@ -1,6 +1,7 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
+import { Title, Meta } from '@angular/platform-browser';
+import { DOCUMENT, CurrencyPipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -54,6 +55,10 @@ export class RestaurantMenu implements OnInit {
       .filter((c) => c.items.length > 0);
   });
 
+  private readonly titleSvc = inject(Title);
+  private readonly metaSvc = inject(Meta);
+  private readonly doc = inject(DOCUMENT);
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly restaurantService: RestaurantService,
@@ -72,6 +77,44 @@ export class RestaurantMenu implements OnInit {
         this.categories.set(menu);
         if (menu.length) this.activeCategory.set(menu[0].id);
         this.loading.set(false);
+
+        // Dynamic per-restaurant SEO
+        const pageTitle = `Order from ${restaurant.name} — Watch It Cook Live | SeeThePrep`;
+        this.titleSvc.setTitle(pageTitle);
+        this.metaSvc.updateTag({ name: 'description', content: `Order from ${restaurant.name} on SeeThePrep and watch your meal being prepared live on camera. ${restaurant.hygieneRating === 5 ? 'FSA 5-star rated. ' : ''}Full allergen transparency. UK food delivery.` });
+        this.metaSvc.updateTag({ property: 'og:title', content: pageTitle });
+        this.metaSvc.updateTag({ property: 'og:description', content: `Watch the chefs at ${restaurant.name} cook your food in real time. Live kitchen camera, allergen-safe ordering, fast delivery.` });
+        this.metaSvc.updateTag({ property: 'og:url', content: `https://seetheprep.vercel.app/restaurant/${id}` });
+        if (restaurant.imageUrl) {
+          this.metaSvc.updateTag({ property: 'og:image', content: restaurant.imageUrl });
+        }
+
+        // JSON-LD: FoodEstablishment schema for this restaurant
+        const script = this.doc.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FoodEstablishment',
+          name: restaurant.name,
+          address: restaurant.address,
+          url: `https://seetheprep.vercel.app/restaurant/${id}`,
+          ...(restaurant.imageUrl ? { image: restaurant.imageUrl } : {}),
+          hasMap: `https://seetheprep.vercel.app/restaurant/${id}`,
+          aggregateRating: restaurant.hygieneRating === 5 ? {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1',
+            reviewCount: '1',
+            name: 'FSA Hygiene Rating',
+          } : undefined,
+          potentialAction: {
+            '@type': 'OrderAction',
+            target: `https://seetheprep.vercel.app/restaurant/${id}`,
+            deliveryMethod: 'http://purl.org/goodrelations/v1#DeliveryModeOwnFleet',
+          },
+        });
+        this.doc.head.appendChild(script);
       },
       error: () => this.loading.set(false),
     });

@@ -1,5 +1,7 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
@@ -98,7 +100,83 @@ export class RestaurantList implements OnInit, AfterViewInit {
   ];
 
 
-  constructor(private readonly restaurantService: RestaurantService) {}
+  constructor(private readonly restaurantService: RestaurantService) {
+    inject(Title).setTitle('Watch Your Food Being Cooked Live | UK Food Delivery | SeeThePrep');
+    const meta = inject(Meta);
+    meta.updateTag({ name: 'description', content: 'Order food online and watch your kitchen cook it live on camera. SeeThePrep is the UK\'s only food delivery platform with real-time kitchen transparency, FSA 5-star verified restaurants and full allergen disclosure.' });
+    meta.updateTag({ property: 'og:title', content: 'Watch Your Food Being Cooked Live | UK Food Delivery | SeeThePrep' });
+    meta.updateTag({ property: 'og:description', content: 'Browse FSA 5-star verified restaurants, place your order, and watch every step of your meal being cooked in HD — live, every time.' });
+    meta.updateTag({ property: 'og:url', content: 'https://seetheprep.vercel.app/' });
+
+    // Inject FAQ + SoftwareApplication JSON-LD for rich results
+    const doc = inject(DOCUMENT);
+    const script = doc.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'FAQPage',
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'Can I really watch my food being cooked?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Yes. Every order on SeeThePrep triggers a live HD camera feed from the kitchen. You watch every step from prep to plate in real time — no recordings, no filters.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Are all restaurants on SeeThePrep FSA 5-star rated?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Yes. We only onboard kitchens with a current Food Standards Agency 5-star hygiene rating. We re-verify quarterly and cross-check with council records. Any restaurant that drops below 5 stars is removed from the platform.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'How does SeeThePrep handle allergens?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'You can watch every ingredient going into your dish live on camera. Tag your allergy when ordering and the prep stream flags any cross-contact risk. Full allergen transparency with zero hidden ingredients.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Where do tips go?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: '100% of tips go directly to the kitchen that cooked your food, paid out the same week with a full receipt. SeeThePrep never takes a cut of tips.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Is SeeThePrep available across the UK?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'SeeThePrep is currently expanding across the United Kingdom. Browse available kitchens in your area by searching your postcode on the restaurant page.',
+              },
+            },
+          ],
+        },
+        {
+          '@type': 'SoftwareApplication',
+          name: 'SeeThePrep',
+          operatingSystem: 'Web, iOS, Android',
+          applicationCategory: 'FoodEstablishment',
+          url: 'https://seetheprep.vercel.app/',
+          description: 'The UK\'s only food delivery platform with live kitchen camera transparency.',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'GBP',
+          },
+        },
+      ],
+    });
+    doc.head.appendChild(script);
+  }
 
   ngOnInit(): void {
     this.restaurantService.list().subscribe({

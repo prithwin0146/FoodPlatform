@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Title, Meta } from '@angular/platform-browser';
 import { INFO_PAGES, type InfoPageContent } from './info-content';
 
 /**
@@ -19,6 +20,8 @@ import { INFO_PAGES, type InfoPageContent } from './info-content';
 export class InfoPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly titleSvc = inject(Title);
+  private readonly metaSvc = inject(Meta);
 
   private readonly slug = toSignal(this.route.paramMap, { requireSync: true });
 
@@ -34,6 +37,19 @@ export class InfoPage {
       sections: [],
     };
   });
+
+  constructor() {
+    // Update <title> and meta description whenever the content signal resolves
+    effect(() => {
+      const c = this.content();
+      this.titleSvc.setTitle(`${c.title} | SeeThePrep`);
+      this.metaSvc.updateTag({ name: 'description', content: c.intro.slice(0, 160) });
+      this.metaSvc.updateTag({ property: 'og:title', content: `${c.title} | SeeThePrep` });
+      this.metaSvc.updateTag({ property: 'og:description', content: c.intro.slice(0, 200) });
+      this.metaSvc.updateTag({ property: 'og:url', content: `https://seetheprep.vercel.app/info/${c.slug}` });
+      this.metaSvc.updateTag({ name: 'robots', content: c.slug === 'do-not-sell' ? 'noindex' : 'index, follow' });
+    });
+  }
 
   goBack(): void {
     this.router.navigateByUrl('/');

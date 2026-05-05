@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -34,7 +35,12 @@ export class Login {
     private readonly auth: AuthService,
     private readonly toast: ToastService,
     private readonly router: Router
-  ) {}
+  ) {
+    inject(Title).setTitle('Sign In | SeeThePrep');
+    const meta = inject(Meta);
+    meta.updateTag({ name: 'description', content: 'Sign in to SeeThePrep — the UK food delivery platform where you watch your meal being cooked live on camera.' });
+    meta.updateTag({ name: 'robots', content: 'noindex, follow' });
+  }
 
   submit(): void {
     if (!this.email || !this.password) return;

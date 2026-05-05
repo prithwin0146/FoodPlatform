@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -23,7 +24,12 @@ export class Register {
     private readonly auth: AuthService,
     private readonly toast: ToastService,
     private readonly router: Router
-  ) {}
+  ) {
+    inject(Title).setTitle('Create Account | SeeThePrep');
+    const meta = inject(Meta);
+    meta.updateTag({ name: 'description', content: 'Join SeeThePrep — create a free account to order food from live-streamed kitchens across the UK. FSA 5-star restaurants, full allergen transparency.' });
+    meta.updateTag({ name: 'robots', content: 'noindex, follow' });
+  }
 
   get passwordsMatch(): boolean {
     return this.password === this.confirmPassword;
