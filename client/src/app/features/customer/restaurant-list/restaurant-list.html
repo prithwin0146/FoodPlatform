@@ -1,86 +1,623 @@
+<!-- ════════════════════════════════════════════════════════════ HERO ══ -->
 <section class="hero">
-  <div class="container hero-content">
-    <div class="hero-text animate-fade-in-up">
-      <h1>Delicious food,<br><span class="gradient-text">delivered to you</span></h1>
-      <p class="hero-subtitle">Watch your food being prepared in real-time. Fresh from kitchen to doorstep.</p>
-    </div>
+  <!-- Looping kitchen background video -->
+  <video #heroVideo class="hero-video" autoplay muted loop playsinline preload="auto" poster="/hero-kitchen-poster.jpg" aria-hidden="true">
+    <source src="/hero-kitchen.mp4" type="video/mp4">
+  </video>
+  <!-- Dark overlay so text stays legible -->
+  <div class="hero-video-overlay" aria-hidden="true"></div>
 
-    <div class="search-bar animate-fade-in-up stagger-2">
-      <span class="search-icon">🔍</span>
-      <input
-        type="text"
-        placeholder="Search restaurants or cuisines..."
-        class="search-input"
-        [value]="searchQuery()"
-        (input)="onSearch($event)"
-      />
-    </div>
+  <!-- Animated gradient mesh -->
+  <div class="mesh-bg" aria-hidden="true">
+    <div class="mesh-blob blob-1"></div>
+    <div class="mesh-blob blob-2"></div>
+    <div class="mesh-blob blob-3"></div>
+  </div>
 
-    <div class="hero-tags animate-fade-in-up stagger-3">
-      <span class="tag">🔥 Fast Delivery</span>
-      <span class="tag">📹 Watch Your Food</span>
-      <span class="tag">⭐ Hygiene Rated</span>
-      <span class="tag">💷 Best Prices</span>
+  <!-- Animated SVG ribbons (floating decorative) -->
+  <svg class="hero-ribbon" viewBox="0 0 800 800" aria-hidden="true">
+    <defs>
+      <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#ff7a00" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#ff3d8a" stop-opacity="0.05"/>
+      </linearGradient>
+    </defs>
+    <path d="M0,400 Q200,200 400,400 T800,400" stroke="url(#ribbonGrad)" stroke-width="2" fill="none" class="ribbon-path"/>
+    <path d="M0,500 Q200,700 400,500 T800,500" stroke="url(#ribbonGrad)" stroke-width="1" fill="none" class="ribbon-path delay"/>
+  </svg>
+
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <div class="live-badge" appScrollReveal>
+        <span class="live-dot"></span>
+        Now in <strong>early access</strong> · UK kitchens
+      </div>
+
+      <h1 class="hero-headline">
+        <span class="line">
+          <span class="word w1">See</span>
+          <span class="word w2">the</span>
+          <span class="word w3">prep.</span>
+        </span>
+        <span class="line">
+          <span class="word w4">Trust</span>
+          <span class="word w5 grad">
+            <span class="grad-text">every</span>
+            <svg class="grad-underline" viewBox="0 0 200 12" preserveAspectRatio="none">
+              <path d="M2,9 Q50,2 100,7 T198,5" stroke="url(#ribbonGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="word w6">bite.</span>
+        </span>
+      </h1>
+
+      <p class="hero-subtitle">
+        The <strong>only</strong> food platform where you watch your meal cooked <em>live</em> — camera on, no exceptions.
+        No more guessing what's in your food.
+      </p>
+
+      <div class="hero-ctas">
+        <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
+          <span class="material-symbols-rounded">restaurant</span>
+          Order &amp; Watch Live
+          <span class="cta-shine"></span>
+        </button>
+        <button mat-stroked-button class="cta-secondary" appMagnetic (click)="scrollToHow()">
+          <span class="material-symbols-rounded">play_circle</span>
+          See how it works
+        </button>
+      </div>
+
+      <ul class="proof-strip">
+        <li class="proof-pill">
+          <span class="material-symbols-rounded">lock</span>
+          No hidden kitchens
+        </li>
+        <li class="proof-pill">
+          <span class="material-symbols-rounded">bolt</span>
+          30-min avg delivery
+        </li>
+        <li class="proof-pill">
+          <span class="material-symbols-rounded">no_meals</span>
+          Zero dark kitchens
+        </li>
+      </ul>
     </div>
   </div>
 
-  <div class="hero-shapes">
-    <div class="shape shape-1">🍕</div>
-    <div class="shape shape-2">🍔</div>
-    <div class="shape shape-3">🌮</div>
-    <div class="shape shape-4">🍜</div>
+  <!-- Scroll nudge -->
+  <div class="hero-scroll-cue" aria-hidden="true" (click)="scrollToRestaurants()">
+    <span class="material-symbols-rounded">keyboard_arrow_down</span>
+  </div>
+
+</section>
+
+
+<!-- ════════════════════════════════════ LOGO WALL removed pending real partners ══ -->
+
+
+<!-- ════════════════════════════════════════════ RESTAURANTS GRID ══ -->
+<section class="restaurants" id="restaurants-section">
+  <div class="container">
+    <header class="section-eyebrow" appScrollReveal>
+      <span class="eyebrow-line live-pulse"></span>
+      <span class="eyebrow-text">BROWSE & ORDER</span>
+    </header>
+    <div class="section-header" appScrollReveal>
+      <div>
+        <h2 class="section-h2">Kitchens cooking <span class="grad-text">right now</span></h2>
+        <p class="section-sub">{{ filteredRestaurants().length }} kitchens · search by name or area</p>
+      </div>
+      <div class="search-wrapper">
+        <mat-form-field class="hero-search" appearance="outline" color="primary">
+          <mat-label>Search restaurants or cuisines…</mat-label>
+          <span matPrefix class="search-prefix">🔍&nbsp;</span>
+          <input matInput
+                 [value]="searchQuery()"
+                 (input)="onSearch($event)"
+                 autocomplete="off" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="skeleton-card">
+            <div class="sk-img"></div>
+            <div class="sk-line w70"></div>
+            <div class="sk-line w50"></div>
+            <div class="sk-line w35"></div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="grid">
+        @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
+          <a [routerLink]="['/restaurant', restaurant.id]"
+             class="tilt-card restaurant-card"
+             appTilt [tiltMax]="12"
+             appScrollReveal [revealDelay]="i * 70"
+             matRipple>
+            <div class="card-glare"></div>
+            <div class="card-image">
+              <div class="card-image-gradient"></div>
+              @if (restaurant.imageUrl) {
+                <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" loading="lazy">
+              } @else {
+                <div class="restaurant-emoji">{{ restaurant.name | restaurantEmoji }}</div>
+              }
+              <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating">
+                <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
+                <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
+              </div>
+              <div class="live-pip"><span></span> LIVE</div>
+            </div>
+            <div class="card-body">
+              <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+              <p class="restaurant-address">📍 {{ restaurant.address }}</p>
+              <div class="restaurant-meta">
+                <span class="meta-item">🚴 {{ restaurant.deliveryRadiusMiles }} mi</span>
+                <span class="meta-item">📮 {{ restaurant.basePostcode }}</span>
+                <span class="meta-cta">Watch prep <span class="material-symbols-rounded">arrow_forward</span></span>
+              </div>
+            </div>
+          </a>
+        } @empty {
+          <div class="empty-state">
+            <div class="empty-icon">🍽️</div>
+            <h3>No restaurants found</h3>
+            <p>Try adjusting your search</p>
+          </div>
+        }
+      </div>
+    }
   </div>
 </section>
 
-<section class="restaurants container">
-  <div class="section-header animate-fade-in-up">
-    <h2>Restaurants near you</h2>
-    <p class="text-secondary">{{ filteredRestaurants().length }} restaurants available</p>
+
+<!-- ══════════════════════════════════════════════════════ HOW IT WORKS ══ -->
+<section class="how" id="how-section">
+  <div class="how-bg" aria-hidden="true">
+    <div class="how-orb how-orb-1"></div>
+    <div class="how-orb how-orb-2"></div>
   </div>
 
-  @if (loading()) {
-    <div class="grid">
-      @for (i of [1,2,3,4,5,6]; track i) {
-        <div class="card skeleton-card">
-          <div class="skeleton" style="height: 180px;"></div>
-          <div class="card-body">
-            <div class="skeleton" style="height: 24px; width: 70%;"></div>
-            <div class="skeleton" style="height: 16px; width: 90%; margin-top: 8px;"></div>
-            <div class="skeleton" style="height: 16px; width: 40%; margin-top: 12px;"></div>
+  <div class="container">
+    <header class="section-eyebrow" appScrollReveal>
+      <span class="eyebrow-line"></span>
+      <span class="eyebrow-text">HOW IT WORKS</span>
+    </header>
+    <h2 class="section-h2" appScrollReveal>
+      Three steps to a meal you can <span class="grad-text">actually trust.</span>
+    </h2>
+    <p class="section-lead" appScrollReveal>
+      Watch every step from the moment you tap order to the second it lands at your door.
+    </p>
+
+    <div class="how-steps">
+      <!-- Connecting SVG path that draws on scroll -->
+      <svg class="how-connector" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M80,30 Q400,-10 600,30 T1120,30"
+              stroke="url(#ribbonGrad)" stroke-width="2" fill="none"
+              stroke-dasharray="6 8" class="connector-path"/>
+      </svg>
+
+      @for (step of howSteps; track step.num; let i = $index) {
+        <div class="how-step" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
+          <div class="card-glare"></div>
+          <div class="how-num">{{ step.num }}</div>
+          <div class="how-icon">
+            <span class="material-symbols-rounded">{{ step.icon }}</span>
+            <span class="how-icon-glow"></span>
           </div>
+          <h3 class="how-title">{{ step.title }}</h3>
+          <p class="how-copy">{{ step.copy }}</p>
         </div>
       }
     </div>
-  } @else {
-    <div class="grid">
-      @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
-        <a [routerLink]="['/restaurant', restaurant.id]"
-           class="card restaurant-card animate-fade-in-up"
-           [class]="'stagger-' + (i + 1)">
-          <div class="card-image">
-            <div class="card-image-gradient"></div>
-            <div class="restaurant-emoji">{{ getRestaurantEmoji(restaurant.name) }}</div>
-            <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating">
-              <span class="hygiene-stars">{{ getHygieneStars(restaurant.hygieneRating) }}</span>
-              <span class="hygiene-label">{{ getHygieneLabel(restaurant.hygieneRating) }}</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-            <p class="restaurant-address">📍 {{ restaurant.address }}</p>
-            <div class="restaurant-meta">
-              <span class="meta-item">🚴 {{ restaurant.deliveryRadiusMiles }} mi</span>
-              <span class="meta-item">📮 {{ restaurant.basePostcode }}</span>
-            </div>
-          </div>
-        </a>
-      } @empty {
-        <div class="empty-state animate-scale-in">
-          <div class="empty-icon">🍽️</div>
-          <h3>No restaurants found</h3>
-          <p>Try adjusting your search</p>
-        </div>
-      }
-    </div>
-  }
+  </div>
 </section>
+
+
+<!-- ════════════════════════════════════════════ WHY · EDITORIAL ══ -->
+<section class="why">
+  <div class="why-bg" aria-hidden="true">
+    <div class="why-orb orb-a"></div>
+    <div class="why-orb orb-b"></div>
+  </div>
+
+  <div class="container">
+    <header class="why-head">
+      <div class="why-eyebrow" appScrollReveal>
+        <span class="eb-line"></span>
+        <span class="eb-text">Why SeeThePrep</span>
+      </div>
+      <h2 class="why-title" appScrollReveal>
+        Four promises.
+        <span class="why-title-em">Zero loopholes.</span>
+      </h2>
+      <p class="why-lead" appScrollReveal>
+        Most delivery apps protect the kitchen from you. We do the opposite —
+        we hand you the keys, the camera and the receipt. Here's exactly what that
+        looks like in practice.
+      </p>
+    </header>
+
+    <ol class="promise-grid">
+      @for (p of promises; track p.num; let i = $index) {
+        <li class="promise" appScrollReveal [revealDelay]="i * 80">
+          <div class="promise-num" aria-hidden="true">{{ p.num }}</div>
+          <div class="promise-body">
+            <h3 class="promise-title">{{ p.title }}</h3>
+            <p class="promise-copy">{{ p.copy }}</p>
+            <div class="promise-foot">
+              <span class="promise-metric">{{ p.metric }}</span>
+              <span class="promise-metric-label">{{ p.metricLabel }}</span>
+              <span class="promise-icon" aria-hidden="true">
+                <span class="material-symbols-rounded">{{ p.icon }}</span>
+              </span>
+            </div>
+          </div>
+        </li>
+      }
+    </ol>
+
+    <aside class="why-pullquote" appScrollReveal>
+      <span class="pq-quote">“</span>
+      <p>
+        If the camera isn't on, your food <em>doesn't</em> go out.
+        That's the only rule we never bend.
+      </p>
+      <span class="pq-attr">— The SeeThePrep operating manual, page one.</span>
+    </aside>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════ MOBILE APP · COMING SOON ══ -->
+<section class="app-soon">
+  <div class="app-soon-bg" aria-hidden="true">
+    <div class="as-orb as-orb-1"></div>
+    <div class="as-orb as-orb-2"></div>
+    <div class="as-grid"></div>
+  </div>
+
+  <div class="container app-soon-grid">
+    <!-- LEFT: copy + waitlist -->
+    <div class="app-soon-copy">
+      <div class="app-eyebrow" appScrollReveal>
+        <span class="eb-dot"></span>
+        <span class="eb-text">Mobile · Coming Q3 2026</span>
+      </div>
+
+      <h2 class="app-headline" appScrollReveal>
+        Watch your prep
+        <span class="app-headline-em">on the go.</span>
+      </h2>
+
+      <p class="app-lead" appScrollReveal>
+        The full SeeThePrep experience in your pocket — pinned-to-top live feed,
+        push alerts when your chef hits the pan, and one-tap tipping. Built native
+        for iOS and Android. No web wrappers, no compromises.
+      </p>
+
+      <ul class="app-features" appScrollReveal>
+        <li>
+          <span class="material-symbols-rounded">notifications_active</span>
+          <span><strong>Live alerts.</strong> Buzzed when prep starts, when the rider's at your door.</span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">picture_in_picture</span>
+          <span><strong>Picture-in-picture.</strong> Keep the kitchen visible while you scroll.</span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">apple_watch</span>
+          <span><strong>Apple Watch + Wear OS.</strong> Live ETA on your wrist.</span>
+        </li>
+      </ul>
+
+      <form class="app-waitlist" (submit)="$event.preventDefault()" appScrollReveal>
+        <label class="app-waitlist-label">
+          <span class="wl-pulse"></span>
+          Join the early access waitlist
+        </label>
+        <div class="app-waitlist-row">
+          <input
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            placeholder="you@kitchen.com"
+            class="app-waitlist-input" />
+          <button type="submit" class="app-waitlist-btn" appMagnetic>
+            Notify me
+            <span class="material-symbols-rounded">arrow_forward</span>
+          </button>
+        </div>
+
+        <div class="app-stores">
+          <a class="store-btn" aria-label="Coming soon to the App Store">
+            <span class="store-icon"></span>
+            <span class="store-text">
+              <span class="store-small">Coming soon to</span>
+              <span class="store-big">App Store</span>
+            </span>
+          </a>
+          <a class="store-btn" aria-label="Coming soon to Google Play">
+            <span class="store-icon play"></span>
+            <span class="store-text">
+              <span class="store-small">Coming soon to</span>
+              <span class="store-big">Google Play</span>
+            </span>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- RIGHT: floating phone mockups -->
+    <div class="app-soon-stage" appScrollReveal>
+      <!-- BACK phone — orders list -->
+      <div class="app-phone phone-back" appTilt [tiltMax]="6">
+        <div class="ap-screen">
+          <div class="ap-statusbar">
+            <span>9:41</span>
+            <span class="ap-sb-icons">
+              <span class="material-symbols-rounded">signal_cellular_alt</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </span>
+          </div>
+          <div class="ap-header">
+            <div>
+              <div class="ap-greeting">Tonight's prep</div>
+              <div class="ap-sub">3 kitchens cooking nearby</div>
+            </div>
+            <div class="ap-avatar">P</div>
+          </div>
+          <div class="ap-list">
+            <div class="ap-row">
+              <div class="ap-row-emoji">🍕</div>
+              <div class="ap-row-body">
+                <div class="ap-row-name">Pizzeria Roma</div>
+                <div class="ap-row-meta"><span class="live-pip-mini"></span> Plating · 88%</div>
+              </div>
+              <div class="ap-row-eta">12 min</div>
+            </div>
+            <div class="ap-row">
+              <div class="ap-row-emoji">🍣</div>
+              <div class="ap-row-body">
+                <div class="ap-row-name">Sakura Sushi</div>
+                <div class="ap-row-meta"><span class="live-pip-mini"></span> Cooking · 42%</div>
+              </div>
+              <div class="ap-row-eta">28 min</div>
+            </div>
+            <div class="ap-row">
+              <div class="ap-row-emoji">🍜</div>
+              <div class="ap-row-body">
+                <div class="ap-row-name">Dragon Wok</div>
+                <div class="ap-row-meta"><span class="live-pip-mini"></span> Order received</div>
+              </div>
+              <div class="ap-row-eta">35 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRONT phone — live feed -->
+      <div class="app-phone phone-front" appTilt [tiltMax]="8">
+        <div class="ap-screen dark">
+          <div class="ap-statusbar light">
+            <span>9:41</span>
+            <span class="ap-sb-icons">
+              <span class="material-symbols-rounded">signal_cellular_alt</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </span>
+          </div>
+          <div class="ap-feed">
+            <div class="ap-feed-glow"></div>
+            <span class="ap-feed-emoji">👨‍🍳</span>
+            <span class="ap-feed-rec">● LIVE</span>
+            <span class="ap-feed-q">HD · 60fps</span>
+          </div>
+          <div class="ap-feed-info">
+            <div class="ap-feed-row">
+              <strong>Pizzeria Roma</strong>
+              <span class="ap-eta-dot">·</span>
+              <span>ETA 12 min</span>
+            </div>
+            <div class="ap-feed-stage">Chef is cooking</div>
+            <div class="ap-feed-bar">
+              <div class="ap-feed-bar-fill" [style.width.%]="38"></div>
+            </div>
+          </div>
+          <div class="ap-actions">
+            <button class="ap-action">
+              <span class="material-symbols-rounded">favorite</span>
+              Tip chef
+            </button>
+            <button class="ap-action primary">
+              <span class="material-symbols-rounded">share</span>
+              Share live
+            </button>
+          </div>
+        </div>
+
+        <!-- Floating notification -->
+        <div class="ap-toast" aria-hidden="true">
+          <span class="material-symbols-rounded">notifications_active</span>
+          <div>
+            <strong>Chef Marco started your pizza</strong>
+            <span>tap to watch · just now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════ OUR PROMISE ══ -->
+<section class="stats-banner">
+  <div class="stats-bg" aria-hidden="true">
+    <div class="stats-stripe stripe-1"></div>
+    <div class="stats-stripe stripe-2"></div>
+  </div>
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat" appScrollReveal>
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Live HD streaming</div>
+      </div>
+      <div class="stat" appScrollReveal [revealDelay]="100">
+        <div class="stat-num">5<span class="stat-star">★</span></div>
+        <div class="stat-label">Hygiene minimum</div>
+      </div>
+      <div class="stat" appScrollReveal [revealDelay]="200">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Hidden kitchens</div>
+      </div>
+      <div class="stat" appScrollReveal [revealDelay]="300">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Tips to chef</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════ FINAL CTA ══ -->
+<section class="final-cta">
+  <div class="cta-bg" aria-hidden="true">
+    <div class="cta-blob"></div>
+  </div>
+  <div class="container">
+    <div class="cta-card" appScrollReveal appTilt [tiltMax]="6">
+      <div class="card-glare"></div>
+      <div class="cta-eyebrow">🍴 READY TO TASTE TRANSPARENCY?</div>
+      <h2 class="cta-headline">
+        Stop guessing. <br>
+        <span class="grad-text">Start watching.</span>
+      </h2>
+      <p class="cta-sub">Be one of the first to see your food before you eat it. Browse live now — no signup required.</p>
+      <div class="cta-actions">
+        <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
+          <span class="material-symbols-rounded">restaurant</span>
+          Order Now &amp; Watch Live
+          <span class="cta-shine"></span>
+        </button>
+        <a class="cta-link">No signup needed to browse →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════ FOOTER ══ -->
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+
+  <div class="container footer-top">
+    <!-- Brand · manifesto · newsletter -->
+    <div class="footer-brand">
+      <app-logo variant="wordmark" [size]="46" [showTag]="false" class="footer-logo" />
+      <p class="footer-manifesto">
+        The food platform that turns the kitchen lights on.
+        Watch your meal made, in HD, by a chef you can name.
+      </p>
+
+      <form class="footer-news" (submit)="$event.preventDefault()">
+        <label for="news-email" class="footer-news-label">
+          <span class="footer-news-dot"></span>
+          Get one email a month — new kitchens going live.
+        </label>
+        <div class="footer-news-row">
+          <input
+            id="news-email"
+            class="footer-news-input"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            placeholder="you@kitchen.com" />
+          <button type="submit" class="footer-news-btn" appMagnetic>
+            Subscribe
+            <span class="material-symbols-rounded">arrow_forward</span>
+          </button>
+        </div>
+        <span class="footer-news-fineprint">No spam. Unsubscribe in one click.</span>
+      </form>
+    </div>
+
+    <!-- Sitemap -->
+    <nav class="footer-nav" aria-label="Footer">
+      <div class="footer-col">
+        <h4>Eat</h4>
+        <a (click)="scrollToRestaurants()" style="cursor:pointer">Browse kitchens</a>
+        <a (click)="scrollToHow()" style="cursor:pointer">How it works</a>
+        <a routerLink="/login">Track an order</a>
+        <a routerLink="/info/gift-cards">Gift cards</a>
+      </div>
+      <div class="footer-col">
+        <h4>Cook</h4>
+        <a routerLink="/info/list-kitchen">List your kitchen</a>
+        <a routerLink="/info/camera-kit">Camera kit</a>
+        <a routerLink="/info/chef-stories">Chef stories</a>
+        <a routerLink="/info/hygiene">Hygiene standards</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a routerLink="/info/about">About us</a>
+        <a routerLink="/info/press">Press kit</a>
+        <a routerLink="/info/careers">Careers</a>
+        <a routerLink="/info/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <a routerLink="/info/help">Help centre</a>
+        <a routerLink="/info/safety">Safety</a>
+        <a routerLink="/login">Sign in</a>
+        <a routerLink="/register">Create account</a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="container footer-bottom">
+    <!-- Left: copyright + live status -->
+    <div class="footer-bottom-left">
+      <div class="footer-status" aria-live="polite">
+        <span class="status-dot"></span>
+        <span><strong>All kitchens live.</strong> 6 streams active.</span>
+      </div>
+      <span class="footer-copyright">© 2026 SeeThePrep Ltd · Made in London</span>
+    </div>
+
+    <!-- Centre: legal links -->
+    <nav class="footer-legal" aria-label="Legal">
+      <a routerLink="/info/privacy">Privacy</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/info/terms">Terms</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/info/cookies">Cookies</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/info/accessibility">Accessibility</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/info/do-not-sell">Do not sell my info</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/info/sitemap">Sitemap</a>
+    </nav>
+
+    <!-- Right: socials -->
+    <div class="footer-socials">
+      <a class="social" href="https://x.com" target="_blank" rel="noopener" aria-label="X (Twitter)">𝕏</a>
+      <a class="social" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+        <span class="material-symbols-rounded">photo_camera</span>
+      </a>
+      <a class="social" href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok">
+        <span class="material-symbols-rounded">music_note</span>
+      </a>
+      <a class="social" href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
+        <span class="material-symbols-rounded">play_arrow</span>
+      </a>
+    </div>
+  </div>
+</footer>

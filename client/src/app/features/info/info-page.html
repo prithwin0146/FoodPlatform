@@ -1,0 +1,46 @@
+@if (content(); as c) {
+  <main class="info-page">
+    <div class="bg-grad"></div>
+
+    <header class="info-head">
+      <a routerLink="/" class="back-link" aria-label="Back to home">
+        <span class="material-symbols-rounded">arrow_back</span>
+        <span>Home</span>
+      </a>
+
+      <p class="eyebrow">{{ c.eyebrow }}</p>
+      <h1 class="title">{{ c.title }}</h1>
+      @if (c.updated) {
+        <p class="updated">{{ c.updated }}</p>
+      }
+      <p class="intro">{{ c.intro }}</p>
+    </header>
+
+    <article class="info-body">
+      @for (section of c.sections; track section.heading || $index) {
+        <section class="info-section">
+          @if (section.heading) {
+            <h2>{{ section.heading }}</h2>
+          }
+          <p [innerText]="section.body"></p>
+        </section>
+      }
+
+      @if (c.sections.length === 0) {
+        <section class="info-section info-empty">
+          <p>Try the <a routerLink="/info/sitemap">sitemap</a> or go <a routerLink="/">home</a>.</p>
+        </section>
+      }
+    </article>
+
+    <footer class="info-foot">
+      <a routerLink="/info/sitemap">Sitemap</a>
+      <span class="dot">·</span>
+      <a routerLink="/info/contact">Contact</a>
+      <span class="dot">·</span>
+      <a routerLink="/info/help">Help</a>
+      <span class="dot">·</span>
+      <a routerLink="/info/privacy">Privacy</a>
+    </footer>
+  </main>
+}

@@ -5,6 +5,7 @@ public class User
     public int Id { get; set; }
     public int? RestaurantId { get; set; }   // NULL for customers + admin
     public string Role { get; set; } = "Customer";  // "Admin" | "Staff" | "Customer"
+    public string Username { get; set; } = string.Empty;  // Display name shown in UI greeting
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

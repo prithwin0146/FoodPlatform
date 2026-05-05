@@ -1,123 +1,276 @@
-.header {
+/* =========================================================
+   Header — dark glass, scroll-shrink, animated brand glow.
+   SOLID: SRP — only owns nav-shell visuals.
+   ========================================================= */
+
+:host {
+  display: block;
   position: sticky;
   top: 0;
   z-index: 100;
-  height: var(--header-height);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid var(--border-light);
-  transition: all var(--duration) var(--ease-out);
+}
+
+.header {
+  position: relative;
+  height: var(--header-height, 72px);
+  background: rgba(255, 252, 247, 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(26, 20, 16, 0.06);
+  transition: background 0.35s ease,
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
+  will-change: background, box-shadow;
+}
+
+.header-scrolled {
+  background: rgba(255, 252, 247, 0.92);
+  border-bottom-color: rgba(26, 20, 16, 0.08);
+  box-shadow: 0 12px 40px -20px rgba(255, 107, 26, 0.18);
+}
+
+.header-glow {
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 122, 0, 0.6) 30%,
+    rgba(255, 61, 138, 0.6) 70%,
+    transparent 100%
+  );
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .header-inner {
   display: flex;
   align-items: center;
   height: 100%;
-  gap: 32px;
+  gap: 24px;
 }
 
+/* ─────────────── LOGO ─────────────── */
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   flex-shrink: 0;
-
-  &-icon {
-    font-size: 1.75rem;
-    animation: float 3s ease-in-out infinite;
-  }
-
-  &-text {
-    font-size: 1.25rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  outline: none;
+  &:focus-visible { outline: 2px solid var(--hero-orange, #ff7a00); outline-offset: 4px; border-radius: 8px; }
 }
 
+/* Brand wordmark renders its own typography via <app-logo>.        */
+/* Only the link wrapper (.logo) lives here; on hover, lift the mark. */
+.logo:hover app-logo { transform: translateY(-1px); }
+.logo app-logo { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); color: #1a1410; }
+
+/* ─────────────── NAV (centred pill rail) ─────────────── */
 .nav {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 1;
+  padding: 4px;
+  background: rgba(26, 20, 16, 0.035);
+  border: 1px solid rgba(26, 20, 16, 0.05);
+  border-radius: 999px;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .nav-link {
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  font-weight: 500;
-  font-size: 0.938rem;
-  color: var(--text-secondary);
-  transition: all var(--duration) var(--ease-out);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(26, 20, 16, 0.7);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+
+  .nav-icon {
+    font-size: 1.05rem;
+    opacity: 0.85;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 
   &:hover {
-    background: var(--border-light);
-    color: var(--text);
+    color: #1a1410;
+    background: rgba(255, 107, 26, 0.06);
+    .nav-icon { transform: translateY(-1px) scale(1.08); }
   }
 
   &.active {
-    color: var(--primary);
-    background: var(--primary-bg);
+    color: #1a1410;
+    background: linear-gradient(135deg, rgba(255, 107, 26, 0.18), rgba(255, 61, 138, 0.14));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 107, 26, 0.35),
+      0 6px 18px -8px rgba(255, 107, 26, 0.4);
+    .nav-icon { color: #ff6b1a; }
   }
 }
 
+/* ─────────────── ACTIONS (right) ─────────────── */
 .actions {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
+/* Cart pill */
 .cart-btn {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
-  background: var(--primary-bg);
-  transition: all var(--duration) var(--ease-spring);
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 107, 26, 0.10);
+  border: 1px solid rgba(255, 107, 26, 0.30);
+  color: #1a1410;
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.3s ease,
+              box-shadow 0.3s ease;
+
+  .cart-icon { font-size: 1.2rem; color: #ff6b1a; }
 
   &:hover {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+    background: rgba(255, 107, 26, 0.18);
+    box-shadow: 0 10px 28px -12px rgba(255, 107, 26, 0.55);
   }
-
-  .cart-icon { font-size: 1.25rem; }
 
   .cart-badge {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 20px;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
     height: 20px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    font-size: 0.688rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: scaleIn 0.3s var(--ease-spring);
+    padding: 0 6px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff7a00, #ff3d8a);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    border: 2px solid #fffcf7;
+    box-shadow: 0 4px 12px rgba(255, 61, 138, 0.4);
+    animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-.user-menu {
-  display: flex;
+/* User chip — minimal greeting only */
+.user-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.06), rgba(255, 61, 138, 0.06));
+  border: 1px solid rgba(255, 107, 26, 0.18);
+  border-radius: 999px;
+  cursor: default;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 107, 26, 0.45);
+    box-shadow: 0 8px 22px -10px rgba(255, 61, 138, 0.45);
+  }
 }
 
-.user-role {
-  text-transform: capitalize;
+.user-greeting {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1410;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1;
+  letter-spacing: -0.005em;
+
+  strong {
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff7a00, #ff3d8a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-left: 4px;
+  }
 }
 
-@media (max-width: 768px) {
+/* Logout button — dark-aware Material outlined override */
+.logout-btn.mat-mdc-outlined-button {
+  --mdc-outlined-button-outline-color: rgba(26, 20, 16, 0.18);
+  --mdc-outlined-button-label-text-color: rgba(26, 20, 16, 0.78);
+  border-radius: 999px !important;
+  height: 40px;
+  padding: 0 16px !important;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .material-symbols-rounded { font-size: 1.05rem; }
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.08) !important;
+    --mdc-outlined-button-outline-color: rgba(239, 68, 68, 0.45);
+    --mdc-outlined-button-label-text-color: #c93838;
+  }
+}
+
+/* Sign-in CTA */
+.signin-btn.mat-mdc-unelevated-button {
+  border-radius: 999px !important;
+  height: 40px;
+  padding: 0 20px !important;
+  background: linear-gradient(135deg, #ff7a00 0%, #ff3d8a 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 24px -8px rgba(255, 61, 138, 0.55);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .material-symbols-rounded { font-size: 1.05rem; }
+}
+
+/* ─────────────── RESPONSIVE ─────────────── */
+@media (max-width: 960px) {
+  .nav-link span:not(.nav-icon) { display: none; }
+  .nav-link { padding: 9px 12px; }
+  .logout-text { display: none; }
+  .logout-btn.mat-mdc-outlined-button { padding: 0 12px !important; }
+}
+
+@media (max-width: 720px) {
   .nav { display: none; }
-  .user-role { display: none; }
+  .user-chip { padding: 4px; }
+  .header-inner { gap: 12px; }
+}
+
+
+@keyframes badgePop {
+  0%   { transform: scale(0) rotate(-90deg); }
+  60%  { transform: scale(1.25) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
 }

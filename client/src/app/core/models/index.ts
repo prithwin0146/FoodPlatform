@@ -7,6 +7,7 @@ export interface Restaurant {
   deliveryRadiusMiles: number;
   hygieneRating: number;
   isActive: boolean;
+  imageUrl?: string | null;
 }
 
 export interface RestaurantDetail extends Restaurant {
@@ -37,6 +38,7 @@ export interface MenuItem {
   allergens: string | null;
   dietaryTags: string | null;
   isAvailable: boolean;
+  imageUrl?: string | null;
 }
 
 // === Order ===
@@ -79,6 +81,7 @@ export type OrderStatus =
 export interface AuthResponse {
   token: string;
   role: 'Admin' | 'Staff' | 'Customer';
+  username: string;
   userId: number;
   restaurantId: number | null;
 }
@@ -89,6 +92,7 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  username: string;
   email: string;
   password: string;
 }
@@ -124,4 +128,21 @@ export interface UpdateStatusRequest {
 
 export interface DisputeRequest {
   notes: string;
+}
+
+/**
+ * Canonical order status progression for the happy path.
+ * (OCP: add a new status here once — staff dashboard, order-tracking and any future
+ *  component that needs the flow picks it up automatically)
+ */
+export const ORDER_STATUS_FLOW: OrderStatus[] = [
+  'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered',
+];
+
+/** Returns the next status in the happy-path flow, or null if at the end. */
+export function nextOrderStatus(current: OrderStatus): OrderStatus | null {
+  const idx = ORDER_STATUS_FLOW.indexOf(current);
+  return idx >= 0 && idx < ORDER_STATUS_FLOW.length - 1
+    ? ORDER_STATUS_FLOW[idx + 1]
+    : null;
 }

@@ -46,5 +46,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/admin-panel/admin-panel').then((m) => m.AdminPanel),
   },
+  {
+    path: 'info/:slug',
+    loadComponent: () =>
+      import('./features/info/info-page').then((m) => m.InfoPage),
+  },
   { path: '**', redirectTo: '' },
 ];

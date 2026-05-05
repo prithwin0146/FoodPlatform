@@ -1,46 +1,59 @@
 import { Component, OnInit, signal, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { OrderService } from '../../../core/services/order.service';
+import { Subscription } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
 import { ToastService } from '../../../core/services/toast.service';
-import { Order, OrderStatus } from '../../../core/models';
+import { OrderService } from '../../../core/services/order.service';
+import { OrderPollingService } from '../../../core/services/order-polling.service';
+import { Order, ORDER_STATUS_FLOW, OrderStatus } from '../../../core/models';
+import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 
+/**
+ * (SRP: polling logic extracted to OrderPollingService)
+ * (SRP: status emoji/label logic extracted to pipes)
+ * (OCP: ORDER_STATUS_FLOW is shared — no hardcoded array here)
+ */
 @Component({
   selector: 'app-order-tracking',
-  imports: [CurrencyPipe, DatePipe, RouterLink],
+  imports: [
+    CurrencyPipe, DatePipe, RouterLink,
+    OrderStatusEmojiPipe, OrderStatusLabelPipe,
+    MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
+    ScrollRevealDirective,
+  ],
   templateUrl: './order-tracking.html',
   styleUrl: './order-tracking.scss',
+  providers: [OrderPollingService],
 })
 export class OrderTracking implements OnInit, OnDestroy {
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
-  private pollInterval: any;
+  readonly statusSteps = ORDER_STATUS_FLOW;
 
-  readonly statusSteps: OrderStatus[] = [
-    'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered',
-  ];
+  private _pollSub?: Subscription;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly orderService: OrderService,
+    private readonly polling: OrderPollingService,
     private readonly toast: ToastService
   ) {}
 
   ngOnInit(): void {
-    this.loadOrder();
-    this.pollInterval = setInterval(() => this.loadOrder(), 10000);
-  }
-
-  ngOnDestroy(): void {
-    clearInterval(this.pollInterval);
-  }
-
-  private loadOrder(): void {
     const id = +this.route.snapshot.params['id'];
-    this.orderService.get(id).subscribe({
+    this._pollSub = this.polling.poll(id).subscribe({
       next: (o) => { this.order.set(o); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
+  }
+
+  ngOnDestroy(): void {
+    this._pollSub?.unsubscribe();
   }
 
   getStepIndex(status: OrderStatus): number {
@@ -58,28 +71,20 @@ export class OrderTracking implements OnInit, OnDestroy {
     return this.order()?.status === step;
   }
 
-  getStatusEmoji(status: OrderStatus): string {
-    const map: Record<string, string> = {
-      Pending: '⏳', Accepted: '✅', Preparing: '👨‍🍳', Cooking: '🔥',
-      Packed: '📦', OutForDelivery: '🚴', Delivered: '🎉',
-      Rejected: '❌', Cancelled: '🚫',
-    };
-    return map[status] ?? '📋';
-  }
-
-  getStatusLabel(status: string): string {
-    return status.replace(/([A-Z])/g, ' $1').trim();
+  get progressValue(): number {
+    const o = this.order();
+    if (!o) return 0;
+    const idx = this.getStepIndex(o.status as OrderStatus);
+    return idx < 0 ? 0 : Math.round((idx / (this.statusSteps.length - 1)) * 100);
   }
 
   cancelOrder(): void {
     const o = this.order();
     if (!o) return;
     this.orderService.cancel(o.id).subscribe({
-      next: () => {
-        this.toast.success('Order cancelled');
-        this.loadOrder();
-      },
-      error: (err) => this.toast.error(err.error?.message ?? 'Cannot cancel'),
+      next: () => this.toast.success('Order cancelled'),
+      error: (err: { error?: { message?: string } }) =>
+        this.toast.error(err.error?.message ?? 'Cannot cancel'),
     });
   }
 

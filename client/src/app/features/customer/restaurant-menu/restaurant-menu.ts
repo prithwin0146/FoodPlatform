@@ -1,14 +1,36 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { MenuCategory, MenuItem, RestaurantDetail } from '../../../core/models';
+import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
+import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
+import { DietaryIconPipe } from '../../../shared/pipes/order-status.pipe';
+import { TiltDirective } from '../../../shared/directives/tilt.directive';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 
+/**
+ * (SRP: display helpers extracted to pipes; forkJoin ensures atomic data loading)
+ */
 @Component({
   selector: 'app-restaurant-menu',
-  imports: [CurrencyPipe, RouterLink],
+  imports: [
+    CurrencyPipe, RouterLink,
+    HygieneStarsPipe, MenuItemEmojiPipe, DietaryIconPipe,
+    MatButtonModule, MatChipsModule, MatRippleModule,
+    MatProgressSpinnerModule, MatTooltipModule, MatBadgeModule,
+    TiltDirective, ScrollRevealDirective, MagneticDirective,
+  ],
   templateUrl: './restaurant-menu.html',
   styleUrl: './restaurant-menu.scss',
 })
@@ -17,10 +39,20 @@ export class RestaurantMenu implements OnInit {
   readonly categories = signal<MenuCategory[]>([]);
   readonly loading = signal(true);
   readonly activeCategory = signal<number | null>(null);
+  readonly searchQuery = signal('');
+  readonly liveModalOpen = signal(false);
 
   readonly availableCategories = computed(() =>
     this.categories().filter((c) => c.items.some((i) => i.isAvailable))
   );
+
+  readonly filteredCategories = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return this.availableCategories();
+    return this.availableCategories()
+      .map((c) => ({ ...c, items: c.items.filter((i) => i.isAvailable && i.name.toLowerCase().includes(q)) }))
+      .filter((c) => c.items.length > 0);
+  });
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -31,13 +63,14 @@ export class RestaurantMenu implements OnInit {
 
   ngOnInit(): void {
     const id = +this.route.snapshot.params['id'];
-    this.restaurantService.get(id).subscribe({
-      next: (r) => this.restaurant.set(r),
-    });
-    this.restaurantService.getMenu(id).subscribe({
-      next: (cats) => {
-        this.categories.set(cats);
-        if (cats.length) this.activeCategory.set(cats[0].id);
+    forkJoin({
+      restaurant: this.restaurantService.get(id),
+      menu: this.restaurantService.getMenu(id),
+    }).subscribe({
+      next: ({ restaurant, menu }) => {
+        this.restaurant.set(restaurant);
+        this.categories.set(menu);
+        if (menu.length) this.activeCategory.set(menu[0].id);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -58,22 +91,5 @@ export class RestaurantMenu implements OnInit {
 
   removeFromCart(item: MenuItem): void {
     this.cart.removeItem(item.id);
-  }
-
-  getItemEmoji(name: string): string {
-    const emojis = ['🍛', '🥗', '🍗', '🥘', '🍲', '🌶️', '🧀', '🥙', '🍰', '☕'];
-    const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    return emojis[hash % emojis.length];
-  }
-
-  getDietaryIcon(tag: string): string {
-    const map: Record<string, string> = {
-      vegetarian: '🥬', vegan: '🌱', 'gluten-free': '🌾', halal: '☪️', spicy: '🌶️',
-    };
-    return map[tag.toLowerCase().trim()] ?? '🏷️';
-  }
-
-  getHygieneStars(rating: number): string {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 }

@@ -75,6 +75,146 @@ namespace FoodPlatform.Api.Migrations
                             Name = "Drinks",
                             RestaurantId = 1,
                             SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Starters",
+                            RestaurantId = 2,
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Mains",
+                            RestaurantId = 2,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Sides",
+                            RestaurantId = 2,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Drinks",
+                            RestaurantId = 2,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Starters",
+                            RestaurantId = 3,
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "Mains",
+                            RestaurantId = 3,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Sides",
+                            RestaurantId = 3,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "Drinks",
+                            RestaurantId = 3,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "Starters",
+                            RestaurantId = 4,
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "Mains",
+                            RestaurantId = 4,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "Sides",
+                            RestaurantId = 4,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "Drinks",
+                            RestaurantId = 4,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "Starters",
+                            RestaurantId = 5,
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "Mains",
+                            RestaurantId = 5,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "Sides",
+                            RestaurantId = 5,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "Drinks",
+                            RestaurantId = 5,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "Starters",
+                            RestaurantId = 6,
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "Mains",
+                            RestaurantId = 6,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "Sides",
+                            RestaurantId = 6,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "Drinks",
+                            RestaurantId = 6,
+                            SortOrder = 3
                         });
                 });
 
@@ -105,6 +245,9 @@ namespace FoodPlatform.Api.Migrations
                     b.Property<string>("DietaryTags")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
@@ -222,6 +365,489 @@ namespace FoodPlatform.Api.Migrations
                             Name = "Mango Lassi",
                             Price = 3.50m,
                             RestaurantId = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Allergens = "[\"gluten\"]",
+                            CategoryId = 5,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Toasted bread, tomato, basil",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Bruschetta",
+                            Price = 5.50m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 5,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Fried risotto balls (3)",
+                            IsAvailable = true,
+                            Name = "Arancini",
+                            Price = 6.50m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 6,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Tomato, mozzarella, basil",
+                            DietaryTags = "[\"vegetarian\"]",
+                            IsAvailable = true,
+                            Name = "Margherita Pizza",
+                            Price = 10.95m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 6,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Spicy pepperoni, mozzarella",
+                            IsAvailable = true,
+                            Name = "Pepperoni Pizza",
+                            Price = 12.95m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Allergens = "[\"gluten\",\"milk\",\"egg\"]",
+                            CategoryId = 6,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Egg, pancetta, pecorino",
+                            IsAvailable = true,
+                            Name = "Spaghetti Carbonara",
+                            Price = 12.50m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 7,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsAvailable = true,
+                            Name = "Garlic Bread",
+                            Price = 4.00m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Allergens = "[\"egg\",\"fish\",\"milk\"]",
+                            CategoryId = 7,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsAvailable = true,
+                            Name = "Caesar Salad",
+                            Price = 7.50m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CategoryId = 8,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "San Pellegrino",
+                            Price = 2.95m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Allergens = "[\"soy\"]",
+                            CategoryId = 9,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Steamed soy beans, sea salt",
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Edamame",
+                            Price = 4.25m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Allergens = "[\"soy\"]",
+                            CategoryId = 9,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Tofu, wakame, spring onion",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Miso Soup",
+                            Price = 3.50m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Allergens = "[\"fish\"]",
+                            CategoryId = 10,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Fresh sliced salmon",
+                            DietaryTags = "[\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Salmon Sashimi (8pc)",
+                            Price = 14.50m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Allergens = "[\"fish\",\"soy\",\"sesame\"]",
+                            CategoryId = 10,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Eel, avocado, cucumber",
+                            IsAvailable = true,
+                            Name = "Dragon Roll",
+                            Price = 13.95m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Allergens = "[\"gluten\",\"egg\"]",
+                            CategoryId = 10,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Crispy chicken, Japanese curry",
+                            IsAvailable = true,
+                            Name = "Chicken Katsu Curry",
+                            Price = 11.95m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CategoryId = 11,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Steamed Rice",
+                            Price = 2.50m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Allergens = "[\"gluten\",\"soy\"]",
+                            CategoryId = 11,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Pork dumplings",
+                            IsAvailable = true,
+                            Name = "Gyoza (5pc)",
+                            Price = 5.95m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CategoryId = 12,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Green Tea",
+                            Price = 2.25m,
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Allergens = "[\"milk\"]",
+                            CategoryId = 13,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Spicy chicken wings, blue cheese",
+                            IsAvailable = true,
+                            Name = "Buffalo Wings (6)",
+                            Price = 6.95m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 13,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegetarian\"]",
+                            IsAvailable = true,
+                            Name = "Mozzarella Sticks",
+                            Price = 5.50m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 14,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Beef, cheddar, lettuce, pickle",
+                            IsAvailable = true,
+                            Name = "Classic Cheeseburger",
+                            Price = 9.95m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Allergens = "[\"gluten\",\"milk\"]",
+                            CategoryId = 14,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Beef, bacon, BBQ, onion ring",
+                            IsAvailable = true,
+                            Name = "BBQ Bacon Burger",
+                            Price = 11.50m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Allergens = "[\"gluten\",\"soy\"]",
+                            CategoryId = 14,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Plant patty, vegan cheese",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Beyond Vegan Burger",
+                            Price = 10.95m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Allergens = "[\"milk\"]",
+                            CategoryId = 15,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cheese, bacon, jalapeños",
+                            IsAvailable = true,
+                            Name = "Loaded Fries",
+                            Price = 5.50m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Allergens = "[\"gluten\"]",
+                            CategoryId = 15,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Onion Rings",
+                            Price = 3.95m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Allergens = "[\"milk\"]",
+                            CategoryId = 16,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsAvailable = true,
+                            Name = "Chocolate Milkshake",
+                            Price = 4.50m,
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Allergens = "[\"gluten\",\"sesame\"]",
+                            CategoryId = 17,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Chickpea hummus, warm pita",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Hummus & Pita",
+                            Price = 4.95m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Allergens = "[\"gluten\"]",
+                            CategoryId = 17,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Sourdough, avo, chilli flakes",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Avocado Toast",
+                            Price = 6.50m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Allergens = "[\"sesame\"]",
+                            CategoryId = 18,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Quinoa, kale, beetroot, tahini",
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Quinoa Buddha Bowl",
+                            Price = 10.95m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Allergens = "[\"fish\",\"soy\"]",
+                            CategoryId = 18,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Salmon, brown rice, edamame",
+                            DietaryTags = "[\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Grilled Salmon Bowl",
+                            Price = 13.50m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Allergens = "[\"gluten\",\"sesame\"]",
+                            CategoryId = 18,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Falafel, salad, tahini wrap",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Falafel Wrap",
+                            Price = 8.95m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 38,
+                            CategoryId = 19,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Sweet Potato Fries",
+                            Price = 4.25m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CategoryId = 19,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Side Salad",
+                            Price = 3.50m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CategoryId = 20,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Apple, ginger, lemon",
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Cold-Pressed Juice",
+                            Price = 4.95m,
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Allergens = "[\"gluten\",\"soy\"]",
+                            CategoryId = 21,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Vegetable spring rolls",
+                            DietaryTags = "[\"vegan\"]",
+                            IsAvailable = true,
+                            Name = "Spring Rolls (4)",
+                            Price = 4.50m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Allergens = "[\"gluten\",\"soy\",\"sesame\"]",
+                            CategoryId = 21,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Quarter duck, pancakes, hoisin",
+                            IsAvailable = true,
+                            Name = "Crispy Duck Pancakes",
+                            Price = 12.95m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Allergens = "[\"gluten\",\"egg\"]",
+                            CategoryId = 22,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Battered chicken, peppers",
+                            IsAvailable = true,
+                            Name = "Sweet & Sour Chicken",
+                            Price = 9.95m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Allergens = "[\"peanut\",\"soy\",\"gluten\"]",
+                            CategoryId = 22,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Beef, peanuts, Szechuan",
+                            IsAvailable = true,
+                            Name = "Kung Pao Beef",
+                            Price = 11.50m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Allergens = "[\"soy\",\"gluten\"]",
+                            CategoryId = 22,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Soft tofu, chilli bean sauce",
+                            DietaryTags = "[\"vegetarian\"]",
+                            IsAvailable = true,
+                            Name = "Mapo Tofu",
+                            Price = 9.50m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Allergens = "[\"egg\",\"soy\"]",
+                            CategoryId = 23,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsAvailable = true,
+                            Name = "Egg Fried Rice",
+                            Price = 3.50m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Allergens = "[\"egg\",\"soy\",\"shellfish\"]",
+                            CategoryId = 23,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Curry vermicelli noodles",
+                            IsAvailable = true,
+                            Name = "Singapore Noodles",
+                            Price = 8.95m,
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 48,
+                            CategoryId = 24,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DietaryTags = "[\"vegan\",\"gluten-free\"]",
+                            IsAvailable = true,
+                            Name = "Jasmine Tea",
+                            Price = 2.00m,
+                            RestaurantId = 6
                         });
                 });
 
@@ -366,6 +992,9 @@ namespace FoodPlatform.Api.Migrations
                     b.Property<int>("HygieneRating")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -393,6 +1022,61 @@ namespace FoodPlatform.Api.Migrations
                             HygieneRating = 5,
                             IsActive = true,
                             Name = "Spice Garden"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "18 Soho Square, London",
+                            BasePostcode = "W1D 3QL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DeliveryRadiusMiles = 2.5,
+                            HygieneRating = 5,
+                            IsActive = true,
+                            Name = "Bella Napoli"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "7 Shoreditch High Street, London",
+                            BasePostcode = "E1 6JE",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DeliveryRadiusMiles = 4.0,
+                            HygieneRating = 5,
+                            IsActive = true,
+                            Name = "Sakura Sushi"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Address = "55 Camden High Street, London",
+                            BasePostcode = "NW1 7JH",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DeliveryRadiusMiles = 3.5,
+                            HygieneRating = 4,
+                            IsActive = true,
+                            Name = "The Burger Joint"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Address = "12 Notting Hill Gate, London",
+                            BasePostcode = "W11 3HR",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DeliveryRadiusMiles = 3.0,
+                            HygieneRating = 5,
+                            IsActive = true,
+                            Name = "Green Bowl"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Address = "88 Gerrard Street, Chinatown, London",
+                            BasePostcode = "W1D 5PT",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DeliveryRadiusMiles = 2.5,
+                            HygieneRating = 4,
+                            IsActive = true,
+                            Name = "Dragon Wok"
                         });
                 });
 
@@ -488,6 +1172,321 @@ namespace FoodPlatform.Api.Migrations
                             IsClosed = false,
                             OpenTime = new TimeSpan(0, 11, 0, 0, 0),
                             RestaurantId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 0,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 1,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 2,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 3,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 4,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 5,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 6,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 0,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 1,
+                            IsClosed = true,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 2,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 3,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 4,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 5,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CloseTime = new TimeSpan(0, 22, 0, 0, 0),
+                            DayOfWeek = 6,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 0,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 1,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 2,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 25,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 3,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 26,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 4,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 5,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CloseTime = new TimeSpan(0, 23, 59, 0, 0),
+                            DayOfWeek = 6,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 11, 0, 0, 0),
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 0,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 1,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 31,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 2,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 32,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 3,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 33,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 4,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 34,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 5,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 35,
+                            CloseTime = new TimeSpan(0, 21, 0, 0, 0),
+                            DayOfWeek = 6,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 9, 0, 0, 0),
+                            RestaurantId = 5
+                        },
+                        new
+                        {
+                            Id = 36,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 0,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 37,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 1,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 38,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 2,
+                            IsClosed = true,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 3,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 4,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 41,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 5,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
+                        },
+                        new
+                        {
+                            Id = 42,
+                            CloseTime = new TimeSpan(0, 23, 0, 0, 0),
+                            DayOfWeek = 6,
+                            IsClosed = false,
+                            OpenTime = new TimeSpan(0, 12, 0, 0, 0),
+                            RestaurantId = 6
                         });
                 });
 
@@ -522,12 +1521,20 @@ namespace FoodPlatform.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.HasIndex("RestaurantId");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Users");
 
@@ -538,7 +1545,8 @@ namespace FoodPlatform.Api.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@foodplatform.co.uk",
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
-                            Role = "Admin"
+                            Role = "Admin",
+                            Username = "admin"
                         },
                         new
                         {
@@ -547,7 +1555,8 @@ namespace FoodPlatform.Api.Migrations
                             Email = "staff@spicegarden.co.uk",
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 1,
-                            Role = "Staff"
+                            Role = "Staff",
+                            Username = "spicegarden"
                         },
                         new
                         {
@@ -555,7 +1564,58 @@ namespace FoodPlatform.Api.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "customer@example.com",
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
-                            Role = "Customer"
+                            Role = "Customer",
+                            Username = "demo"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "staff@bellanapoli.co.uk",
+                            PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
+                            RestaurantId = 2,
+                            Role = "Staff",
+                            Username = "bellanapoli"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "staff@sakurasushi.co.uk",
+                            PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
+                            RestaurantId = 3,
+                            Role = "Staff",
+                            Username = "sakurasushi"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "staff@burgerjoint.co.uk",
+                            PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
+                            RestaurantId = 4,
+                            Role = "Staff",
+                            Username = "burgerjoint"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "staff@greenbowl.co.uk",
+                            PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
+                            RestaurantId = 5,
+                            Role = "Staff",
+                            Username = "greenbowl"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "staff@dragonwok.co.uk",
+                            PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
+                            RestaurantId = 6,
+                            Role = "Staff",
+                            Username = "dragonwok"
                         });
                 });
 

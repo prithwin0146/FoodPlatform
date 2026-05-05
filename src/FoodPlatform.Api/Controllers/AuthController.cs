@@ -1,5 +1,5 @@
 using FoodPlatform.Api.DTOs;
-using FoodPlatform.Api.Services;
+using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodPlatform.Api.Controllers;
@@ -8,9 +8,10 @@ namespace FoodPlatform.Api.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _auth;
+    private readonly IAuthService _auth;
 
-    public AuthController(AuthService auth) => _auth = auth;
+    // DIP: depends on IAuthService abstraction, not the concrete AuthService
+    public AuthController(IAuthService auth) => _auth = auth;
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)

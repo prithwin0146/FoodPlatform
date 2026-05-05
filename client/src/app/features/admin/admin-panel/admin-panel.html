@@ -1,76 +1,72 @@
-<div class="admin-page">
-  <div class="container">
-    <h1 class="page-title animate-fade-in">👑 Admin Panel</h1>
+<div class="admin-shell">
 
-    <div class="tabs">
-      <button class="tab" [class.active]="tab() === 'orders'" (click)="setTab('orders')">
-        📦 Orders ({{ orders().length }})
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="tab() === 'orders'" (click)="setTab('orders')">
+        <span class="material-symbols-rounded">receipt_long</span>
+        <span>All Orders</span>
       </button>
-      <button class="tab" [class.active]="tab() === 'disputes'" (click)="setTab('disputes')">
-        ⚠️ Disputes ({{ disputes().length }})
+      <button class="nav-item" [class.active]="tab() === 'disputes'" (click)="setTab('disputes')">
+        <span class="material-symbols-rounded">report_problem</span>
+        <span>Disputes</span>
       </button>
-      <button class="tab" [class.active]="tab() === 'restaurants'" (click)="setTab('restaurants')">
-        🏪 Restaurants ({{ restaurants().length }})
+      <button class="nav-item" [class.active]="tab() === 'restaurants'" (click)="setTab('restaurants')">
+        <span class="material-symbols-rounded">storefront</span>
+        <span>Restaurants</span>
       </button>
+      <button class="nav-item" [class.active]="tab() === 'menu'" (click)="setTab('menu')">
+        <span class="material-symbols-rounded">restaurant_menu</span>
+        <span>Menu Items</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="material-symbols-rounded">shield_person</span>
+      <span>Platform Admin</span>
     </div>
+  </aside>
 
-    @if (tab() === 'orders') {
-      <div class="table-container card">
-        <table class="data-table">
-          <thead>
-            <tr><th>#</th><th>Status</th><th>Total</th><th>Date</th><th>Items</th></tr>
-          </thead>
-          <tbody>
-            @for (o of orders(); track o.id) {
-              <tr>
-                <td class="fw-700">{{ o.id }}</td>
-                <td><span class="status-pill" [class]="'status-' + o.status.toLowerCase()">{{ o.status }}</span></td>
-                <td>{{ o.totalAmount | currency:'GBP' }}</td>
-                <td>{{ o.createdAt | date:'short' }}</td>
-                <td>{{ o.items.length }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+  <!-- ── Main content ──────────────────────────────────────────── -->
+  <main class="admin-main">
 
-    @if (tab() === 'disputes') {
-      @if (disputes().length === 0) {
-        <div class="empty-state card"><p>No disputed orders 🎉</p></div>
-      } @else {
-        <div class="disputes-grid">
-          @for (o of disputes(); track o.id) {
-            <div class="dispute-card card">
-              <h3>Order #{{ o.id }}</h3>
-              <p class="dispute-notes">{{ o.disputeNotes }}</p>
-              <p>Total: {{ o.totalAmount | currency:'GBP' }}</p>
-              <button class="btn btn-sm btn-primary" (click)="refund(o.id)">Issue Refund</button>
-            </div>
-          }
-        </div>
-      }
-    }
-
-    @if (tab() === 'restaurants') {
-      <div class="restaurants-grid">
-        @for (r of restaurants(); track r.id) {
-          <div class="restaurant-card card">
-            <div class="r-header">
-              <h3>{{ r.name }}</h3>
-              <span class="active-badge" [class.active]="r.isActive">
-                {{ r.isActive ? '🟢 Active' : '🔴 Inactive' }}
-              </span>
-            </div>
-            <p class="r-address">{{ r.address }}</p>
-            <p class="r-hygiene">Hygiene: {{ '★'.repeat(r.hygieneRating) }}</p>
-            <button class="btn btn-sm" [class.btn-danger]="r.isActive" [class.btn-success]="!r.isActive"
-              (click)="toggleRestaurant(r.id)">
-              {{ r.isActive ? 'Deactivate' : 'Activate' }}
-            </button>
-          </div>
+    <header class="admin-topbar">
+      <div class="topbar-title">
+        @if (tab() === 'orders') {
+          <span class="material-symbols-rounded">receipt_long</span>
+          <h1>All Orders</h1>
+        }
+        @if (tab() === 'disputes') {
+          <span class="material-symbols-rounded">report_problem</span>
+          <h1>Disputes</h1>
+        }
+        @if (tab() === 'restaurants') {
+          <span class="material-symbols-rounded">storefront</span>
+          <h1>Restaurants</h1>
+        }
+        @if (tab() === 'menu') {
+          <span class="material-symbols-rounded">restaurant_menu</span>
+          <h1>Menu Items</h1>
         }
       </div>
-    }
-  </div>
+    </header>
+
+    <div class="admin-content">
+      @if (tab() === 'orders') {
+        <app-admin-orders-tab />
+      }
+      @if (tab() === 'disputes') {
+        <app-admin-disputes-tab />
+      }
+      @if (tab() === 'restaurants') {
+        <app-admin-restaurants-tab />
+      }
+      @if (tab() === 'menu') {
+        <app-admin-menu-tab />
+      }
+    </div>
+
+  </main>
 </div>

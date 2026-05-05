@@ -1,38 +1,152 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { Restaurant } from '../../../core/models';
+import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
+import { HygieneLabelPipe } from '../../../shared/pipes/order-status.pipe';
+import { RestaurantEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
+import { TiltDirective } from '../../../shared/directives/tilt.directive';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { Logo } from '../../../shared/components/logo/logo';
+
+interface HowStep {
+  num: string; title: string; copy: string; icon: string;
+}
+
+/** A single "promise" panel in the WHY section — editorial layout, no animation gimmicks. */
+interface Promise {
+  num: string;
+  title: string;
+  copy: string;
+  metric: string;
+  metricLabel: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-restaurant-list',
-  imports: [RouterLink],
+  imports: [
+    RouterLink,
+    HygieneStarsPipe, HygieneLabelPipe, RestaurantEmojiPipe,
+    TiltDirective, ScrollRevealDirective, MagneticDirective,
+    Logo,
+    MatFormFieldModule, MatInputModule, MatChipsModule,
+    MatProgressSpinnerModule, MatRippleModule, MatTooltipModule, MatButtonModule,
+  ],
   templateUrl: './restaurant-list.html',
   styleUrl: './restaurant-list.scss',
 })
-export class RestaurantList implements OnInit {
+export class RestaurantList implements OnInit, AfterViewInit {
+  @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
+
   readonly restaurants = signal<Restaurant[]>([]);
   readonly loading = signal(true);
   readonly searchQuery = signal('');
+
+  /** Hero scroll progress (0 → 1) for header colour shift */
+  readonly scrollY = signal(0);
+
+  /** Section: How it works */
+  readonly howSteps: HowStep[] = [
+    { num: '01', title: 'Pick a kitchen', copy: 'Browse verified kitchens. No filters, no tricks — just real food, made by real chefs.',                       icon: 'restaurant_menu' },
+    { num: '02', title: 'Watch it cook',  copy: 'The moment you order, the camera goes live. Watch every step from prep to plate, in glorious HD.',           icon: 'videocam'         },
+    { num: '03', title: 'Track & enjoy',  copy: 'Follow your rider in real-time, leave a tip for the chef, and rate the prep. Total transparency.',           icon: 'delivery_dining'  },
+  ];
+
+  /** Section: Why · four honest promises (editorial layout) */
+  readonly promises: Promise[] = [
+    {
+      num: '01',
+      title: 'The camera is always on.',
+      copy: 'Every order, every kitchen. If a chef won\'t turn the camera on, they don\'t cook on SeeThePrep. No filtered angles, no after-the-fact photos — just the actual minute-by-minute prep of your meal in HD.',
+      metric: '100%',
+      metricLabel: 'orders streamed live',
+      icon: 'videocam',
+    },
+    {
+      num: '02',
+      title: 'Five-star hygiene, or no listing.',
+      copy: 'We only onboard kitchens with a 5★ Food Standards Agency rating. We re-verify quarterly and cross-check with council records. Drop below five and you drop off the platform — no warnings, no second chances.',
+      metric: '5★',
+      metricLabel: 'FSA minimum',
+      icon: 'verified',
+    },
+    {
+      num: '03',
+      title: 'Allergens, on the record.',
+      copy: 'Watch every ingredient go in the pan. Tag your allergy when you order and the prep camera flags the moment cross-contact risk appears. The receipt is a video, not a checkbox.',
+      metric: '0',
+      metricLabel: 'hidden ingredients',
+      icon: 'science',
+    },
+    {
+      num: '04',
+      title: 'Tips go to chefs. All of them.',
+      copy: 'Every penny you tip goes to the kitchen that cooked your food — paid out the same week, with a receipt. We never touch it, never skim it, never fold it into a "service fee".',
+      metric: '100%',
+      metricLabel: 'to the chef\'s pocket',
+      icon: 'favorite',
+    },
+  ];
+
 
   constructor(private readonly restaurantService: RestaurantService) {}
 
   ngOnInit(): void {
     this.restaurantService.list().subscribe({
-      next: (data) => {
-        this.restaurants.set(data);
-        this.loading.set(false);
-      },
+      next: (data) => { this.restaurants.set(data); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
   }
 
-  filteredRestaurants() {
+  ngAfterViewInit(): void {
+    const video = this.heroVideoRef?.nativeElement;
+    if (!video) return;
+
+    // Force muted (some browsers carry over previous mute state)
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    video.setAttribute('muted', '');
+    video.playsInline = true;
+
+    const tryPlay = () => video.play().catch(() => undefined);
+
+    // Try immediately, on canplay, on loadeddata
+    tryPlay();
+    video.addEventListener('canplay', tryPlay, { once: false });
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+
+    // Retry on first user interaction (handles strict autoplay policies)
+    const userKick = () => {
+      tryPlay();
+      window.removeEventListener('pointerdown', userKick);
+      window.removeEventListener('touchstart', userKick);
+      window.removeEventListener('keydown', userKick);
+    };
+    window.addEventListener('pointerdown', userKick, { once: true });
+    window.addEventListener('touchstart', userKick, { once: true });
+    window.addEventListener('keydown', userKick, { once: true });
+
+    // If tab regains focus, ensure still playing
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && video.paused) tryPlay();
+    });
+  }
+
+  filteredRestaurants(): Restaurant[] {
     const q = this.searchQuery().toLowerCase();
     if (!q) return this.restaurants();
     return this.restaurants().filter(
-      (r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.address.toLowerCase().includes(q)
+      (r) => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q)
     );
   }
 
@@ -40,20 +154,16 @@ export class RestaurantList implements OnInit {
     this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
-  getHygieneStars(rating: number): string {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.scrollY.set(window.scrollY);
   }
 
-  getHygieneLabel(rating: number): string {
-    if (rating === 5) return 'Excellent';
-    if (rating === 4) return 'Good';
-    if (rating === 3) return 'Fair';
-    return 'Needs Improvement';
+  scrollToRestaurants(): void {
+    document.getElementById('restaurants-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  getRestaurantEmoji(name: string): string {
-    const emojis = ['🍛', '🍕', '🍔', '🌮', '🍜', '🍣', '🥘', '🍲'];
-    const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    return emojis[hash % emojis.length];
+  scrollToHow(): void {
+    document.getElementById('how-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }

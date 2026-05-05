@@ -1,0 +1,192 @@
+using System.Text.RegularExpressions;
+using FoodPlatform.Api.Data;
+using FoodPlatform.Api.Data.Entities;
+using FoodPlatform.Api.Domain;
+using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace FoodPlatform.Api.Services;
+
+/// <summary>
+/// Orchestrates all order-lifecycle operations.
+/// (SRP: all order business logic in one place — postcode validation, hours checking,
+///  price snapshotting, state machine transitions, dispute handling)
+/// (OCP: delegates status transitions to OrderStatusMachine — no hardcoded arrays here)
+/// (DIP: controllers depend on IOrderService, not DbContext)
+/// </summary>
+public class OrderService : IOrderService
+{
+    private static readonly Regex PostcodeRegex =
+        new(@"^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private readonly FoodPlatformDbContext _db;
+
+    public OrderService(FoodPlatformDbContext db) => _db = db;
+
+    public async Task<ServiceResult<OrderDto>> PlaceOrderAsync(PlaceOrderRequest request, int userId)
+    {
+        if (!PostcodeRegex.IsMatch(request.DeliveryPostcode))
+            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Invalid UK postcode");
+
+        var restaurant = await _db.Restaurants
+            .Include(r => r.Hours)
+            .FirstOrDefaultAsync(r => r.Id == request.RestaurantId && r.IsActive);
+
+        if (restaurant == null)
+            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Restaurant not found or inactive");
+
+        var now = DateTime.UtcNow;
+        var todayHours = restaurant.Hours.FirstOrDefault(h => h.DayOfWeek == (int)now.DayOfWeek);
+        if (todayHours == null || todayHours.IsClosed ||
+            now.TimeOfDay < todayHours.OpenTime || now.TimeOfDay > todayHours.CloseTime)
+            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Restaurant is currently closed");
+
+        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
+        var menuItems = await _db.MenuItems
+            .Where(m => menuItemIds.Contains(m.Id) && m.RestaurantId == request.RestaurantId && m.IsAvailable)
+            .ToDictionaryAsync(m => m.Id);
+
+        if (menuItems.Count != menuItemIds.Distinct().Count())
+            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "One or more items are unavailable");
+
+        decimal total = 0;
+        var orderItems = new List<OrderItem>();
+        foreach (var item in request.Items)
+        {
+            var menuItem = menuItems[item.MenuItemId];
+            total += menuItem.Price * item.Quantity;
+            orderItems.Add(new OrderItem
+            {
+                MenuItemId = item.MenuItemId,
+                Quantity = item.Quantity,
+                UnitPrice = menuItem.Price  // snapshot price at time of order
+            });
+        }
+
+        // TODO Phase 2: Real Stripe payment with idempotency key
+        var order = new Order
+        {
+            RestaurantId = request.RestaurantId,
+            UserId = userId,
+            Status = "Pending",
+            TotalAmount = total,
+            IdempotencyKey = request.IdempotencyKey,
+            DeliveryAddressLine1 = request.DeliveryAddressLine1,
+            DeliveryCity = request.DeliveryCity,
+            DeliveryPostcode = request.DeliveryPostcode.ToUpperInvariant(),
+            CancellableUntil = DateTime.UtcNow.AddMinutes(2),
+            StripePaymentIntentId = "mock_pi_" + Guid.NewGuid().ToString("N")[..16],
+            Items = orderItems
+        };
+
+        _db.Orders.Add(order);
+        await _db.SaveChangesAsync();
+        return ServiceResult<OrderDto>.Ok(MapToDto(order));
+    }
+
+    public async Task<OrderDto?> GetAsync(int id)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .FirstOrDefaultAsync(o => o.Id == id);
+        return order is null ? null : MapToDto(order);
+    }
+
+    public async Task<IEnumerable<OrderDto>> ListAsync(int? restaurantId, string? status)
+    {
+        var query = _db.Orders
+            .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .AsQueryable();
+
+        if (restaurantId.HasValue)
+            query = query.Where(o => o.RestaurantId == restaurantId.Value);
+
+        if (!string.IsNullOrEmpty(status))
+            query = query.Where(o => o.Status == status);
+
+        var orders = await query.OrderByDescending(o => o.CreatedAt).ToListAsync();
+        return orders.Select(MapToDto);
+    }
+
+    public async Task<ServiceResult<object>> AcceptAsync(int id, int restaurantId, AcceptOrderRequest request)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order == null || order.RestaurantId != restaurantId)
+            return ServiceResult<object>.Fail(OrderServiceError.Unauthorized, "Order not found");
+        if (order.Status != "Pending")
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition, "Order is not pending");
+
+        order.Status = "Accepted";
+        order.EstimatedDeliveryTime = DateTime.UtcNow.AddMinutes(request.EstimatedMinutes);
+        await _db.SaveChangesAsync();
+        return ServiceResult<object>.Ok(new { order.Id, order.Status, order.EstimatedDeliveryTime });
+    }
+
+    public async Task<ServiceResult<object>> RejectAsync(int id, int restaurantId, RejectOrderRequest request)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order == null || order.RestaurantId != restaurantId)
+            return ServiceResult<object>.Fail(OrderServiceError.Unauthorized, "Order not found");
+        if (order.Status != "Pending")
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition, "Order is not pending");
+
+        order.Status = "Rejected";
+        order.RejectionReason = request.Reason;
+        // TODO Phase 2: Issue Stripe refund
+        await _db.SaveChangesAsync();
+        return ServiceResult<object>.Ok(new { order.Id, order.Status, order.RejectionReason });
+    }
+
+    public async Task<ServiceResult<object>> UpdateStatusAsync(int id, int restaurantId, UpdateStatusRequest request)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order == null || order.RestaurantId != restaurantId)
+            return ServiceResult<object>.Fail(OrderServiceError.Unauthorized, "Order not found");
+
+        // Delegate transition rules to OrderStatusMachine (OCP)
+        if (!OrderStatusMachine.CanTransition(order.Status, request.Status))
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition,
+                $"Cannot transition from '{order.Status}' to '{request.Status}'");
+
+        order.Status = request.Status;
+        await _db.SaveChangesAsync();
+        return ServiceResult<object>.Ok(new { order.Id, order.Status });
+    }
+
+    public async Task<ServiceResult<object>> CancelAsync(int id, int userId)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order == null || order.UserId != userId)
+            return ServiceResult<object>.Fail(OrderServiceError.Unauthorized, "Order not found");
+        if (order.Status != "Pending")
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition, "Order can only be cancelled while pending");
+        if (DateTime.UtcNow > order.CancellableUntil)
+            return ServiceResult<object>.Fail(OrderServiceError.WindowExpired, "Cancellation window has expired");
+
+        order.Status = "Cancelled";
+        // TODO Phase 2: Issue Stripe refund
+        await _db.SaveChangesAsync();
+        return ServiceResult<object>.Ok(new { order.Id, order.Status });
+    }
+
+    public async Task<ServiceResult<object>> DisputeAsync(int id, int userId, DisputeRequest request)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order == null || order.UserId != userId)
+            return ServiceResult<object>.Fail(OrderServiceError.Unauthorized, "Order not found");
+
+        order.DisputeStatus = "Open";
+        order.DisputeNotes = request.Notes;
+        await _db.SaveChangesAsync();
+        return ServiceResult<object>.Ok(new { order.Id, order.DisputeStatus });
+    }
+
+    internal static OrderDto MapToDto(Order o) => new(
+        o.Id, o.RestaurantId, o.UserId, o.Status,
+        o.RejectionReason, o.DisputeStatus, o.DisputeNotes,
+        o.TotalAmount, o.DeliveryPostcode, o.EstimatedDeliveryTime,
+        o.CancellableUntil, o.CreatedAt,
+        o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId,
+            i.MenuItem?.Name ?? "", i.Quantity, i.UnitPrice)).ToList());
+}

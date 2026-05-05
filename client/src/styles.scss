@@ -1,37 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@use '@angular/material' as mat;
+
+// === Angular Material M3 Theme ===
+$food-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$orange-palette,
+  ),
+  typography: (
+    brand-family: 'Plus Jakarta Sans',
+    bold-weight: 700,
+  ),
+  density: (scale: 0),
+));
+
+:root {
+  @include mat.all-component-themes($food-theme);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=JetBrains+Mono:wght@500;700&display=swap');
 
 // === Design Tokens ===
 :root {
   // Brand
-  --primary: #ff5722;
-  --primary-light: #ff8a65;
-  --primary-dark: #e64a19;
-  --primary-bg: #fff3e0;
-  --accent: #1b1b2f;
-  --accent-light: #2d2d44;
+  --primary: #ff6b1a;
+  --primary-light: #ff8a4a;
+  --primary-dark: #e8540a;
+  --primary-bg: #fff1e6;
+  --accent: #1a1410;
+  --accent-light: #2d2418;
 
-  // Neutrals
-  --bg: #fafafa;
-  --bg-card: #ffffff;
+  // Neutrals — warm cream theme
+  --bg: #fffcf7;          // page background (warm off-white)
+  --bg-soft: #fff6ec;     // section backgrounds (orange-tinted)
+  --bg-card: #ffffff;     // card surfaces
   --bg-elevated: #ffffff;
-  --text: #1a1a2e;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --border: #e5e7eb;
-  --border-light: #f3f4f6;
+  --text: #1a1410;        // warm near-black
+  --text-secondary: #6b6359;
+  --text-muted: #9a9088;
+  --border: #f0e8dd;      // warm beige hairlines
+  --border-strong: #e8ddc9;
+  --border-light: #f7efe5;
 
   // Status
-  --success: #10b981;
-  --warning: #f59e0b;
+  --success: #1fa363;
+  --warning: #e8a81c;
   --danger: #ef4444;
   --info: #3b82f6;
 
-  // Shadows
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 40px rgba(255, 87, 34, 0.15);
+  // Shadows — warm-tinted (orange undertones)
+  --shadow-sm: 0 1px 2px rgba(26, 20, 16, 0.04);
+  --shadow: 0 4px 12px -4px rgba(255, 107, 26, 0.08), 0 2px 4px rgba(26, 20, 16, 0.04);
+  --shadow-md: 0 12px 28px -10px rgba(255, 107, 26, 0.12), 0 4px 8px -4px rgba(26, 20, 16, 0.05);
+  --shadow-lg: 0 24px 48px -16px rgba(255, 107, 26, 0.18), 0 8px 16px -6px rgba(26, 20, 16, 0.06);
+  --shadow-glow: 0 20px 50px -16px rgba(255, 107, 26, 0.35);
 
   // Radii
   --radius-sm: 8px;
@@ -51,13 +72,31 @@
   --header-height: 72px;
   --max-width: 1280px;
   --gutter: 24px;
+  --section-pad: clamp(5rem, 9vw, 8rem);
+
+  // Typography
+  --font-sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Fraunces', 'Plus Jakarta Sans', Georgia, serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  // === Brand surface tokens (used by SeeThePrep marketing components) ===
+  --surface-primary:   #fffcf7;
+  --surface-secondary: #fff6ec;
+  --surface-card:      #ffffff;
+  --brand-primary:     #ff6b1a;
+  --brand-primary-rgb: 255, 107, 26;
+  --brand-secondary:   #ff3d8a;
+  --brand-tertiary:    #6e3aff;
+  --text-primary:      #1a1410;
+  --border-color:      #f0e8dd;
+  --shadow-card:       0 12px 32px -10px rgba(255, 107, 26, 0.12), 0 4px 12px -4px rgba(26, 20, 16, 0.06);
 }
 
 // === Reset ===
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -299,6 +338,34 @@ ul, ol { list-style: none; }
 // Stagger children
 @for $i from 1 through 20 {
   .stagger-#{$i} { animation-delay: #{$i * 60}ms; }
+}
+
+// === Particle float keyframes ===
+@keyframes particleDrift {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateY(-120vh) translateX(30px) rotate(360deg) scale(0.7); opacity: 0; }
+}
+
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.05); }
+}
+
+@keyframes heroHeadlinePop {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes orbitSlow {
+  0%   { transform: rotate(0deg) translateX(70px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(70px) rotate(-360deg); }
+}
+
+@keyframes glareMove {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 // === Scrollbar ===

@@ -1,88 +1,155 @@
 <div class="checkout-page">
   <div class="container">
-    <a routerLink="/" class="back-link">← Continue shopping</a>
-    <h1 class="page-title animate-fade-in">Checkout</h1>
+    <a routerLink="/" mat-button class="back-btn" appScrollReveal>
+      <span class="material-symbols-rounded">arrow_back</span> Continue Shopping
+    </a>
 
     @if (cart.isEmpty()) {
-      <div class="empty-state card">
+      <div class="empty-state" appScrollReveal [revealDelay]="100">
         <div class="empty-icon">🛒</div>
         <h3>Your cart is empty</h3>
         <p>Add some delicious items first!</p>
-        <a routerLink="/" class="btn btn-primary" style="margin-top:16px">Browse Restaurants</a>
+        <a routerLink="/" mat-flat-button class="browse-btn" appMagnetic>
+          Browse Restaurants
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </a>
       </div>
     } @else {
       <div class="checkout-grid">
-        <!-- Cart Items -->
-        <section class="cart-section card animate-fade-in">
-          <h2 class="section-title">🛒 Your Order from {{ cart.restaurantName() }}</h2>
-          <div class="cart-items">
-            @for (item of cart.items(); track item.menuItem.id; let idx = $index) {
-              <div class="cart-item" [style.animation-delay]="idx * 50 + 'ms'">
-                <div class="cart-item-info">
-                  <h4>{{ item.menuItem.name }}</h4>
-                  <p class="item-price">{{ item.menuItem.price | currency:'GBP' }} each</p>
-                </div>
-                <div class="cart-item-controls">
-                  <button class="qty-btn" (click)="cart.removeItem(item.menuItem.id)">−</button>
-                  <span class="qty">{{ item.quantity }}</span>
-                  <button class="qty-btn" (click)="cart.addItem(item.menuItem, cart.restaurantId()!, cart.restaurantName())">+</button>
-                </div>
-                <div class="cart-item-total">
-                  {{ item.menuItem.price * item.quantity | currency:'GBP' }}
-                </div>
+
+        <!-- ── LEFT COLUMN ── -->
+        <div class="checkout-left">
+
+          <!-- Delivery Details -->
+          <section class="glass-card" appScrollReveal [revealDelay]="60">
+            <div class="section-heading">
+              <span class="material-symbols-rounded section-icon">location_on</span>
+              Delivery Details
+            </div>
+            <div class="form-fields">
+              <mat-form-field appearance="outline" class="dark-field full-width">
+                <mat-label>Address Line 1</mat-label>
+                <input matInput [(ngModel)]="addressLine1" placeholder="e.g. 42 Baker Street">
+              </mat-form-field>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="dark-field">
+                  <mat-label>City</mat-label>
+                  <input matInput [(ngModel)]="city" placeholder="London">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="dark-field"
+                  [class.mat-form-field-invalid]="(postcodeControl.value?.length ?? 0) > 3 && !postcodeValid">
+                  <mat-label>Postcode</mat-label>
+                  <input matInput [formControl]="postcodeControl" placeholder="NW1 6XE">
+                  @if ((postcodeControl.value?.length ?? 0) > 3 && !postcodeValid) {
+                    <mat-error>Enter a valid UK postcode</mat-error>
+                  }
+                </mat-form-field>
               </div>
-            }
-          </div>
-        </section>
-
-        <!-- Delivery Details -->
-        <section class="delivery-section card animate-fade-in" style="animation-delay:100ms">
-          <h2 class="section-title">📍 Delivery Address</h2>
-          <div class="form-group">
-            <label>Address Line 1</label>
-            <input type="text" [(ngModel)]="addressLine1" placeholder="123 High Street" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>City</label>
-            <input type="text" [(ngModel)]="city" placeholder="London" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Postcode</label>
-            <input type="text" [(ngModel)]="postcode" placeholder="SW1A 1AA"
-              class="form-input" [class.invalid]="postcode.length > 3 && !postcodeValid">
-            @if (postcode.length > 3 && !postcodeValid) {
-              <span class="error-text">Please enter a valid UK postcode</span>
-            }
-          </div>
-        </section>
-
-        <!-- Order Summary -->
-        <section class="summary-section card animate-fade-in" style="animation-delay:200ms">
-          <h2 class="section-title">📦 Order Summary</h2>
-          <div class="summary-rows">
-            <div class="summary-row">
-              <span>Subtotal</span>
-              <span>{{ cart.total() | currency:'GBP' }}</span>
             </div>
-            <div class="summary-row">
-              <span>Delivery</span>
-              <span class="free">FREE</span>
+          </section>
+
+          <!-- Your Order -->
+          <section class="glass-card your-order-card" appScrollReveal [revealDelay]="120">
+            <div class="section-heading">
+              <span class="material-symbols-rounded section-icon">receipt_long</span>
+              Your Order
             </div>
-            <div class="summary-row total">
+            <div class="cart-items">
+              @for (item of cart.items(); track item.menuItem.id; let idx = $index) {
+                <div class="cart-item" [style.animation-delay]="idx * 50 + 'ms'">
+                  <span class="item-emoji">{{ item.menuItem.name | menuItemEmoji }}</span>
+                  <div class="cart-item-info">
+                    <h4>{{ item.menuItem.name }}</h4>
+                    <p class="item-qty-label">Qty {{ item.quantity }}</p>
+                  </div>
+                  <div class="cart-item-controls">
+                    <button class="qty-btn minus" (click)="cart.removeItem(item.menuItem.id)">−</button>
+                    <span class="qty">{{ item.quantity }}</span>
+                    <button class="qty-btn plus" (click)="cart.addItem(item.menuItem, cart.restaurantId()!, cart.restaurantName())">+</button>
+                  </div>
+                  <div class="cart-item-total">{{ item.menuItem.price * item.quantity | currency:'GBP' }}</div>
+                </div>
+              }
+            </div>
+            <div class="order-total-row">
               <span>Total</span>
-              <span>{{ cart.total() | currency:'GBP' }}</span>
+              <span class="order-total-val">{{ cart.total() | currency:'GBP' }}</span>
             </div>
+          </section>
+
+        </div>
+
+        <!-- ── RIGHT COLUMN (sticky summary) ── -->
+        <aside class="summary-aside" appScrollReveal [revealDelay]="100">
+          <div class="glass-card summary-card">
+
+            <h2 class="summary-title">Order Summary</h2>
+
+            <!-- Restaurant Badge -->
+            <div class="restaurant-badge">
+              <span class="material-symbols-rounded badge-icon">restaurant</span>
+              <div>
+                <span class="badge-label">RESTAURANT</span>
+                <p class="badge-name">{{ cart.restaurantName() }}</p>
+              </div>
+            </div>
+
+            <!-- Price Rows -->
+            <div class="price-rows">
+              <div class="price-row">
+                <span>Subtotal</span>
+                <span>{{ cart.total() | currency:'GBP' }}</span>
+              </div>
+              <div class="price-row">
+                <span>Delivery Fee</span>
+                <span>£2.50</span>
+              </div>
+              <mat-divider class="summary-divider"></mat-divider>
+              <div class="price-row total-row">
+                <span>Total</span>
+                <span class="total-val">{{ cart.total() + 2.5 | currency:'GBP' }}</span>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <button
+              class="place-order-btn"
+              mat-flat-button
+              appMagnetic
+              [disabled]="!formValid || placing()"
+              (click)="placeOrder()"
+            >
+              @if (placing()) {
+                <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                Placing Order…
+              } @else {
+                Place Order
+                <span class="material-symbols-rounded">arrow_forward</span>
+              }
+            </button>
+
+            <!-- Microcopy -->
+            <p class="cancel-note">You can cancel within 5 minutes of placing</p>
+            <p class="stripe-note">
+              <span class="material-symbols-rounded">lock</span>
+              Secured by Stripe
+            </p>
+
+            <!-- Live Telemetry Strip -->
+            <div class="telemetry-strip">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="tele-dot"></span>
+                <span class="tele-text">Live Telemetry</span>
+              </div>
+              <div style="display:flex;gap:16px">
+                <span class="tele-text">TEMP: 240°C</span>
+                <span class="tele-text">ETA: 18m</span>
+              </div>
+            </div>
+
           </div>
-          <button class="btn btn-primary btn-lg place-order-btn"
-            [disabled]="!formValid || placing()"
-            (click)="placeOrder()">
-            @if (placing()) {
-              <span class="spinner"></span> Placing Order...
-            } @else {
-              Place Order 🚀
-            }
-          </button>
-        </section>
+        </aside>
+
       </div>
     }
   </div>

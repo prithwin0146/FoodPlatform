@@ -1,44 +1,58 @@
-<header class="header">
+<header class="header" [class.header-scrolled]="scrolled()">
+  <div class="header-glow" aria-hidden="true"></div>
+
   <div class="header-inner container">
-    <a routerLink="/" class="logo">
-      <span class="logo-icon">🍽️</span>
-      <span class="logo-text">FoodPlatform</span>
+    <!-- Logo -->
+    <a routerLink="/" class="logo" aria-label="SeeThePrep home">
+      <app-logo variant="wordmark" [size]="56" />
     </a>
 
-    <nav class="nav">
+    <!-- Primary nav -->
+    <nav class="nav" aria-label="Primary">
       @if (auth.isLoggedIn()) {
         @if (auth.isCustomer()) {
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
-            Restaurants
+            <span class="material-symbols-rounded nav-icon">storefront</span>
+            <span>Restaurants</span>
           </a>
           <a routerLink="/orders" routerLinkActive="active" class="nav-link">
-            My Orders
+            <span class="material-symbols-rounded nav-icon">receipt_long</span>
+            <span>My Orders</span>
           </a>
         }
         @if (dashboardLink()) {
           <a [routerLink]="dashboardLink()" routerLinkActive="active" class="nav-link">
-            Dashboard
+            <span class="material-symbols-rounded nav-icon">dashboard</span>
+            <span>Dashboard</span>
           </a>
         }
       }
     </nav>
 
+    <!-- Right-side actions -->
     <div class="actions">
       @if (auth.isCustomer() && !cart.isEmpty()) {
-        <a routerLink="/checkout" class="cart-btn">
-          <span class="cart-icon">🛒</span>
+        <a routerLink="/checkout" class="cart-btn" matTooltip="View cart" aria-label="Open cart">
+          <span class="material-symbols-rounded cart-icon">shopping_bag</span>
           <span class="cart-badge">{{ cart.count() }}</span>
         </a>
       }
 
       @if (auth.isLoggedIn()) {
-        <div class="user-menu">
-          <span class="user-role badge badge-primary">{{ auth.role() }}</span>
-          <button (click)="auth.logout()" class="btn btn-ghost btn-sm">Logout</button>
+        <div class="user-chip" [matTooltip]="roleLabel() + ' · ' + (auth.username() || '')">
+          <span class="user-greeting">Hi, <strong>{{ displayName() }}</strong></span>
         </div>
+        <button mat-stroked-button (click)="logout()" appMagnetic class="logout-btn" aria-label="Sign out">
+          <span class="material-symbols-rounded">logout</span>
+          <span class="logout-text">Logout</span>
+        </button>
       } @else {
-        <a routerLink="/login" class="btn btn-primary btn-sm">Sign In</a>
+        <a routerLink="/login" mat-flat-button color="primary" appMagnetic class="signin-btn">
+          <span class="material-symbols-rounded">login</span>
+          Sign In
+        </a>
       }
     </div>
   </div>
 </header>
+

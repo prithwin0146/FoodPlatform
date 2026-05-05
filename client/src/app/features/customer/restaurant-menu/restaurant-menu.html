@@ -1,67 +1,129 @@
 <div class="menu-page">
-  <!-- Restaurant Header -->
+  <!-- Restaurant Hero Header -->
   @if (restaurant(); as r) {
-    <section class="restaurant-header">
+    <section class="restaurant-hero" appScrollReveal>
+      <div class="hero-bg-glow"></div>
       <div class="container">
-        <a routerLink="/" class="back-link">← Back to restaurants</a>
-        <div class="header-content">
-          <div class="header-info">
-            <h1 class="restaurant-name animate-fade-in">{{ r.name }}</h1>
-            <p class="restaurant-address">📍 {{ r.address }}</p>
-            <div class="header-badges">
+        <a routerLink="/" mat-button class="back-btn">
+          <span class="material-symbols-rounded">arrow_back</span> All Restaurants
+        </a>
+        <div class="hero-content">
+          <div class="restaurant-emoji-wrap">
+            @if (r.imageUrl) {
+              <img class="restaurant-hero-img" [src]="r.imageUrl" [alt]="r.name">
+            } @else {
+              <span class="restaurant-emoji">{{ r.name | menuItemEmoji }}</span>
+            }
+          </div>
+          <div class="hero-info">
+            <h1 class="restaurant-name">{{ r.name }}</h1>
+            <p class="restaurant-address">
+              <span class="material-symbols-rounded">location_on</span> {{ r.address }}
+            </p>
+            <div class="hero-badges">
               <span class="badge badge-hygiene">
-                <span class="stars">{{ getHygieneStars(r.hygieneRating) }}</span>
-                Hygiene
+                <span class="material-symbols-rounded">verified</span>
+                {{ r.hygieneRating | hygieneStars }} Hygiene
               </span>
               @if (r.isActive) {
-                <span class="badge badge-open">🟢 Open Now</span>
+                <span class="badge badge-open">
+                  <span class="pulse-dot"></span> Open Now
+                </span>
               } @else {
-                <span class="badge badge-closed">🔴 Closed</span>
+                <span class="badge badge-closed">Closed</span>
               }
-              <span class="badge badge-delivery">🚴 {{ r.deliveryRadiusMiles }} mi delivery</span>
+              <span class="badge badge-delivery">
+                <span class="material-symbols-rounded">delivery_dining</span>
+                {{ r.deliveryRadiusMiles }} mi delivery
+              </span>
             </div>
+            <button class="live-btn" (click)="liveModalOpen.set(true)" appMagnetic>
+              <span class="live-dot"></span>
+              <span class="material-symbols-rounded">videocam</span>
+              Watch Kitchen Live
+            </button>
           </div>
         </div>
+      </div>
+      <div class="hero-wave">
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,28 C360,56 1080,0 1440,28 L1440,56 L0,56 Z" fill="var(--surface-primary)"/>
+        </svg>
       </div>
     </section>
   }
 
   <div class="container menu-layout">
-    <!-- Category Sidebar -->
-    <aside class="category-nav">
-      <h3 class="nav-title">Menu</h3>
-      @for (cat of availableCategories(); track cat.id) {
-        <button
-          class="category-btn"
-          [class.active]="activeCategory() === cat.id"
-          (click)="selectCategory(cat.id)"
-        >
-          {{ cat.name }}
-          <span class="item-count">{{ cat.items.length }}</span>
-        </button>
-      }
+    <!-- Category Nav -->
+    <aside class="category-nav" appScrollReveal [revealDelay]="100">
+      <h3 class="nav-title">
+        <span class="material-symbols-rounded">restaurant_menu</span> Menu
+      </h3>
+      <div class="search-wrap">
+        <span class="material-symbols-rounded search-icon">search</span>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Search dishes…"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+        @if (searchQuery()) {
+          <button class="search-clear" (click)="searchQuery.set('')">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        }
+      </div>
+      <div class="category-list">
+        @for (cat of availableCategories(); track cat.id) {
+          <button
+            class="category-btn"
+            [class.active]="activeCategory() === cat.id"
+            (click)="selectCategory(cat.id)"
+            matRipple
+          >
+            <span class="cat-name">{{ cat.name }}</span>
+            <span class="item-count">{{ cat.items.length }}</span>
+          </button>
+        }
+      </div>
     </aside>
 
     <!-- Menu Items -->
     <main class="menu-content">
       @if (loading()) {
-        @for (i of [1,2,3,4]; track i) {
-          <div class="skeleton-item card">
-            <div class="skeleton skeleton-text" style="width: 60%; height: 20px"></div>
-            <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-top: 8px"></div>
-            <div class="skeleton skeleton-text" style="width: 30%; height: 18px; margin-top: 12px"></div>
-          </div>
-        }
+        <div class="skeleton-grid">
+          @for (i of [1,2,3,4,6]; track i) {
+            <div class="skeleton-card">
+              <div class="skeleton-emoji"></div>
+              <div class="skeleton-line" style="width:60%"></div>
+              <div class="skeleton-line" style="width:90%;height:12px;margin-top:6px"></div>
+              <div class="skeleton-line" style="width:35%;margin-top:12px"></div>
+            </div>
+          }
+        </div>
       } @else {
-        @for (cat of availableCategories(); track cat.id) {
-          <section class="category-section" [id]="'cat-' + cat.id">
+        @for (cat of filteredCategories(); track cat.id) {
+          <section class="category-section" [id]="'cat-' + cat.id" appScrollReveal [revealDelay]="50">
             <h2 class="category-title">{{ cat.name }}</h2>
             <div class="items-grid">
               @for (item of cat.items; track item.id; let idx = $index) {
                 @if (item.isAvailable) {
-                  <div class="menu-item card" [style.animation-delay]="idx * 60 + 'ms'">
-                    <div class="item-emoji">{{ getItemEmoji(item.name) }}</div>
-                    <div class="item-details">
+                  <div
+                    class="menu-item-card"
+                    appTilt [tiltMax]="10"
+                    appScrollReveal [revealDelay]="idx * 60"
+                    matRipple
+                  >
+                    <div class="card-glare"></div>
+                    <div class="item-emoji-wrap">
+                      @if (item.imageUrl) {
+                        <img class="item-img" [src]="item.imageUrl" [alt]="item.name" loading="lazy">
+                      } @else {
+                        <span class="item-emoji">{{ item.name | menuItemEmoji }}</span>
+                      }
+                    </div>
+                    <div class="item-body">
                       <h3 class="item-name">{{ item.name }}</h3>
                       @if (item.description) {
                         <p class="item-desc">{{ item.description }}</p>
@@ -69,22 +131,34 @@
                       @if (item.dietaryTags) {
                         <div class="dietary-tags">
                           @for (tag of item.dietaryTags.split(','); track tag) {
-                            <span class="dietary-tag">{{ getDietaryIcon(tag) }} {{ tag.trim() }}</span>
+                            <span class="dietary-tag">{{ tag | dietaryIcon }} {{ tag.trim() }}</span>
                           }
                         </div>
                       }
                       @if (item.allergens) {
-                        <p class="allergens">⚠️ {{ item.allergens }}</p>
+                        <p class="allergens">
+                          <span class="material-symbols-rounded">warning</span> {{ item.allergens }}
+                        </p>
                       }
-                      <div class="item-footer">
-                        <span class="item-price">{{ item.price | currency: 'GBP' }}</span>
-                        <div class="quantity-controls">
-                          @if (cart.getQuantity(item.id) > 0) {
-                            <button class="qty-btn minus" (click)="removeFromCart(item)">−</button>
-                            <span class="qty-count">{{ cart.getQuantity(item.id) }}</span>
-                          }
-                          <button class="qty-btn plus" (click)="addToCart(item)">+</button>
-                        </div>
+                    </div>
+                    <div class="item-footer">
+                      <span class="item-price">{{ item.price | currency:'GBP' }}</span>
+                      <div class="quantity-controls">
+                        @if (cart.getQuantity(item.id) > 0) {
+                          <button
+                            class="qty-btn minus"
+                            mat-icon-button
+                            (click)="removeFromCart(item)"
+                            matTooltip="Remove one"
+                          >−</button>
+                          <span class="qty-count">{{ cart.getQuantity(item.id) }}</span>
+                        }
+                        <button
+                          class="qty-btn plus"
+                          mat-icon-button
+                          (click)="addToCart(item)"
+                          matTooltip="Add to cart"
+                        >+</button>
                       </div>
                     </div>
                   </div>
@@ -94,9 +168,15 @@
           </section>
         }
 
-        @if (availableCategories().length === 0) {
+        @if (filteredCategories().length === 0 && searchQuery()) {
           <div class="empty-state">
-            <div class="empty-icon">📋</div>
+            <span class="empty-icon">🔍</span>
+            <h3>No dishes found</h3>
+            <p>Try a different search term.</p>
+          </div>
+        } @else if (availableCategories().length === 0) {
+          <div class="empty-state">
+            <span class="empty-icon">📋</span>
             <h3>No menu available</h3>
             <p>This restaurant hasn't added any items yet.</p>
           </div>
@@ -105,16 +185,38 @@
     </main>
   </div>
 
+  <!-- Watch Kitchen Live Modal -->
+  @if (liveModalOpen()) {
+    <div class="live-modal-backdrop" (click)="liveModalOpen.set(false)">
+      <div class="live-modal" (click)="$event.stopPropagation()">
+        <div class="live-modal-header">
+          <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+          <h2>Kitchen Cam</h2>
+          <button class="close-modal" (click)="liveModalOpen.set(false)">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="live-video-placeholder">
+          <span class="material-symbols-rounded video-icon">videocam</span>
+          <p>Live stream coming soon</p>
+          <span class="stream-hint">Kitchen cameras will go live when your order is placed</span>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Floating Cart Bar -->
   @if (!cart.isEmpty()) {
-    <div class="cart-bar animate-slide-up">
+    <div class="cart-bar">
       <div class="container cart-bar-content">
         <div class="cart-info">
+          <span class="material-symbols-rounded">shopping_cart</span>
           <span class="cart-count">{{ cart.count() }} item{{ cart.count() > 1 ? 's' : '' }}</span>
-          <span class="cart-total">{{ cart.total() | currency: 'GBP' }}</span>
+          <span class="cart-sep">·</span>
+          <span class="cart-total">{{ cart.total() | currency:'GBP' }}</span>
         </div>
-        <a routerLink="/checkout" class="btn btn-primary cart-btn">
-          View Cart →
+        <a routerLink="/checkout" mat-flat-button class="cart-cta">
+          View Cart <span class="material-symbols-rounded">arrow_forward</span>
         </a>
       </div>
     </div>

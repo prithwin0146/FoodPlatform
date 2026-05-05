@@ -15,3 +15,7 @@ client/.angular/
 # Misc
 .DS_Store
 *.log
+
+# Secrets / credentials — never commit
+admin-credentials.md
+*.credentials.md

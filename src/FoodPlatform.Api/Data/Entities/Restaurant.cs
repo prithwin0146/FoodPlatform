@@ -9,6 +9,7 @@ public class Restaurant
     public double DeliveryRadiusMiles { get; set; } = 3.0;
     public int HygieneRating { get; set; }
     public bool IsActive { get; set; } = true;
+    public string? ImageUrl { get; set; }
     public string? StripeAccountId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -1,22 +1,49 @@
 <div class="dashboard-page">
+  <div class="page-bg"></div>
   <div class="container">
-    <h1 class="page-title animate-fade-in">🏪 Restaurant Dashboard</h1>
 
-    <!-- Filters -->
-    <div class="filter-bar">
-      @for (f of ['all','Pending','Accepted','Preparing','Cooking','Packed','OutForDelivery','Delivered']; track f) {
-        <button class="filter-btn" [class.active]="filter() === f" (click)="setFilter(f)">
-          {{ f === 'all' ? '📋 All' : getStatusEmoji(f) + ' ' + f }}
+    <!-- Header -->
+    <div class="dash-header" appScrollReveal>
+      <div class="dash-title-wrap">
+        <span class="dash-icon">🏪</span>
+        <div>
+          <h1 class="dash-title">Restaurant Dashboard</h1>
+          <p class="dash-sub">Manage incoming orders in real time</p>
+        </div>
+      </div>
+      <div class="live-dot">
+        <span class="live-pulse"></span> Live
+      </div>
+    </div>
+
+    <!-- Filter Chips -->
+    <div class="filter-bar" appScrollReveal [revealDelay]="80">
+      @for (f of filters; track f) {
+        <button
+          class="filter-chip"
+          [class.active]="filter() === f"
+          (click)="setFilter(f)"
+          matRipple
+        >
+          {{ f === 'all' ? '📋 All' : (f | orderStatusEmoji) + ' ' + f }}
         </button>
       }
     </div>
 
     @if (loading()) {
-      <div class="loading-state">
-        <div class="spinner-lg"></div>
+      <!-- Skeleton grid -->
+      <div class="skeleton-grid">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="skeleton-card">
+            <div class="sk-line" style="width:40%;height:18px;"></div>
+            <div class="sk-line" style="width:70%;height:12px;margin-top:10px;"></div>
+            <div class="sk-line" style="width:55%;height:12px;margin-top:6px;"></div>
+            <div class="sk-line" style="width:30%;height:14px;margin-top:14px;"></div>
+          </div>
+        }
       </div>
     } @else if (orders().length === 0) {
-      <div class="empty-state card">
+      <div class="empty-state glass-card" appScrollReveal>
         <div class="empty-icon">📭</div>
         <h3>No orders found</h3>
         <p>Orders will appear here when customers place them.</p>
@@ -24,43 +51,69 @@
     } @else {
       <div class="orders-grid">
         @for (order of orders(); track order.id; let idx = $index) {
-          <div class="order-card card" [style.animation-delay]="idx * 60 + 'ms'">
+          <div
+            class="order-card glass-card"
+            [class]="'order-card glass-card border-' + order.status.toLowerCase()"
+            appTilt [tiltMax]="6"
+            appScrollReveal [revealDelay]="idx * 60"
+          >
+            <div class="card-glare"></div>
+
+            <!-- Card Header -->
             <div class="order-card-header">
-              <span class="order-id">#{{ order.id }}</span>
-              <span class="order-status" [class]="'status-' + order.status.toLowerCase()">
-                {{ getStatusEmoji(order.status) }} {{ order.status }}
+              <div class="order-id-wrap">
+                <span class="order-num">#{{ order.id }}</span>
+                <span class="order-time">{{ order.createdAt | date:'shortTime' }}</span>
+              </div>
+              <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
+                {{ order.status | orderStatusEmoji }} {{ order.status }}
               </span>
             </div>
-            <div class="order-items">
+
+            <!-- Items -->
+            <div class="order-items-list">
               @for (item of order.items; track item.id) {
                 <div class="order-item-row">
-                  <span>{{ item.quantity }}× {{ item.menuItemName }}</span>
-                  <span>{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
+                  <span class="item-qty">{{ item.quantity }}×</span>
+                  <span class="item-name">{{ item.menuItemName }}</span>
+                  <span class="item-price">{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
                 </div>
               }
             </div>
+
+            <!-- Footer -->
             <div class="order-card-footer">
-              <div class="order-total">{{ order.totalAmount | currency:'GBP' }}</div>
-              <div class="order-date">{{ order.createdAt | date:'short' }}</div>
+              <div class="order-total-amount">{{ order.totalAmount | currency:'GBP' }}</div>
+              <div class="order-date-text">{{ order.createdAt | date:'shortDate' }}</div>
             </div>
 
+            <!-- Actions -->
             @if (order.status === 'Pending') {
               <div class="order-actions">
-                <div class="est-input">
-                  <label>ETA (min)</label>
-                  <input type="number" [ngModel]="estimatedMinutes()"
-                    (ngModelChange)="estimatedMinutes.set($event)" min="5" max="120">
+                <mat-form-field appearance="outline" class="eta-field">
+                  <mat-label>ETA (min)</mat-label>
+                  <input matInput type="number"
+                    [ngModel]="estimatedMinutes()"
+                    (ngModelChange)="estimatedMinutes.set($event)"
+                    min="5" max="120">
+                </mat-form-field>
+                <div class="action-btns">
+                  <button mat-flat-button class="accept-btn" (click)="accept(order)" matTooltip="Accept order">
+                    <span class="material-symbols-rounded">check_circle</span> Accept
+                  </button>
+                  <button mat-stroked-button class="reject-btn" (click)="reject(order)" matTooltip="Reject order">
+                    <span class="material-symbols-rounded">cancel</span> Reject
+                  </button>
                 </div>
-                <button class="btn btn-sm btn-success" (click)="accept(order)">✅ Accept</button>
-                <button class="btn btn-sm btn-danger" (click)="reject(order)">❌ Reject</button>
               </div>
             } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
-              <div class="order-actions">
-                <button class="btn btn-sm btn-primary" (click)="advanceStatus(order)">
-                  Advance Status →
+              <div class="order-actions single">
+                <button mat-flat-button class="advance-btn" (click)="advanceStatus(order)">
+                  <span class="material-symbols-rounded">arrow_forward</span> Advance Status
                 </button>
               </div>
             }
+
           </div>
         }
       </div>

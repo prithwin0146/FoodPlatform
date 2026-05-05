@@ -12,6 +12,7 @@ import { ToastService } from '../../../core/services/toast.service';
   styleUrl: './register.scss',
 })
 export class Register {
+  username = '';
   email = '';
   password = '';
   confirmPassword = '';
@@ -29,18 +30,20 @@ export class Register {
   }
 
   submit(): void {
-    if (!this.email || !this.password || !this.passwordsMatch) return;
+    if (!this.username || !this.email || !this.password || !this.passwordsMatch) return;
     this.loading.set(true);
-    this.apiAuth.register({ email: this.email, password: this.password }).subscribe({
-      next: (res) => {
-        this.auth.setSession(res);
-        this.toast.success('Account created!');
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        this.loading.set(false);
-        this.toast.error(err.error?.message ?? 'Registration failed');
-      },
-    });
+    this.apiAuth
+      .register({ username: this.username.trim(), email: this.email, password: this.password })
+      .subscribe({
+        next: (res) => {
+          this.auth.setSession(res);
+          this.toast.success(`Welcome, ${res.username}!`);
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.toast.error(err.error?.message ?? 'Registration failed');
+        },
+      });
   }
 }

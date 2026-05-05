@@ -1,13 +1,25 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
+
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -15,6 +27,7 @@ export class Login {
   email = '';
   password = '';
   readonly loading = signal(false);
+  readonly showPw = signal(false);
 
   constructor(
     private readonly apiAuth: ApiAuthService,
