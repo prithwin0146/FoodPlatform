@@ -24,9 +24,9 @@
   ],
   "screenshots": [
     {
-      "src": "/og-image.jpg",
-      "sizes": "1200x630",
-      "type": "image/jpeg",
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "label": "SeeThePrep — Watch your food being cooked live"
     }
   ]
