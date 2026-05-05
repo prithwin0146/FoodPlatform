@@ -275,10 +275,57 @@
 /* ── Empty ── */
 .empty-state { text-align: center; padding: 60px; .empty-icon { font-size: 3rem; } h3 { color: var(--text); margin: 12px 0 0; } }
 
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .order-card-header { flex-direction: column; align-items: flex-start; }
-  .hc-right { align-items: flex-start; }
+  .hc-right { align-items: flex-start; flex-direction: row; gap: 16px; flex-wrap: wrap; }
+  .hc-amount { font-size: 1.4rem; }
   .live-kitchen-card { grid-template-columns: 1fr; }
-  .lk-video { border-right: none; border-bottom: 1px solid var(--border); }
+  .lk-video { border-right: none; border-bottom: 1px solid var(--border); min-height: 220px; }
   .lower-grid { grid-template-columns: 1fr; }
+  .stepper-track { gap: 4px; }
+  .step-dot { width: 40px; height: 40px; }
+  .step-label { font-size: .7rem; }
+}
+
+@media (max-width: 600px) {
+  .tracking-page { padding: 20px 0 60px; }
+  .glass-card { padding: 18px 16px; border-radius: 16px; }
+  .order-title { font-size: clamp(1.2rem, 5vw, 1.5rem); }
+  .order-date { font-size: .8rem; }
+  .hc-amount { font-size: 1.3rem; }
+  .stepper-track { flex-wrap: wrap; justify-content: center; gap: 8px 0; }
+  .step-wrapper { flex: 0 0 auto; }
+  .step-connector { display: none; }
+  .step { min-width: 62px; }
+  .step-dot { width: 38px; height: 38px; }
+  .step-label { font-size: .66rem; max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .active-ring { inset: -6px; }
+  .eta-card { gap: 14px; }
+  .eta-time { font-size: 1.35rem; }
+  .note-row { flex-wrap: wrap; gap: 4px; }
+  .lk-video { min-height: 180px; }
+  .lk-notes { padding: 18px 16px; }
+  .cancel-btn { width: 100% !important; margin-top: 8px !important; }
+}
+
+@media (max-width: 420px) {
+  .tracking-page { padding: 14px 0 60px; }
+  .glass-card { padding: 14px 12px; border-radius: 14px; }
+  .back-btn { margin-bottom: 10px !important; }
+  .order-status-chip { font-size: .76rem; padding: 5px 12px; }
+  .payment-badge { font-size: .68rem; }
+  .step-dot { width: 34px; height: 34px; }
+  .step { min-width: 52px; }
+  .step-label { font-size: .6rem; max-width: 52px; }
+  .check { font-size: 1rem; }
+  .step-emoji { font-size: 1rem; }
+  .lk-video { min-height: 160px; }
+  .lk-notes { padding: 14px 12px; }
+  .note-key, .note-val { font-size: .82rem; }
+  .eta-icon { font-size: 2rem; }
+  .eta-time { font-size: 1.2rem; }
+  .item-qty-badge { padding: 2px 7px; font-size: .78rem; }
+  .item-name-text { font-size: .86rem; }
+  .item-price-text { font-size: .82rem; }
 }

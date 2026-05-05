@@ -1852,3 +1852,34 @@
   .footer-legal { justify-content: center; }
   .footer-socials { justify-content: center; }
 }
+
+
+/* ── Small phone overrides (480px and below) ── */
+@media (max-width: 480px) {
+  /* Hero */
+  .hero-grid { padding: 5rem 0 3.5rem; min-height: 70vh; }
+  .hero-headline { font-size: clamp(2.4rem, 11vw, 4rem); letter-spacing: -0.025em; margin-bottom: 1.25rem; }
+  .hero-subtitle { font-size: 1rem; margin-bottom: 1.5rem; }
+  .hero-ctas { flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 0 8px; }
+  .hero-scroll-cue { display: none; }
+  .proof-strip { gap: 0.45rem; }
+  .proof-pill { font-size: .76rem; padding: 0.4rem 0.7rem; }
+  /* Stats */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .stat { padding: 1.25rem 1rem; }
+  .stat-num { font-size: clamp(2rem, 8vw, 2.8rem); }
+  /* Restaurants */
+  .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .search-wrapper { min-width: 0; width: 100%; }
+  .grid { grid-template-columns: 1fr; }
+  /* Footer */
+  .footer { padding: 3.5rem 0 1.5rem; }
+  .footer-top { gap: 2.5rem; }
+  .footer-nav { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  .footer-news-row { flex-direction: column; border-radius: 18px; padding: 10px; }
+  .footer-news-input { padding: 0.75rem 1rem; }
+  .footer-news-btn { border-radius: 12px; padding: 0.75rem 1rem; justify-content: center; width: 100%; }
+  /* Final CTA */
+  .cta-card { padding: 2.5rem 1.5rem; border-radius: 24px; }
+  .cta-headline { font-size: clamp(1.8rem, 7vw, 2.8rem); }
+}

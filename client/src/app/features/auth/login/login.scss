@@ -248,3 +248,23 @@
     &:hover { color: var(--primary-dark); text-decoration: underline; }
   }
 }
+
+/* ── Global mobile overrides (outside component selectors) ── */
+@media (max-width: 860px) {
+  .login-shell { min-height: 100svh; }
+  .form-panel { min-height: 100svh; }
+}
+
+@media (max-width: 480px) {
+  .form-header { margin-bottom: 28px; }
+  .form-header h1 { font-size: 1.8rem; }
+  .form-header p { font-size: .88rem; }
+  .submit-btn { height: 48px !important; font-size: .95rem !important; }
+  .form-footer { margin-top: 24px; font-size: .85rem; }
+}
+
+@media (max-width: 380px) {
+  .form-header h1 { font-size: 1.6rem; }
+  .form-header { margin-bottom: 22px; }
+  .submit-btn { height: 46px !important; }
+}

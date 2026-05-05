@@ -268,6 +268,17 @@
   .header-inner { gap: 12px; }
 }
 
+@media (max-width: 480px) {
+  .header { --header-height: 60px; }
+  .header-inner { gap: 8px; padding: 0 16px; }
+  .user-chip { padding: 5px 10px; }
+  .user-greeting { max-width: 90px; font-size: .82rem; }
+  .cart-btn { width: 36px; height: 36px; border-radius: 10px; }
+  .cart-badge { min-width: 17px; height: 17px; font-size: .62rem; top: -4px; right: -4px; }
+  .signin-btn.mat-mdc-unelevated-button { padding: 0 14px !important; height: 36px; font-size: .82rem; }
+  .logout-btn.mat-mdc-outlined-button { height: 36px; padding: 0 10px !important; }
+}
+
 
 @keyframes badgePop {
   0%   { transform: scale(0) rotate(-90deg); }

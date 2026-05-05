@@ -266,8 +266,49 @@
   box-shadow: 0 12px 28px -10px rgba(255, 61, 138, .5) !important;
 }
 
+/* ── Responsive ── */
 @media (max-width: 900px) {
   .checkout-grid { grid-template-columns: 1fr; }
   .summary-aside { position: static; }
   .form-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .checkout-page { padding: 20px 0 60px; }
+  .glass-card { padding: 20px 18px; border-radius: 16px; }
+  .summary-card { padding: 20px !important; border-radius: 18px; }
+  .back-btn { margin-bottom: 16px !important; }
+  .section-heading { font-size: .95rem; gap: 10px; }
+  .section-icon { padding: 6px; font-size: 1.05rem; }
+  .cart-item { grid-template-columns: auto 1fr auto; gap: 10px; }
+  .cart-item-total { white-space: nowrap; }
+  .item-emoji { font-size: 1.5rem; }
+  .order-total-row { font-size: .95rem; padding: 12px 0 6px; }
+  .order-total-val { font-size: 1.15rem; }
+  .price-row { font-size: .88rem; }
+  .total-row { font-size: .95rem; }
+  .total-val { font-size: 1.25rem; }
+  .place-order-btn { height: 50px !important; font-size: .95rem !important; }
+  .cancel-note { font-size: .76rem; }
+  .stripe-note { font-size: .73rem; }
+  .telemetry-strip { flex-wrap: wrap; gap: 6px; padding: 8px 12px; }
+  .tele-text { font-size: .68rem; }
+}
+
+@media (max-width: 480px) {
+  .checkout-page { padding: 14px 0 60px; }
+  .glass-card { padding: 16px 14px; border-radius: 14px; }
+  .back-btn { margin-bottom: 10px !important; }
+  .cart-item { gap: 8px; padding: 10px 0; }
+  .item-emoji { font-size: 1.4rem; }
+  .cart-item-controls { gap: 5px; }
+  .qty-btn { width: 26px; height: 26px; font-size: .95rem; }
+  .qty { font-size: .9rem; }
+  .cart-item-total { font-size: .9rem; }
+  .restaurant-badge { padding: 10px 12px; gap: 10px; }
+  .badge-name { font-size: .88rem; }
+  .summary-title { font-size: 1.05rem; }
+  .place-order-btn { border-radius: 12px !important; letter-spacing: 0 !important; height: 48px !important; }
+  .empty-state { padding: 60px 16px; }
+  .empty-state .empty-icon { font-size: 3rem; }
 }
