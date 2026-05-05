@@ -15,7 +15,9 @@ public static class DataSeeder
         SeedRestaurants(modelBuilder);
         SeedHours(modelBuilder);
         SeedMenus(modelBuilder);
-        SeedUsers(modelBuilder);
+        // NOTE: User accounts are NOT seeded via HasData any more.
+        // They are inserted at runtime in Development only — see DevDataSeeder.
+        // (Production must never ship with known-password accounts.)
     }
 
     private static void SeedRestaurants(ModelBuilder modelBuilder)
@@ -145,19 +147,5 @@ public static class DataSeeder
         modelBuilder.Entity<MenuItem>().HasData(items);
     }
 
-    private static void SeedUsers(ModelBuilder modelBuilder)
-    {
-        // Password for all seed accounts: "Password123!"
-        const string hash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim";
-        modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Role = "Admin",    Username = "admin",       Email = "admin@foodplatform.co.uk",    PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 2, RestaurantId = 1, Role = "Staff", Username = "spicegarden", Email = "staff@spicegarden.co.uk",   PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 3, Role = "Customer", Username = "demo",        Email = "customer@example.com",         PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 4, RestaurantId = 2, Role = "Staff", Username = "bellanapoli", Email = "staff@bellanapoli.co.uk",   PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 5, RestaurantId = 3, Role = "Staff", Username = "sakurasushi", Email = "staff@sakurasushi.co.uk",   PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 6, RestaurantId = 4, Role = "Staff", Username = "burgerjoint", Email = "staff@burgerjoint.co.uk",   PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 7, RestaurantId = 5, Role = "Staff", Username = "greenbowl",   Email = "staff@greenbowl.co.uk",     PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true },
-            new User { Id = 8, RestaurantId = 6, Role = "Staff", Username = "dragonwok",   Email = "staff@dragonwok.co.uk",     PasswordHash = hash, CreatedAt = SeedDate, IsEmailVerified = true }
-        );
-    }
+    // SeedUsers removed — see DevDataSeeder for the runtime, Development-only equivalent.
 }

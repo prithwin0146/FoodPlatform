@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{34E163F9-B7B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodPlatform.Api", "src\FoodPlatform.Api\FoodPlatform.Api.csproj", "{5BA7D10F-FD88-4C0D-BDC7-41E309452C10}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5C01C388-D084-4ACD-8E7D-2B56CB4569EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodPlatform.Tests", "tests\FoodPlatform.Tests\FoodPlatform.Tests.csproj", "{A099D24A-156C-4BE7-A83E-C677A8C48C9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +24,13 @@ Global
 		{5BA7D10F-FD88-4C0D-BDC7-41E309452C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BA7D10F-FD88-4C0D-BDC7-41E309452C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BA7D10F-FD88-4C0D-BDC7-41E309452C10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A099D24A-156C-4BE7-A83E-C677A8C48C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A099D24A-156C-4BE7-A83E-C677A8C48C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A099D24A-156C-4BE7-A83E-C677A8C48C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A099D24A-156C-4BE7-A83E-C677A8C48C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5BA7D10F-FD88-4C0D-BDC7-41E309452C10} = {34E163F9-B7B4-476E-94F1-D112F8B86B77}
+		{A099D24A-156C-4BE7-A83E-C677A8C48C9F} = {5C01C388-D084-4ACD-8E7D-2B56CB4569EE}
 	EndGlobalSection
 EndGlobal

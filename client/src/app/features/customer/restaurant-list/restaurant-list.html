@@ -30,7 +30,7 @@
     <div class="hero-copy">
       <div class="live-badge" appScrollReveal>
         <span class="live-dot"></span>
-        Now in <strong>early access</strong> · UK kitchens
+        Live across <strong>UK kitchens</strong> · FSA-verified
       </div>
 
       <h1 class="hero-headline">
@@ -52,8 +52,8 @@
       </h1>
 
       <p class="hero-subtitle">
-        The <strong>only</strong> food platform where you watch your meal cooked <em>live</em> — camera on, no exceptions.
-        No more guessing what's in your food.
+        Order from independent UK kitchens and watch every step on a <strong>live HD camera</strong>.
+        Verified hygiene ratings. Allergens on the record. The receipt is the footage.
       </p>
 
       <div class="hero-ctas">
@@ -70,16 +70,16 @@
 
       <ul class="proof-strip">
         <li class="proof-pill">
-          <span class="material-symbols-rounded">lock</span>
-          No hidden kitchens
+          <span class="material-symbols-rounded">verified_user</span>
+          FSA 5-star kitchens only
         </li>
         <li class="proof-pill">
-          <span class="material-symbols-rounded">bolt</span>
-          30-min avg delivery
+          <span class="material-symbols-rounded">videocam</span>
+          Live camera on every order
         </li>
         <li class="proof-pill">
-          <span class="material-symbols-rounded">no_meals</span>
-          Zero dark kitchens
+          <span class="material-symbols-rounded">payments</span>
+          Tips paid in full to chefs
         </li>
       </ul>
     </div>
@@ -105,13 +105,13 @@
     </header>
     <div class="section-header" appScrollReveal>
       <div>
-        <h2 class="section-h2">Kitchens cooking <span class="grad-text">right now</span></h2>
-        <p class="section-sub">{{ filteredRestaurants().length }} kitchens · search by name or area</p>
+        <h2 class="section-h2">Kitchens <span class="grad-text">currently live</span></h2>
+        <p class="section-sub">{{ filteredRestaurants().length }} verified kitchens · search by name, cuisine or postcode</p>
       </div>
       <div class="search-wrapper">
         <mat-form-field class="hero-search" appearance="outline" color="primary">
-          <mat-label>Search restaurants or cuisines…</mat-label>
-          <span matPrefix class="search-prefix">🔍&nbsp;</span>
+          <mat-label>Search by name, cuisine or postcode</mat-label>
+          <span matPrefix class="material-symbols-rounded search-prefix">search</span>
           <input matInput
                  [value]="searchQuery()"
                  (input)="onSearch($event)"
@@ -155,19 +155,30 @@
             </div>
             <div class="card-body">
               <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-              <p class="restaurant-address">📍 {{ restaurant.address }}</p>
+              <p class="restaurant-address">
+                <span class="material-symbols-rounded meta-icon">location_on</span>
+                {{ restaurant.address }}
+              </p>
               <div class="restaurant-meta">
-                <span class="meta-item">🚴 {{ restaurant.deliveryRadiusMiles }} mi</span>
-                <span class="meta-item">📮 {{ restaurant.basePostcode }}</span>
-                <span class="meta-cta">Watch prep <span class="material-symbols-rounded">arrow_forward</span></span>
+                <span class="meta-item">
+                  <span class="material-symbols-rounded meta-icon">pedal_bike</span>
+                  {{ restaurant.deliveryRadiusMiles }} mi delivery
+                </span>
+                <span class="meta-item">
+                  <span class="material-symbols-rounded meta-icon">markunread_mailbox</span>
+                  {{ restaurant.basePostcode }}
+                </span>
+                <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
               </div>
             </div>
           </a>
         } @empty {
           <div class="empty-state">
-            <div class="empty-icon">🍽️</div>
-            <h3>No restaurants found</h3>
-            <p>Try adjusting your search</p>
+            <div class="empty-icon">
+              <span class="material-symbols-rounded">restaurant</span>
+            </div>
+            <h3>No matches for that search</h3>
+            <p>Try a different name, cuisine or postcode.</p>
           </div>
         }
       </div>
@@ -189,10 +200,10 @@
       <span class="eyebrow-text">HOW IT WORKS</span>
     </header>
     <h2 class="section-h2" appScrollReveal>
-      Three steps to a meal you can <span class="grad-text">actually trust.</span>
+      Three steps. <span class="grad-text">Full visibility.</span>
     </h2>
     <p class="section-lead" appScrollReveal>
-      Watch every step from the moment you tap order to the second it lands at your door.
+      From the moment you place the order to the handover at your door — every stage is on camera, on the record.
     </p>
 
     <div class="how-steps">
@@ -234,13 +245,11 @@
         <span class="eb-text">Why SeeThePrep</span>
       </div>
       <h2 class="why-title" appScrollReveal>
-        Four promises.
-        <span class="why-title-em">Zero loopholes.</span>
+        Four standards.
+        <span class="why-title-em">Held to the letter.</span>
       </h2>
       <p class="why-lead" appScrollReveal>
-        Most delivery apps protect the kitchen from you. We do the opposite —
-        we hand you the keys, the camera and the receipt. Here's exactly what that
-        looks like in practice.
+        Transparency only counts when it's enforced. These are the operating standards every kitchen on SeeThePrep agrees to before they take a single order — and what we measure them against, in public.
       </p>
     </header>
 
@@ -266,10 +275,10 @@
     <aside class="why-pullquote" appScrollReveal>
       <span class="pq-quote">“</span>
       <p>
-        If the camera isn't on, your food <em>doesn't</em> go out.
-        That's the only rule we never bend.
+        If the camera isn't on, the order doesn't leave the kitchen.
+        That's the standard — every kitchen, every order, no exceptions.
       </p>
-      <span class="pq-attr">— The SeeThePrep operating manual, page one.</span>
+      <span class="pq-attr">— SeeThePrep kitchen onboarding agreement, clause 1.</span>
     </aside>
   </div>
 </section>
@@ -292,42 +301,40 @@
       </div>
 
       <h2 class="app-headline" appScrollReveal>
-        Watch your prep
-        <span class="app-headline-em">on the go.</span>
+        SeeThePrep,
+        <span class="app-headline-em">in your pocket.</span>
       </h2>
 
       <p class="app-lead" appScrollReveal>
-        The full SeeThePrep experience in your pocket — pinned-to-top live feed,
-        push alerts when your chef hits the pan, and one-tap tipping. Built native
-        for iOS and Android. No web wrappers, no compromises.
+        The full platform on iOS and Android. Persistent live feed, prep-stage notifications, allergen flags and one-tap tipping — built native, no web wrappers.
       </p>
 
       <ul class="app-features" appScrollReveal>
         <li>
           <span class="material-symbols-rounded">notifications_active</span>
-          <span><strong>Live alerts.</strong> Buzzed when prep starts, when the rider's at your door.</span>
+          <span><strong>Stage notifications.</strong> Pinged at prep start, plating and rider handover.</span>
         </li>
         <li>
           <span class="material-symbols-rounded">picture_in_picture</span>
-          <span><strong>Picture-in-picture.</strong> Keep the kitchen visible while you scroll.</span>
+          <span><strong>Picture-in-picture feed.</strong> Keep the kitchen visible while you use other apps.</span>
         </li>
         <li>
           <span class="material-symbols-rounded">watch</span>
-          <span><strong>Apple Watch + Wear OS.</strong> Live ETA on your wrist.</span>
+          <span><strong>Apple Watch &amp; Wear OS.</strong> Live ETA and stage updates on your wrist.</span>
         </li>
       </ul>
 
       <form class="app-waitlist" (submit)="$event.preventDefault()" appScrollReveal>
         <label class="app-waitlist-label">
           <span class="wl-pulse"></span>
-          Join the early access waitlist
+          Get notified when the apps launch
         </label>
         <div class="app-waitlist-row">
           <input
             type="email"
             inputmode="email"
             autocomplete="email"
-            placeholder="you@kitchen.com"
+            placeholder="your@email.com"
             class="app-waitlist-input" />
           <button type="submit" class="app-waitlist-btn" appMagnetic>
             Notify me
@@ -467,19 +474,19 @@
     <div class="stats-grid">
       <div class="stat" appScrollReveal>
         <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
-        <div class="stat-label">Live HD streaming</div>
+        <div class="stat-label">Orders streamed live</div>
       </div>
       <div class="stat" appScrollReveal [revealDelay]="100">
         <div class="stat-num"><span appCountUp [appCountUp]="5">5</span><span class="stat-star">★</span></div>
-        <div class="stat-label">Hygiene minimum</div>
+        <div class="stat-label">FSA hygiene minimum</div>
       </div>
       <div class="stat" appScrollReveal [revealDelay]="200">
-        <div class="stat-num" appCountUp [appCountUp]="0">0</div>
-        <div class="stat-label">Hidden kitchens</div>
+        <div class="stat-num">Q</div>
+        <div class="stat-label">Hygiene re-verified quarterly</div>
       </div>
       <div class="stat" appScrollReveal [revealDelay]="300">
         <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
-        <div class="stat-label">Tips to chef</div>
+        <div class="stat-label">Tips paid to the kitchen</div>
       </div>
     </div>
   </div>
@@ -494,16 +501,19 @@
   <div class="container">
     <div class="cta-card" appScrollReveal appTilt [tiltMax]="6">
       <div class="card-glare"></div>
-      <div class="cta-eyebrow">🍴 READY TO TASTE TRANSPARENCY?</div>
+      <div class="cta-eyebrow">
+        <span class="eb-line"></span>
+        <span class="eb-text">START AN ORDER</span>
+      </div>
       <h2 class="cta-headline">
-        Stop guessing. <br>
-        <span class="grad-text">Start watching.</span>
+        Choose a kitchen. <br>
+        <span class="grad-text">Watch it cook.</span>
       </h2>
-      <p class="cta-sub">Be one of the first to see your food before you eat it. Browse live now — no signup required.</p>
+      <p class="cta-sub">Browse live kitchens in your area. No account needed to look around — sign in only when you're ready to order.</p>
       <div class="cta-actions">
         <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
           <span class="material-symbols-rounded">restaurant</span>
-          Order Now &amp; Watch Live
+          Browse live kitchens
           <span class="cta-shine"></span>
         </button>
         <a class="cta-link">No signup needed to browse →</a>
@@ -522,14 +532,14 @@
     <div class="footer-brand">
       <app-logo variant="wordmark" [size]="46" [showTag]="false" class="footer-logo" />
       <p class="footer-manifesto">
-        The food platform that turns the kitchen lights on.
-        Watch your meal made, in HD, by a chef you can name.
+        UK food delivery, with the kitchen on camera.
+        Verified hygiene, full allergen disclosure, tips paid in full to the chefs who cook your food.
       </p>
 
       <form class="footer-news" (submit)="$event.preventDefault()">
         <label for="news-email" class="footer-news-label">
           <span class="footer-news-dot"></span>
-          Get one email a month — new kitchens going live.
+          One email a month. New kitchens going live in your area.
         </label>
         <div class="footer-news-row">
           <input
@@ -538,7 +548,7 @@
             type="email"
             inputmode="email"
             autocomplete="email"
-            placeholder="you@kitchen.com" />
+            placeholder="your@email.com" />
           <button type="submit" class="footer-news-btn" appMagnetic>
             Subscribe
             <span class="material-symbols-rounded">arrow_forward</span>

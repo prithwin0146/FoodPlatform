@@ -27,8 +27,8 @@ public class AuthController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var (result, error) = await _auth.RegisterAsync(request);
-        if (result == null) return Conflict(new { error });
+        // Anti-enumeration: AuthService never returns an error here — always 200 + generic ack.
+        var (result, _) = await _auth.RegisterAsync(request);
         return Ok(result);
     }
 
@@ -45,8 +45,9 @@ public class AuthController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> ResendOtp(ResendOtpRequest request)
     {
-        var (success, error) = await _auth.ResendOtpAsync(request);
-        if (!success) return BadRequest(new { error });
-        return Ok(new { message = "A new verification code has been sent." });
+        // Anti-enumeration: response is identical whether the account exists, is verified,
+        // or is still inside the cooldown window.
+        await _auth.ResendOtpAsync(request);
+        return Ok(new { message = "If that account exists and is unverified, a new code has been sent." });
     }
 }

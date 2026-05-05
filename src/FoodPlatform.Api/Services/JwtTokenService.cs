@@ -18,7 +18,10 @@ public class JwtTokenService : IJwtTokenService
 
     public string GenerateToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        // Key is validated at startup in AddJwtAuthentication; safe to dereference here.
+        var rawKey = _config["Jwt:Key"]
+            ?? throw new InvalidOperationException("Jwt:Key missing at runtime");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>

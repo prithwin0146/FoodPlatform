@@ -1417,7 +1417,13 @@
 .section-sub { color: var(--c-text-muted); font-size: 1rem; margin: 0; }
 .search-wrapper { min-width: 300px; }
 .hero-search { width: 100%; }
-.search-prefix { font-size: 1rem; }
+.search-prefix {
+  font-size: 1.15rem;
+  color: var(--c-text-muted);
+  margin-right: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+}
 ::ng-deep .hero-search.mat-mdc-form-field {
   .mat-mdc-text-field-wrapper { background: var(--c-surface); border-radius: 14px; }
   .mdc-notched-outline__leading,
@@ -1500,12 +1506,28 @@
 }
 .card-body { padding: 1.25rem 1.5rem 1.5rem; position: relative; z-index: 3; }
 .restaurant-name { font-size: 1.2rem; font-weight: 700; margin: 0 0 0.4rem; color: var(--c-text); }
-.restaurant-address { font-size: 0.85rem; color: var(--c-text-muted); margin: 0 0 1rem; }
+.restaurant-address {
+  font-size: 0.85rem; color: var(--c-text-muted); margin: 0 0 1rem;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+}
 .restaurant-meta {
-  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
   font-size: 0.78rem; color: var(--c-text-soft);
 }
-.meta-item { background: var(--c-bg-soft); padding: 4px 8px; border-radius: 6px; }
+.meta-item {
+  background: var(--c-bg-soft);
+  padding: 4px 9px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.meta-icon {
+  font-size: 1rem;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+  color: var(--c-text-muted);
+}
 .meta-cta {
   margin-left: auto;
   display: flex; align-items: center; gap: 4px;
@@ -1535,7 +1557,22 @@
   grid-column: 1/-1;
   text-align: center; padding: 4rem 2rem;
   color: var(--c-text-muted);
-  .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .empty-icon {
+    margin-bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--c-bg-soft);
+    border: 1px solid var(--c-border);
+    .material-symbols-rounded {
+      font-size: 2.25rem;
+      color: var(--c-text-muted);
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 40;
+    }
+  }
   h3 { color: var(--c-text); margin: 0 0 0.5rem; }
 }
 

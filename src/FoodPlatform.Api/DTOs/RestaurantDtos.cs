@@ -12,9 +12,21 @@ public record RestaurantDetailDto(int Id, string Name, string Address, string Ba
 public record RestaurantHoursDto(int DayOfWeek, TimeSpan OpenTime, TimeSpan CloseTime, bool IsClosed);
 
 public record CreateRestaurantRequest(
-    [Required] string Name, [Required] string Address,
-    [Required] string BasePostcode, double DeliveryRadiusMiles, int HygieneRating,
-    string? ImageUrl);
+    [Required, MaxLength(200)] string Name,
+    [Required, MaxLength(500)] string Address,
+    [Required] string BasePostcode,
+    [Range(0.1, 50.0, ErrorMessage = "Delivery radius must be between 0.1 and 50 miles")]
+    double DeliveryRadiusMiles,
+    [Range(0, 5, ErrorMessage = "Hygiene rating must be between 0 and 5")]
+    int HygieneRating,
+    [MaxLength(500)] string? ImageUrl);
 
-public record UpdateRestaurantRequest(string? Name, string? Address,
-    string? BasePostcode, double? DeliveryRadiusMiles, int? HygieneRating, string? ImageUrl);
+public record UpdateRestaurantRequest(
+    [MaxLength(200)] string? Name,
+    [MaxLength(500)] string? Address,
+    string? BasePostcode,
+    [Range(0.1, 50.0, ErrorMessage = "Delivery radius must be between 0.1 and 50 miles")]
+    double? DeliveryRadiusMiles,
+    [Range(0, 5, ErrorMessage = "Hygiene rating must be between 0 and 5")]
+    int? HygieneRating,
+    [MaxLength(500)] string? ImageUrl);

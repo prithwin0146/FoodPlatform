@@ -7,7 +7,7 @@ namespace FoodPlatform.Api.Services.Interfaces;
 /// </summary>
 public interface IAdminOrderService
 {
-    Task<IEnumerable<OrderDto>> GetAllAsync();
+    Task<PaginatedResult<OrderDto>> GetAllAsync(int page, int pageSize);
     Task<IEnumerable<OrderDto>> GetDisputedAsync();
     Task<object?> RefundAsync(int orderId);
 }

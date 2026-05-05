@@ -5,6 +5,7 @@ using FoodPlatform.Api.Services;
 using FoodPlatform.Api.Services.Interfaces;
 using Hangfire;
 using Hangfire.SqlServer;
+using HealthChecks.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,19 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services, IConfiguration config)
     {
+        // Fail fast: a missing or weak JWT key must crash the app at boot,
+        // not silently NRE on the first authenticated request.
+        var key = config["Jwt:Key"]
+            ?? throw new InvalidOperationException(
+                "Jwt:Key is not configured. Set the JWT_KEY environment variable.");
+        if (key.Length < 32)
+            throw new InvalidOperationException(
+                "Jwt:Key must be at least 32 characters (256 bits) for HMAC-SHA256.");
+        var issuer = config["Jwt:Issuer"]
+            ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+        var audience = config["Jwt:Audience"]
+            ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -39,10 +53,10 @@ public static class ServiceCollectionExtensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = config["Jwt:Issuer"],
-                    ValidAudience = config["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Jwt:Key"]!))
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                    ClockSkew = TimeSpan.FromSeconds(30)
                 };
             });
         services.AddAuthorization();
@@ -105,19 +119,24 @@ public static class ServiceCollectionExtensions
         var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>()
             ?? ["http://localhost:4200"];
 
+        // Defence-in-depth: refuse to start if a wildcard slipped into the allow-list.
+        if (origins.Any(o => o.Contains('*')))
+            throw new InvalidOperationException(
+                "Cors:AllowedOrigins must not contain wildcards. Set explicit origins per environment.");
+
         services.AddCors(options =>
         {
             options.AddPolicy("AllowAngular", policy =>
                 policy.WithOrigins(origins)
                     .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials());
+                    .AllowAnyMethod());
+                    // No AllowCredentials() \u2014 we authenticate via Bearer header, not cookies.
         });
         return services;
     }
 
     /// <summary>
-    /// Applies a fixed-window rate limit to the "auth" policy (10 requests/min).
+    /// Per-IP fixed-window rate limit on the "auth" policy (10 requests/min per remote IP).
     /// (SRP: rate limiting concern owned here, not in controllers)
     /// </summary>
     public static IServiceCollection AddRateLimiting(
@@ -125,15 +144,42 @@ public static class ServiceCollectionExtensions
     {
         services.AddRateLimiter(options =>
         {
-            options.AddFixedWindowLimiter("auth", cfg =>
+            options.AddPolicy("auth", httpContext =>
             {
-                cfg.Window = TimeSpan.FromMinutes(1);
-                cfg.PermitLimit = 10;
-                cfg.QueueLimit = 0;
-                cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                // Partition by remote IP so one attacker can't starve the whole server.
+                // Falls back to "unknown" only if the connection has no remote address (test/loopback).
+                var partitionKey =
+                    httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? "unknown";
+
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey,
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 10,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                    });
             });
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
+        return services;
+    }
+
+    /// <summary>
+    /// Registers a health check endpoint that verifies SQL Server connectivity.
+    /// (SRP: health-check wiring isolated here; controllers and services are unaware)
+    /// </summary>
+    public static IServiceCollection AddApiHealthChecks(
+        this IServiceCollection services, IConfiguration config)
+    {
+        var connectionString = config.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("DefaultConnection is not configured.");
+
+        services.AddHealthChecks()
+            .AddSqlServer(connectionString, name: "sqlserver", tags: ["db", "ready"]);
+
         return services;
     }
 }

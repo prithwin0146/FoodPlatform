@@ -59,25 +59,25 @@ export class RestaurantList implements OnInit, AfterViewInit {
 
   /** Section: How it works */
   readonly howSteps: HowStep[] = [
-    { num: '01', title: 'Pick a kitchen', copy: 'Browse verified kitchens. No filters, no tricks — just real food, made by real chefs.',                       icon: 'restaurant_menu' },
-    { num: '02', title: 'Watch it cook',  copy: 'The moment you order, the camera goes live. Watch every step from prep to plate, in glorious HD.',           icon: 'videocam'         },
-    { num: '03', title: 'Track & enjoy',  copy: 'Follow your rider in real-time, leave a tip for the chef, and rate the prep. Total transparency.',           icon: 'delivery_dining'  },
+    { num: '01', title: 'Choose a kitchen', copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu' },
+    { num: '02', title: 'Watch it cook',   copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam'         },
+    { num: '03', title: 'Track to the door', copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you’re happy with the food.',                  icon: 'delivery_dining'  },
   ];
 
   /** Section: Why · four honest promises (editorial layout) */
   readonly promises: Promise[] = [
     {
       num: '01',
-      title: 'The camera is always on.',
-      copy: 'Every order, every kitchen. If a chef won\'t turn the camera on, they don\'t cook on SeeThePrep. No filtered angles, no after-the-fact photos — just the actual minute-by-minute prep of your meal in HD.',
+      title: 'Live camera on every order.',
+      copy: 'Every kitchen on the platform streams a live HD feed for the duration of your prep. No pre-recorded footage, no still photos — the camera shows what is happening in the kitchen, in real time.',
       metric: '100%',
       metricLabel: 'orders streamed live',
       icon: 'videocam',
     },
     {
       num: '02',
-      title: 'Five-star hygiene, or no listing.',
-      copy: 'We only onboard kitchens with a 5★ Food Standards Agency rating. We re-verify quarterly and cross-check with council records. Drop below five and you drop off the platform — no warnings, no second chances.',
+      title: 'FSA 5-star hygiene, audited quarterly.',
+      copy: 'We onboard kitchens with a current Food Standards Agency 5-star hygiene rating and re-verify against council records every quarter. Any kitchen that drops below the standard is delisted until it is restored.',
       metric: '5★',
       metricLabel: 'FSA minimum',
       icon: 'verified',
@@ -85,18 +85,18 @@ export class RestaurantList implements OnInit, AfterViewInit {
     {
       num: '03',
       title: 'Allergens, on the record.',
-      copy: 'Watch every ingredient go in the pan. Tag your allergy when you order and the prep camera flags the moment cross-contact risk appears. The receipt is a video, not a checkbox.',
-      metric: '0',
-      metricLabel: 'hidden ingredients',
+      copy: 'Every menu item lists its allergens before you order. Flag your allergy at checkout and the kitchen receives it on the prep ticket — the live camera then doubles as your audit trail.',
+      metric: '14',
+      metricLabel: 'EU/UK allergens declared',
       icon: 'science',
     },
     {
       num: '04',
-      title: 'Tips go to chefs. All of them.',
-      copy: 'Every penny you tip goes to the kitchen that cooked your food — paid out the same week, with a receipt. We never touch it, never skim it, never fold it into a "service fee".',
+      title: 'Tips paid in full to the kitchen.',
+      copy: 'Tips are paid out weekly to the kitchen that cooked your order, with a line-item receipt. SeeThePrep does not take a percentage and does not reclassify tips as a service fee.',
       metric: '100%',
-      metricLabel: 'to the chef\'s pocket',
-      icon: 'favorite',
+      metricLabel: 'to the kitchen',
+      icon: 'payments',
     },
   ];
 

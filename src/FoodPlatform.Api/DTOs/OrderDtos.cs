@@ -2,18 +2,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FoodPlatform.Api.DTOs;
 
+/// <summary>
+/// Generic pagination envelope for unbounded list endpoints.
+/// (SRP: pagination shape owned here; callers don't need to build their own)
+/// </summary>
+public record PaginatedResult<T>(IReadOnlyList<T> Items, int TotalCount, int Page, int PageSize)
+{
+    public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
+    public bool HasNextPage => Page < TotalPages;
+}
+
 // (SRP: order DTOs isolated)
 // (ISP: OrderSummaryDto for list responses avoids over-fetching; OrderDto for full detail)
 public record PlaceOrderRequest(
     [Required] int RestaurantId,
-    [Required] List<OrderItemRequest> Items,
-    [Required] string DeliveryAddressLine1,
-    [Required] string DeliveryCity,
+    [Required, MinLength(1, ErrorMessage = "Order must contain at least one item")]
+    List<OrderItemRequest> Items,
+    [Required, MaxLength(200)] string DeliveryAddressLine1,
+    [Required, MaxLength(100)] string DeliveryCity,
     [Required] string DeliveryPostcode,
-    [Required] string IdempotencyKey,
+    [Required, MaxLength(100)] string IdempotencyKey,
     string? PaymentIntentId);
 
-public record OrderItemRequest(int MenuItemId, int Quantity);
+public record OrderItemRequest(
+    int MenuItemId,
+    [Range(1, 50, ErrorMessage = "Quantity must be between 1 and 50")] int Quantity);
 
 /// <summary>
 /// Lightweight order summary for list endpoints. (ISP: callers that only need list data
@@ -26,14 +39,21 @@ public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Statu
 public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string? RejectionReason, string DisputeStatus, string? DisputeNotes,
     decimal TotalAmount, string DeliveryPostcode, DateTime? EstimatedDeliveryTime,
-    DateTime CancellableUntil, DateTime CreatedAt, List<OrderItemDto> Items);
+    DateTime CancellableUntil, DateTime CreatedAt, DateTime? DeliveredAt, List<OrderItemDto> Items);
 
 public record OrderItemDto(int Id, int MenuItemId, string MenuItemName, int Quantity, decimal UnitPrice);
 
-public record AcceptOrderRequest([Required] int EstimatedMinutes);
+public record AcceptOrderRequest(
+    [Required, Range(5, 180, ErrorMessage = "Estimated minutes must be between 5 and 180")]
+    int EstimatedMinutes);
 
-public record RejectOrderRequest([Required] string Reason);
+public record RejectOrderRequest(
+    [Required, MaxLength(500)] string Reason);
 
 public record UpdateStatusRequest([Required] string Status);
 
-public record DisputeRequest([Required] string Notes);
+public record DisputeRequest(
+    [Required,
+     MinLength(10, ErrorMessage = "Please provide at least 10 characters describing the issue"),
+     MaxLength(1000)]
+    string Notes);

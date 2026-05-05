@@ -16,6 +16,8 @@ public class Order
     public string DeliveryCity { get; set; } = string.Empty;
     public string DeliveryPostcode { get; set; } = string.Empty;
     public DateTime? EstimatedDeliveryTime { get; set; }
+    /// <summary>Stamped when status transitions to Delivered. Used to enforce the dispute window.</summary>
+    public DateTime? DeliveredAt { get; set; }
     public DateTime CancellableUntil { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

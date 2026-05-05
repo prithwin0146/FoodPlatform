@@ -4,6 +4,7 @@ using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.Domain;
 using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodPlatform.Api.Services;
@@ -13,7 +14,7 @@ namespace FoodPlatform.Api.Services;
 /// (SRP: all order business logic in one place — postcode validation, hours checking,
 ///  price snapshotting, state machine transitions, dispute handling)
 /// (OCP: delegates status transitions to OrderStatusMachine — no hardcoded arrays here)
-/// (DIP: controllers depend on IOrderService, not DbContext)
+/// (DIP: controllers depend on IOrderService, not DbContext; IBackgroundJobClient replaces static BackgroundJob)
 /// </summary>
 public class OrderService : IOrderService
 {
@@ -22,13 +23,13 @@ public class OrderService : IOrderService
 
     private readonly FoodPlatformDbContext _db;
     private readonly IStripeService _stripe;
-    private readonly IEmailService _email;
+    private readonly IBackgroundJobClient _jobs;
 
-    public OrderService(FoodPlatformDbContext db, IStripeService stripe, IEmailService email)
+    public OrderService(FoodPlatformDbContext db, IStripeService stripe, IBackgroundJobClient jobs)
     {
         _db = db;
         _stripe = stripe;
-        _email = email;
+        _jobs = jobs;
     }
 
     public async Task<ServiceResult<OrderDto>> PlaceOrderAsync(PlaceOrderRequest request, int userId)
@@ -56,7 +57,13 @@ public class OrderService : IOrderService
             now.TimeOfDay < todayHours.OpenTime || now.TimeOfDay > todayHours.CloseTime)
             return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Restaurant is currently closed");
 
-        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
+        // Deduplicate: merge identical MenuItemIds so we never create two rows for the same item.
+        var deduplicatedItems = request.Items
+            .GroupBy(i => i.MenuItemId)
+            .Select(g => new OrderItemRequest(g.Key, g.Sum(x => x.Quantity)))
+            .ToList();
+
+        var menuItemIds = deduplicatedItems.Select(i => i.MenuItemId).ToList();
         var menuItems = await _db.MenuItems
             .Where(m => menuItemIds.Contains(m.Id) && m.RestaurantId == request.RestaurantId && m.IsAvailable)
             .ToDictionaryAsync(m => m.Id);
@@ -66,7 +73,7 @@ public class OrderService : IOrderService
 
         decimal total = 0;
         var orderItems = new List<OrderItem>();
-        foreach (var item in request.Items)
+        foreach (var item in deduplicatedItems)
         {
             var menuItem = menuItems[item.MenuItemId];
             total += menuItem.Price * item.Quantity;
@@ -104,13 +111,15 @@ public class OrderService : IOrderService
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
 
-        // Send confirmation email — fire-and-forget (email failure must not fail the order)
+        // Enqueue confirmation email via Hangfire — automatic retries on Resend outage;
+        // email failure never blocks or fails the order response.
         var user = await _db.Users.FindAsync(userId);
         if (user != null)
         {
             var address = $"{request.DeliveryAddressLine1}, {request.DeliveryCity}, {request.DeliveryPostcode.ToUpperInvariant()}";
-            _ = _email.SendOrderPlacedAsync(user.Email, user.Username, order.Id,
-                restaurant.Name, total, address);
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendOrderPlacedAsync(user.Email, user.Username, order.Id,
+                    restaurant.Name, total, address));
         }
 
         return ServiceResult<OrderDto>.Ok(MapToDto(order));
@@ -155,8 +164,9 @@ public class OrderService : IOrderService
         var user = await _db.Users.FindAsync(order.UserId);
         var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
         if (user != null && restaurant != null)
-            _ = _email.SendOrderAcceptedAsync(user.Email, user.Username, order.Id,
-                restaurant.Name, order.EstimatedDeliveryTime.Value);
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendOrderAcceptedAsync(user.Email, user.Username, order.Id,
+                    restaurant.Name, order.EstimatedDeliveryTime!.Value));
 
         return ServiceResult<object>.Ok(new { order.Id, order.Status, order.EstimatedDeliveryTime });
     }
@@ -180,8 +190,9 @@ public class OrderService : IOrderService
         var user = await _db.Users.FindAsync(order.UserId);
         var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
         if (user != null && restaurant != null)
-            _ = _email.SendOrderRejectedAsync(user.Email, user.Username, order.Id,
-                restaurant.Name, request.Reason);
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendOrderRejectedAsync(user.Email, user.Username, order.Id,
+                    restaurant.Name, request.Reason));
 
         return ServiceResult<object>.Ok(new { order.Id, order.Status, order.RejectionReason });
     }
@@ -198,6 +209,8 @@ public class OrderService : IOrderService
                 $"Cannot transition from '{order.Status}' to '{request.Status}'");
 
         order.Status = request.Status;
+        if (request.Status == "Delivered")
+            order.DeliveredAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
         if (request.Status == "Delivered")
@@ -205,7 +218,8 @@ public class OrderService : IOrderService
             var user = await _db.Users.FindAsync(order.UserId);
             var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
             if (user != null && restaurant != null)
-                _ = _email.SendOrderDeliveredAsync(user.Email, user.Username, order.Id, restaurant.Name);
+                _jobs.Enqueue<IEmailService>(s =>
+                    s.SendOrderDeliveredAsync(user.Email, user.Username, order.Id, restaurant.Name));
         }
 
         return ServiceResult<object>.Ok(new { order.Id, order.Status });
@@ -231,7 +245,8 @@ public class OrderService : IOrderService
         var user = await _db.Users.FindAsync(order.UserId);
         var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
         if (user != null && restaurant != null)
-            _ = _email.SendOrderCancelledAsync(user.Email, user.Username, order.Id, restaurant.Name);
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendOrderCancelledAsync(user.Email, user.Username, order.Id, restaurant.Name));
 
         return ServiceResult<object>.Ok(new { order.Id, order.Status });
     }
@@ -244,6 +259,12 @@ public class OrderService : IOrderService
         if (order.Status != "Delivered")
             return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition, "Only delivered orders can be disputed");
 
+        // Enforce a 48-hour dispute window measured from actual delivery time.
+        var deliveredAt = order.DeliveredAt ?? order.CreatedAt; // fallback for orders created before this field
+        if (DateTime.UtcNow - deliveredAt > TimeSpan.FromHours(48))
+            return ServiceResult<object>.Fail(OrderServiceError.WindowExpired,
+                "Disputes must be raised within 48 hours of delivery");
+
         order.DisputeStatus = "Open";
         order.DisputeNotes = request.Notes;
         await _db.SaveChangesAsync();
@@ -254,7 +275,7 @@ public class OrderService : IOrderService
         o.Id, o.RestaurantId, o.UserId, o.Status,
         o.RejectionReason, o.DisputeStatus, o.DisputeNotes,
         o.TotalAmount, o.DeliveryPostcode, o.EstimatedDeliveryTime,
-        o.CancellableUntil, o.CreatedAt,
+        o.CancellableUntil, o.CreatedAt, o.DeliveredAt,
         o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId,
             i.MenuItem?.Name ?? "", i.Quantity, i.UnitPrice)).ToList());
 }

@@ -18,8 +18,10 @@ public class AdminOrdersController : ControllerBase
     public AdminOrdersController(IAdminOrderService orders) => _orders = orders;
 
     [HttpGet]
-    public async Task<IActionResult> AllOrders() =>
-        Ok(await _orders.GetAllAsync());
+    public async Task<IActionResult> AllOrders(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50) =>
+        Ok(await _orders.GetAllAsync(page, pageSize));
 
     [HttpGet("disputed")]
     public async Task<IActionResult> DisputedOrders() =>

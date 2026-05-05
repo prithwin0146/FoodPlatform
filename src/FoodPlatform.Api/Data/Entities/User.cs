@@ -12,6 +12,8 @@ public class User
     public bool IsEmailVerified { get; set; } = false;
     public string? OtpCode { get; set; }
     public DateTime? OtpExpiresAt { get; set; }
+    /// <summary>When the most recent OTP was dispatched. Used to throttle resend requests.</summary>
+    public DateTime? OtpSentAt { get; set; }
 
     // Navigation
     public Restaurant? Restaurant { get; set; }

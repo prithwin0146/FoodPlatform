@@ -4,6 +4,7 @@ using FoodPlatform.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FoodPlatform.Api.Migrations
 {
     [DbContext(typeof(FoodPlatformDbContext))]
-    partial class FoodPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260505155413_RemoveSeedUsers")]
+    partial class RemoveSeedUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -867,9 +870,6 @@ namespace FoodPlatform.Api.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<DateTime?>("DeliveredAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("DeliveryAddressLine1")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -1518,9 +1518,6 @@ namespace FoodPlatform.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("OtpExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("OtpSentAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
