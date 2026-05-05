@@ -32,7 +32,7 @@
     <!-- Right-side actions -->
     <div class="actions">
       @if (auth.isCustomer() && !cart.isEmpty()) {
-        <a routerLink="/checkout" class="cart-btn" matTooltip="View cart" aria-label="Open cart">
+        <a routerLink="/checkout" class="cart-btn" [class.cart-bouncing]="cartBouncing()" matTooltip="View cart" aria-label="Open cart">
           <span class="material-symbols-rounded cart-icon">shopping_bag</span>
           <span class="cart-badge">{{ cart.count() }}</span>
         </a>

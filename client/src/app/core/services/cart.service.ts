@@ -6,10 +6,13 @@ export class CartService {
   private readonly _items = signal<CartItem[]>([]);
   private readonly _restaurantId = signal<number | null>(null);
   private readonly _restaurantName = signal<string>('');
+  /** Increments on every addItem — header subscribes to trigger bounce animation. */
+  private readonly _lastAdded = signal(0);
 
   readonly items = this._items.asReadonly();
   readonly restaurantId = this._restaurantId.asReadonly();
   readonly restaurantName = this._restaurantName.asReadonly();
+  readonly lastAdded = this._lastAdded.asReadonly();
   readonly count = computed(() =>
     this._items().reduce((sum, i) => sum + i.quantity, 0)
   );
@@ -25,6 +28,7 @@ export class CartService {
     }
     this._restaurantId.set(restaurantId);
     this._restaurantName.set(restaurantName);
+    this._lastAdded.update(n => n + 1);
 
     const current = this._items();
     const existing = current.find((c) => c.menuItem.id === item.id);

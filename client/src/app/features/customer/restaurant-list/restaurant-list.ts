@@ -17,6 +17,7 @@ import { RestaurantEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { CountUpDirective } from '../../../shared/directives/count-up.directive';
 import { Logo } from '../../../shared/components/logo/logo';
 
 interface HowStep {
@@ -38,7 +39,7 @@ interface Promise {
   imports: [
     RouterLink,
     HygieneStarsPipe, HygieneLabelPipe, RestaurantEmojiPipe,
-    TiltDirective, ScrollRevealDirective, MagneticDirective,
+    TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
     Logo,
     MatFormFieldModule, MatInputModule, MatChipsModule,
     MatProgressSpinnerModule, MatRippleModule, MatTooltipModule, MatButtonModule,

@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, signal } from '@angular/core';
+import { Component, HostListener, computed, signal, effect, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,12 +22,26 @@ import { Logo } from '../logo/logo';
 })
 export class Header {
   readonly scrolled = signal(false);
+  readonly cartBouncing = signal(false);
 
   constructor(
     readonly auth: AuthService,
     readonly cart: CartService,
     private readonly router: Router
-  ) {}
+  ) {
+    // Bounce the cart icon every time a new item is added
+    effect(() => {
+      const added = this.cart.lastAdded();
+      if (added > 0) {
+        this.cartBouncing.set(false);
+        // Micro-task ensures class toggling re-triggers the CSS animation
+        Promise.resolve().then(() => {
+          this.cartBouncing.set(true);
+          setTimeout(() => this.cartBouncing.set(false), 650);
+        });
+      }
+    });
+  }
 
   readonly dashboardLink = computed(() => {
     if (this.auth.isAdmin()) return '/admin';

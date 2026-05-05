@@ -14,6 +14,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
+import { ConfettiService } from '../../../core/services/confetti.service';
 import { ukPostcodeValidator } from '../../../shared/validators/uk-postcode.validator';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
@@ -49,7 +50,8 @@ export class Checkout {
     private readonly auth: AuthService,
     private readonly toast: ToastService,
     private readonly router: Router,
-    private readonly idempotencyKey: IdempotencyKeyService
+    private readonly idempotencyKey: IdempotencyKeyService,
+    private readonly confetti: ConfettiService
   ) {}
 
   get postcodeValid(): boolean {
@@ -84,8 +86,9 @@ export class Checkout {
     }).subscribe({
       next: (order) => {
         this.cart.clear();
-        this.toast.success('Order placed successfully!');
-        this.router.navigate(['/orders', order.id]);
+        this.confetti.burst();
+        this.toast.success('Order placed! Watch your chef get started 👨‍🍳');
+        setTimeout(() => this.router.navigate(['/orders', order.id]), 900);
       },
       error: (err) => {
         this.placing.set(false);

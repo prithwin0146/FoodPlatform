@@ -466,19 +466,19 @@
   <div class="container">
     <div class="stats-grid">
       <div class="stat" appScrollReveal>
-        <div class="stat-num">100%</div>
+        <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
         <div class="stat-label">Live HD streaming</div>
       </div>
       <div class="stat" appScrollReveal [revealDelay]="100">
-        <div class="stat-num">5<span class="stat-star">★</span></div>
+        <div class="stat-num"><span appCountUp [appCountUp]="5">5</span><span class="stat-star">★</span></div>
         <div class="stat-label">Hygiene minimum</div>
       </div>
       <div class="stat" appScrollReveal [revealDelay]="200">
-        <div class="stat-num">0</div>
+        <div class="stat-num" appCountUp [appCountUp]="0">0</div>
         <div class="stat-label">Hidden kitchens</div>
       </div>
       <div class="stat" appScrollReveal [revealDelay]="300">
-        <div class="stat-num">100%</div>
+        <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
         <div class="stat-label">Tips to chef</div>
       </div>
     </div>
