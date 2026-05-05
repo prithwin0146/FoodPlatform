@@ -1,8 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, OnDestroy, AfterViewInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
-import { AbstractControl, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,13 +15,16 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
 import { ConfettiService } from '../../../core/services/confetti.service';
+import { StripeService } from '../../../core/services/stripe.service';
+import { PaymentService } from '../../../core/services/payment.service';
 import { ukPostcodeValidator } from '../../../shared/validators/uk-postcode.validator';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 
 /**
- * (SRP: postcode validation delegated to ukPostcodeValidator, idempotency key to IdempotencyKeyService)
+ * (SRP: postcode → ukPostcodeValidator; idempotency → IdempotencyKeyService;
+ *  payment → StripeService + PaymentService; order placement → OrderService)
  */
 @Component({
   selector: 'app-checkout',
@@ -34,8 +37,14 @@ import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
 })
-export class Checkout {
+export class Checkout implements AfterViewInit, OnDestroy {
+  @ViewChild('cardElement') private cardElementRef!: ElementRef<HTMLDivElement>;
+
   readonly placing = signal(false);
+  /** 'idle' | 'confirming' | 'placing' */
+  readonly paymentStep = signal<'idle' | 'confirming' | 'placing'>('idle');
+  readonly cardError = signal<string | null>(null);
+
   addressLine1 = '';
   city = '';
 
@@ -51,20 +60,42 @@ export class Checkout {
     private readonly toast: ToastService,
     private readonly router: Router,
     private readonly idempotencyKey: IdempotencyKeyService,
-    private readonly confetti: ConfettiService
+    private readonly confetti: ConfettiService,
+    readonly stripeService: StripeService,
+    private readonly paymentService: PaymentService
   ) {}
+
+  async ngAfterViewInit(): Promise<void> {
+    if (this.cart.isEmpty()) return;
+    await this.stripeService.load();
+    this.stripeService.mountCard(this.cardElementRef.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.stripeService.destroyCard();
+  }
 
   get postcodeValid(): boolean {
     return this.postcodeControl.valid;
   }
 
   get formValid(): boolean {
-    return this.addressLine1.trim().length > 0 &&
+    return (
+      this.addressLine1.trim().length > 0 &&
       this.city.trim().length > 0 &&
-      this.postcodeValid;
+      this.postcodeValid
+    );
   }
 
-  placeOrder(): void {
+  get stepLabel(): string {
+    switch (this.paymentStep()) {
+      case 'confirming': return 'Confirming payment…';
+      case 'placing':    return 'Placing order…';
+      default:           return 'Pay & Place Order';
+    }
+  }
+
+  async placeOrder(): Promise<void> {
     if (!this.formValid || this.cart.isEmpty()) return;
     if (!this.auth.isLoggedIn()) {
       this.toast.error('Please login to place an order');
@@ -72,28 +103,58 @@ export class Checkout {
       return;
     }
 
+    this.cardError.set(null);
     this.placing.set(true);
-    this.orderService.place({
+    const key = this.idempotencyKey.generate();
+
+    // ── Step 1: Create PaymentIntent server-side (amount validated on backend) ──
+    this.paymentStep.set('confirming');
+    this.paymentService.createIntent({
       restaurantId: this.cart.restaurantId()!,
-      items: this.cart.items().map((i) => ({
-        menuItemId: i.menuItem.id,
-        quantity: i.quantity,
-      })),
-      deliveryAddressLine1: this.addressLine1,
-      deliveryCity: this.city,
-      deliveryPostcode: this.postcodeControl.value!.toUpperCase(),
-      idempotencyKey: this.idempotencyKey.generate(),
+      items: this.cart.items().map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
+      idempotencyKey: key,
     }).subscribe({
-      next: (order) => {
-        this.cart.clear();
-        this.confetti.burst();
-        this.toast.success('Order placed! Watch your chef get started 👨‍🍳');
-        setTimeout(() => this.router.navigate(['/orders', order.id]), 900);
+      next: async ({ clientSecret }) => {
+        // ── Step 2: Confirm card payment (Stripe.js handles 3DS automatically) ──
+        const result = await this.stripeService.confirmCardPayment(clientSecret);
+
+        if ('error' in result) {
+          this.cardError.set(result.error);
+          this.placing.set(false);
+          this.paymentStep.set('idle');
+          return;
+        }
+
+        // ── Step 3: Place order with confirmed PaymentIntent ID ──
+        this.paymentStep.set('placing');
+        this.orderService.place({
+          restaurantId: this.cart.restaurantId()!,
+          items: this.cart.items().map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
+          deliveryAddressLine1: this.addressLine1,
+          deliveryCity: this.city,
+          deliveryPostcode: this.postcodeControl.value!.toUpperCase(),
+          idempotencyKey: key,
+          paymentIntentId: result.paymentIntentId,
+        }).subscribe({
+          next: (order) => {
+            this.cart.clear();
+            this.confetti.burst();
+            this.toast.success('Order placed! Watch your chef get started 👨‍🍳');
+            setTimeout(() => this.router.navigate(['/orders', order.id]), 900);
+          },
+          error: (err) => {
+            this.placing.set(false);
+            this.paymentStep.set('idle');
+            this.toast.error(err.error?.message ?? 'Failed to place order');
+          },
+        });
       },
       error: (err) => {
         this.placing.set(false);
-        this.toast.error(err.error?.message ?? 'Failed to place order');
+        this.paymentStep.set('idle');
+        this.toast.error(err.error?.error ?? 'Could not initialise payment');
       },
     });
   }
 }
+

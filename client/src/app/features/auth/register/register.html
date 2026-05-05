@@ -1,44 +1,115 @@
-<div class="auth-page">
-  <div class="auth-card card animate-scale-in">
-    <div class="auth-header">
-      <div class="logo-icon">👨‍🍳</div>
-      <h1>Create Account</h1>
-      <p>Join SeeThePrep today</p>
+<div class="auth-shell">
+
+  <!-- ── LEFT BRAND PANEL ─────────────────────────────────────── -->
+  <div class="brand-panel" aria-hidden="true">
+    <div class="brand-panel__inner">
+      <div class="brand-wordmark">see the <em>prep</em>&#9646;</div>
+      <p class="brand-panel__tagline">Live Kitchen. On Tap.</p>
+
+      <ul class="brand-panel__pills">
+        <li><span class="material-symbols-rounded">videocam</span> Watch your food being made</li>
+        <li><span class="material-symbols-rounded">restaurant</span> 5-star hygiene rated restaurants</li>
+        <li><span class="material-symbols-rounded">lock</span> Secure checkout via Stripe</li>
+        <li><span class="material-symbols-rounded">notifications</span> Live order status updates</li>
+      </ul>
+
+      <div class="brand-panel__quote">
+        <blockquote>"You shouldn't have to guess what's in your food."</blockquote>
+      </div>
     </div>
-    <form (ngSubmit)="submit()" class="auth-form">
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" [(ngModel)]="username" name="username" placeholder="How should we greet you?"
-          class="form-input" autocomplete="username" minlength="2" maxlength="50" required>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="email" name="email" placeholder="you@example.com"
-          class="form-input" autocomplete="email" required>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" [(ngModel)]="password" name="password" placeholder="Min 8 characters"
-          class="form-input" autocomplete="new-password" required>
-      </div>
-      <div class="form-group">
-        <label>Confirm Password</label>
-        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••"
-          class="form-input" [class.invalid]="confirmPassword.length > 0 && !passwordsMatch" required>
-        @if (confirmPassword.length > 0 && !passwordsMatch) {
-          <span class="error-text">Passwords don't match</span>
-        }
-      </div>
-      <button type="submit" class="btn btn-primary btn-lg auth-submit" [disabled]="loading()">
-        @if (loading()) {
-          <span class="spinner"></span> Creating...
-        } @else {
-          Create Account 🚀
-        }
-      </button>
-    </form>
-    <p class="auth-footer">
-      Already have an account? <a routerLink="/login">Sign in</a>
-    </p>
   </div>
+
+  <!-- ── RIGHT FORM PANEL ──────────────────────────────────────── -->
+  <div class="form-panel">
+    <div class="form-panel__inner">
+
+      <header class="form-header">
+        <h1>Create your account</h1>
+        <p>Join thousands watching their food being made live</p>
+      </header>
+
+      <form (ngSubmit)="submit()" class="register-form" novalidate>
+
+        <mat-form-field appearance="outline" class="full-width dark-field">
+          <mat-label>Username</mat-label>
+          <span matPrefix class="field-icon material-symbols-rounded">person</span>
+          <input matInput type="text" [(ngModel)]="username" name="username"
+            autocomplete="username" minlength="2" maxlength="50" required />
+          <mat-hint>This is how we'll greet you</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width dark-field">
+          <mat-label>Email address</mat-label>
+          <span matPrefix class="field-icon material-symbols-rounded">mail</span>
+          <input matInput type="email" [(ngModel)]="email" name="email"
+            autocomplete="email" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width dark-field">
+          <mat-label>Password</mat-label>
+          <span matPrefix class="field-icon material-symbols-rounded">lock</span>
+          <input matInput [type]="showPw() ? 'text' : 'password'"
+            [ngModel]="password" (ngModelChange)="onPasswordChange($event)"
+            name="password" autocomplete="new-password" minlength="8" required />
+          <button matSuffix mat-icon-button type="button"
+            (click)="showPw.set(!showPw())"
+            [attr.aria-label]="showPw() ? 'Hide password' : 'Show password'">
+            <span class="field-icon material-symbols-rounded">
+              {{ showPw() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+        </mat-form-field>
+
+        @if (password.length > 0) {
+          <div class="strength-meter">
+            <div class="strength-bars">
+              @for (i of [1,2,3,4]; track i) {
+                <div class="strength-bar" [class.active]="passwordStrength() >= i"
+                  [attr.data-strength]="passwordStrength()"></div>
+              }
+            </div>
+            <span class="strength-label" [attr.data-strength]="passwordStrength()">
+              {{ strengthLabel() }}
+            </span>
+          </div>
+        }
+
+        <mat-form-field appearance="outline" class="full-width dark-field">
+          <mat-label>Confirm password</mat-label>
+          <span matPrefix class="field-icon material-symbols-rounded">lock_reset</span>
+          <input matInput [type]="showConfirmPw() ? 'text' : 'password'"
+            [(ngModel)]="confirmPassword" name="confirmPassword"
+            autocomplete="new-password" required />
+          <button matSuffix mat-icon-button type="button"
+            (click)="showConfirmPw.set(!showConfirmPw())"
+            [attr.aria-label]="showConfirmPw() ? 'Hide password' : 'Show password'">
+            <span class="field-icon material-symbols-rounded">
+              {{ showConfirmPw() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+          @if (confirmPassword.length > 0 && !passwordsMatch) {
+            <mat-error>Passwords do not match</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button type="submit" class="submit-btn"
+          [disabled]="loading() || !username || !email || !password || !passwordsMatch">
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+            <span>Creating account…</span>
+          } @else {
+            <span>Create account</span>
+            <span class="material-symbols-rounded btn-arrow">arrow_forward</span>
+          }
+        </button>
+
+      </form>
+
+      <p class="form-footer">
+        Already have an account?&nbsp;<a routerLink="/login" mat-button>Sign in</a>
+      </p>
+
+    </div>
+  </div>
+
 </div>

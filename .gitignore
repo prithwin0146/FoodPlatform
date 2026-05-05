@@ -6,6 +6,7 @@ obj/
 .vs/
 *.swp
 appsettings.Development.json
+appsettings.json
 
 # Angular
 client/node_modules/
@@ -19,3 +20,5 @@ client/.angular/
 # Secrets / credentials — never commit
 admin-credentials.md
 *.credentials.md
+appsettings.Production.json
+appsettings.Staging.json

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models';
+import { AuthResponse, LoginRequest, RegisterRequest, RegisterResponse, VerifyOtpRequest, ResendOtpRequest } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiAuthService {
@@ -14,7 +14,15 @@ export class ApiAuthService {
     return this.http.post<AuthResponse>(`${this.url}/login`, req);
   }
 
-  register(req: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.url}/register`, req);
+  register(req: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.url}/register`, req);
+  }
+
+  verifyOtp(req: VerifyOtpRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.url}/verify-otp`, req);
+  }
+
+  resendOtp(req: ResendOtpRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.url}/resend-otp`, req);
   }
 }

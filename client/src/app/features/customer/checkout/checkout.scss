@@ -312,3 +312,52 @@
   .empty-state { padding: 60px 16px; }
   .empty-state .empty-icon { font-size: 3rem; }
 }
+
+// ── Stripe card element ────────────────────────────────────────────────────────
+.payment-card {
+  .payment-hint {
+    color: var(--text-secondary);
+    font-size: .875rem;
+    margin: 0 0 16px;
+  }
+
+  .stripe-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-secondary);
+    font-size: .875rem;
+    padding: 12px 0;
+    mat-spinner { opacity: .6; }
+  }
+
+  .stripe-card-element {
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 14px;
+    transition: border-color .2s;
+    min-height: 44px;
+    &:focus-within { border-color: var(--brand-primary); }
+  }
+
+  .card-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #f87171;
+    font-size: .85rem;
+    margin-top: 10px;
+    .material-symbols-rounded { font-size: 1.1rem; }
+  }
+
+  .stripe-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: .8rem;
+    margin-top: 14px;
+    .material-symbols-rounded { font-size: 1rem; color: var(--brand-primary); }
+  }
+}

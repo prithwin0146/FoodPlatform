@@ -97,6 +97,21 @@ export interface RegisterRequest {
   password: string;
 }
 
+/** Returned by POST /auth/register — no token yet; must verify email */
+export interface RegisterResponse {
+  email: string;
+  message: string;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResendOtpRequest {
+  email: string;
+}
+
 // === Cart ===
 export interface CartItem {
   menuItem: MenuItem;
@@ -111,7 +126,7 @@ export interface PlaceOrderRequest {
   deliveryCity: string;
   deliveryPostcode: string;
   idempotencyKey: string;
-  paymentMethodId?: string;
+  paymentIntentId?: string;
 }
 
 export interface AcceptOrderRequest {

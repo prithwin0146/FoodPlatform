@@ -35,6 +35,9 @@ export class Dashboard implements OnInit {
   readonly loading = signal(true);
   readonly filter = signal('all');
   readonly estimatedMinutes = signal(30);
+  /** Id of the order currently showing the inline reject form; null = no form open. */
+  readonly rejectingOrderId = signal<number | null>(null);
+  readonly rejectReason = signal('');
 
   readonly filters = ['all','Pending','Accepted','Preparing','Cooking','Packed','OutForDelivery','Delivered'];
 
@@ -67,13 +70,26 @@ export class Dashboard implements OnInit {
   }
 
   reject(order: Order): void {
-    const reason = prompt('Rejection reason:');
+    this.rejectReason.set('');
+    this.rejectingOrderId.set(order.id);
+  }
+
+  confirmReject(order: Order): void {
+    const reason = this.rejectReason().trim();
     if (!reason) return;
     this.orderService.reject(order.id, { reason }).subscribe({
-      next: () => { this.toast.success('Order rejected'); this.loadOrders(); },
+      next: () => {
+        this.rejectingOrderId.set(null);
+        this.toast.success('Order rejected');
+        this.loadOrders();
+      },
       error: (err: { error?: { message?: string } }) =>
         this.toast.error(err.error?.message ?? 'Failed'),
     });
+  }
+
+  cancelReject(): void {
+    this.rejectingOrderId.set(null);
   }
 
   advanceStatus(order: Order): void {

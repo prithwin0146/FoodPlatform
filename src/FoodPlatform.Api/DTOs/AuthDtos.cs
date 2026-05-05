@@ -13,3 +13,13 @@ public record RegisterRequest(
     [Required, MinLength(8)] string Password);
 
 public record AuthResponse(string Token, string Role, string Username, int UserId, int? RestaurantId);
+
+/// <summary>Returned by POST /register — no token yet, user must verify email first.</summary>
+public record RegisterResponse(string Email, string Message);
+
+public record VerifyOtpRequest(
+    [Required, EmailAddress] string Email,
+    [Required, StringLength(6, MinimumLength = 6)] string Otp);
+
+public record ResendOtpRequest(
+    [Required, EmailAddress] string Email);

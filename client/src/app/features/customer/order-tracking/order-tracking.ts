@@ -44,10 +44,18 @@ export class OrderTracking implements OnInit, OnDestroy {
     private readonly toast: ToastService
   ) {}
 
+  private static readonly TERMINAL_STATUSES: OrderStatus[] = ['Delivered', 'Rejected', 'Cancelled'];
+
   ngOnInit(): void {
     const id = +this.route.snapshot.params['id'];
     this._pollSub = this.polling.poll(id).subscribe({
-      next: (o) => { this.order.set(o); this.loading.set(false); },
+      next: (o) => {
+        this.order.set(o);
+        this.loading.set(false);
+        if (OrderTracking.TERMINAL_STATUSES.includes(o.status)) {
+          this._pollSub?.unsubscribe();
+        }
+      },
       error: () => this.loading.set(false),
     });
   }

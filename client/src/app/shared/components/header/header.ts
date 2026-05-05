@@ -45,7 +45,7 @@ export class Header {
 
   readonly dashboardLink = computed(() => {
     if (this.auth.isAdmin()) return '/admin';
-    if (this.auth.isStaff()) return '/restaurant';
+    if (this.auth.isStaff()) return '/dashboard';
     return null;
   });
 

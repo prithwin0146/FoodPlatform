@@ -48,6 +48,37 @@
             </div>
           </section>
 
+            <!-- Payment Details -->
+          <section class="glass-card payment-card" appScrollReveal [revealDelay]="90">
+            <div class="section-heading">
+              <span class="material-symbols-rounded section-icon">credit_card</span>
+              Payment Details
+            </div>
+            <p class="payment-hint">Enter your card details below. All payments are secured and encrypted by Stripe.</p>
+
+            @if (stripeService.loading()) {
+              <div class="stripe-loading">
+                <mat-spinner diameter="24"></mat-spinner>
+                <span>Loading secure payment form…</span>
+              </div>
+            }
+
+            <!-- Stripe card element is mounted into this div by StripeService -->
+            <div #cardElement id="card-element" class="stripe-card-element"></div>
+
+            @if (cardError()) {
+              <div class="card-error">
+                <span class="material-symbols-rounded">error</span>
+                {{ cardError() }}
+              </div>
+            }
+
+            <div class="stripe-badge">
+              <span class="material-symbols-rounded">lock</span>
+              Secured by <strong>Stripe</strong> — 3D Secure supported
+            </div>
+          </section>
+
           <!-- Your Order -->
           <section class="glass-card your-order-card" appScrollReveal [revealDelay]="120">
             <div class="section-heading">
@@ -121,19 +152,15 @@
             >
               @if (placing()) {
                 <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
-                Placing Order…
+                {{ stepLabel }}
               } @else {
-                Place Order
+                {{ stepLabel }}
                 <span class="material-symbols-rounded">arrow_forward</span>
               }
             </button>
 
             <!-- Microcopy -->
             <p class="cancel-note">You can cancel within 5 minutes of placing</p>
-            <p class="stripe-note">
-              <span class="material-symbols-rounded">lock</span>
-              Secured by Stripe
-            </p>
 
             <!-- Live Telemetry Strip -->
             <div class="telemetry-strip">

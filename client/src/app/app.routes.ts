@@ -51,5 +51,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/info/info-page').then((m) => m.InfoPage),
   },
+  {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
+  },
   { path: '**', redirectTo: '' },
 ];

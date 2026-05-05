@@ -171,6 +171,19 @@
   .mat-mdc-floating-label { color: var(--text-secondary) !important; }
 }
 .action-btns { display: flex; gap: 8px; }
+.reject-form {
+  display: flex; flex-direction: column; gap: 8px; width: 100%;
+  animation: fadeIn .18s ease;
+}
+::ng-deep .reason-field {
+  width: 100%;
+  .mat-mdc-text-field-wrapper { background: #fff !important; border-radius: 10px !important; }
+  .mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing {
+    border-color: #fac3c3 !important;
+  }
+  textarea { color: var(--text) !important; }
+  .mat-mdc-floating-label { color: #b91c1c !important; }
+}
 .accept-btn {
   flex: 1; background: #e6f7ec !important; color: #0f7a3f !important;
   border-radius: 10px !important; font-weight: 700 !important;

@@ -1,6 +1,8 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { CartItem, MenuItem } from '../models';
 
+const CART_KEY = 'fp_cart';
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly _items = signal<CartItem[]>([]);
@@ -8,6 +10,10 @@ export class CartService {
   private readonly _restaurantName = signal<string>('');
   /** Increments on every addItem — header subscribes to trigger bounce animation. */
   private readonly _lastAdded = signal(0);
+
+  constructor() {
+    this.loadFromStorage();
+  }
 
   readonly items = this._items.asReadonly();
   readonly restaurantId = this._restaurantId.asReadonly();
@@ -41,6 +47,7 @@ export class CartService {
     } else {
       this._items.set([...current, { menuItem: item, quantity: 1 }]);
     }
+    this.saveToStorage();
   }
 
   removeItem(itemId: number): void {
@@ -62,6 +69,7 @@ export class CartService {
       this._restaurantId.set(null);
       this._restaurantName.set('');
     }
+    this.saveToStorage();
   }
 
   getQuantity(itemId: number): number {
@@ -72,5 +80,29 @@ export class CartService {
     this._items.set([]);
     this._restaurantId.set(null);
     this._restaurantName.set('');
+    this.saveToStorage();
+  }
+
+  private saveToStorage(): void {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify({
+        items: this._items(),
+        restaurantId: this._restaurantId(),
+        restaurantName: this._restaurantName(),
+      }));
+    } catch { /* quota exceeded — ignore */ }
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(CART_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (Array.isArray(data.items) && data.items.length > 0) {
+        this._items.set(data.items);
+        this._restaurantId.set(data.restaurantId ?? null);
+        this._restaurantName.set(data.restaurantName ?? '');
+      }
+    } catch { /* corrupt storage — ignore */ }
   }
 }

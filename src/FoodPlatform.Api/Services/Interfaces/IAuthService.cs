@@ -8,5 +8,7 @@ namespace FoodPlatform.Api.Services.Interfaces;
 public interface IAuthService
 {
     Task<AuthResponse?> LoginAsync(LoginRequest request);
-    Task<AuthResponse?> RegisterAsync(RegisterRequest request);
+    Task<(RegisterResponse? Response, string? Error)> RegisterAsync(RegisterRequest request);
+    Task<(AuthResponse? Response, string? Error)> VerifyOtpAsync(VerifyOtpRequest request);
+    Task<(bool Success, string? Error)> ResendOtpAsync(ResendOtpRequest request);
 }

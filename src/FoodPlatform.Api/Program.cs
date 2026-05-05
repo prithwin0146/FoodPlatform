@@ -9,13 +9,16 @@ builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddHangfireJobs(builder.Configuration)
     .AddApplicationServices()
-    .AddApiCors()
+    .AddResendEmail(builder.Configuration)
+    .AddApiCors(builder.Configuration)
+    .AddRateLimiting()
     .AddControllers();
 
 var app = builder.Build();
 
 // === Middleware pipeline ===
 app.UseCors("AllowAngular");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

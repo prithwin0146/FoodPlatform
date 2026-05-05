@@ -21,11 +21,25 @@ public class OrderService : IOrderService
         new(@"^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly FoodPlatformDbContext _db;
+    private readonly IStripeService _stripe;
+    private readonly IEmailService _email;
 
-    public OrderService(FoodPlatformDbContext db) => _db = db;
+    public OrderService(FoodPlatformDbContext db, IStripeService stripe, IEmailService email)
+    {
+        _db = db;
+        _stripe = stripe;
+        _email = email;
+    }
 
     public async Task<ServiceResult<OrderDto>> PlaceOrderAsync(PlaceOrderRequest request, int userId)
     {
+        // Idempotency: return existing order if the same key was already processed
+        var existing = await _db.Orders
+            .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .FirstOrDefaultAsync(o => o.IdempotencyKey == request.IdempotencyKey && o.UserId == userId);
+        if (existing != null)
+            return ServiceResult<OrderDto>.Ok(MapToDto(existing));
+
         if (!PostcodeRegex.IsMatch(request.DeliveryPostcode))
             return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Invalid UK postcode");
 
@@ -64,7 +78,14 @@ public class OrderService : IOrderService
             });
         }
 
-        // TODO Phase 2: Real Stripe payment with idempotency key
+        if (!string.IsNullOrEmpty(request.PaymentIntentId))
+        {
+            var paid = await _stripe.VerifyPaymentSucceededAsync(request.PaymentIntentId, total);
+            if (!paid)
+                return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed,
+                    "Payment has not been confirmed. Please complete payment first.");
+        }
+
         var order = new Order
         {
             RestaurantId = request.RestaurantId,
@@ -75,13 +96,23 @@ public class OrderService : IOrderService
             DeliveryAddressLine1 = request.DeliveryAddressLine1,
             DeliveryCity = request.DeliveryCity,
             DeliveryPostcode = request.DeliveryPostcode.ToUpperInvariant(),
-            CancellableUntil = DateTime.UtcNow.AddMinutes(2),
-            StripePaymentIntentId = "mock_pi_" + Guid.NewGuid().ToString("N")[..16],
+            CancellableUntil = DateTime.UtcNow.AddMinutes(5),
+            StripePaymentIntentId = request.PaymentIntentId ?? "mock_pi_" + Guid.NewGuid().ToString("N")[..16],
             Items = orderItems
         };
 
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
+
+        // Send confirmation email — fire-and-forget (email failure must not fail the order)
+        var user = await _db.Users.FindAsync(userId);
+        if (user != null)
+        {
+            var address = $"{request.DeliveryAddressLine1}, {request.DeliveryCity}, {request.DeliveryPostcode.ToUpperInvariant()}";
+            _ = _email.SendOrderPlacedAsync(user.Email, user.Username, order.Id,
+                restaurant.Name, total, address);
+        }
+
         return ServiceResult<OrderDto>.Ok(MapToDto(order));
     }
 
@@ -120,6 +151,13 @@ public class OrderService : IOrderService
         order.Status = "Accepted";
         order.EstimatedDeliveryTime = DateTime.UtcNow.AddMinutes(request.EstimatedMinutes);
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(order.UserId);
+        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user != null && restaurant != null)
+            _ = _email.SendOrderAcceptedAsync(user.Email, user.Username, order.Id,
+                restaurant.Name, order.EstimatedDeliveryTime.Value);
+
         return ServiceResult<object>.Ok(new { order.Id, order.Status, order.EstimatedDeliveryTime });
     }
 
@@ -133,8 +171,18 @@ public class OrderService : IOrderService
 
         order.Status = "Rejected";
         order.RejectionReason = request.Reason;
-        // TODO Phase 2: Issue Stripe refund
+
+        if (!string.IsNullOrEmpty(order.StripePaymentIntentId))
+            await _stripe.RefundAsync(order.StripePaymentIntentId);
+
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(order.UserId);
+        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user != null && restaurant != null)
+            _ = _email.SendOrderRejectedAsync(user.Email, user.Username, order.Id,
+                restaurant.Name, request.Reason);
+
         return ServiceResult<object>.Ok(new { order.Id, order.Status, order.RejectionReason });
     }
 
@@ -151,6 +199,15 @@ public class OrderService : IOrderService
 
         order.Status = request.Status;
         await _db.SaveChangesAsync();
+
+        if (request.Status == "Delivered")
+        {
+            var user = await _db.Users.FindAsync(order.UserId);
+            var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+            if (user != null && restaurant != null)
+                _ = _email.SendOrderDeliveredAsync(user.Email, user.Username, order.Id, restaurant.Name);
+        }
+
         return ServiceResult<object>.Ok(new { order.Id, order.Status });
     }
 
@@ -165,8 +222,17 @@ public class OrderService : IOrderService
             return ServiceResult<object>.Fail(OrderServiceError.WindowExpired, "Cancellation window has expired");
 
         order.Status = "Cancelled";
-        // TODO Phase 2: Issue Stripe refund
+
+        if (!string.IsNullOrEmpty(order.StripePaymentIntentId))
+            await _stripe.RefundAsync(order.StripePaymentIntentId);
+
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(order.UserId);
+        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user != null && restaurant != null)
+            _ = _email.SendOrderCancelledAsync(user.Email, user.Username, order.Id, restaurant.Name);
+
         return ServiceResult<object>.Ok(new { order.Id, order.Status });
     }
 
@@ -175,6 +241,8 @@ public class OrderService : IOrderService
         var order = await _db.Orders.FindAsync(id);
         if (order == null || order.UserId != userId)
             return ServiceResult<object>.Fail(OrderServiceError.Unauthorized, "Order not found");
+        if (order.Status != "Delivered")
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition, "Only delivered orders can be disputed");
 
         order.DisputeStatus = "Open";
         order.DisputeNotes = request.Notes;

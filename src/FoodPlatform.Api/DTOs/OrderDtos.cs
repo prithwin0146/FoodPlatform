@@ -11,7 +11,7 @@ public record PlaceOrderRequest(
     [Required] string DeliveryCity,
     [Required] string DeliveryPostcode,
     [Required] string IdempotencyKey,
-    string? PaymentMethodId);
+    string? PaymentIntentId);
 
 public record OrderItemRequest(int MenuItemId, int Quantity);
 

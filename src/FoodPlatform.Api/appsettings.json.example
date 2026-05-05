@@ -1,0 +1,28 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "<sql-server-connection-string>"
+  },
+  "Jwt": {
+    "Key": "<min-32-char-random-secret>",
+    "Issuer": "FoodPlatform",
+    "Audience": "FoodPlatformApp"
+  },
+  "Cors": {
+    "AllowedOrigins": [ "http://localhost:4200" ]
+  },
+  "Resend": {
+    "ApiKey": "<re_xxx from resend.com>",
+    "FromAddress": "SeeThePrep <orders@seetheprep.com>"
+  },
+  "Stripe": {
+    "SecretKey": "<sk_test_xxx from stripe.com/dashboard>",
+    "WebhookSecret": "<whsec_xxx from stripe.com/webhooks>"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

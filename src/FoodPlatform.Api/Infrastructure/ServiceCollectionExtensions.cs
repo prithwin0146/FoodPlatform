@@ -1,12 +1,15 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Services;
 using FoodPlatform.Api.Services.Interfaces;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
 
 namespace FoodPlatform.Api.Infrastructure;
 
@@ -74,19 +77,62 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminRestaurantService, AdminRestaurantService>();
         services.AddScoped<IAdminMenuService, AdminMenuService>();
 
+        // Infrastructure services
+        services.AddScoped<IStripeService, StripeService>();
+        services.AddScoped<IEmailService, ResendEmailService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Wires up the Resend email SDK.
+    /// (SRP: email infrastructure registration isolated from everything else)
+    /// </summary>
+    public static IServiceCollection AddResendEmail(
+        this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<ResendClientOptions>(options =>
+        {
+            options.ApiToken = config["Resend:ApiKey"] ?? string.Empty;
+        });
+        services.AddHttpClient<IResend, ResendClient>();
         return services;
     }
 
     public static IServiceCollection AddApiCors(
-        this IServiceCollection services)
+        this IServiceCollection services, IConfiguration config)
     {
+        var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? ["http://localhost:4200"];
+
         services.AddCors(options =>
         {
             options.AddPolicy("AllowAngular", policy =>
-                policy.WithOrigins("http://localhost:4200")
+                policy.WithOrigins(origins)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials());
+        });
+        return services;
+    }
+
+    /// <summary>
+    /// Applies a fixed-window rate limit to the "auth" policy (10 requests/min).
+    /// (SRP: rate limiting concern owned here, not in controllers)
+    /// </summary>
+    public static IServiceCollection AddRateLimiting(
+        this IServiceCollection services)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("auth", cfg =>
+            {
+                cfg.Window = TimeSpan.FromMinutes(1);
+                cfg.PermitLimit = 10;
+                cfg.QueueLimit = 0;
+                cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
         return services;
     }

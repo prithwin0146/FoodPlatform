@@ -97,14 +97,37 @@
                     (ngModelChange)="estimatedMinutes.set($event)"
                     min="5" max="120">
                 </mat-form-field>
-                <div class="action-btns">
-                  <button mat-flat-button class="accept-btn" (click)="accept(order)" matTooltip="Accept order">
-                    <span class="material-symbols-rounded">check_circle</span> Accept
-                  </button>
-                  <button mat-stroked-button class="reject-btn" (click)="reject(order)" matTooltip="Reject order">
-                    <span class="material-symbols-rounded">cancel</span> Reject
-                  </button>
-                </div>
+                @if (rejectingOrderId() === order.id) {
+                  <div class="reject-form">
+                    <mat-form-field appearance="outline" class="reason-field">
+                      <mat-label>Rejection reason</mat-label>
+                      <textarea matInput rows="2"
+                        [ngModel]="rejectReason()"
+                        (ngModelChange)="rejectReason.set($event)"
+                        placeholder="e.g. Out of key ingredients">
+                      </textarea>
+                    </mat-form-field>
+                    <div class="action-btns">
+                      <button mat-flat-button class="reject-btn"
+                        [disabled]="!rejectReason().trim()"
+                        (click)="confirmReject(order)">
+                        <span class="material-symbols-rounded">cancel</span> Confirm Reject
+                      </button>
+                      <button mat-stroked-button (click)="cancelReject()">
+                        <span class="material-symbols-rounded">close</span> Cancel
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="action-btns">
+                    <button mat-flat-button class="accept-btn" (click)="accept(order)" matTooltip="Accept order">
+                      <span class="material-symbols-rounded">check_circle</span> Accept
+                    </button>
+                    <button mat-stroked-button class="reject-btn" (click)="reject(order)" matTooltip="Reject order">
+                      <span class="material-symbols-rounded">cancel</span> Reject
+                    </button>
+                  </div>
+                }
               </div>
             } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
               <div class="order-actions single">

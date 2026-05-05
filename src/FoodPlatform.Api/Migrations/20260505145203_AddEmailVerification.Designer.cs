@@ -4,6 +4,7 @@ using FoodPlatform.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FoodPlatform.Api.Migrations
 {
     [DbContext(typeof(FoodPlatformDbContext))]
-    partial class FoodPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260505145203_AddEmailVerification")]
+    partial class AddEmailVerification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1553,7 +1556,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@foodplatform.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             Role = "Admin",
                             Username = "admin"
@@ -1563,7 +1566,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@spicegarden.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 1,
                             Role = "Staff",
@@ -1574,7 +1577,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 3,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "customer@example.com",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             Role = "Customer",
                             Username = "demo"
@@ -1584,7 +1587,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 4,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@bellanapoli.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 2,
                             Role = "Staff",
@@ -1595,7 +1598,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 5,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@sakurasushi.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 3,
                             Role = "Staff",
@@ -1606,7 +1609,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 6,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@burgerjoint.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 4,
                             Role = "Staff",
@@ -1617,7 +1620,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 7,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@greenbowl.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 5,
                             Role = "Staff",
@@ -1628,7 +1631,7 @@ namespace FoodPlatform.Api.Migrations
                             Id = 8,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@dragonwok.co.uk",
-                            IsEmailVerified = true,
+                            IsEmailVerified = false,
                             PasswordHash = "$2a$11$0LsKfOUQyc/QVHi4nqC0DOEGZBe2nr3wjziMa/SNbly9ONtxGSrim",
                             RestaurantId = 6,
                             Role = "Staff",
