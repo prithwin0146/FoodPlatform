@@ -126,7 +126,7 @@ export class AdminOrdersTab implements OnInit {
     private readonly adminOrderService: AdminOrderService,
     private readonly toast: ToastService
   ) {}
-
+  
   ngOnInit(): void {
     this.loading.set(true);
     this.adminOrderService.allOrders().subscribe({

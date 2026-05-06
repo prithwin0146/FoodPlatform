@@ -330,7 +330,8 @@
   font-weight: 600 !important;
   box-shadow: var(--shadow-soft);
   .material-symbols-rounded { margin-right: 0.5rem; font-size: 1.25rem; color: var(--c-orange); }
-  &:hover { background: var(--c-bg-soft) !important; border-color: var(--c-orange) !important; }
+  &:hover { background: var(--c-bg-soft) !important; border-color: var(--c-orange) !important; color: var(--c-text) !important; }
+  &:hover .material-symbols-rounded { color: var(--c-orange) !important; }
 }
 @keyframes shine {
   0%, 60% { left: -150%; }
