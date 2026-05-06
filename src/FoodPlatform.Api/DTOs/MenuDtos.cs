@@ -33,7 +33,7 @@ public record CreateCategoryRequest([Required, MaxLength(100)] string Name, int 
 
 /// <summary>Admin-only: create item for any restaurant (includes explicit restaurantId).</summary>
 public record AdminCreateMenuItemRequest(
-    [Required] int RestaurantId,
+    [Required, Range(1, int.MaxValue, ErrorMessage = "A valid RestaurantId is required.")] int RestaurantId,
     [Required] int CategoryId,
     [Required, MaxLength(100)] string Name,
     [MaxLength(500)] string? Description,
