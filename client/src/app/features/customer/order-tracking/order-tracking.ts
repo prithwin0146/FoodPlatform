@@ -12,6 +12,8 @@ import { OrderPollingService } from '../../../core/services/order-polling.servic
 import { Order, ORDER_STATUS_FLOW, OrderStatus } from '../../../core/models';
 import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { TiltDirective } from '../../../shared/directives/tilt.directive';
+import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 
 /**
  * (SRP: polling logic extracted to OrderPollingService)
@@ -24,7 +26,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
     CurrencyPipe, DatePipe, RouterLink,
     OrderStatusEmojiPipe, OrderStatusLabelPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
-    ScrollRevealDirective,
+    ScrollRevealDirective, TiltDirective, MagneticDirective,
   ],
   templateUrl: './order-tracking.html',
   styleUrl: './order-tracking.scss',

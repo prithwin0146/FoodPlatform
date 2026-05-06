@@ -9,6 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 
 
 @Component({
@@ -20,6 +22,8 @@ import { ToastService } from '../../../core/services/toast.service';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    ScrollRevealDirective,
+    MagneticDirective,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

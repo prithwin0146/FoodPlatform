@@ -13,6 +13,7 @@ import { Order, nextOrderStatus } from '../../../core/models';
 import { OrderStatusEmojiPipe } from '../../../shared/pipes/order-status.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 
 /**
  * (SRP: status emoji logic delegated to OrderStatusEmojiPipe)
@@ -25,7 +26,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
     OrderStatusEmojiPipe,
     MatButtonModule, MatChipsModule, MatRippleModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule,
-    TiltDirective, ScrollRevealDirective,
+    TiltDirective, ScrollRevealDirective, MagneticDirective,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

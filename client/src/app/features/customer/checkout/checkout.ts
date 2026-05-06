@@ -20,6 +20,7 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { ukPostcodeValidator } from '../../../shared/validators/uk-postcode.validator';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 
 /**
@@ -32,7 +33,7 @@ import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
     FormsModule, ReactiveFormsModule, CurrencyPipe, RouterLink,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatDividerModule, MatProgressSpinnerModule, MatRippleModule,
-    ScrollRevealDirective, MagneticDirective, MenuItemEmojiPipe,
+    ScrollRevealDirective, MagneticDirective, TiltDirective, MenuItemEmojiPipe,
   ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',

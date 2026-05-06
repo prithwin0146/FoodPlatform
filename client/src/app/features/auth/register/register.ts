@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 
 @Component({
   selector: 'app-register',
@@ -18,6 +20,8 @@ import { ToastService } from '../../../core/services/toast.service';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    ScrollRevealDirective,
+    MagneticDirective,
   ],
   templateUrl: './register.html',
   styleUrl: './register.scss',

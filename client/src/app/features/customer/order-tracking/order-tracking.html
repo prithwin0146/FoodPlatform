@@ -16,7 +16,7 @@
     } @else if (order(); as o) {
 
       <!-- ── Order Header Card ── -->
-      <div class="order-header-card glass-card" appScrollReveal>
+      <div class="order-header-card glass-card" appScrollReveal appTilt [tiltMax]="6">
         <div class="hc-left">
           <h1 class="order-title">Order <span class="order-id">#{{ o.id }}</span></h1>
           <p class="order-date">
@@ -36,7 +36,7 @@
       @if (o.status !== 'Rejected' && o.status !== 'Cancelled') {
 
         <!-- ── Status Stepper ── -->
-        <div class="stepper-card glass-card" appScrollReveal [revealDelay]="80">
+        <div class="stepper-card glass-card" appScrollReveal [revealDelay]="80" appTilt [tiltMax]="5">
           <div class="stepper-track">
             @for (step of statusSteps; track step; let idx = $index; let last = $last) {
               <div class="step-wrapper">
@@ -66,7 +66,7 @@
         </div>
 
         <!-- ── Live Kitchen Panel ── -->
-        <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160">
+        <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160" appTilt [tiltMax]="5">
           <div class="lk-video">
             <div class="video-placeholder">
               <span class="live-badge"><span class="live-badge-dot"></span> LIVE</span>
@@ -99,7 +99,7 @@
         <div class="lower-grid" appScrollReveal [revealDelay]="240">
 
           <!-- Order Items -->
-          <div class="glass-card items-card">
+          <div class="glass-card items-card" appTilt [tiltMax]="6">
             <div class="card-header">
               <span class="material-symbols-rounded header-icon">restaurant_menu</span>
               <h2>Order Items</h2>
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Delivery Details -->
-          <div class="glass-card delivery-card">
+          <div class="glass-card delivery-card" appTilt [tiltMax]="6">
             <div class="card-header">
               <span class="material-symbols-rounded header-icon">local_shipping</span>
               <h2>Delivery Details</h2>
@@ -151,7 +151,7 @@
         </div>
 
         @if (canCancel()) {
-          <button mat-stroked-button class="cancel-btn" (click)="cancelOrder()" appScrollReveal [revealDelay]="300">
+          <button mat-stroked-button class="cancel-btn" (click)="cancelOrder()" appScrollReveal [revealDelay]="300" appMagnetic>
             <span class="material-symbols-rounded">cancel</span> Cancel Order
           </button>
         }

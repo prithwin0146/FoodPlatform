@@ -108,22 +108,22 @@
                       </textarea>
                     </mat-form-field>
                     <div class="action-btns">
-                      <button mat-flat-button class="reject-btn"
+                      <button mat-flat-button class="reject-btn" appMagnetic
                         [disabled]="!rejectReason().trim()"
                         (click)="confirmReject(order)">
                         <span class="material-symbols-rounded">cancel</span> Confirm Reject
                       </button>
-                      <button mat-stroked-button (click)="cancelReject()">
+                      <button mat-stroked-button appMagnetic (click)="cancelReject()">
                         <span class="material-symbols-rounded">close</span> Cancel
                       </button>
                     </div>
                   </div>
                 } @else {
                   <div class="action-btns">
-                    <button mat-flat-button class="accept-btn" (click)="accept(order)" matTooltip="Accept order">
+                    <button mat-flat-button class="accept-btn" (click)="accept(order)" appMagnetic matTooltip="Accept order">
                       <span class="material-symbols-rounded">check_circle</span> Accept
                     </button>
-                    <button mat-stroked-button class="reject-btn" (click)="reject(order)" matTooltip="Reject order">
+                    <button mat-stroked-button class="reject-btn" (click)="reject(order)" appMagnetic matTooltip="Reject order">
                       <span class="material-symbols-rounded">cancel</span> Reject
                     </button>
                   </div>
@@ -131,7 +131,7 @@
               </div>
             } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
               <div class="order-actions single">
-                <button mat-flat-button class="advance-btn" (click)="advanceStatus(order)">
+                <button mat-flat-button class="advance-btn" (click)="advanceStatus(order)" appMagnetic>
                   <span class="material-symbols-rounded">arrow_forward</span> Advance Status
                 </button>
               </div>

@@ -3,17 +3,17 @@
   <!-- ── LEFT BRAND PANEL ─────────────────────────────────────── -->
   <div class="brand-panel" aria-hidden="true">
     <div class="brand-panel__inner">
-      <div class="brand-wordmark">see the <em>prep</em>&#9646;</div>
-      <p class="brand-panel__tagline">Food delivery, on the record.</p>
+      <div class="brand-wordmark" appScrollReveal>see the <em>prep</em>&#9646;</div>
+      <p class="brand-panel__tagline" appScrollReveal [revealDelay]="60">Food delivery, on the record.</p>
 
       <ul class="brand-panel__pills">
-        <li><span class="material-symbols-rounded">videocam</span> Watch every order being cooked, live</li>
-        <li><span class="material-symbols-rounded">verified</span> FSA 5-star kitchens, audited quarterly</li>
-        <li><span class="material-symbols-rounded">lock</span> Card payments secured by Stripe</li>
-        <li><span class="material-symbols-rounded">notifications</span> Stage-by-stage order updates</li>
+        <li appScrollReveal [revealDelay]="120"><span class="material-symbols-rounded">videocam</span> Watch every order being cooked, live</li>
+        <li appScrollReveal [revealDelay]="180"><span class="material-symbols-rounded">verified</span> FSA 5-star kitchens, audited quarterly</li>
+        <li appScrollReveal [revealDelay]="240"><span class="material-symbols-rounded">lock</span> Card payments secured by Stripe</li>
+        <li appScrollReveal [revealDelay]="300"><span class="material-symbols-rounded">notifications</span> Stage-by-stage order updates</li>
       </ul>
 
-      <div class="brand-panel__quote">
+      <div class="brand-panel__quote" appScrollReveal [revealDelay]="380">
         <blockquote>“You shouldn’t have to guess what’s in your food.”</blockquote>
       </div>
     </div>
@@ -23,7 +23,7 @@
   <div class="form-panel">
     <div class="form-panel__inner">
 
-      <header class="form-header">
+      <header class="form-header" appScrollReveal>
         <h1>Create your account</h1>
         <p>Takes under a minute. We’ll send a 6-digit code to verify your email.</p>
       </header>
@@ -92,7 +92,7 @@
           }
         </mat-form-field>
 
-        <button mat-flat-button type="submit" class="submit-btn"
+        <button mat-flat-button type="submit" class="submit-btn" appMagnetic
           [disabled]="loading() || !username || !email || !password || !passwordsMatch">
           @if (loading()) {
             <mat-spinner diameter="20" />
