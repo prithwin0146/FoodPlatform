@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://seetheprep-api.azurewebsites.net/api',
+  apiUrl: 'https://api.seetheprep.com/api',
   videoCdnUrl: 'https://your-cdn.com/videos',
   stripePublishableKey: 'pk_live_placeholder',
 };
