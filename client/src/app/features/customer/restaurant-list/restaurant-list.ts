@@ -2,6 +2,8 @@ import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, 
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
+import { retry, delay } from 'rxjs/operators';
+import { timer } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
@@ -180,10 +182,12 @@ export class RestaurantList implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.restaurantService.list().subscribe({
-      next: (data) => { this.restaurants.set(data); this.loading.set(false); },
-      error: () => this.loading.set(false),
-    });
+    this.restaurantService.list()
+      .pipe(retry({ count: 3, delay: () => timer(2000) }))
+      .subscribe({
+        next: (data) => { this.restaurants.set(data); this.loading.set(false); },
+        error: () => this.loading.set(false),
+      });
   }
 
   ngAfterViewInit(): void {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { MenuCategory, Restaurant, RestaurantDetail, RestaurantHours } from '../models';
+import { SILENT_ERROR_HEADER } from '../auth/error.interceptor';
 
 @Injectable({ providedIn: 'root' })
 export class RestaurantService {
@@ -10,10 +11,14 @@ export class RestaurantService {
 
   constructor(private readonly http: HttpClient) {}
 
+  /** Public listing — uses silent header so retry logic handles transient errors without toast spam. */
   list(postcode?: string): Observable<Restaurant[]> {
     const params: Record<string, string> = {};
     if (postcode) params['postcode'] = postcode;
-    return this.http.get<Restaurant[]>(this.url, { params });
+    return this.http.get<Restaurant[]>(this.url, {
+      params,
+      headers: { [SILENT_ERROR_HEADER]: '1' },
+    });
   }
 
   get(id: number): Observable<RestaurantDetail> {

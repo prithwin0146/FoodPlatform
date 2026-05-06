@@ -18,11 +18,18 @@ import { ToastService } from '../services/toast.service';
  *  - 5xx Server Error → "Server error — please try again shortly"
  *  - All others → API-provided message or generic fallback
  */
+/** Attach this header to suppress the global error toast for a specific request. */
+export const SILENT_ERROR_HEADER = 'X-Silent-Error';
+
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toast = inject(ToastService);
   const router = inject(Router);
 
-  return next(req).pipe(
+  // Strip the sentinel header before sending to the server
+  const silent = req.headers.has(SILENT_ERROR_HEADER);
+  const cleanReq = silent ? req.clone({ headers: req.headers.delete(SILENT_ERROR_HEADER) }) : req;
+
+  return next(cleanReq).pipe(
     catchError((err: HttpErrorResponse) => {
       // 401: session expired or not logged in — silent redirect, no toast spam
       if (err.status === 401) {
@@ -30,7 +37,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => err);
       }
 
-      toast.error(resolveMessage(err));
+      // Suppress toast if caller opted out (e.g. retry-handled calls)
+      if (!silent) {
+        toast.error(resolveMessage(err));
+      }
       return throwError(() => err);
     }),
   );
