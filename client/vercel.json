@@ -3,7 +3,10 @@
   "buildCommand": "npx ng build --configuration production",
   "outputDirectory": "dist/client/browser",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/og-image.png", "destination": "/og-image.png" },
+    { "source": "/og-image-v2.png", "destination": "/og-image-v2.png" },
+    { "source": "/manifest.webmanifest", "destination": "/manifest.webmanifest" },
+    { "source": "/((?!og-image|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|assets/).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -12,7 +15,7 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https://seetheprepstorage.blob.core.windows.net; connect-src 'self' https:; frame-ancestors 'none'" }
       ]
     },
     {
