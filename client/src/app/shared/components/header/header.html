@@ -1,4 +1,5 @@
-<header class="header" [class.header-scrolled]="scrolled()">
+<header class="header"
+  [class.header-scrolled]="scrolled()">
   <div class="header-glow" aria-hidden="true"></div>
 
   <div class="header-inner container">
@@ -39,20 +40,60 @@
       }
 
       @if (auth.isLoggedIn()) {
-        <div class="user-chip" [matTooltip]="roleLabel() + ' · ' + (auth.username() || '')">
-          <span class="user-greeting">Hi, <strong>{{ displayName() }}</strong></span>
+        <!-- Avatar + dropdown -->
+        <div class="avatar-wrap">
+          <button class="avatar-btn"
+            [class.avatar-btn--open]="dropdownOpen()"
+            (click)="toggleDropdown()"
+            aria-haspopup="true"
+            [attr.aria-expanded]="dropdownOpen()"
+            aria-label="Account menu">
+            <span class="avatar-initial">{{ userInitial() }}</span>
+          </button>
+
+          @if (dropdownOpen()) {
+            <div class="avatar-dropdown" role="menu">
+              <!-- Identity -->
+              <div class="dropdown-identity">
+                <div class="dropdown-avatar">{{ userInitial() }}</div>
+                <div>
+                  <div class="dropdown-name">{{ displayName() }}</div>
+                  <div class="dropdown-role">{{ roleLabel() }}</div>
+                </div>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <!-- Links -->
+              @if (auth.isCustomer()) {
+                <a routerLink="/" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">storefront</span> Restaurants
+                </a>
+                <a routerLink="/orders" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">receipt_long</span> My Orders
+                </a>
+              }
+              @if (dashboardLink()) {
+                <a [routerLink]="dashboardLink()" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">dashboard</span> Dashboard
+                </a>
+              }
+
+              <div class="dropdown-divider"></div>
+
+              <button class="dropdown-item dropdown-item--danger" (click)="logout()" role="menuitem">
+                <span class="material-symbols-rounded">logout</span> Sign out
+              </button>
+            </div>
+          }
         </div>
-        <button mat-stroked-button (click)="logout()" appMagnetic class="logout-btn" aria-label="Sign out">
-          <span class="material-symbols-rounded">logout</span>
-          <span class="logout-text">Logout</span>
-        </button>
+
       } @else {
-        <a routerLink="/login" mat-flat-button color="primary" appMagnetic class="signin-btn">
-          <span class="material-symbols-rounded">login</span>
+        <a routerLink="/login" class="signin-btn" appMagnetic>
           Sign In
+          <span class="material-symbols-rounded">arrow_forward</span>
         </a>
       }
     </div>
   </div>
 </header>
-

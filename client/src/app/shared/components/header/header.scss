@@ -1,5 +1,5 @@
 /* =========================================================
-   Header — dark glass, scroll-shrink, animated brand glow.
+   Header — transparent on hero, glass on scroll, avatar dropdown.
    SOLID: SRP — only owns nav-shell visuals.
    ========================================================= */
 
@@ -13,22 +13,23 @@
 .header {
   position: relative;
   height: var(--header-height, 72px);
-  background: rgba(255, 252, 247, 0.78);
+  background: rgba(255, 252, 247, 0.88);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid rgba(26, 20, 16, 0.06);
-  transition: background 0.35s ease,
-              border-color 0.35s ease,
-              box-shadow 0.35s ease;
+  transition: background 0.45s ease,
+              border-color 0.45s ease,
+              box-shadow 0.45s ease;
   will-change: background, box-shadow;
 }
 
 .header-scrolled {
-  background: rgba(255, 252, 247, 0.92);
+  background: rgba(255, 252, 247, 0.94);
   border-bottom-color: rgba(26, 20, 16, 0.08);
-  box-shadow: 0 12px 40px -20px rgba(255, 107, 26, 0.18);
+  box-shadow: 0 12px 40px -20px rgba(255, 107, 26, 0.15);
 }
 
+/* Glow line at bottom */
 .header-glow {
   position: absolute;
   inset: auto 0 -1px 0;
@@ -43,6 +44,7 @@
   opacity: 0.55;
   pointer-events: none;
   overflow: hidden;
+  transition: opacity 0.45s ease;
 
   &::after {
     content: '';
@@ -74,15 +76,12 @@
   text-decoration: none;
   flex-shrink: 0;
   outline: none;
-  &:focus-visible { outline: 2px solid var(--hero-orange, #ff7a00); outline-offset: 4px; border-radius: 8px; }
+  &:focus-visible { outline: 2px solid #ff7a00; outline-offset: 4px; border-radius: 8px; }
 }
-
-/* Brand wordmark renders its own typography via <app-logo>.        */
-/* Only the link wrapper (.logo) lives here; on hover, lift the mark. */
 .logo:hover app-logo { transform: translateY(-1px); }
-.logo app-logo { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); color: #1a1410; }
+.logo app-logo { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s ease; color: #1a1410; }
 
-/* ─────────────── NAV (centred pill rail) ─────────────── */
+/* ─────────────── NAV pill rail ─────────────── */
 .nav {
   display: flex;
   align-items: center;
@@ -93,6 +92,7 @@
   border-radius: 999px;
   width: fit-content;
   margin: 0 auto;
+  transition: background 0.45s ease, border-color 0.45s ease;
 }
 
 .nav-link {
@@ -131,7 +131,7 @@
   }
 }
 
-/* ─────────────── ACTIONS (right) ─────────────── */
+/* ─────────────── ACTIONS ─────────────── */
 .actions {
   display: flex;
   align-items: center;
@@ -164,27 +164,19 @@
     box-shadow: 0 10px 28px -12px rgba(255, 107, 26, 0.55);
   }
 
-  &.cart-bouncing .cart-icon {
-    animation: cartIconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-  &.cart-bouncing .cart-badge {
-    animation: cartBadgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
+  &.cart-bouncing .cart-icon { animation: cartIconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  &.cart-bouncing .cart-badge { animation: cartBadgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
   .cart-badge {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    min-width: 20px;
-    height: 20px;
+    top: -6px; right: -6px;
+    min-width: 20px; height: 20px;
     padding: 0 6px;
     border-radius: 999px;
     background: linear-gradient(135deg, #ff7a00, #ff3d8a);
     color: #fff;
-    font-size: 0.7rem;
-    font-weight: 800;
-    display: grid;
-    place-items: center;
+    font-size: 0.7rem; font-weight: 800;
+    display: grid; place-items: center;
     border: 2px solid #fffcf7;
     box-shadow: 0 4px 12px rgba(255, 61, 138, 0.4);
     animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -192,11 +184,11 @@
 }
 
 @keyframes cartIconBounce {
-  0%   { transform: scale(1)      rotate(0deg); }
-  25%  { transform: scale(1.4)    rotate(-12deg); }
-  55%  { transform: scale(0.88)   rotate(6deg); }
-  75%  { transform: scale(1.12)   rotate(-3deg); }
-  100% { transform: scale(1)      rotate(0deg); }
+  0%   { transform: scale(1) rotate(0deg); }
+  25%  { transform: scale(1.4) rotate(-12deg); }
+  55%  { transform: scale(0.88) rotate(6deg); }
+  75%  { transform: scale(1.12) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
 @keyframes cartBadgePop {
   0%   { transform: scale(1); }
@@ -204,112 +196,189 @@
   70%  { transform: scale(0.85); }
   100% { transform: scale(1); }
 }
-
-/* User chip — minimal greeting only */
-.user-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 18px;
-  background: linear-gradient(135deg, rgba(255, 122, 0, 0.06), rgba(255, 61, 138, 0.06));
-  border: 1px solid rgba(255, 107, 26, 0.18);
-  border-radius: 999px;
-  cursor: default;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: rgba(255, 107, 26, 0.45);
-    box-shadow: 0 8px 22px -10px rgba(255, 61, 138, 0.45);
-  }
+@keyframes badgePop {
+  0%   { transform: scale(0) rotate(-90deg); }
+  60%  { transform: scale(1.25) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
 }
 
-.user-greeting {
-  font-size: 0.92rem;
-  font-weight: 600;
+/* ─────────────── AVATAR + DROPDOWN ─────────────── */
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.35);
+  background: linear-gradient(135deg, #ff7a00, #ff3d8a);
+  cursor: pointer;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+  box-shadow: 0 4px 14px -4px rgba(255, 61, 138, 0.45);
+  outline: none;
+
+  &:hover, &--open {
+    transform: scale(1.08);
+    box-shadow: 0 8px 24px -6px rgba(255, 61, 138, 0.6);
+    border-color: rgba(255,255,255,0.6);
+  }
+  &:focus-visible { outline: 2px solid #ff7a00; outline-offset: 3px; }
+}
+
+.avatar-initial {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  pointer-events: none;
+}
+
+/* Glass dropdown */
+.avatar-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background: rgba(255, 252, 247, 0.92);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(26, 20, 16, 0.09);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 60px -12px rgba(26, 20, 16, 0.18),
+    0 0 0 1px rgba(255,255,255,0.6) inset;
+  overflow: hidden;
+  animation: dropdownIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top right;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.dropdown-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.dropdown-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff7a00, #ff3d8a);
+  display: grid; place-items: center;
+  font-size: 0.88rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+
+.dropdown-name {
+  font-size: 0.9rem;
+  font-weight: 700;
   color: #1a1410;
-  max-width: 220px;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1;
-  letter-spacing: -0.005em;
-
-  strong {
-    font-weight: 800;
-    background: linear-gradient(135deg, #ff7a00, #ff3d8a);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin-left: 4px;
-  }
+  max-width: 140px;
 }
 
-/* Logout button — dark-aware Material outlined override */
-.logout-btn.mat-mdc-outlined-button {
-  --mdc-outlined-button-outline-color: rgba(26, 20, 16, 0.18);
-  --mdc-outlined-button-label-text-color: rgba(26, 20, 16, 0.78);
-  border-radius: 999px !important;
-  height: 40px;
-  padding: 0 16px !important;
-  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+.dropdown-role {
+  font-size: 0.75rem;
+  color: rgba(26,20,16,0.45);
+  font-weight: 500;
+  margin-top: 1px;
+  text-transform: capitalize;
+}
 
-  .mdc-button__label {
-    font-weight: 600;
-    font-size: 0.85rem;
-  }
+.dropdown-divider {
+  height: 1px;
+  background: rgba(26,20,16,0.07);
+  margin: 0 12px;
+}
 
-  .material-symbols-rounded { font-size: 1.05rem; }
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(26,20,16,0.75);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s ease, color 0.18s ease;
+
+  .material-symbols-rounded { font-size: 1.05rem; opacity: 0.7; }
 
   &:hover {
-    background: rgba(239, 68, 68, 0.08) !important;
-    --mdc-outlined-button-outline-color: rgba(239, 68, 68, 0.45);
-    --mdc-outlined-button-label-text-color: #c93838;
+    background: rgba(255, 107, 26, 0.06);
+    color: #1a1410;
+    .material-symbols-rounded { opacity: 1; }
+  }
+
+  &--danger {
+    color: #c93838;
+    .material-symbols-rounded { color: #c93838; opacity: 0.8; }
+    &:hover { background: rgba(239, 68, 68, 0.07); color: #b91c1c; }
   }
 }
 
-/* Sign-in CTA */
-.signin-btn.mat-mdc-unelevated-button {
-  border-radius: 999px !important;
+/* ─────────────── SIGN IN (logged-out) ─────────────── */
+.signin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   height: 40px;
-  padding: 0 20px !important;
-  background: linear-gradient(135deg, #ff7a00 0%, #ff3d8a 100%) !important;
-  color: #fff !important;
-  box-shadow: 0 8px 24px -8px rgba(255, 61, 138, 0.55);
-  text-decoration: none;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(26,20,16,0.18);
+  background: transparent;
+  color: rgba(26,20,16,0.82);
+  font-size: 0.88rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
 
-  .material-symbols-rounded { font-size: 1.05rem; }
+  .material-symbols-rounded { font-size: 1rem; transition: transform 0.25s ease; }
+
+  &:hover {
+    background: rgba(255,107,26,0.06);
+    border-color: rgba(255,107,26,0.45);
+    color: #1a1410;
+    transform: translateY(-1px);
+    .material-symbols-rounded { transform: translateX(3px); }
+  }
 }
 
 /* ─────────────── RESPONSIVE ─────────────── */
 @media (max-width: 960px) {
   .nav-link span:not(.nav-icon) { display: none; }
   .nav-link { padding: 9px 12px; }
-  .logout-text { display: none; }
-  .logout-btn.mat-mdc-outlined-button { padding: 0 12px !important; }
 }
 
 @media (max-width: 720px) {
   .nav { display: none; }
-  .user-chip { padding: 4px; }
   .header-inner { gap: 12px; }
 }
 
 @media (max-width: 480px) {
   .header { --header-height: 60px; }
   .header-inner { gap: 8px; padding: 0 16px; }
-  .user-chip { padding: 5px 10px; }
-  .user-greeting { max-width: 90px; font-size: .82rem; }
   .cart-btn { width: 36px; height: 36px; border-radius: 10px; }
   .cart-badge { min-width: 17px; height: 17px; font-size: .62rem; top: -4px; right: -4px; }
-  .signin-btn.mat-mdc-unelevated-button { padding: 0 14px !important; height: 36px; font-size: .82rem; }
-  .logout-btn.mat-mdc-outlined-button { height: 36px; padding: 0 10px !important; }
-}
-
-
-@keyframes badgePop {
-  0%   { transform: scale(0) rotate(-90deg); }
-  60%  { transform: scale(1.25) rotate(10deg); }
-  100% { transform: scale(1) rotate(0); }
+  .signin-btn { height: 36px; padding: 0 14px; font-size: .82rem; }
+  .avatar-btn { width: 34px; height: 34px; }
+  .avatar-dropdown { width: 200px; }
 }

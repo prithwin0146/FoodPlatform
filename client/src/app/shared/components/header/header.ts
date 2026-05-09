@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, signal, effect, inject } from '@angular/core';
+import { Component, HostListener, computed, signal, effect, inject, DOCUMENT } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -23,6 +23,9 @@ import { Logo } from '../logo/logo';
 export class Header {
   readonly scrolled = signal(false);
   readonly cartBouncing = signal(false);
+  readonly dropdownOpen = signal(false);
+
+  private readonly doc = inject(DOCUMENT);
 
   constructor(
     readonly auth: AuthService,
@@ -74,9 +77,23 @@ export class Header {
     const y = window.scrollY || document.documentElement.scrollTop;
     const next = y > 16;
     if (next !== this.scrolled()) this.scrolled.set(next);
+    if (next && this.dropdownOpen()) this.dropdownOpen.set(false);
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape(): void { this.dropdownOpen.set(false); }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick(e: MouseEvent): void {
+    if (!this.dropdownOpen()) return;
+    const target = e.target as HTMLElement;
+    if (!target.closest('.avatar-wrap')) this.dropdownOpen.set(false);
+  }
+
+  toggleDropdown(): void { this.dropdownOpen.update(v => !v); }
+
   logout(): void {
+    this.dropdownOpen.set(false);
     this.auth.clearSession();
     this.router.navigate(['/login']);
   }
