@@ -198,6 +198,13 @@
   .mat-mdc-floating-label { color: var(--text-secondary); }
   &.mat-focused .mat-mdc-floating-label { color: var(--primary); }
   .mat-icon { color: var(--text-muted); font-size: 20px; }
+
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center !important;
+  }
 }
 
 .submit-btn {

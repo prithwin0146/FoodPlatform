@@ -394,13 +394,14 @@ ul, ol { list-style: none; }
 // centering so they align with the input text baseline.
 .mat-mdc-form-field-icon-prefix,
 .mat-mdc-form-field-icon-suffix {
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  align-items: center !important;
+  align-self: center !important;
   // matSuffix mat-icon-button (e.g. password visibility toggle)
   .mat-mdc-icon-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 

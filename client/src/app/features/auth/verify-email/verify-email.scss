@@ -257,6 +257,13 @@
 
   .mat-mdc-floating-label { color: var(--text-secondary); }
   &.mat-focused .mat-mdc-floating-label { color: #6366f1; }
+
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center !important;
+  }
 }
 
 .field-icon {

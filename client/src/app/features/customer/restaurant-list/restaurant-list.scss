@@ -1476,6 +1476,12 @@
   .mdc-notched-outline__trailing { border-color: var(--c-border-strong) !important; }
   .mat-mdc-form-field-label, .mdc-floating-label { color: var(--c-text-muted) !important; }
   .mat-mdc-input-element { color: var(--c-text) !important; caret-color: var(--c-orange); }
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center !important;
+  }
 }
 .grid {
   display: grid;

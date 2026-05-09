@@ -86,6 +86,13 @@
   .mat-mdc-floating-label { color: var(--text-secondary) !important; }
   &.mat-focused .mat-mdc-floating-label { color: var(--primary) !important; }
   input::placeholder { color: var(--text-muted) !important; }
+
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center !important;
+  }
 }
 
 /* ── Cart Items ── */
