@@ -123,6 +123,7 @@
   isolation: isolate;
   background: #111;     /* dark fallback only while video loads */
   display: flex;
+  flex-direction: column;
   align-items: stretch;
 }
 
@@ -210,8 +211,8 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 78vh;
-  padding: 6rem 0 4rem;
+  flex: 1;      /* expands to fill hero, pushing scroll-cue to the bottom */
+  padding: 0;
 }
 @media (max-width: 1024px) {
   .hero-ribbon { display: none; }
@@ -330,7 +331,7 @@
   font-weight: 600 !important;
   box-shadow: var(--shadow-soft);
   .material-symbols-rounded { margin-right: 0.5rem; font-size: 1.25rem; color: var(--c-orange); }
-  &:hover { background: var(--c-bg-soft) !important; border-color: var(--c-orange) !important; color: var(--c-text) !important; }
+  &:hover { background: var(--c-bg-soft) !important; border-color: var(--c-orange) !important; color: #1a0e08 !important; }
   &:hover .material-symbols-rounded { color: var(--c-orange) !important; }
 }
 @keyframes shine {
@@ -340,12 +341,11 @@
 
 /* Scroll cue arrow */
 .hero-scroll-cue {
-  position: absolute;
-  /* Use safe-area inset so it clears notches; fall back to 1.25rem */
-  bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;   /* natural flex child — can never overlap content */
   z-index: 10;
+  flex-shrink: 0;
+  align-self: center;
+  margin-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   width: 44px; height: 44px;
@@ -355,13 +355,12 @@
   box-shadow: var(--shadow-card);
   animation: scrollCueBounce 2s ease-in-out infinite;
   transition: opacity 0.3s;
-  /* Hide on very short viewports where it would overlap content */
   @media (max-height: 560px) { display: none; }
   .material-symbols-rounded { font-size: 1.6rem; color: var(--c-orange); }
 }
 @keyframes scrollCueBounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(6px); }
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
 }
 
 .proof-strip {
