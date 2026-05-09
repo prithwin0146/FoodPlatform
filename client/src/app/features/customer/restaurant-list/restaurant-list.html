@@ -255,8 +255,9 @@
 
     <ol class="promise-grid">
       @for (p of promises; track p.num; let i = $index) {
-        <li class="promise" appScrollReveal [revealDelay]="i * 80">
-          <div class="promise-num" aria-hidden="true">{{ p.num }}</div>
+        <li class="promise" appScrollReveal [revealDelay]="i * 110" appTilt [tiltMax]="6" appMagnetic>
+          <div class="card-glare"></div>
+          <div class="promise-num promise-num--roll" aria-hidden="true">{{ p.num }}</div>
           <div class="promise-body">
             <h3 class="promise-title">{{ p.title }}</h3>
             <p class="promise-copy">{{ p.copy }}</p>

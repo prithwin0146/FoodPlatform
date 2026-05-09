@@ -49,6 +49,9 @@ export class TiltDirective implements OnInit {
     this.el.style.setProperty('--glare-x', `${(x / rect.width) * 100}%`);
     this.el.style.setProperty('--glare-y', `${(y / rect.height) * 100}%`);
     this.el.style.setProperty('--glare-opacity', '1');
+    // Inner parallax: children with [data-parallax] counter-translate
+    this.el.style.setProperty('--tilt-tx', `${(ry / this.tiltMax) * -8}px`);
+    this.el.style.setProperty('--tilt-ty', `${(rx / this.tiltMax) * 8}px`);
 
     const shadowX = (ry / this.tiltMax) * 20;
     const shadowY = (-rx / this.tiltMax) * 20;
@@ -61,5 +64,7 @@ export class TiltDirective implements OnInit {
     this.el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)';
     this.el.style.boxShadow = '';
     this.el.style.setProperty('--glare-opacity', '0');
+    this.el.style.setProperty('--tilt-tx', '0px');
+    this.el.style.setProperty('--tilt-ty', '0px');
   }
 }

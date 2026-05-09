@@ -9,4 +9,13 @@
   background: var(--bg);
   position: relative;
   overflow-x: clip;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+
+  &.route-transitioning {
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+  }
 }

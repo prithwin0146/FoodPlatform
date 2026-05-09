@@ -1,5 +1,5 @@
 <app-header />
-<main class="app-main">
+<main class="app-main" [class.route-transitioning]="transitioning()">
   <router-outlet />
 </main>
 <app-toast />
