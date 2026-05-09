@@ -11,10 +11,14 @@ export const authGuard: CanActivateFn = (_route, state) => {
 };
 
 export const roleGuard = (...roles: string[]): CanActivateFn => {
-  return () => {
+  return (_route, state) => {
     const auth = inject(AuthService);
     const router = inject(Router);
-    if (auth.isLoggedIn() && roles.includes(auth.role()!)) return true;
+    if (!auth.isLoggedIn()) {
+      router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+      return false;
+    }
+    if (roles.includes(auth.role()!)) return true;
     router.navigate(['/']);
     return false;
   };
