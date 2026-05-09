@@ -392,7 +392,14 @@ ul, ol { list-style: none; }
 // === Material Form Field Prefix/Suffix Icon Alignment ===
 // matPrefix / matSuffix icons sit in an MDC flex slot — give them flex
 // centering so they align with the input text baseline.
-.field-icon {
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-suffix {
+  display: flex;
+  align-items: center;
+}
+
+.field-icon,
+.search-prefix {
   display: flex;
   align-items: center;
   font-size: 18px;
