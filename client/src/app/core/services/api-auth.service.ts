@@ -25,4 +25,12 @@ export class ApiAuthService {
   resendOtp(req: ResendOtpRequest): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.url}/resend-otp`, req);
   }
+
+  forgotPassword(req: { email: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.url}/forgot-password`, req);
+  }
+
+  resetPassword(req: { email: string; otp: string; newPassword: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.url}/reset-password`, req);
+  }
 }

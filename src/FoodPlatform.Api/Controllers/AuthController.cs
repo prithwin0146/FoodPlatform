@@ -50,4 +50,22 @@ public class AuthController : ControllerBase
         await _auth.ResendOtpAsync(request);
         return Ok(new { message = "If that account exists and is unverified, a new code has been sent." });
     }
+
+    [HttpPost("forgot-password")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+    {
+        await _auth.ForgotPasswordAsync(request);
+        // Anti-enumeration: always return the same message.
+        return Ok(new { message = "If an account with that email exists, a 6-digit reset code has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+        var (success, error) = await _auth.ResetPasswordAsync(request);
+        if (!success) return BadRequest(new { error });
+        return Ok(new { message = "Password updated. You can now sign in with your new password." });
+    }
 }

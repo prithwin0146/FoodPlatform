@@ -145,6 +145,26 @@ public class ResendEmailService : IEmailService
 </div>");
     }
 
+    public async Task SendPasswordResetOtpAsync(string toEmail, string toName, string otp)
+    {
+        await SendAsync(toEmail, "Reset your SeeThePrep password", $@"
+<div style='font-family:sans-serif;max-width:580px;margin:0 auto;color:#1a1a2e'>
+  <div style='background:linear-gradient(135deg,#7c3aed,#a855f7);padding:32px 24px;border-radius:16px 16px 0 0;text-align:center'>
+    <h1 style='color:#fff;margin:0;font-size:24px'>Password reset request 🔑</h1>
+  </div>
+  <div style='background:#fff;padding:32px 24px;border-radius:0 0 16px 16px;border:1px solid #eee'>
+    <p style='font-size:16px'>Hi <strong>{toName}</strong>,</p>
+    <p>We received a request to reset your SeeThePrep password. Use the code below — it expires in <strong>10 minutes</strong>.</p>
+    <div style='background:#faf5ff;border:2px dashed #7c3aed;border-radius:12px;padding:28px;margin:24px 0;text-align:center'>
+      <p style='margin:0;font-size:40px;font-weight:700;letter-spacing:10px;color:#7c3aed;font-family:monospace'>{otp}</p>
+    </div>
+    <p style='color:#888;font-size:13px'>If you didn't request a password reset, you can safely ignore this email — your password won't change.</p>
+    <hr style='border:none;border-top:1px solid #eee;margin:24px 0'>
+    <p style='color:#aaa;font-size:12px;text-align:center'>SeeThePrep · Watch your meal being made live 📹</p>
+  </div>
+</div>");
+    }
+
     // ── private ──────────────────────────────────────────────────────────────
 
     private async Task SendAsync(string toEmail, string subject, string htmlBody)

@@ -207,6 +207,22 @@
   }
 }
 
+.forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+.forgot-link {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+
+  &:hover { color: #ff6b1a; }
+}
+
 .submit-btn {
   margin-top: 12px;
   height: 54px;

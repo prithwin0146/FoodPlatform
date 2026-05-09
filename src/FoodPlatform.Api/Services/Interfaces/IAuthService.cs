@@ -11,4 +11,6 @@ public interface IAuthService
     Task<(RegisterResponse? Response, string? Error)> RegisterAsync(RegisterRequest request);
     Task<(AuthResponse? Response, string? Error)> VerifyOtpAsync(VerifyOtpRequest request);
     Task<(bool Success, string? Error)> ResendOtpAsync(ResendOtpRequest request);
+    Task<(bool Success, string? Error)> ForgotPasswordAsync(ForgotPasswordRequest request);
+    Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request);
 }

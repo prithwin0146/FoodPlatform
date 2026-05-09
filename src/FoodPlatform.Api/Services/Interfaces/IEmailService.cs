@@ -23,4 +23,5 @@ public interface IEmailService
         string restaurantName);
 
     Task SendOtpAsync(string toEmail, string toName, string otp);
+    Task SendPasswordResetOtpAsync(string toEmail, string toName, string otp);
 }

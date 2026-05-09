@@ -23,3 +23,11 @@ public record VerifyOtpRequest(
 
 public record ResendOtpRequest(
     [Required, EmailAddress] string Email);
+
+public record ForgotPasswordRequest(
+    [Required, EmailAddress] string Email);
+
+public record ResetPasswordRequest(
+    [Required, EmailAddress] string Email,
+    [Required, StringLength(6, MinimumLength = 6)] string Otp,
+    [Required, MinLength(8)] string NewPassword);

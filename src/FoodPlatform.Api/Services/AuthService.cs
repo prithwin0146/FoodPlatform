@@ -135,6 +135,53 @@ public class AuthService : IAuthService
         return (true, null);
     }
 
+    public async Task<(bool Success, string? Error)> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+        // Anti-enumeration: always return success so attackers cannot confirm whether
+        // an account exists for a given email address.
+        if (user != null && user.IsEmailVerified)
+        {
+            var now = DateTime.UtcNow;
+            var lastSent = user.OtpSentAt ?? DateTime.MinValue;
+            if (now - lastSent >= OtpResendCooldown)
+            {
+                user.OtpCode = GenerateOtp();
+                user.OtpExpiresAt = now.Add(OtpLifetime);
+                user.OtpSentAt = now;
+                await _db.SaveChangesAsync();
+                var otpSnapshot = user.OtpCode;
+                _jobs.Enqueue<IEmailService>(s => s.SendPasswordResetOtpAsync(user.Email, user.Username, otpSnapshot));
+            }
+        }
+
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        const string genericError = "Incorrect or expired code";
+
+        if (user == null || !user.IsEmailVerified)
+            return (false, genericError);
+        if (user.OtpCode == null || user.OtpExpiresAt == null)
+            return (false, genericError);
+        if (DateTime.UtcNow > user.OtpExpiresAt)
+            return (false, genericError);
+        if (!FixedTimeEquals(user.OtpCode, request.Otp))
+            return (false, genericError);
+
+        user.PasswordHash = _hasher.Hash(request.NewPassword);
+        user.OtpCode = null;
+        user.OtpExpiresAt = null;
+        user.OtpSentAt = null;
+        await _db.SaveChangesAsync();
+
+        return (true, null);
+    }
+
     // ── private ──────────────────────────────────────────────────────────────
 
     /// <summary>

@@ -51,6 +51,10 @@
           </button>
         </mat-form-field>
 
+        <div class="forgot-row">
+          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        </div>
+
         <button mat-flat-button type="submit" class="submit-btn" appMagnetic
           [disabled]="loading() || !email || !password">
           @if (loading()) {
