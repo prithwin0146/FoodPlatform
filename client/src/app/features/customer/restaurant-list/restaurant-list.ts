@@ -223,6 +223,15 @@ export class RestaurantList implements OnInit, AfterViewInit {
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && video.paused) tryPlay();
     });
+
+    // Pause when hero scrolls out of view (saves mobile battery / CPU)
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        ([entry]) => entry.isIntersecting ? tryPlay() : video.pause(),
+        { threshold: 0.1 }
+      );
+      io.observe(video);
+    }
   }
 
   filteredRestaurants(): Restaurant[] {
