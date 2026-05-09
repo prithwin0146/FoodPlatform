@@ -260,6 +260,8 @@
 }
 
 .field-icon {
+  display: flex;
+  align-items: center;
   font-size: 18px;
   color: var(--text-muted);
   margin-right: 4px;

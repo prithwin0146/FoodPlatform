@@ -246,6 +246,10 @@
   background: rgba(255, 107, 26, .10); color: var(--primary-dark);
   font-size: 1.2rem; font-weight: 700; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  // Override MDC icon-button host sizing so our 32px wins
+  --mdc-icon-button-state-layer-size: 32px !important;
+  --mdc-icon-button-icon-size: 20px !important;
+  padding: 0 !important;
   transition: all .2s;
   &:hover { background: var(--primary); color: #fff; transform: scale(1.1); box-shadow: var(--shadow-glow); }
   &.minus { background: #fde8e8; color: #b91c1c; &:hover { background: #ef4444; color: #fff; } }

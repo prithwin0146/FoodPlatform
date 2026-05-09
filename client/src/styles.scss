@@ -396,6 +396,12 @@ ul, ol { list-style: none; }
 .mat-mdc-form-field-icon-suffix {
   display: flex;
   align-items: center;
+  // matSuffix mat-icon-button (e.g. password visibility toggle)
+  .mat-mdc-icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .field-icon,
