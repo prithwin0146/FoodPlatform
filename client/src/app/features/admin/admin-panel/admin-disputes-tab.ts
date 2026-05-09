@@ -42,7 +42,7 @@ import { Order } from '../../../core/models';
             </mat-card-content>
             <mat-card-actions align="end">
               <button mat-flat-button color="warn" (click)="refund(o.id)">
-                <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;margin-right:4px">payments</span>
+                <span class="material-symbols-rounded">payments</span>
                 Issue Refund
               </button>
             </mat-card-actions>

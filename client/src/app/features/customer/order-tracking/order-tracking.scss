@@ -21,7 +21,6 @@
 .back-btn {
   color: var(--text-secondary) !important; margin-bottom: 20px !important;
   font-weight: 600 !important;
-  .material-symbols-rounded { vertical-align: middle; margin-right: 4px; }
   &:hover { color: var(--primary) !important; }
 }
 
@@ -268,7 +267,6 @@
 .cancel-btn {
   color: #b91c1c !important; border-color: #fac3c3 !important; border-radius: 12px !important;
   font-weight: 700 !important;
-  .material-symbols-rounded { vertical-align: middle; margin-right: 4px; }
   &:hover { background: #fde8e8 !important; }
 }
 

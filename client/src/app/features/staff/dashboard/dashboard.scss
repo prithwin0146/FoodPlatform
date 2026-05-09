@@ -188,13 +188,11 @@
   flex: 1; background: #e6f7ec !important; color: #0f7a3f !important;
   border-radius: 10px !important; font-weight: 700 !important;
   border: 1px solid #b9e6c8 !important;
-  .material-symbols-rounded { font-size: 1rem; vertical-align: middle; margin-right: 4px; }
   &:hover { background: #1fa363 !important; color: #fff !important; }
 }
 .reject-btn {
   flex: 1; color: #b91c1c !important; border-color: #fac3c3 !important;
   border-radius: 10px !important; font-weight: 700 !important;
-  .material-symbols-rounded { font-size: 1rem; vertical-align: middle; margin-right: 4px; }
   &:hover { background: #fde8e8 !important; }
 }
 .advance-btn {
@@ -203,7 +201,6 @@
   color: #fff !important;
   border-radius: 10px !important; font-weight: 700 !important;
   box-shadow: 0 8px 18px -8px rgba(255, 61, 138, .45) !important;
-  .material-symbols-rounded { font-size: 1rem; vertical-align: middle; margin-right: 4px; }
   &:hover { filter: brightness(1.05) !important; transform: translateY(-1px); }
 }
 

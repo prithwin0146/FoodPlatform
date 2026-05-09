@@ -368,6 +368,40 @@ ul, ol { list-style: none; }
   100% { background-position: 200% center; }
 }
 
+// === Material Button Icon Alignment ===
+// Fixes icon sitting higher than text on every mat-flat-button / mat-stroked-button / mat-button.
+// Targets the MDC internal label span so it works globally without ::ng-deep.
+.mat-mdc-button .mdc-button__label,
+.mat-mdc-unelevated-button .mdc-button__label,
+.mat-mdc-outlined-button .mdc-button__label,
+.mat-mdc-raised-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mat-mdc-button .material-symbols-rounded,
+.mat-mdc-unelevated-button .material-symbols-rounded,
+.mat-mdc-outlined-button .material-symbols-rounded,
+.mat-mdc-raised-button .material-symbols-rounded {
+  font-size: 1.15em;  // scales with button font-size
+  line-height: 1;
+  display: inline-flex;
+}
+
+// === Material Form Field Prefix/Suffix Icon Alignment ===
+// matPrefix / matSuffix icons sit in an MDC flex slot — give them flex
+// centering so they align with the input text baseline.
+.field-icon {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-muted);
+  margin-right: 4px;
+  user-select: none;
+}
+
 // === Scrollbar ===
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

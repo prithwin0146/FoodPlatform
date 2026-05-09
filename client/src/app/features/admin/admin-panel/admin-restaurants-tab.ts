@@ -161,7 +161,6 @@ interface RestaurantForm {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 20px;
       .tab-count { font-size: .9rem; color: #6b7280; }
-      button .material-symbols-rounded { font-size: 18px; vertical-align: middle; margin-right: 4px; }
     }
 
     /* ── Form Panel ── */

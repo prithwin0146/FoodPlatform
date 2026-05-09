@@ -254,9 +254,6 @@
   transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 
   .mdc-button__label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     font-weight: 600;
     font-size: 0.85rem;
   }
@@ -282,11 +279,6 @@
   font-weight: 700;
   letter-spacing: 0.01em;
 
-  .mdc-button__label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
   .material-symbols-rounded { font-size: 1.05rem; }
 }
 
