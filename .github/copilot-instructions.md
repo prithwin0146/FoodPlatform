@@ -12,6 +12,25 @@ Full-stack food delivery platform where customers can **watch their food being p
 - **Payments**: Stripe (PaymentIntents + Connect for restaurant payouts)
 - **UI**: Angular Material M3 + custom dark glassmorphism design system
 
+### Production Infrastructure
+- **Frontend**: Deployed on **Vercel** → [seetheprep.com](https://seetheprep.com)
+  - Deploy command: `cd client && vercel --prod`
+  - Angular `fileReplacements` in `angular.json` swaps `environment.ts` → `environment.prod.ts` for prod builds
+- **Backend**: Deployed on **Azure App Service** → `https://seetheprep-api.azurewebsites.net`
+  - App name: `seetheprep-api`
+  - Auto-deployed via GitHub Actions (`.github/workflows/azure-deploy.yml`) on push to `main` (paths: `src/**`)
+  - Manual deploy: push to `main` or trigger `workflow_dispatch` in GitHub Actions
+- **Database**: **Azure SQL** (managed, connected via connection string in Azure App Settings)
+- **Secrets**: Stored as Azure App Settings (never in `appsettings.json` which is gitignored)
+  - `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
+  - `ConnectionStrings__DefaultConnection`
+  - `Stripe__SecretKey`, `Stripe__WebhookSecret`
+  - `Resend__ApiKey`, `Resend__FromAddress`
+  - `Cors__AllowedOrigins__0` = `http://localhost:4200`
+  - `Cors__AllowedOrigins__1` = `https://seetheprep.com`
+  - `Cors__AllowedOrigins__2` = `https://www.seetheprep.com`
+- **Production API URL** (in `environment.prod.ts`): `https://seetheprep-api.azurewebsites.net/api`
+
 ### Delivery Model
 Delivery is **restaurant-managed** — every restaurant handles its own dispatch and drivers in-house. We do **not** build a courier marketplace, driver app, or platform-side driver assignment. The platform's role for delivery is:
 - Capture the customer address and ETA
