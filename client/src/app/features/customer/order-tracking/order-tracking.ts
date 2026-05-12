@@ -11,6 +11,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { OrderPollingService } from '../../../core/services/order-polling.service';
 import { Order, ORDER_STATUS_FLOW, OrderStatus } from '../../../core/models';
 import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
+import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
@@ -24,7 +25,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
   selector: 'app-order-tracking',
   imports: [
     CurrencyPipe, DatePipe, RouterLink,
-    OrderStatusEmojiPipe, OrderStatusLabelPipe,
+    OrderStatusEmojiPipe, OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
     ScrollRevealDirective, TiltDirective, MagneticDirective,
   ],

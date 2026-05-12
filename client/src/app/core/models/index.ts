@@ -8,6 +8,8 @@ export interface Restaurant {
   hygieneRating: number;
   isActive: boolean;
   imageUrl?: string | null;
+  /** Pre-recorded kitchen video URL set by staff/admin. Null = no video yet. */
+  kitchenVideoUrl?: string | null;
 }
 
 export interface RestaurantDetail extends Restaurant {
@@ -51,10 +53,15 @@ export interface Order {
   disputeStatus: string;
   disputeNotes: string | null;
   totalAmount: number;
+  deliveryAddressLine1: string;
+  deliveryCity: string;
   deliveryPostcode: string;
+  restaurantName: string;
+  kitchenVideoUrl: string | null;
   estimatedDeliveryTime: string | null;
   cancellableUntil: string;
   createdAt: string;
+  deliveredAt: string | null;
   items: OrderItem[];
 }
 

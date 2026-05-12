@@ -19,7 +19,7 @@ public class AdminRestaurantService : IAdminRestaurantService
     {
         return await _db.Restaurants
             .Select(r => new RestaurantDto(r.Id, r.Name, r.Address, r.BasePostcode,
-                r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl))
+                            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl))
             .ToListAsync();
     }
 
@@ -50,6 +50,8 @@ public class AdminRestaurantService : IAdminRestaurantService
         if (request.DeliveryRadiusMiles.HasValue) restaurant.DeliveryRadiusMiles = request.DeliveryRadiusMiles.Value;
         if (request.HygieneRating.HasValue) restaurant.HygieneRating = request.HygieneRating.Value;
         if (request.ImageUrl != null) restaurant.ImageUrl = request.ImageUrl;
+        // null means "no change"; empty string means "clear the URL"
+        if (request.KitchenVideoUrl != null) restaurant.KitchenVideoUrl = request.KitchenVideoUrl == "" ? null : request.KitchenVideoUrl;
 
         await _db.SaveChangesAsync();
         return ToDto(restaurant);
@@ -75,5 +77,5 @@ public class AdminRestaurantService : IAdminRestaurantService
     }
 
     private static RestaurantDto ToDto(Restaurant r) =>
-        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl);
+        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl);
 }

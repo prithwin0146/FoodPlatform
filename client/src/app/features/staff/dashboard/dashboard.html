@@ -7,14 +7,101 @@
       <div class="dash-title-wrap">
         <span class="dash-icon">🏪</span>
         <div>
-          <h1 class="dash-title">Restaurant Dashboard</h1>
-          <p class="dash-sub">Manage incoming orders in real time</p>
+          <h1 class="dash-title">
+            Restaurant Dashboard
+            @if (newOrderCount() > 0) {
+              <span class="new-order-badge">{{ newOrderCount() }} new</span>
+            }
+          </h1>
+          <p class="dash-sub">Auto-refreshes every 5 s · {{ myRestaurant()?.name ?? '' }}</p>
         </div>
       </div>
-      <div class="live-dot">
-        <span class="live-pulse"></span> Live
+      <div class="header-actions">
+        <button class="video-manage-btn" (click)="toggleVideoSection()" matRipple
+          [class.active]="videoSectionOpen()">
+          <span class="material-symbols-rounded">videocam</span>
+          Kitchen Video
+        </button>
+        <div class="live-dot">
+          <span class="live-pulse"></span> Live
+        </div>
       </div>
     </div>
+
+    <!-- ── Kitchen Video Management Panel ── -->
+    @if (videoSectionOpen()) {
+      <div class="video-panel glass-card" appScrollReveal>
+        <div class="video-panel-header">
+          <span class="material-symbols-rounded vp-icon">movie</span>
+          <div>
+            <h2 class="vp-title">Kitchen Video</h2>
+            <p class="vp-sub">
+              Paste a YouTube, Vimeo or direct MP4/WebM URL. Customers see this on their order-tracking page.
+            </p>
+          </div>
+        </div>
+
+        <div class="video-panel-body">
+          <mat-form-field appearance="outline" class="video-url-field">
+            <mat-label>Video URL</mat-label>
+            <input matInput
+              [ngModel]="videoUrl()"
+              (ngModelChange)="videoUrl.set($event)"
+              placeholder="https://youtube.com/embed/… or https://cdn.example.com/kitchen.mp4">
+            <mat-hint>YouTube embed URL, Vimeo URL, or a direct video file link.</mat-hint>
+          </mat-form-field>
+
+          <!-- Preview -->
+          @if (videoUrl().trim()) {
+            <div class="video-preview">
+              @if (videoUrl().includes('youtube') || videoUrl().includes('youtu.be') || videoUrl().includes('vimeo')) {
+                <iframe
+                  [src]="videoUrl() | safeUrl"
+                  class="preview-frame"
+                  frameborder="0"
+                  allow="autoplay; fullscreen"
+                  allowfullscreen>
+                </iframe>
+              } @else {
+                <video class="preview-video" controls [src]="videoUrl()">
+                  Your browser does not support the video element.
+                </video>
+              }
+            </div>
+          } @else {
+            <div class="video-empty-hint">
+              <span class="material-symbols-rounded">play_circle</span>
+              <p>No video set yet. Add a URL above to preview it here.</p>
+            </div>
+          }
+
+          <div class="video-actions">
+            <button mat-flat-button class="save-video-btn" appMagnetic
+              [disabled]="videoSaving()"
+              (click)="saveVideo()">
+              <span class="material-symbols-rounded">save</span>
+              {{ videoSaving() ? 'Saving…' : 'Save Video' }}
+            </button>
+            @if (myRestaurant()?.kitchenVideoUrl) {
+              <button mat-stroked-button class="clear-video-btn"
+                [disabled]="videoSaving()"
+                (click)="clearVideo()">
+                <span class="material-symbols-rounded">delete</span>
+                Remove Video
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Current live preview badge -->
+        @if (myRestaurant()?.kitchenVideoUrl) {
+          <div class="current-video-note">
+            <span class="material-symbols-rounded">check_circle</span>
+            Customers can currently see your kitchen video on the order-tracking page.
+          </div>
+        }
+      </div>
+    }
 
     <!-- Filter Chips -->
     <div class="filter-bar" appScrollReveal [revealDelay]="80">
@@ -46,7 +133,7 @@
       <div class="empty-state glass-card" appScrollReveal>
         <div class="empty-icon">📭</div>
         <h3>No orders found</h3>
-        <p>Orders will appear here when customers place them.</p>
+        <p>Orders will appear here automatically — no refresh needed.</p>
       </div>
     } @else {
       <div class="orders-grid">
@@ -81,6 +168,14 @@
               }
             </div>
 
+            <!-- Delivery address -->
+            <div class="delivery-address-row">
+              <span class="material-symbols-rounded addr-icon">location_on</span>
+              <span class="addr-text">
+                {{ order.deliveryAddressLine1 }}, {{ order.deliveryCity }}, {{ order.deliveryPostcode }}
+              </span>
+            </div>
+
             <!-- Footer -->
             <div class="order-card-footer">
               <div class="order-total-amount">{{ order.totalAmount | currency:'GBP' }}</div>
@@ -93,8 +188,8 @@
                 <mat-form-field appearance="outline" class="eta-field">
                   <mat-label>ETA (min)</mat-label>
                   <input matInput type="number"
-                    [ngModel]="estimatedMinutes()"
-                    (ngModelChange)="estimatedMinutes.set($event)"
+                    [ngModel]="getEta(order.id)"
+                    (ngModelChange)="setEta(order.id, $event)"
                     min="5" max="120">
                 </mat-form-field>
                 @if (rejectingOrderId() === order.id) {
@@ -109,9 +204,10 @@
                     </mat-form-field>
                     <div class="action-btns">
                       <button mat-flat-button class="reject-btn" appMagnetic
-                        [disabled]="!rejectReason().trim()"
+                        [disabled]="!rejectReason().trim() || isActionInProgress(order.id)"
                         (click)="confirmReject(order)">
-                        <span class="material-symbols-rounded">cancel</span> Confirm Reject
+                        <span class="material-symbols-rounded">cancel</span>
+                        {{ isActionInProgress(order.id) ? 'Rejecting…' : 'Confirm Reject' }}
                       </button>
                       <button mat-stroked-button appMagnetic (click)="cancelReject()">
                         <span class="material-symbols-rounded">close</span> Cancel
@@ -120,10 +216,15 @@
                   </div>
                 } @else {
                   <div class="action-btns">
-                    <button mat-flat-button class="accept-btn" (click)="accept(order)" appMagnetic matTooltip="Accept order">
-                      <span class="material-symbols-rounded">check_circle</span> Accept
+                    <button mat-flat-button class="accept-btn"
+                      [disabled]="isActionInProgress(order.id)"
+                      (click)="accept(order)" appMagnetic matTooltip="Accept order">
+                      <span class="material-symbols-rounded">check_circle</span>
+                      {{ isActionInProgress(order.id) ? 'Accepting…' : 'Accept' }}
                     </button>
-                    <button mat-stroked-button class="reject-btn" (click)="reject(order)" appMagnetic matTooltip="Reject order">
+                    <button mat-stroked-button class="reject-btn"
+                      [disabled]="isActionInProgress(order.id)"
+                      (click)="reject(order)" appMagnetic matTooltip="Reject order">
                       <span class="material-symbols-rounded">cancel</span> Reject
                     </button>
                   </div>
@@ -131,8 +232,12 @@
               </div>
             } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
               <div class="order-actions single">
-                <button mat-flat-button class="advance-btn" (click)="advanceStatus(order)" appMagnetic>
-                  <span class="material-symbols-rounded">arrow_forward</span> Advance Status
+                <button mat-flat-button class="advance-btn"
+                  [disabled]="isActionInProgress(order.id)"
+                  (click)="advanceStatus(order)" appMagnetic
+                  [matTooltip]="nextStatusLabel(order)">
+                  <span class="btn-emoji">{{ nextStatusEmoji(order) }}</span>
+                  {{ isActionInProgress(order.id) ? 'Updating…' : nextStatusLabel(order) }}
                 </button>
               </div>
             }

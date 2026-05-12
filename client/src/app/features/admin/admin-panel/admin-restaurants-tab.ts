@@ -20,6 +20,7 @@ interface RestaurantForm {
   deliveryRadiusMiles: number;
   hygieneRating: number;
   imageUrl: string;
+  kitchenVideoUrl: string;
 }
 
 /**
@@ -78,6 +79,11 @@ interface RestaurantForm {
             <mat-label>Image URL (optional)</mat-label>
             <input matInput [(ngModel)]="form.imageUrl" placeholder="https://…" />
             <mat-hint>Paste an external image link (Cloudinary, Imgur, etc.)</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="grid-column: span 2">
+            <mat-label>Kitchen Video URL (optional)</mat-label>
+            <input matInput [(ngModel)]="form.kitchenVideoUrl" placeholder="https://youtube.com/embed/… or direct MP4 link" />
+            <mat-hint>YouTube embed, Vimeo, or direct video file link shown on order-tracking page.</mat-hint>
           </mat-form-field>
         </div>
         <div class="form-actions">
@@ -265,7 +271,7 @@ export class AdminRestaurantsTab implements OnInit {
 
   openEdit(r: Restaurant): void {
     this.editingId.set(r.id);
-    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '' };
+    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '' };
     this.formOpen.set(true);
   }
 
@@ -322,7 +328,7 @@ export class AdminRestaurantsTab implements OnInit {
   }
 
   private emptyForm(): RestaurantForm {
-    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '' };
+    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '' };
   }
 }
 

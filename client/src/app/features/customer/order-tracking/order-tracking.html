@@ -19,6 +19,7 @@
       <div class="order-header-card glass-card" appScrollReveal appTilt [tiltMax]="6">
         <div class="hc-left">
           <h1 class="order-title">Order <span class="order-id">#{{ o.id }}</span></h1>
+          <p class="order-restaurant">{{ o.restaurantName }}</p>
           <p class="order-date">
             <span class="material-symbols-rounded">schedule</span>
             Placed {{ o.createdAt | date:'mediumDate' }} at {{ o.createdAt | date:'shortTime' }}
@@ -68,19 +69,32 @@
         <!-- ── Live Kitchen Panel ── -->
         <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160" appTilt [tiltMax]="5">
           <div class="lk-video">
-            <div class="video-placeholder">
-              <span class="live-badge"><span class="live-badge-dot"></span> LIVE</span>
-              <button class="play-btn">
-                <span class="material-symbols-rounded">play_arrow</span>
-              </button>
-              <p class="watch-label">Watch Your Food Being Prepared</p>
-            </div>
+            @if (o.kitchenVideoUrl) {
+              @if (o.kitchenVideoUrl.includes('youtube') || o.kitchenVideoUrl.includes('youtu.be') || o.kitchenVideoUrl.includes('vimeo')) {
+                <iframe
+                  [src]="o.kitchenVideoUrl | safeUrl"
+                  class="kitchen-frame"
+                  frameborder="0"
+                  allow="autoplay; fullscreen"
+                  allowfullscreen>
+                </iframe>
+              } @else {
+                <video class="kitchen-video" controls autoplay muted loop [src]="o.kitchenVideoUrl">
+                  Your browser does not support the video element.
+                </video>
+              }
+            } @else {
+              <div class="video-placeholder">
+                <span class="material-symbols-rounded vp-icon">videocam_off</span>
+                <p class="watch-label">Live kitchen feed coming soon!</p>
+              </div>
+            }
           </div>
           <div class="lk-notes">
             <h3 class="notes-title">Kitchen Notes</h3>
             <div class="note-row">
-              <span class="note-key">Executive Chef</span>
-              <span class="note-val">Chef Julian Rossi</span>
+              <span class="note-key">Kitchen</span>
+              <span class="note-val">{{ o.restaurantName }}</span>
             </div>
             @if (o.estimatedDeliveryTime) {
               <div class="note-row">
@@ -127,7 +141,7 @@
               <span class="material-symbols-rounded delivery-icon">location_on</span>
               <div>
                 <p class="delivery-label">Delivery Address</p>
-                <p class="delivery-val">{{ o.deliveryPostcode }}</p>
+                <p class="delivery-val">{{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }}, {{ o.deliveryPostcode }}</p>
               </div>
             </div>
             @if (o.estimatedDeliveryTime) {

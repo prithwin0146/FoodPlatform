@@ -38,7 +38,10 @@ public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Statu
 /// <summary>Full order detail for single-order fetch and admin dispute management.</summary>
 public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string? RejectionReason, string DisputeStatus, string? DisputeNotes,
-    decimal TotalAmount, string DeliveryPostcode, DateTime? EstimatedDeliveryTime,
+    decimal TotalAmount,
+    string DeliveryAddressLine1, string DeliveryCity, string DeliveryPostcode,
+    string RestaurantName, string? KitchenVideoUrl,
+    DateTime? EstimatedDeliveryTime,
     DateTime CancellableUntil, DateTime CreatedAt, DateTime? DeliveredAt, List<OrderItemDto> Items);
 
 public record OrderItemDto(int Id, int MenuItemId, string MenuItemName, int Quantity, decimal UnitPrice);

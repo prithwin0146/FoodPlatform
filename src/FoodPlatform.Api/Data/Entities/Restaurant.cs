@@ -10,6 +10,8 @@ public class Restaurant
     public int HygieneRating { get; set; }
     public bool IsActive { get; set; } = true;
     public string? ImageUrl { get; set; }
+    /// <summary>Pre-recorded kitchen video URL (YouTube embed, Vimeo, or direct MP4). Replaces placeholder on order-tracking page.</summary>
+    public string? KitchenVideoUrl { get; set; }
     public string? StripeAccountId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

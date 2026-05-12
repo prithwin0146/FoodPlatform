@@ -37,6 +37,7 @@ public class OrderService : IOrderService
         // Idempotency: return existing order if the same key was already processed
         var existing = await _db.Orders
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .Include(o => o.Restaurant)
             .FirstOrDefaultAsync(o => o.IdempotencyKey == request.IdempotencyKey && o.UserId == userId);
         if (existing != null)
             return ServiceResult<OrderDto>.Ok(MapToDto(existing));
@@ -129,6 +130,7 @@ public class OrderService : IOrderService
     {
         var order = await _db.Orders
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .Include(o => o.Restaurant)
             .FirstOrDefaultAsync(o => o.Id == id);
         return order is null ? null : MapToDto(order);
     }
@@ -137,6 +139,7 @@ public class OrderService : IOrderService
     {
         var query = _db.Orders
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .Include(o => o.Restaurant)
             .AsQueryable();
 
         if (restaurantId.HasValue)
@@ -274,7 +277,10 @@ public class OrderService : IOrderService
     internal static OrderDto MapToDto(Order o) => new(
         o.Id, o.RestaurantId, o.UserId, o.Status,
         o.RejectionReason, o.DisputeStatus, o.DisputeNotes,
-        o.TotalAmount, o.DeliveryPostcode, o.EstimatedDeliveryTime,
+        o.TotalAmount,
+        o.DeliveryAddressLine1, o.DeliveryCity, o.DeliveryPostcode,
+        o.Restaurant?.Name ?? string.Empty, o.Restaurant?.KitchenVideoUrl,
+        o.EstimatedDeliveryTime,
         o.CancellableUntil, o.CreatedAt, o.DeliveredAt,
         o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId,
             i.MenuItem?.Name ?? "", i.Quantity, i.UnitPrice)).ToList());
