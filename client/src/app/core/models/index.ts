@@ -161,6 +161,17 @@ export interface DisputeRequest {
   notes: string;
 }
 
+// === User ===
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: 'Admin' | 'Staff' | 'Customer';
+  isEmailVerified: boolean;
+  restaurantId: number | null;
+  createdAt: string;
+}
+
 /**
  * Canonical order status progression for the happy path.
  * (OCP: add a new status here once — staff dashboard, order-tracking and any future

@@ -43,4 +43,20 @@ public class RestaurantStaffController : RestaurantScopedController
 
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// Lets staff/admin toggle the restaurant open or closed.
+    /// Setting IsActive=false hides the restaurant from the public listing.
+    /// </summary>
+    [HttpPatch("active")]
+    public async Task<IActionResult> SetActive(SetActiveRequest request)
+    {
+        var result = await _staffService.SetActiveAsync(CurrentRestaurantId, request.IsActive);
+        if (!result.IsSuccess)
+            return result.Error == OrderServiceError.NotFound
+                ? NotFound(new { error = result.ErrorMessage })
+                : BadRequest(new { error = result.ErrorMessage });
+
+        return Ok(result.Value);
+    }
 }

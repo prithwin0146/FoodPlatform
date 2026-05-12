@@ -16,6 +16,13 @@
       </a>
     </div>
 
+    <!-- Filter tabs -->
+    <div class="filter-tabs" appScrollReveal>
+      <button class="filter-tab" [class.active]="activeFilter() === 'all'"    (click)="activeFilter.set('all')">All</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'active'" (click)="activeFilter.set('active')">Active</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'past'"   (click)="activeFilter.set('past')">Past</button>
+    </div>
+
     @if (loading()) {
       <div class="skeleton-list">
         @for (i of [1,2,3]; track i) {
@@ -27,7 +34,7 @@
           </div>
         }
       </div>
-    } @else if (orders().length === 0) {
+    } @else if (filteredOrders().length === 0) {
       <div class="empty-state glass-card" appScrollReveal>
         <div class="empty-icon">📭</div>
         <h3>No orders yet</h3>
@@ -39,7 +46,7 @@
       </div>
     } @else {
       <div class="orders-list">
-        @for (order of orders(); track order.id; let idx = $index) {
+        @for (order of filteredOrders(); track order.id; let idx = $index) {
           <a
             class="order-row glass-card"
             [class.order-row--active]="isActive(order)"

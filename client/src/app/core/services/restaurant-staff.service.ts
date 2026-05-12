@@ -26,4 +26,9 @@ export class RestaurantStaffService {
   updateKitchenVideo(kitchenVideoUrl: string | null): Observable<Restaurant> {
     return this.http.patch<Restaurant>(`${this.url}/video`, { kitchenVideoUrl });
   }
+
+  /** Toggles the restaurant open (isActive=true) or closed (isActive=false). */
+  setActive(isActive: boolean): Observable<Restaurant> {
+    return this.http.patch<Restaurant>(`${this.url}/active`, { isActive });
+  }
 }

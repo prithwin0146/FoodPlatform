@@ -35,3 +35,6 @@ public record UpdateRestaurantRequest(
 
 /// <summary>Staff-only request to update the kitchen video URL for their restaurant.</summary>
 public record UpdateKitchenVideoRequest([MaxLength(1000)] string? KitchenVideoUrl);
+
+/// <summary>Staff-only request to toggle the restaurant open/closed status.</summary>
+public record SetActiveRequest([Required] bool IsActive);

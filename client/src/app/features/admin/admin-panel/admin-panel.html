@@ -21,6 +21,10 @@
         <span class="material-symbols-rounded">restaurant_menu</span>
         <span>Menu Items</span>
       </button>
+      <button class="nav-item" [class.active]="tab() === 'users'" (click)="setTab('users')">
+        <span class="material-symbols-rounded">group</span>
+        <span>Users</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -50,6 +54,10 @@
           <span class="material-symbols-rounded">restaurant_menu</span>
           <h2>Menu Items</h2>
         }
+        @if (tab() === 'users') {
+          <span class="material-symbols-rounded">group</span>
+          <h2>Users</h2>
+        }
       </div>
     </header>
 
@@ -65,6 +73,9 @@
       }
       @if (tab() === 'menu') {
         <app-admin-menu-tab />
+      }
+      @if (tab() === 'users') {
+        <app-admin-users-tab />
       }
     </div>
 

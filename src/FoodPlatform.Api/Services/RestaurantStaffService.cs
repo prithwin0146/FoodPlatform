@@ -35,6 +35,18 @@ public class RestaurantStaffService : IRestaurantStaffService
         return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
     }
 
+    public async Task<ServiceResult<RestaurantDto>> SetActiveAsync(int restaurantId, bool isActive)
+    {
+        var restaurant = await _db.Restaurants.FindAsync(restaurantId);
+        if (restaurant is null)
+            return ServiceResult<RestaurantDto>.Fail(OrderServiceError.NotFound, "Restaurant not found");
+
+        restaurant.IsActive = isActive;
+        await _db.SaveChangesAsync();
+
+        return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
+    }
+
     private static RestaurantDto ToDto(Data.Entities.Restaurant r) =>
         new(r.Id, r.Name, r.Address, r.BasePostcode,
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl);

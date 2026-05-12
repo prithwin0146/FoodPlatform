@@ -20,4 +20,10 @@ public interface IRestaurantStaffService
     /// Pass null or empty string to clear the current video.
     /// </summary>
     Task<ServiceResult<RestaurantDto>> UpdateKitchenVideoAsync(int restaurantId, string? videoUrl);
+
+    /// <summary>
+    /// Sets the restaurant's open/closed status.
+    /// (OCP: new staff capability added without changing existing methods)
+    /// </summary>
+    Task<ServiceResult<RestaurantDto>> SetActiveAsync(int restaurantId, bool isActive);
 }

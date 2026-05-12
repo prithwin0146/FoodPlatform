@@ -71,6 +71,8 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly videoUrl = signal('');
   readonly videoSaving = signal(false);
   readonly videoSectionOpen = signal(false);
+  /** Whether the open/closed toggle HTTP call is in-flight. */
+  readonly activeToggling = signal(false);
 
   readonly filters = ['all', 'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered'];
 
@@ -128,6 +130,24 @@ export class Dashboard implements OnInit, OnDestroy {
   clearVideo(): void {
     this.videoUrl.set('');
     this.saveVideo();
+  }
+
+  toggleActive(): void {
+    const r = this.myRestaurant();
+    if (!r || this.activeToggling()) return;
+    const next = !r.isActive;
+    this.activeToggling.set(true);
+    this.staffService.setActive(next).subscribe({
+      next: (updated) => {
+        this.myRestaurant.set(updated);
+        this.activeToggling.set(false);
+        this.toast.success(next ? 'Restaurant is now Open 🟢' : 'Restaurant is now Closed 🔴');
+      },
+      error: () => {
+        this.activeToggling.set(false);
+        this.toast.error('Failed to update status');
+      },
+    });
   }
 
   // ── Polling

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Title } from '@angular/platform-browser';
@@ -30,6 +30,14 @@ import { TiltDirective } from '../../../shared/directives/tilt.directive';
 export class MyOrders implements OnInit {
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
+  readonly activeFilter = signal<'all' | 'active' | 'past'>('all');
+
+  readonly filteredOrders = computed(() => {
+    const f = this.activeFilter();
+    if (f === 'active') return this.orders().filter(o => this.isActive(o));
+    if (f === 'past')   return this.orders().filter(o => !this.isActive(o));
+    return this.orders();
+  });
 
   constructor(
     private readonly orderService: OrderService,

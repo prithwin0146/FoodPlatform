@@ -60,6 +60,36 @@
 
 /* ── Header Actions ── */
 .header-actions { display: flex; align-items: center; gap: 14px; }
+
+/* Open/Closed status toggle */
+.status-toggle-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 999px;
+  font-size: .85rem; font-weight: 700; cursor: pointer;
+  border: 1px solid; transition: all .2s var(--ease-out);
+  .material-symbols-rounded { font-size: 1rem; }
+
+  &--open {
+    background: rgba(16, 185, 129, .1); color: #065f46;
+    border-color: rgba(16, 185, 129, .35);
+    &:hover { background: rgba(16, 185, 129, .18); }
+  }
+  &--closed {
+    background: rgba(107, 114, 128, .1); color: #374151;
+    border-color: rgba(107, 114, 128, .3);
+    &:hover { background: rgba(107, 114, 128, .18); }
+  }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+.pulse-dot-sm {
+  width: 7px; height: 7px; border-radius: 50%; background: #10b981; flex-shrink: 0;
+  animation: pulseDotSm 1.8s ease-in-out infinite;
+}
+@keyframes pulseDotSm {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, .5); }
+  50%       { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+}
+
 .video-manage-btn {
   display: flex; align-items: center; gap: 6px;
   padding: 8px 16px; border-radius: 999px;

@@ -17,6 +17,23 @@
         </div>
       </div>
       <div class="header-actions">
+        <!-- Open / Closed toggle -->
+        <button class="status-toggle-btn"
+          [class.status-toggle-btn--open]="myRestaurant()?.isActive"
+          [class.status-toggle-btn--closed]="!myRestaurant()?.isActive"
+          [disabled]="activeToggling() || !myRestaurant()"
+          (click)="toggleActive()" matRipple
+          matTooltip="Toggle restaurant open / closed">
+          @if (activeToggling()) {
+            <span class="material-symbols-rounded">hourglass_empty</span>
+          } @else if (myRestaurant()?.isActive) {
+            <span class="pulse-dot-sm"></span>
+            Open
+          } @else {
+            <span class="material-symbols-rounded">block</span>
+            Closed
+          }
+        </button>
         <button class="video-manage-btn" (click)="toggleVideoSection()" matRipple
           [class.active]="videoSectionOpen()">
           <span class="material-symbols-rounded">videocam</span>

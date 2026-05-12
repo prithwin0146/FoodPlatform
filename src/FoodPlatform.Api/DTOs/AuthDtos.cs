@@ -31,3 +31,13 @@ public record ResetPasswordRequest(
     [Required, EmailAddress] string Email,
     [Required, StringLength(6, MinimumLength = 6)] string Otp,
     [Required, MinLength(8)] string NewPassword);
+
+/// <summary>Admin-facing view of a registered user. (SRP: separate from AuthResponse which is customer-facing)</summary>
+public record UserDto(
+    int Id,
+    string Username,
+    string Email,
+    string Role,
+    bool IsEmailVerified,
+    int? RestaurantId,
+    DateTime CreatedAt);
