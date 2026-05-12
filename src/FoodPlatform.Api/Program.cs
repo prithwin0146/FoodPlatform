@@ -4,6 +4,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 // Bootstrap Serilog before the host so startup errors are captured.
@@ -33,6 +34,14 @@ builder.Services
     .AddControllers();
 
 var app = builder.Build();
+
+// Auto-apply pending EF Core migrations on startup so every deploy is schema-safe.
+// Runs before any request is served; failures abort startup and surface in logs.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FoodPlatformDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // === Production safety: production-only middleware ===
 if (!app.Environment.IsDevelopment())
