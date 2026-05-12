@@ -67,4 +67,14 @@ public class AdminOrderService : IAdminOrderService
         await _db.SaveChangesAsync();
         return new { order.Id, order.Status, order.DisputeStatus };
     }
+
+    public async Task<object?> ResolveAsync(int orderId)
+    {
+        var order = await _db.Orders.FindAsync(orderId);
+        if (order is null) return null;
+
+        order.DisputeStatus = "Resolved";
+        await _db.SaveChangesAsync();
+        return new { order.Id, order.DisputeStatus };
+    }
 }

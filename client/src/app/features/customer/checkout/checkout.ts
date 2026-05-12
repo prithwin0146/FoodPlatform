@@ -41,6 +41,7 @@ import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 export class Checkout implements AfterViewInit, OnDestroy {
   @ViewChild('cardElement') private cardElementRef!: ElementRef<HTMLDivElement>;
 
+  readonly DELIVERY_FEE = 2.5;
   readonly placing = signal(false);
   /** 'idle' | 'confirming' | 'placing' */
   readonly paymentStep = signal<'idle' | 'confirming' | 'placing'>('idle');

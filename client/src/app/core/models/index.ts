@@ -85,6 +85,15 @@ export type OrderStatus =
   | 'Cancelled';
 
 // === Auth ===
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+}
+
 export interface AuthResponse {
   token: string;
   role: 'Admin' | 'Staff' | 'Customer';

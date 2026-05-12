@@ -133,12 +133,12 @@
               </div>
               <div class="price-row">
                 <span>Delivery Fee</span>
-                <span>£2.50</span>
+                <span>{{ DELIVERY_FEE | currency:'GBP' }}</span>
               </div>
               <mat-divider class="summary-divider"></mat-divider>
               <div class="price-row total-row">
                 <span>Total</span>
-                <span class="total-val">{{ cart.total() + 2.5 | currency:'GBP' }}</span>
+                <span class="total-val">{{ cart.total() + DELIVERY_FEE | currency:'GBP' }}</span>
               </div>
             </div>
 
@@ -162,16 +162,17 @@
             <!-- Microcopy -->
             <p class="cancel-note">You can cancel within 5 minutes of placing</p>
 
-            <!-- Live Telemetry Strip -->
-            <div class="telemetry-strip">
-              <div style="display:flex;align-items:center;gap:8px">
-                <span class="tele-dot"></span>
-                <span class="tele-text">Live Telemetry</span>
-              </div>
-              <div style="display:flex;gap:16px">
-                <span class="tele-text">TEMP: 240°C</span>
-                <span class="tele-text">ETA: 18m</span>
-              </div>
+            <!-- Trust Badges -->
+            <div class="trust-badges">
+              <span class="trust-pill">
+                <span class="material-symbols-rounded">timer</span> 5-min cancellation
+              </span>
+              <span class="trust-pill">
+                <span class="material-symbols-rounded">lock</span> Stripe-secured
+              </span>
+              <span class="trust-pill">
+                <span class="material-symbols-rounded">videocam</span> Live kitchen cam
+              </span>
             </div>
 
           </div>

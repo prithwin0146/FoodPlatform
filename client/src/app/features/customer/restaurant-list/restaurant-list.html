@@ -158,7 +158,16 @@
               <div class="live-pip"><span></span> LIVE</div>
             </div>
             <div class="card-body">
-              <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+              <div class="card-title-row">
+                <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                @if (restaurant.isActive) {
+                  <span class="status-pill pill-open">
+                    <span class="pulse-dot"></span> Open
+                  </span>
+                } @else {
+                  <span class="status-pill pill-closed">Closed</span>
+                }
+              </div>
               <p class="restaurant-address">
                 <span class="material-symbols-rounded meta-icon">location_on</span>
                 {{ restaurant.address }}

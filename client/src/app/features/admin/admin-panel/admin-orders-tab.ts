@@ -1,21 +1,24 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminOrderService } from '../../../core/services/admin-order.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Order } from '../../../core/models';
 
 /**
  * Responsible only for displaying and managing orders in the admin panel.
- * (SRP: split from AdminPanel god component)
+ * (SRP: split from AdminPanel god component; OCP: pagination added without modifying table columns)
  */
 @Component({
   selector: 'app-admin-orders-tab',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, MatTableModule, MatChipsModule, MatCardModule, MatProgressBarModule],
+  imports: [CurrencyPipe, DatePipe, MatTableModule, MatChipsModule, MatCardModule,
+            MatProgressBarModule, MatButtonModule, MatTooltipModule],
   template: `
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -26,7 +29,7 @@ import { Order } from '../../../core/models';
           <span class="material-symbols-rounded">receipt_long</span>
           All Orders
         </mat-card-title>
-        <mat-card-subtitle>{{ orders().length }} total orders across all restaurants</mat-card-subtitle>
+        <mat-card-subtitle>{{ totalCount() }} total orders across all restaurants</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         @if (orders().length === 0 && !loading()) {
@@ -70,6 +73,24 @@ import { Order } from '../../../core/models';
               <tr mat-row *matRowDef="let row; columns: cols;"></tr>
             </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-row">
+            <span class="page-info">
+              Page {{ currentPage() }} of {{ totalPages() }}
+              ({{ orders().length }} of {{ totalCount() }} orders)
+            </span>
+            <div class="page-btns">
+              <button mat-stroked-button [disabled]="currentPage() <= 1 || loading()" (click)="prevPage()"
+                matTooltip="Previous page">
+                <span class="material-symbols-rounded">chevron_left</span>
+              </button>
+              <button mat-stroked-button [disabled]="!hasNextPage() || loading()" (click)="nextPage()"
+                matTooltip="Next page">
+                <span class="material-symbols-rounded">chevron_right</span>
+              </button>
+            </div>
+          </div>
         }
       </mat-card-content>
     </mat-card>
@@ -109,6 +130,13 @@ import { Order } from '../../../core/models';
       &.chip-disputed { background: #ffedd5 !important; color: #9a3412 !important; }
     }
 
+    .pagination-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-top: 1px solid #f3f4f6;
+    }
+    .page-info { font-size: 0.875rem; color: #6b7280; }
+    .page-btns { display: flex; gap: 8px; }
+
     .empty-state {
       display: flex; flex-direction: column; align-items: center; gap: 12px;
       padding: 64px 24px; color: #9ca3af;
@@ -120,19 +148,42 @@ import { Order } from '../../../core/models';
 export class AdminOrdersTab implements OnInit {
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
+  readonly currentPage = signal(1);
+  readonly totalCount = signal(0);
+  readonly totalPages = signal(1);
+  readonly hasNextPage = computed(() => this.currentPage() < this.totalPages());
   readonly cols = ['id', 'status', 'total', 'items', 'date'];
+
+  private readonly PAGE_SIZE = 50;
 
   constructor(
     private readonly adminOrderService: AdminOrderService,
     private readonly toast: ToastService
   ) {}
-  
+
   ngOnInit(): void {
+    this.loadPage(this.currentPage());
+  }
+
+  private loadPage(page: number): void {
     this.loading.set(true);
-    this.adminOrderService.allOrders().subscribe({
-      next: (o) => { this.orders.set(o); this.loading.set(false); },
+    this.adminOrderService.allOrders(page, this.PAGE_SIZE).subscribe({
+      next: (result) => {
+        this.orders.set(result.items);
+        this.totalCount.set(result.totalCount);
+        this.totalPages.set(result.totalPages);
+        this.currentPage.set(result.page);
+        this.loading.set(false);
+      },
       error: () => { this.toast.error('Failed to load orders'); this.loading.set(false); },
     });
   }
-}
 
+  nextPage(): void {
+    if (this.hasNextPage()) this.loadPage(this.currentPage() + 1);
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) this.loadPage(this.currentPage() - 1);
+  }
+}

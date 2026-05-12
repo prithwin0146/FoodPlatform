@@ -196,10 +196,28 @@
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
-        <div class="live-video-placeholder">
-          <span class="material-symbols-rounded video-icon">videocam</span>
-          <p>Live stream coming soon</p>
-          <span class="stream-hint">Kitchen cameras will go live when your order is placed</span>
+        <div class="live-modal-body">
+          @if (restaurant()?.kitchenVideoUrl; as videoUrl) {
+            @if (videoUrl.includes('youtube') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo')) {
+              <iframe
+                class="kitchen-video"
+                [src]="videoUrl | safeUrl"
+                allowfullscreen
+                allow="autoplay; encrypted-media"
+                frameborder="0">
+              </iframe>
+            } @else {
+              <video class="kitchen-video" controls autoplay muted loop [src]="videoUrl">
+                Your browser does not support HTML5 video.
+              </video>
+            }
+          } @else {
+            <div class="live-video-placeholder">
+              <span class="material-symbols-rounded video-icon">videocam</span>
+              <p>Live stream coming soon</p>
+              <span class="stream-hint">Kitchen cameras will go live when your order is placed</span>
+            </div>
+          }
         </div>
       </div>
     </div>

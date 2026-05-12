@@ -1,9 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminOrderService } from '../../../core/services/admin-order.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Order } from '../../../core/models';
@@ -15,7 +16,7 @@ import { Order } from '../../../core/models';
 @Component({
   selector: 'app-admin-disputes-tab',
   standalone: true,
-  imports: [CurrencyPipe, MatCardModule, MatButtonModule, MatChipsModule, MatProgressBarModule],
+  imports: [CurrencyPipe, DatePipe, MatCardModule, MatButtonModule, MatChipsModule, MatProgressBarModule, MatTooltipModule],
   template: `
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -35,13 +36,33 @@ import { Order } from '../../../core/models';
                 Order #{{ o.id }}
                 <mat-chip class="chip-disputed" disableRipple>Disputed</mat-chip>
               </mat-card-title>
-              <mat-card-subtitle>{{ o.totalAmount | currency:'GBP' }}</mat-card-subtitle>
+              <mat-card-subtitle>
+                {{ o.totalAmount | currency:'GBP' }} · {{ o.createdAt | date:'d MMM y, HH:mm' }}
+              </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
+              @if (o.restaurantName) {
+                <p class="dispute-meta">
+                  <span class="material-symbols-rounded meta-icon">restaurant</span>
+                  {{ o.restaurantName }}
+                </p>
+              }
+              @if (o.deliveryAddressLine1) {
+                <p class="dispute-meta">
+                  <span class="material-symbols-rounded meta-icon">location_on</span>
+                  {{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }} {{ o.deliveryPostcode }}
+                </p>
+              }
               <p class="dispute-notes">{{ o.disputeNotes || 'No additional notes provided.' }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
-              <button mat-flat-button color="warn" (click)="refund(o.id)">
+              <button mat-stroked-button (click)="resolve(o.id)"
+                matTooltip="Mark dispute resolved without issuing a refund">
+                <span class="material-symbols-rounded">check_circle</span>
+                Mark Resolved
+              </button>
+              <button mat-flat-button color="warn" (click)="refund(o.id)"
+                matTooltip="Issue a full refund and close the dispute">
                 <span class="material-symbols-rounded">payments</span>
                 Issue Refund
               </button>
@@ -54,7 +75,7 @@ import { Order } from '../../../core/models';
   styles: [`
     .disputes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 20px;
     }
 
@@ -63,6 +84,7 @@ import { Order } from '../../../core/models';
       box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
 
       mat-card-title { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; }
+      mat-card-actions { gap: 8px; }
     }
 
     mat-chip.chip-disputed {
@@ -70,11 +92,17 @@ import { Order } from '../../../core/models';
       background: #ffedd5 !important; color: #9a3412 !important;
     }
 
+    .dispute-meta {
+      display: flex; align-items: center; gap: 6px;
+      color: #374151; font-size: 0.875rem; margin: 0 0 6px;
+      .meta-icon { font-size: 16px; color: #6b7280; }
+    }
+
     .dispute-notes {
       color: #6b7280;
       font-size: 0.875rem;
       font-style: italic;
-      margin: 0;
+      margin: 8px 0 0;
       line-height: 1.6;
     }
 
@@ -118,5 +146,11 @@ export class AdminDisputesTab implements OnInit {
       error: (err) => this.toast.error(err.error?.message ?? 'Failed'),
     });
   }
-}
 
+  resolve(orderId: number): void {
+    this.adminOrderService.resolve(orderId).subscribe({
+      next: () => { this.toast.success('Dispute marked as resolved'); this.ngOnInit(); },
+      error: (err) => this.toast.error(err.error?.message ?? 'Failed to resolve'),
+    });
+  }
+}

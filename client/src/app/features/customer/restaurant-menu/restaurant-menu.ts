@@ -17,6 +17,7 @@ import { MenuCategory, MenuItem, RestaurantDetail } from '../../../core/models';
 import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
 import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 import { DietaryIconPipe } from '../../../shared/pipes/order-status.pipe';
+import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
@@ -28,7 +29,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
   selector: 'app-restaurant-menu',
   imports: [
     CurrencyPipe, RouterLink,
-    HygieneStarsPipe, MenuItemEmojiPipe, DietaryIconPipe,
+    HygieneStarsPipe, MenuItemEmojiPipe, DietaryIconPipe, SafeUrlPipe,
     MatButtonModule, MatChipsModule, MatRippleModule,
     MatProgressSpinnerModule, MatTooltipModule, MatBadgeModule,
     TiltDirective, ScrollRevealDirective, MagneticDirective,

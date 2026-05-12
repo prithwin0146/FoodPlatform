@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Order } from '../models';
+import { Order, PaginatedResult } from '../models';
 
 /**
  * Admin order HTTP operations. (SRP: split from AdminRestaurantService)
@@ -13,8 +13,8 @@ export class AdminOrderService {
 
   constructor(private readonly http: HttpClient) {}
 
-  allOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.url);
+  allOrders(page = 1, pageSize = 50): Observable<PaginatedResult<Order>> {
+    return this.http.get<PaginatedResult<Order>>(`${this.url}?page=${page}&pageSize=${pageSize}`);
   }
 
   disputedOrders(): Observable<Order[]> {
@@ -23,5 +23,9 @@ export class AdminOrderService {
 
   refund(orderId: number): Observable<unknown> {
     return this.http.post(`${this.url}/${orderId}/refund`, {});
+  }
+
+  resolve(orderId: number): Observable<unknown> {
+    return this.http.patch(`${this.url}/${orderId}/resolve`, {});
   }
 }

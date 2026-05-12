@@ -33,4 +33,11 @@ public class AdminOrdersController : ControllerBase
         var result = await _orders.RefundAsync(id);
         return result is null ? NotFound() : Ok(result);
     }
+
+    [HttpPatch("{id:int}/resolve")]
+    public async Task<IActionResult> Resolve(int id)
+    {
+        var result = await _orders.ResolveAsync(id);
+        return result is null ? NotFound() : Ok(result);
+    }
 }
