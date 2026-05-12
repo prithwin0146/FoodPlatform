@@ -43,6 +43,13 @@ public class OrdersController : RestaurantScopedController
         return Ok(order);
     }
 
+    [HttpGet("my")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> ListMyOrders()
+    {
+        return Ok(await _orders.ListForUserAsync(CurrentUserId));
+    }
+
     [HttpGet]
     [Authorize(Roles = "Staff,Admin")]
     public async Task<IActionResult> List([FromQuery] string? status)

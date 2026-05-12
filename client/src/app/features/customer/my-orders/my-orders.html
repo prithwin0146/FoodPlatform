@@ -1,0 +1,85 @@
+<div class="my-orders-page">
+  <div class="page-bg"></div>
+  <div class="container">
+
+    <div class="page-header" appScrollReveal>
+      <div class="page-title-wrap">
+        <span class="page-icon">🧾</span>
+        <div>
+          <h1 class="page-title">My Orders</h1>
+          <p class="page-sub">Track your orders and revisit past deliveries.</p>
+        </div>
+      </div>
+      <a routerLink="/" mat-stroked-button class="back-btn">
+        <span class="material-symbols-rounded">storefront</span>
+        Browse Restaurants
+      </a>
+    </div>
+
+    @if (loading()) {
+      <div class="skeleton-list">
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-row">
+            <div class="sk sk-id"></div>
+            <div class="sk sk-name"></div>
+            <div class="sk sk-status"></div>
+            <div class="sk sk-total"></div>
+          </div>
+        }
+      </div>
+    } @else if (orders().length === 0) {
+      <div class="empty-state glass-card" appScrollReveal>
+        <div class="empty-icon">📭</div>
+        <h3>No orders yet</h3>
+        <p>Your order history will appear here once you place your first order.</p>
+        <a routerLink="/" mat-flat-button class="browse-btn">
+          <span class="material-symbols-rounded">restaurant</span>
+          Browse Restaurants
+        </a>
+      </div>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders(); track order.id; let idx = $index) {
+          <a
+            class="order-row glass-card"
+            [class.order-row--active]="isActive(order)"
+            [routerLink]="['/orders', order.id]"
+            appTilt [tiltMax]="4"
+            appScrollReveal [revealDelay]="idx * 50"
+            matRipple
+          >
+            <div class="card-glare"></div>
+
+            <div class="row-left">
+              <div class="order-num-wrap">
+                <span class="order-num">#{{ order.id }}</span>
+                @if (isActive(order)) {
+                  <span class="active-pill">Live</span>
+                }
+              </div>
+              <span class="restaurant-name">{{ order.restaurantName }}</span>
+              <span class="order-date">{{ order.createdAt | date:'d MMM y · HH:mm' }}</span>
+            </div>
+
+            <div class="row-middle">
+              @for (item of order.items.slice(0, 3); track item.id) {
+                <span class="item-tag">{{ item.quantity }}× {{ item.menuItemName }}</span>
+              }
+              @if (order.items.length > 3) {
+                <span class="item-tag item-tag--more">+{{ order.items.length - 3 }} more</span>
+              }
+            </div>
+
+            <div class="row-right">
+              <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
+                {{ order.status | orderStatusEmoji }} {{ order.status | orderStatusLabel }}
+              </span>
+              <span class="order-total">{{ order.totalAmount | currency:'GBP' }}</span>
+              <span class="material-symbols-rounded chevron">chevron_right</span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

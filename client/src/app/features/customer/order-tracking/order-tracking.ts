@@ -6,6 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ToastService } from '../../../core/services/toast.service';
 import { OrderService } from '../../../core/services/order.service';
 import { OrderPollingService } from '../../../core/services/order-polling.service';
@@ -25,6 +28,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
   selector: 'app-order-tracking',
   imports: [
     CurrencyPipe, DatePipe, RouterLink,
+    FormsModule, MatFormFieldModule, MatInputModule,
     OrderStatusEmojiPipe, OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
     ScrollRevealDirective, TiltDirective, MagneticDirective,
@@ -103,5 +107,40 @@ export class OrderTracking implements OnInit, OnDestroy {
     const o = this.order();
     if (!o) return false;
     return new Date(o.cancellableUntil) > new Date() && o.status === 'Pending';
+  }
+
+  // ── Dispute ──
+  readonly disputeNotes = signal('');
+  readonly disputeOpen = signal(false);
+  readonly disputeSubmitting = signal(false);
+
+  canDispute(): boolean {
+    const o = this.order();
+    if (!o || o.status !== 'Delivered') return false;
+    if (o.disputeStatus && o.disputeStatus !== 'None') return false;
+    if (o.deliveredAt) {
+      const hours = (Date.now() - new Date(o.deliveredAt).getTime()) / 3_600_000;
+      if (hours > 48) return false;
+    }
+    return true;
+  }
+
+  submitDispute(): void {
+    const o = this.order();
+    if (!o || !this.disputeNotes().trim()) return;
+    this.disputeSubmitting.set(true);
+    this.orderService.dispute(o.id, { notes: this.disputeNotes() }).subscribe({
+      next: () => {
+        this.toast.success('Dispute raised — our team will be in touch within 24 hours.');
+        this.disputeOpen.set(false);
+        this.disputeNotes.set('');
+        // Refresh order state to reflect disputeStatus = Open
+        this.orderService.get(o.id).subscribe({ next: (updated) => this.order.set(updated) });
+      },
+      error: (err: { error?: { error?: string } }) => {
+        this.toast.error(err.error?.error ?? 'Could not raise dispute');
+        this.disputeSubmitting.set(false);
+      },
+    });
   }
 }

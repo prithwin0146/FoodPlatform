@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, inject, PLATFORM_ID } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -56,6 +56,15 @@ export class RestaurantList implements OnInit, AfterViewInit {
   readonly restaurants = signal<Restaurant[]>([]);
   readonly loading = signal(true);
   readonly searchQuery = signal('');
+
+  /** Filtered restaurants — recomputes only when restaurants or searchQuery changes. */
+  readonly filteredRestaurants = computed(() => {
+    const q = this.searchQuery().toLowerCase();
+    if (!q) return this.restaurants();
+    return this.restaurants().filter(
+      (r) => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q)
+    );
+  });
 
   /** Hero scroll progress (0 → 1) for header colour shift */
   readonly scrollY = signal(0);
@@ -238,14 +247,6 @@ export class RestaurantList implements OnInit, AfterViewInit {
       );
       io.observe(video);
     }
-  }
-
-  filteredRestaurants(): Restaurant[] {
-    const q = this.searchQuery().toLowerCase();
-    if (!q) return this.restaurants();
-    return this.restaurants().filter(
-      (r) => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q)
-    );
   }
 
   onSearch(event: Event): void {

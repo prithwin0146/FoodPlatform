@@ -135,6 +135,17 @@ public class OrderService : IOrderService
         return order is null ? null : MapToDto(order);
     }
 
+    public async Task<IEnumerable<OrderDto>> ListForUserAsync(int userId)
+    {
+        var orders = await _db.Orders
+            .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .Include(o => o.Restaurant)
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+        return orders.Select(MapToDto);
+    }
+
     public async Task<IEnumerable<OrderDto>> ListAsync(int? restaurantId, string? status)
     {
         var query = _db.Orders

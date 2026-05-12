@@ -170,6 +170,61 @@
           </button>
         }
 
+        <!-- ── Dispute Panel ── -->
+        @if (canDispute()) {
+          <div class="dispute-panel glass-card" appScrollReveal [revealDelay]="320">
+            @if (!disputeOpen()) {
+              <div class="dispute-teaser">
+                <div class="dispute-teaser-text">
+                  <span class="material-symbols-rounded dispute-icon">report_problem</span>
+                  <div>
+                    <p class="dispute-heading">Something wrong with your order?</p>
+                    <p class="dispute-sub">Raise a dispute within 48 hours of delivery and our team will investigate.</p>
+                  </div>
+                </div>
+                <button mat-stroked-button class="dispute-open-btn" (click)="disputeOpen.set(true)">
+                  <span class="material-symbols-rounded">flag</span>
+                  Raise a Dispute
+                </button>
+              </div>
+            } @else {
+              <div class="dispute-form">
+                <h3 class="dispute-form-title">
+                  <span class="material-symbols-rounded">flag</span>
+                  Raise a Dispute
+                </h3>
+                <p class="dispute-form-sub">Describe the issue with your order. Our team will review this within 24 hours.</p>
+                <mat-form-field appearance="outline" class="dispute-textarea-field">
+                  <mat-label>Describe the issue</mat-label>
+                  <textarea matInput rows="4"
+                    [ngModel]="disputeNotes()"
+                    (ngModelChange)="disputeNotes.set($event)"
+                    placeholder="e.g. Wrong items delivered, food was cold, item was missing…">
+                  </textarea>
+                </mat-form-field>
+                <div class="dispute-actions">
+                  <button mat-flat-button class="dispute-submit-btn" appMagnetic
+                    [disabled]="!disputeNotes().trim() || disputeSubmitting()"
+                    (click)="submitDispute()">
+                    <span class="material-symbols-rounded">send</span>
+                    {{ disputeSubmitting() ? 'Submitting…' : 'Submit Dispute' }}
+                  </button>
+                  <button mat-stroked-button (click)="disputeOpen.set(false); disputeNotes.set('')">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (o.disputeStatus === 'Open') {
+          <div class="dispute-open-notice glass-card" appScrollReveal [revealDelay]="320">
+            <span class="material-symbols-rounded">pending_actions</span>
+            Your dispute is under review. We'll be in touch within 24 hours.
+          </div>
+        }
+
       } @else {
 
         <!-- Rejected / Cancelled -->

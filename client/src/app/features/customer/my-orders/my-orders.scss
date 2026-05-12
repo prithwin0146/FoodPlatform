@@ -1,0 +1,174 @@
+:host { display: block; }
+
+.my-orders-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(800px circle at 0% 0%, rgba(110, 58, 255, .06), transparent 55%),
+    radial-gradient(700px circle at 100% 100%, rgba(255, 107, 26, .05), transparent 55%),
+    var(--bg, #fffcf7);
+  padding: 40px 0 60px;
+  font-family: var(--font-sans);
+  position: relative;
+}
+.page-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 80% 10%, rgba(255, 61, 138, .04), transparent 70%);
+}
+.container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Header ── */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
+}
+.page-title-wrap { display: flex; align-items: center; gap: 16px; }
+.page-icon { font-size: 2.4rem; }
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2rem); font-weight: 700; color: var(--text);
+  margin: 0 0 4px; letter-spacing: -.02em;
+}
+.page-sub { color: var(--text-secondary); font-size: .9rem; margin: 0; }
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  border-radius: 10px !important; font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ── Glass card base ── */
+.glass-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  transform-style: preserve-3d;
+  position: relative; overflow: hidden;
+  &:hover { box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
+}
+.card-glare {
+  position: absolute; inset: 0; border-radius: 18px; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle 180px at var(--glare-x,50%) var(--glare-y,50%), rgba(255,107,26,.1), transparent 60%);
+  opacity: var(--glare-opacity, 0); transition: opacity .3s;
+}
+
+/* ── Order Rows ── */
+.orders-list { display: flex; flex-direction: column; gap: 12px; }
+.order-row {
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  text-decoration: none; color: inherit; cursor: pointer;
+  transition: transform .2s var(--ease-out), box-shadow .2s;
+  &:hover { transform: translateY(-2px) scale(1.002); }
+  &.order-row--active { border-left: 4px solid var(--primary); }
+}
+
+.row-left {
+  display: flex; flex-direction: column; gap: 3px; transform: translateZ(6px); min-width: 0;
+}
+.order-num-wrap { display: flex; align-items: center; gap: 8px; }
+.order-num { font-size: 1rem; font-weight: 800; color: var(--text); }
+.active-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px;
+  background: rgba(255, 107, 26, .1); color: var(--primary-dark);
+  border: 1px solid rgba(255, 107, 26, .25);
+  font-size: .68rem; font-weight: 800; letter-spacing: .04em;
+  &::before {
+    content: ''; display: inline-block; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--primary);
+    animation: livePulse 1.5s ease-in-out infinite;
+  }
+}
+@keyframes livePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255, 107, 26, .5); }
+  50%     { box-shadow: 0 0 0 5px rgba(255, 107, 26, 0); }
+}
+.restaurant-name { font-size: .88rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-date { font-size: .76rem; color: var(--text-muted); }
+
+.row-middle {
+  display: flex; flex-wrap: wrap; gap: 6px; transform: translateZ(6px);
+}
+.item-tag {
+  display: inline-block; padding: 3px 9px; border-radius: 999px;
+  background: var(--bg-soft, #f9f7f4); border: 1px solid var(--border-light);
+  font-size: .75rem; color: var(--text-secondary);
+  &.item-tag--more { color: var(--text-muted); font-style: italic; }
+}
+
+.row-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px; transform: translateZ(6px);
+}
+.status-chip {
+  padding: 4px 11px; border-radius: 999px; font-size: .75rem; font-weight: 700;
+  white-space: nowrap;
+  &.chip-pending          { background: #fff8e1; color: #8a6d00; border: 1px solid #ffeaa6; }
+  &.chip-accepted         { background: #e6f0ff; color: #1e40af; border: 1px solid #b9d2fb; }
+  &.chip-preparing,
+  &.chip-cooking          { background: rgba(255,107,26,.10); color: var(--primary-dark); border: 1px solid rgba(255,107,26,.25); }
+  &.chip-packed           { background: #efe6ff; color: #5e3aa8; border: 1px solid #d4c2f5; }
+  &.chip-outfordelivery   { background: #e6f7ec; color: #0f7a3f; border: 1px solid #b9e6c8; }
+  &.chip-delivered        { background: #d4f1de; color: #075d2f; border: 1px solid #98d8b1; }
+  &.chip-rejected,
+  &.chip-cancelled        { background: #fde8e8; color: #b91c1c; border: 1px solid #fac3c3; }
+}
+.order-total {
+  font-size: 1rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--primary-dark), #ff3d8a);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-feature-settings: 'tnum';
+}
+.chevron { font-size: 1.1rem; color: var(--text-muted); }
+
+/* ── Skeleton ── */
+.skeleton-list { display: flex; flex-direction: column; gap: 12px; }
+.skeleton-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px; background: #fff; border-radius: 18px;
+  border: 1px solid var(--border);
+}
+.sk {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--border-light) 25%, var(--bg-soft) 50%, var(--border-light) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+  height: 14px;
+}
+.sk-id    { width: 60px; }
+.sk-name  { flex: 1; }
+.sk-status { width: 90px; }
+.sk-total  { width: 60px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ── Empty ── */
+.empty-state {
+  text-align: center; padding: 60px;
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
+  h3 { color: var(--text); margin: 0 0 8px; font-size: 1.3rem; }
+  p { color: var(--text-secondary); margin: 0 0 24px; }
+}
+.browse-btn {
+  background: linear-gradient(135deg, #ff6b1a, #ff3d8a) !important;
+  color: #fff !important; border-radius: 10px !important;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .order-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+  .row-middle { grid-column: 1 / -1; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .order-row { padding: 14px 16px; gap: 10px; }
+  .order-num { font-size: .9rem; }
+  .item-tag { font-size: .7rem; }
+  .status-chip { font-size: .7rem; }
+}

@@ -31,6 +31,10 @@ export class OrderService {
     return this.http.get<Order[]>(this.url, { params });
   }
 
+  listMyOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.url}/my`);
+  }
+
   accept(id: number, req: AcceptOrderRequest): Observable<any> {
     return this.http.patch(`${this.url}/${id}/accept`, req);
   }
