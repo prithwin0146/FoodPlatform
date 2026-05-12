@@ -1,10 +1,12 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CartItem, MenuItem } from '../models';
 
 const CART_KEY = 'fp_cart';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly _items = signal<CartItem[]>([]);
   private readonly _restaurantId = signal<number | null>(null);
   private readonly _restaurantName = signal<string>('');
@@ -84,6 +86,7 @@ export class CartService {
   }
 
   private saveToStorage(): void {
+    if (!this.isBrowser) return;
     try {
       localStorage.setItem(CART_KEY, JSON.stringify({
         items: this._items(),
@@ -94,6 +97,7 @@ export class CartService {
   }
 
   private loadFromStorage(): void {
+    if (!this.isBrowser) return;
     try {
       const raw = localStorage.getItem(CART_KEY);
       if (!raw) return;

@@ -1,4 +1,5 @@
-import { Directive, ElementRef, Input, OnInit, numberAttribute } from '@angular/core';
+import { Directive, ElementRef, Input, OnInit, numberAttribute, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * [appCountUp] — animates a numeric text node from 0 to [appCountUp]
@@ -16,9 +17,12 @@ export class CountUpDirective implements OnInit {
   @Input() countUpSuffix = '';
   @Input() countUpDuration = 1800;
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   constructor(private readonly el: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const el = this.el.nativeElement;

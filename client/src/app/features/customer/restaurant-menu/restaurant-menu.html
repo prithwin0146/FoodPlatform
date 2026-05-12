@@ -10,7 +10,7 @@
         <div class="hero-content">
           <div class="restaurant-emoji-wrap">
             @if (r.imageUrl) {
-              <img class="restaurant-hero-img" [src]="r.imageUrl" [alt]="r.name">
+              <img class="restaurant-hero-img" [src]="r.imageUrl" [alt]="r.name" width="120" height="120" loading="eager">
             } @else {
               <span class="restaurant-emoji">{{ r.name | menuItemEmoji }}</span>
             }
@@ -118,7 +118,7 @@
                     <div class="card-glare"></div>
                     <div class="item-emoji-wrap">
                       @if (item.imageUrl) {
-                        <img class="item-img" [src]="item.imageUrl" [alt]="item.name" loading="lazy">
+                        <img class="item-img" [src]="item.imageUrl" [alt]="item.name" width="160" height="160" loading="lazy">
                       } @else {
                         <span class="item-emoji">{{ item.name | menuItemEmoji }}</span>
                       }

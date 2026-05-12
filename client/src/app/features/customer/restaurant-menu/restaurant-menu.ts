@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, CurrencyPipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
+import { CanonicalService } from '../../../core/services/canonical.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -58,6 +59,7 @@ export class RestaurantMenu implements OnInit {
   private readonly titleSvc = inject(Title);
   private readonly metaSvc = inject(Meta);
   private readonly doc = inject(DOCUMENT);
+  private readonly canonicalSvc = inject(CanonicalService);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -84,12 +86,26 @@ export class RestaurantMenu implements OnInit {
         this.metaSvc.updateTag({ name: 'description', content: `Order from ${restaurant.name} on SeeThePrep and watch your meal being prepared live on camera. ${restaurant.hygieneRating === 5 ? 'FSA 5-star rated. ' : ''}Full allergen transparency. UK food delivery.` });
         this.metaSvc.updateTag({ property: 'og:title', content: pageTitle });
         this.metaSvc.updateTag({ property: 'og:description', content: `Watch the chefs at ${restaurant.name} cook your food in real time. Live kitchen camera, allergen-safe ordering, fast delivery.` });
-        this.metaSvc.updateTag({ property: 'og:url', content: `https://seetheprep.vercel.app/restaurant/${id}` });
+        this.metaSvc.updateTag({ property: 'og:url', content: `https://seetheprep.com/restaurant/${id}` });
         if (restaurant.imageUrl) {
           this.metaSvc.updateTag({ property: 'og:image', content: restaurant.imageUrl });
         }
+        this.canonicalSvc.set(`https://seetheprep.com/restaurant/${id}`);
 
-        // JSON-LD: FoodEstablishment schema for this restaurant
+        // Breadcrumb JSON-LD
+        const breadcrumb = this.doc.createElement('script');
+        breadcrumb.type = 'application/ld+json';
+        breadcrumb.text = JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://seetheprep.com/' },
+            { '@type': 'ListItem', position: 2, name: restaurant.name, item: `https://seetheprep.com/restaurant/${id}` },
+          ],
+        });
+        this.doc.head.appendChild(breadcrumb);
+
+        // FoodEstablishment JSON-LD
         const script = this.doc.createElement('script');
         script.type = 'application/ld+json';
         script.text = JSON.stringify({
@@ -97,9 +113,9 @@ export class RestaurantMenu implements OnInit {
           '@type': 'FoodEstablishment',
           name: restaurant.name,
           address: restaurant.address,
-          url: `https://seetheprep.vercel.app/restaurant/${id}`,
+          url: `https://seetheprep.com/restaurant/${id}`,
           ...(restaurant.imageUrl ? { image: restaurant.imageUrl } : {}),
-          hasMap: `https://seetheprep.vercel.app/restaurant/${id}`,
+          hasMap: `https://seetheprep.com/restaurant/${id}`,
           aggregateRating: restaurant.hygieneRating === 5 ? {
             '@type': 'AggregateRating',
             ratingValue: '5',
@@ -110,7 +126,7 @@ export class RestaurantMenu implements OnInit {
           } : undefined,
           potentialAction: {
             '@type': 'OrderAction',
-            target: `https://seetheprep.vercel.app/restaurant/${id}`,
+            target: `https://seetheprep.com/restaurant/${id}`,
             deliveryMethod: 'http://purl.org/goodrelations/v1#DeliveryModeOwnFleet',
           },
         });

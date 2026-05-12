@@ -1,4 +1,5 @@
-import { Directive, ElementRef, Input, OnInit } from '@angular/core';
+import { Directive, ElementRef, Input, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * [appScrollReveal] — fades + lifts the host element into view when it enters
@@ -16,9 +17,12 @@ export class ScrollRevealDirective implements OnInit {
   @Input() revealDelay = 0;
   @Input() revealY = 28;
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   constructor(private elRef: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
     const el = this.elRef.nativeElement;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

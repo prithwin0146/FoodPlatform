@@ -1,4 +1,5 @@
-import { Directive, ElementRef, HostListener, OnInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, OnInit, OnDestroy, Renderer2, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * [appCursorGlow] — drives a radial ambient glow that follows the cursor
@@ -21,9 +22,12 @@ export class CursorGlowDirective implements OnInit, OnDestroy {
   private currentY = 0;
   private active = false;
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   constructor(private elRef: ElementRef<HTMLElement>, private renderer: Renderer2) {}
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
     this.el = this.elRef.nativeElement;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 

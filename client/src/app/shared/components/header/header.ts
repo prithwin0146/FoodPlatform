@@ -1,4 +1,5 @@
-import { Component, HostListener, computed, signal, effect, inject, DOCUMENT } from '@angular/core';
+import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -26,6 +27,7 @@ export class Header {
   readonly dropdownOpen = signal(false);
 
   private readonly doc = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor(
     readonly auth: AuthService,
@@ -74,7 +76,8 @@ export class Header {
 
   @HostListener('window:scroll')
   onScroll(): void {
-    const y = window.scrollY || document.documentElement.scrollTop;
+    if (!this.isBrowser) return;
+    const y = window.scrollY || this.doc.documentElement.scrollTop;
     const next = y > 16;
     if (next !== this.scrolled()) this.scrolled.set(next);
     if (next && this.dropdownOpen()) this.dropdownOpen.set(false);

@@ -4,144 +4,144 @@
 
   <!-- ── Core pages ─────────────────────────────────────────────── -->
   <url>
-    <loc>https://seetheprep.vercel.app/</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en-GB" href="https://seetheprep.vercel.app/"/>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://seetheprep.com/"/>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/login</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/login</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/register</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/register</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- ── Info / marketing pages ─────────────────────────────────── -->
   <url>
-    <loc>https://seetheprep.vercel.app/info/about</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/about</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/list-kitchen</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/list-kitchen</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/hygiene</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/hygiene</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/chef-stories</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/chef-stories</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/help</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/help</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/careers</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/careers</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/press</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/press</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/contact</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/contact</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/camera-kit</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/camera-kit</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/safety</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/safety</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/gift-cards</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/gift-cards</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/sitemap</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/sitemap</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <!-- ── Legal pages ─────────────────────────────────────────────── -->
   <url>
-    <loc>https://seetheprep.vercel.app/info/privacy</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/privacy</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/terms</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/terms</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/cookies</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/cookies</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/accessibility</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/accessibility</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
-    <loc>https://seetheprep.vercel.app/info/do-not-sell</loc>
-    <lastmod>2026-05-03</lastmod>
+    <loc>https://seetheprep.com/info/do-not-sell</loc>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

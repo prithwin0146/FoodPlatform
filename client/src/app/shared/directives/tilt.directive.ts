@@ -5,7 +5,10 @@ import {
   Input,
   OnInit,
   Renderer2,
+  PLATFORM_ID,
+  inject,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * [appTilt] — 3D card tilt + glare effect driven purely by CSS custom properties.
@@ -20,10 +23,12 @@ export class TiltDirective implements OnInit {
   @Input() tiltMax = 12;
 
   private el!: HTMLElement;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor(private elRef: ElementRef<HTMLElement>, private renderer: Renderer2) {}
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
     this.el = this.elRef.nativeElement;
     this.renderer.setStyle(this.el, 'transform-style', 'preserve-3d');
     this.renderer.setStyle(this.el, 'will-change', 'transform');
@@ -32,11 +37,13 @@ export class TiltDirective implements OnInit {
 
   @HostListener('mouseenter')
   onEnter(): void {
+    if (!this.isBrowser || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', 'transform 0.08s ease-out, box-shadow 0.08s ease-out');
   }
 
   @HostListener('mousemove', ['$event'])
   onMove(e: MouseEvent): void {
+    if (!this.isBrowser || !this.el) return;
     const rect = this.el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -60,6 +67,7 @@ export class TiltDirective implements OnInit {
 
   @HostListener('mouseleave')
   onLeave(): void {
+    if (!this.isBrowser || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', 'transform 0.6s cubic-bezier(0.16,1,0.3,1), box-shadow 0.6s cubic-bezier(0.16,1,0.3,1)');
     this.el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)';
     this.el.style.boxShadow = '';

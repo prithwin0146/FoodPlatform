@@ -147,7 +147,7 @@
             <div class="card-image">
               <div class="card-image-gradient"></div>
               @if (restaurant.imageUrl) {
-                <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" loading="lazy">
+                <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy">
               } @else {
                 <div class="restaurant-emoji">{{ restaurant.name | restaurantEmoji }}</div>
               }
@@ -521,7 +521,7 @@
           Browse live kitchens
           <span class="cta-shine"></span>
         </button>
-        <a class="cta-link">No signup needed to browse →</a>
+        <button class="cta-link" (click)="scrollToRestaurants()" type="button">Browse without signing up →</button>
       </div>
     </div>
   </div>
@@ -567,8 +567,8 @@
     <nav class="footer-nav" aria-label="Footer">
       <div class="footer-col">
         <h4>Eat</h4>
-        <a (click)="scrollToRestaurants()" style="cursor:pointer">Browse kitchens</a>
-        <a (click)="scrollToHow()" style="cursor:pointer">How it works</a>
+        <a routerLink="/" fragment="restaurants-section">Browse kitchens</a>
+        <a routerLink="/" fragment="how-section">How it works</a>
         <a routerLink="/login">Track an order</a>
         <a routerLink="/info/gift-cards">Gift cards</a>
       </div>
@@ -623,14 +623,14 @@
 
     <!-- Right: socials -->
     <div class="footer-socials">
-      <a class="social" href="https://x.com" target="_blank" rel="noopener" aria-label="X (Twitter)">𝕏</a>
-      <a class="social" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+      <a class="social" href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">𝕏</a>
+      <a class="social" href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <span class="material-symbols-rounded">photo_camera</span>
       </a>
-      <a class="social" href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok">
+      <a class="social" href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
         <span class="material-symbols-rounded">music_note</span>
       </a>
-      <a class="social" href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
+      <a class="social" href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
         <span class="material-symbols-rounded">play_arrow</span>
       </a>
     </div>

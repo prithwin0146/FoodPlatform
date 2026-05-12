@@ -1,9 +1,10 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, inject, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
-import { retry, delay } from 'rxjs/operators';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { retry } from 'rxjs/operators';
 import { timer } from 'rxjs';
+import { CanonicalService } from '../../../core/services/canonical.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
@@ -103,16 +104,20 @@ export class RestaurantList implements OnInit, AfterViewInit {
   ];
 
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly doc = inject(DOCUMENT);
+
   constructor(private readonly restaurantService: RestaurantService) {
-    inject(Title).setTitle('Watch Your Food Being Cooked Live | UK Food Delivery | SeeThePrep');
+    inject(Title).setTitle('SeeThePrep — Watch Your Food Cook Live | UK Delivery');
+    inject(CanonicalService).set('https://seetheprep.com/');
     const meta = inject(Meta);
-    meta.updateTag({ name: 'description', content: 'Order food online and watch your kitchen cook it live on camera. SeeThePrep is the UK\'s only food delivery platform with real-time kitchen transparency, FSA 5-star verified restaurants and full allergen disclosure.' });
-    meta.updateTag({ property: 'og:title', content: 'Watch Your Food Being Cooked Live | UK Food Delivery | SeeThePrep' });
+    meta.updateTag({ name: 'description', content: 'Watch your food being cooked live on camera. SeeThePrep is the UK\'s only food delivery platform with real-time kitchen transparency and FSA 5-star verified restaurants.' });
+    meta.updateTag({ property: 'og:title', content: 'SeeThePrep — Watch Your Food Cook Live | UK Delivery' });
     meta.updateTag({ property: 'og:description', content: 'Browse FSA 5-star verified restaurants, place your order, and watch every step of your meal being cooked in HD — live, every time.' });
-    meta.updateTag({ property: 'og:url', content: 'https://seetheprep.vercel.app/' });
+    meta.updateTag({ property: 'og:url', content: 'https://seetheprep.com/' });
 
     // Inject FAQ + SoftwareApplication JSON-LD for rich results
-    const doc = inject(DOCUMENT);
+    const doc = this.doc;
     const script = doc.createElement('script');
     script.type = 'application/ld+json';
     script.text = JSON.stringify({
@@ -167,8 +172,8 @@ export class RestaurantList implements OnInit, AfterViewInit {
           '@type': 'SoftwareApplication',
           name: 'SeeThePrep',
           operatingSystem: 'Web, iOS, Android',
-          applicationCategory: 'FoodEstablishment',
-          url: 'https://seetheprep.vercel.app/',
+          applicationCategory: 'LifestyleApplication',
+          url: 'https://seetheprep.com/',
           description: 'The UK\'s only food delivery platform with live kitchen camera transparency.',
           offers: {
             '@type': 'Offer',
@@ -191,6 +196,7 @@ export class RestaurantList implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    if (!this.isBrowser) return;
     const video = this.heroVideoRef?.nativeElement;
     if (!video) return;
 
@@ -248,14 +254,15 @@ export class RestaurantList implements OnInit, AfterViewInit {
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
+    if (!this.isBrowser) return;
     this.scrollY.set(window.scrollY);
   }
 
   scrollToRestaurants(): void {
-    document.getElementById('restaurants-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.doc.getElementById('restaurants-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   scrollToHow(): void {
-    document.getElementById('how-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.doc.getElementById('how-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }

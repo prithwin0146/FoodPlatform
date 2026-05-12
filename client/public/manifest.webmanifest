@@ -4,6 +4,7 @@
   "description": "The UK's only food delivery platform where you watch your food being cooked live on camera.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
   "theme_color": "#ff6b1a",
   "background_color": "#fffcf7",

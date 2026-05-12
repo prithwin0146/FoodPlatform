@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 interface Particle {
   x: number; y: number;
@@ -16,8 +16,10 @@ interface Particle {
 @Injectable({ providedIn: 'root' })
 export class ConfettiService {
   private readonly doc = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   burst(originX?: number, originY?: number): void {
+    if (!this.isBrowser) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const canvas = this.doc.createElement('canvas');

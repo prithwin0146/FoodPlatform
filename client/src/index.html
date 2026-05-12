@@ -2,16 +2,18 @@
 <html lang="en-GB">
 <head>
   <meta charset="utf-8">
-  <title>SeeThePrep — Watch Your Food Being Cooked Live | UK Food Delivery</title>
+  <title>SeeThePrep — Watch Your Food Cook Live | UK Delivery</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- ── Primary SEO ────────────────────────────────────────────────────── -->
-  <meta name="description" content="Order food online and watch your kitchen cook it live on camera. SeeThePrep is the UK's only food delivery platform with real-time kitchen transparency, FSA 5-star verified restaurants and full allergen disclosure.">
+  <meta name="description" content="Watch your food being cooked live on camera. SeeThePrep is the UK's only food delivery platform with real-time kitchen transparency and FSA 5-star verified restaurants.">
   <meta name="keywords" content="food delivery UK, watch food being cooked, live kitchen camera, order food online UK, transparent restaurants, allergen friendly delivery, FSA 5 star restaurants, SeeThePrep">
   <meta name="author" content="SeeThePrep">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <link rel="canonical" href="https://seetheprep.com/">
+  <link rel="alternate" hreflang="en-GB" href="https://seetheprep.com/">
+  <link rel="alternate" hreflang="x-default" href="https://seetheprep.com/">
 
   <!-- ── Geo / Language ─────────────────────────────────────────────────── -->
   <meta name="geo.region" content="GB">
@@ -23,19 +25,19 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SeeThePrep">
   <meta property="og:locale" content="en_GB">
-  <meta property="og:title" content="SeeThePrep — Watch Your Food Being Cooked Live | UK Food Delivery">
-  <meta property="og:description" content="The UK's only food delivery platform where you can watch your food being prepared in real time. FSA 5-star kitchens, full allergen transparency, live camera from order to doorstep.">
+  <meta property="og:title" content="SeeThePrep — Watch Your Food Cook Live | UK Delivery">
+  <meta property="og:description" content="Watch your food being cooked live on camera. The UK's only food delivery platform with real-time kitchen transparency, FSA 5-star kitchens and full allergen disclosure.">
   <meta property="og:url" content="https://seetheprep.com/">
   <meta property="og:image" content="https://seetheprep.com/og-image-v2.png">
-  <meta property="og:image:width" content="2000">
-  <meta property="og:image:height" content="2000">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:alt" content="SeeThePrep — Watch your food being cooked live">
 
   <!-- ── Twitter / X Card ───────────────────────────────────────────────── -->
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@seetheprep">
-  <meta name="twitter:title" content="SeeThePrep — Watch Your Food Being Cooked Live">
+  <meta name="twitter:title" content="SeeThePrep — Watch Your Food Cook Live">
   <meta name="twitter:description" content="Order food online & watch your kitchen cook it live on camera. FSA 5-star verified, full allergens, every order streamed in real time.">
   <meta name="twitter:image" content="https://seetheprep.com/og-image-v2.png">
   <meta name="twitter:image:alt" content="SeeThePrep — Watch your food being cooked live">
@@ -130,12 +132,33 @@
   </script>
 
   <!-- ── Typography ─────────────────────────────────────────────────────── -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Preload critical woff2 for LCP / FOIT elimination -->
+  <link rel="preload" as="font" type="font/woff2"
+        href="https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_KU7NSg.woff2"
+        crossorigin="anonymous">
+  <!-- Preload hero poster image for LCP (fetchpriority tells browser to fetch early) -->
+  <link rel="preload" as="image" fetchpriority="high"
+        href="https://seetheprepstorage.blob.core.windows.net/videos/hero-kitchen-poster.jpg">
 
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <!-- Non-render-blocking Google Fonts (async load via preload + onload swap) -->
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  </noscript>
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"></noscript>
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"></noscript>
 </head>
 <body>
   <app-root></app-root>

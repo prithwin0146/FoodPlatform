@@ -5,7 +5,10 @@ import {
   Input,
   OnInit,
   Renderer2,
+  PLATFORM_ID,
+  inject,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * [appMagnetic] — Professional press-and-lift interaction used by Stripe, Linear, Vercel.
@@ -28,6 +31,7 @@ export class MagneticDirective implements OnInit {
   @Input() pressScale = 0.96;
 
   private el!: HTMLElement;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Transition used for hover in/out */
   private readonly HOVER_TRANSITION =
@@ -39,6 +43,7 @@ export class MagneticDirective implements OnInit {
   constructor(private elRef: ElementRef<HTMLElement>, private renderer: Renderer2) {}
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
     this.el = this.elRef.nativeElement;
     this.renderer.setStyle(this.el, 'will-change', 'transform');
     this.renderer.setStyle(this.el, 'transition', this.HOVER_TRANSITION);
@@ -46,6 +51,7 @@ export class MagneticDirective implements OnInit {
 
   @HostListener('mouseenter')
   onEnter(): void {
+    if (!this.isBrowser || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', this.HOVER_TRANSITION);
     this.el.style.transform = `scale(${this.hoverScale})`;
     this.el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)';
@@ -53,6 +59,7 @@ export class MagneticDirective implements OnInit {
 
   @HostListener('mousedown')
   onPress(): void {
+    if (!this.isBrowser || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', this.PRESS_TRANSITION);
     this.el.style.transform = `scale(${this.pressScale})`;
     this.el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
@@ -60,6 +67,7 @@ export class MagneticDirective implements OnInit {
 
   @HostListener('mouseup')
   onRelease(): void {
+    if (!this.isBrowser || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', this.HOVER_TRANSITION);
     this.el.style.transform = `scale(${this.hoverScale})`;
     this.el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)';
@@ -67,6 +75,7 @@ export class MagneticDirective implements OnInit {
 
   @HostListener('mouseleave')
   onLeave(): void {
+    if (!this.isBrowser || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', this.HOVER_TRANSITION);
     this.el.style.transform = 'scale(1)';
     this.el.style.boxShadow = '';
