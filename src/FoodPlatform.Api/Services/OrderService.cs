@@ -106,6 +106,7 @@ public class OrderService : IOrderService
             DeliveryPostcode = request.DeliveryPostcode.ToUpperInvariant(),
             CancellableUntil = DateTime.UtcNow.AddMinutes(5),
             StripePaymentIntentId = request.PaymentIntentId ?? "mock_pi_" + Guid.NewGuid().ToString("N")[..16],
+            SpecialInstructions = string.IsNullOrWhiteSpace(request.SpecialInstructions) ? null : request.SpecialInstructions.Trim(),
             Items = orderItems
         };
 
@@ -330,7 +331,8 @@ public class OrderService : IOrderService
             original.DeliveryCity,
             original.DeliveryPostcode,
             idempotencyKey,
-            null);
+            null,
+            null); // SpecialInstructions intentionally blank — customer provides fresh notes each time
 
         return await PlaceOrderAsync(reorderRequest, userId);
     }
@@ -343,6 +345,7 @@ public class OrderService : IOrderService
         o.Restaurant?.Name ?? string.Empty, o.Restaurant?.KitchenVideoUrl,
         o.EstimatedDeliveryTime,
         o.CancellableUntil, o.CreatedAt, o.DeliveredAt,
+        o.SpecialInstructions,
         o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId,
             i.MenuItem?.Name ?? "", i.Quantity, i.UnitPrice)).ToList());
 }

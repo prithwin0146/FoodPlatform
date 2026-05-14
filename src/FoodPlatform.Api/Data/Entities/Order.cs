@@ -15,6 +15,8 @@ public class Order
     public string DeliveryAddressLine1 { get; set; } = string.Empty;
     public string DeliveryCity { get; set; } = string.Empty;
     public string DeliveryPostcode { get; set; } = string.Empty;
+    /// <summary>Optional kitchen notes from the customer (e.g. allergen requests, cooking preferences). Max 500 chars.</summary>
+    public string? SpecialInstructions { get; set; }
     public DateTime? EstimatedDeliveryTime { get; set; }
     /// <summary>Stamped when status transitions to Delivered. Used to enforce the dispute window.</summary>
     public DateTime? DeliveredAt { get; set; }

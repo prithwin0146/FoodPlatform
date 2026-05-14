@@ -22,7 +22,8 @@ public record PlaceOrderRequest(
     [Required, MaxLength(100)] string DeliveryCity,
     [Required] string DeliveryPostcode,
     [Required, MaxLength(100)] string IdempotencyKey,
-    string? PaymentIntentId);
+    string? PaymentIntentId,
+    [MaxLength(500)] string? SpecialInstructions);
 
 public record OrderItemRequest(
     int MenuItemId,
@@ -42,7 +43,9 @@ public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string DeliveryAddressLine1, string DeliveryCity, string DeliveryPostcode,
     string RestaurantName, string? KitchenVideoUrl,
     DateTime? EstimatedDeliveryTime,
-    DateTime CancellableUntil, DateTime CreatedAt, DateTime? DeliveredAt, List<OrderItemDto> Items);
+    DateTime CancellableUntil, DateTime CreatedAt, DateTime? DeliveredAt,
+    string? SpecialInstructions,
+    List<OrderItemDto> Items);
 
 public record OrderItemDto(int Id, int MenuItemId, string MenuItemName, int Quantity, decimal UnitPrice);
 

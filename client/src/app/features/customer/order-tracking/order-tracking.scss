@@ -248,6 +248,9 @@
 .delivery-label { font-size: .78rem; color: var(--text-secondary); margin: 0 0 3px; font-weight: 600; }
 .delivery-val { font-size: .92rem; font-weight: 700; color: var(--text); margin: 0; }
 .eta-val { color: var(--primary-dark); }
+.eta-countdown { font-size: 1.15rem; font-weight: 800; font-feature-settings: 'tnum'; letter-spacing: .02em; }
+.eta-static { font-size: .8rem; color: var(--text-secondary); margin-left: 4px; }
+.eta-due { color: var(--brand-primary); font-weight: 700; }
 
 /* ── ETA Card ── */
 .eta-card { display: flex; align-items: center; gap: 20px; }

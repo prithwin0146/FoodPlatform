@@ -144,12 +144,30 @@
                 <p class="delivery-val">{{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }}, {{ o.deliveryPostcode }}</p>
               </div>
             </div>
+            @if (o.specialInstructions) {
+              <div class="delivery-row">
+                <span class="material-symbols-rounded delivery-icon">chat_bubble</span>
+                <div>
+                  <p class="delivery-label">Special Instructions</p>
+                  <p class="delivery-val">{{ o.specialInstructions }}</p>
+                </div>
+              </div>
+            }
             @if (o.estimatedDeliveryTime) {
               <div class="delivery-row">
                 <span class="material-symbols-rounded delivery-icon">schedule</span>
                 <div>
                   <p class="delivery-label">Estimated Arrival</p>
-                  <p class="delivery-val eta-val">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
+                  @if (etaCountdown() !== null && etaCountdown()! > 0) {
+                    <p class="delivery-val eta-val">
+                      <span class="eta-countdown">{{ etaCountdown()! | cancelCountdown }}</span>
+                      <span class="eta-static">· {{ o.estimatedDeliveryTime | date:'shortTime' }}</span>
+                    </p>
+                  } @else if (etaCountdown() === 0) {
+                    <p class="delivery-val eta-val eta-due">Arriving now 🛵</p>
+                  } @else {
+                    <p class="delivery-val eta-val">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
+                  }
                 </div>
               </div>
             }

@@ -1,10 +1,13 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { OrderService } from '../../../core/services/order.service';
 import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
 import { Order, PaginatedResult } from '../../../core/models';
@@ -20,9 +23,10 @@ import { TiltDirective } from '../../../shared/directives/tilt.directive';
 @Component({
   selector: 'app-my-orders',
   imports: [
-    CurrencyPipe, DatePipe, RouterLink,
+    CurrencyPipe, DatePipe, RouterLink, FormsModule,
     OrderStatusEmojiPipe, OrderStatusLabelPipe,
     MatButtonModule, MatRippleModule, MatTooltipModule,
+    MatFormFieldModule, MatInputModule,
     ScrollRevealDirective, TiltDirective,
   ],
   templateUrl: './my-orders.html',
@@ -32,6 +36,7 @@ export class MyOrders implements OnInit {
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly activeFilter = signal<'all' | 'active' | 'past'>('all');
+  readonly restaurantSearch = signal('');
 
   // Pagination
   readonly currentPage = signal(1);
@@ -43,9 +48,12 @@ export class MyOrders implements OnInit {
 
   readonly filteredOrders = computed(() => {
     const f = this.activeFilter();
-    if (f === 'active') return this.orders().filter(o => this.isActive(o));
-    if (f === 'past')   return this.orders().filter(o => !this.isActive(o));
-    return this.orders();
+    const q = this.restaurantSearch().toLowerCase().trim();
+    let result = this.orders();
+    if (f === 'active') result = result.filter(o => this.isActive(o));
+    if (f === 'past')   result = result.filter(o => !this.isActive(o));
+    if (q) result = result.filter(o => o.restaurantName.toLowerCase().includes(q));
+    return result;
   });
 
   constructor(

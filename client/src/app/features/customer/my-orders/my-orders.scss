@@ -52,6 +52,21 @@
   opacity: var(--glare-opacity, 0); transition: opacity .3s;
 }
 
+/* ── Search + Filter bar ── */
+.search-filter-bar {
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px;
+}
+.search-field { width: 100%; }
+.search-prefix-icon { font-size: 1.1rem; color: var(--text-secondary); margin-right: 4px; }
+
+::ng-deep .my-orders-page .dark-field {
+  .mat-mdc-text-field-wrapper { background: rgba(255,255,255,.06) !important; border-radius: 12px !important; }
+  .mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing {
+    border-color: var(--border-color) !important;
+  }
+  input, .mat-mdc-form-field-hint-wrapper { color: var(--text-primary) !important; }
+}
+
 /* ── Filter Tabs ── */
 .filter-tabs {
   display: flex; gap: 8px; margin-bottom: 24px;

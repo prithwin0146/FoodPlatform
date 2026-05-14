@@ -56,6 +56,7 @@
 .form-fields { display: flex; flex-direction: column; gap: 4px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .full-width { width: 100%; }
+.optional-label { font-size: .75rem; color: var(--text-secondary); font-weight: 400; }
 
 ::ng-deep .checkout-page .dark-field {
   width: 100%;

@@ -49,6 +49,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
 
   addressLine1 = '';
   city = '';
+  specialInstructions = '';
 
   readonly postcodeControl = new FormControl('', [
     Validators.required,
@@ -137,6 +138,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
           deliveryPostcode: this.postcodeControl.value!.toUpperCase(),
           idempotencyKey: key,
           paymentIntentId: result.paymentIntentId,
+          specialInstructions: this.specialInstructions.trim() || null,
         }).subscribe({
           next: (order) => {
             this.cart.clear();

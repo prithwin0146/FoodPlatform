@@ -63,6 +63,19 @@ export class OrderTracking implements OnInit, OnDestroy {
     return Math.max(0, Math.floor((new Date(o.cancellableUntil).getTime() - Date.now()) / 1000));
   });
 
+  /**
+   * Live countdown (in seconds) to the estimated delivery time.
+   * Returns null once ETA has passed or if not yet set.
+   * (OCP: reuses the same _tick signal as cancelCountdown — no new interval needed)
+   */
+  readonly etaCountdown = computed(() => {
+    this._tick();
+    const o = this.order();
+    if (!o?.estimatedDeliveryTime) return null;
+    const secsLeft = Math.floor((new Date(o.estimatedDeliveryTime).getTime() - Date.now()) / 1000);
+    return secsLeft > 0 ? secsLeft : 0;
+  });
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly orderService: OrderService,

@@ -45,6 +45,13 @@
                   }
                 </mat-form-field>
               </div>
+              <mat-form-field appearance="outline" class="dark-field full-width">
+                <mat-label>Special Instructions <span class="optional-label">(optional)</span></mat-label>
+                <textarea matInput [(ngModel)]="specialInstructions" rows="2"
+                  maxlength="500"
+                  placeholder="e.g. No onions, extra sauce, ring doorbell"></textarea>
+                <mat-hint align="end">{{ specialInstructions.length }}/500</mat-hint>
+              </mat-form-field>
             </div>
           </section>
 

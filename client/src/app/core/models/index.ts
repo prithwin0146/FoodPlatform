@@ -66,6 +66,7 @@ export interface Order {
   cancellableUntil: string;
   createdAt: string;
   deliveredAt: string | null;
+  specialInstructions: string | null;
   items: OrderItem[];
 }
 
@@ -147,6 +148,7 @@ export interface PlaceOrderRequest {
   deliveryPostcode: string;
   idempotencyKey: string;
   paymentIntentId?: string;
+  specialInstructions?: string | null;
 }
 
 export interface AcceptOrderRequest {

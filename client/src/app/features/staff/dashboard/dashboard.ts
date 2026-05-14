@@ -94,6 +94,25 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly disputedCount = computed(() =>
     this.orders().filter(o => o.disputeStatus === 'Open').length);
 
+  /** Count of orders still in Pending status — drives the badge. */
+  readonly pendingCount = computed(() =>
+    this.orders().filter(o => o.status === 'Pending').length);
+
+  /** Count of orders placed today (UTC day boundary). */
+  readonly todayOrders = computed(() => {
+    const today = new Date().toDateString();
+    return this.orders().filter(o => new Date(o.createdAt).toDateString() === today).length;
+  });
+
+  /** Revenue from today's non-cancelled/rejected orders. */
+  readonly todayRevenue = computed(() => {
+    const today = new Date().toDateString();
+    return this.orders()
+      .filter(o => new Date(o.createdAt).toDateString() === today
+                && o.status !== 'Cancelled' && o.status !== 'Rejected')
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+  });
+
   readonly filters = ['all', 'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered'];
 
   private _pollSub?: Subscription;

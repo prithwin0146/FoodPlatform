@@ -235,6 +235,25 @@
       </div>
     }
 
+    <!-- KPI strip -->
+    <div class="kpi-strip" appScrollReveal [revealDelay]="60">
+      <div class="kpi-card glass-card">
+        <span class="material-symbols-rounded kpi-icon">pending_actions</span>
+        <span class="kpi-val">{{ pendingCount() }}</span>
+        <span class="kpi-label">Pending</span>
+      </div>
+      <div class="kpi-card glass-card">
+        <span class="material-symbols-rounded kpi-icon">receipt_long</span>
+        <span class="kpi-val">{{ todayOrders() }}</span>
+        <span class="kpi-label">Today's Orders</span>
+      </div>
+      <div class="kpi-card glass-card">
+        <span class="material-symbols-rounded kpi-icon">payments</span>
+        <span class="kpi-val">{{ todayRevenue() | currency:'GBP' }}</span>
+        <span class="kpi-label">Today's Revenue</span>
+      </div>
+    </div>
+
     <!-- Filter Chips -->
     <div class="filter-bar" appScrollReveal [revealDelay]="80">
       @for (f of filters; track f) {
@@ -316,6 +335,14 @@
                 {{ order.deliveryAddressLine1 }}, {{ order.deliveryCity }}, {{ order.deliveryPostcode }}
               </span>
             </div>
+
+            <!-- Special instructions -->
+            @if (order.specialInstructions) {
+              <div class="special-instructions-row">
+                <span class="material-symbols-rounded si-icon">chat_bubble</span>
+                <span class="si-text">{{ order.specialInstructions }}</span>
+              </div>
+            }
 
             <!-- Footer -->
             <div class="order-card-footer">

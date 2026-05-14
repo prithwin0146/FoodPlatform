@@ -16,11 +16,27 @@
       </a>
     </div>
 
-    <!-- Filter tabs -->
-    <div class="filter-tabs" appScrollReveal>
-      <button class="filter-tab" [class.active]="activeFilter() === 'all'"    (click)="activeFilter.set('all')">All</button>
-      <button class="filter-tab" [class.active]="activeFilter() === 'active'" (click)="activeFilter.set('active')">Active</button>
-      <button class="filter-tab" [class.active]="activeFilter() === 'past'"   (click)="activeFilter.set('past')">Past</button>
+    <!-- Search + Filter -->
+    <div class="search-filter-bar" appScrollReveal>
+      <mat-form-field appearance="outline" class="dark-field search-field">
+        <mat-label>Search by restaurant</mat-label>
+        <span matPrefix class="material-symbols-rounded search-prefix-icon">search</span>
+        <input matInput [ngModel]="restaurantSearch()"
+          (ngModelChange)="restaurantSearch.set($event)"
+          placeholder="e.g. Burger Palace">
+        @if (restaurantSearch()) {
+          <button matSuffix mat-icon-button aria-label="Clear" (click)="restaurantSearch.set('')">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        }
+      </mat-form-field>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeFilter() === 'all'"    (click)="activeFilter.set('all')">All</button>
+        <button class="filter-tab" [class.active]="activeFilter() === 'active'" (click)="activeFilter.set('active')">Active</button>
+        <button class="filter-tab" [class.active]="activeFilter() === 'past'"   (click)="activeFilter.set('past')">Past</button>
+      </div>
     </div>
 
     @if (loading()) {
