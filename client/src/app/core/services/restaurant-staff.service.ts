@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Restaurant } from '../models';
+import { MenuItem, Restaurant, RestaurantHours } from '../models';
 
 /**
  * HTTP wrapper for the staff-facing restaurant endpoints.
@@ -30,5 +30,15 @@ export class RestaurantStaffService {
   /** Toggles the restaurant open (isActive=true) or closed (isActive=false). */
   setActive(isActive: boolean): Observable<Restaurant> {
     return this.http.patch<Restaurant>(`${this.url}/active`, { isActive });
+  }
+
+  /** Replaces the weekly opening hours schedule. Send all 7 days (0=Sun … 6=Sat). */
+  updateHours(hours: RestaurantHours[]): Observable<RestaurantHours[]> {
+    return this.http.patch<RestaurantHours[]>(`${this.url}/hours`, { hours });
+  }
+
+  /** Toggles item availability for the authenticated staff member's restaurant. */
+  toggleItemAvailability(itemId: number): Observable<MenuItem> {
+    return this.http.patch<MenuItem>(`${environment.apiUrl}/menu/items/${itemId}/availability`, {});
   }
 }

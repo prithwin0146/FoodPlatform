@@ -35,4 +35,17 @@ public class AdminUserService : IAdminUserService
 
         return new PaginatedResult<UserDto>(dtos, totalCount, page, pageSize);
     }
+
+    public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserRequest request)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) return null;
+
+        user.Role         = request.Role;
+        user.RestaurantId = request.RestaurantId;
+        await _db.SaveChangesAsync();
+
+        return new UserDto(user.Id, user.Username, user.Email, user.Role,
+            user.IsEmailVerified, user.RestaurantId, user.CreatedAt);
+    }
 }

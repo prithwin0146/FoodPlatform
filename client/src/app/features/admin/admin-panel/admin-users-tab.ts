@@ -1,23 +1,29 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { AdminUserService } from '../../../core/services/admin-user.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { User } from '../../../core/models';
 
 /**
  * Responsible only for displaying the users table in the admin panel.
- * (SRP: user listing only; pagination mirrored from AdminOrdersTab pattern)
+ * (SRP: user listing + role assignment only; pagination mirrored from AdminOrdersTab pattern)
  */
 @Component({
   selector: 'app-admin-users-tab',
   standalone: true,
-  imports: [DatePipe, MatTableModule, MatChipsModule, MatCardModule,
-            MatProgressBarModule, MatButtonModule, MatTooltipModule],
+  imports: [DatePipe, FormsModule, MatTableModule, MatChipsModule, MatCardModule,
+            MatProgressBarModule, MatButtonModule, MatTooltipModule,
+            MatFormFieldModule, MatInputModule, MatSelectModule],
   template: `
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -58,9 +64,36 @@ import { User } from '../../../core/models';
               <ng-container matColumnDef="role">
                 <th mat-header-cell *matHeaderCellDef>Role</th>
                 <td mat-cell *matCellDef="let u">
-                  <mat-chip [class]="'chip-role chip-role--' + u.role.toLowerCase()" disableRipple>
-                    {{ u.role }}
-                  </mat-chip>
+                  @if (editingUserId() === u.id) {
+                    <div class="inline-edit-row">
+                      <mat-form-field appearance="outline" class="edit-field edit-field--role dark-field">
+                        <mat-label>Role</mat-label>
+                        <mat-select [(ngModel)]="editRole">
+                          @for (r of roles; track r) {
+                            <mat-option [value]="r">{{ r }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      @if (editRole === 'Staff') {
+                        <mat-form-field appearance="outline" class="edit-field edit-field--rid dark-field">
+                          <mat-label>Restaurant ID</mat-label>
+                          <input matInput type="number" [(ngModel)]="editRestaurantId" placeholder="e.g. 3">
+                        </mat-form-field>
+                      }
+                      <button mat-flat-button class="save-edit-btn"
+                        [disabled]="saving()"
+                        (click)="saveEdit(u.id)">
+                        <span class="material-symbols-rounded">save</span>
+                      </button>
+                      <button mat-stroked-button (click)="cancelEdit()">
+                        <span class="material-symbols-rounded">close</span>
+                      </button>
+                    </div>
+                  } @else {
+                    <mat-chip [class]="'chip-role chip-role--' + u.role.toLowerCase()" disableRipple>
+                      {{ u.role }}
+                    </mat-chip>
+                  }
                 </td>
               </ng-container>
 
@@ -84,6 +117,18 @@ import { User } from '../../../core/models';
               <ng-container matColumnDef="joined">
                 <th mat-header-cell *matHeaderCellDef>Joined</th>
                 <td mat-cell *matCellDef="let u">{{ u.createdAt | date:'d MMM y' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let u">
+                  @if (editingUserId() !== u.id) {
+                    <button mat-icon-button matTooltip="Change role"
+                      (click)="startEdit(u)">
+                      <span class="material-symbols-rounded">edit</span>
+                    </button>
+                  }
+                </td>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="columns"></tr>
@@ -121,22 +166,65 @@ import { User } from '../../../core/models';
     .empty-icon { font-size: 48px; display: block; margin-bottom: 12px; color: var(--brand-primary); }
     .pagination-row { display: flex; align-items: center; gap: 16px; padding: 16px 0 4px; justify-content: center; }
     .page-info { color: var(--text-secondary); font-size: .85rem; }
+    .inline-edit-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .edit-field { margin-bottom: -1.25em; }
+    .edit-field--role { width: 110px; }
+    .edit-field--rid  { width: 130px; }
+    .save-edit-btn { background: var(--brand-primary, #ff6b1a) !important; color: #fff !important;
+                     min-width: 36px !important; padding: 0 8px !important; }
   `],
 })
 export class AdminUsersTab implements OnInit {
-  readonly columns = ['id', 'username', 'email', 'role', 'verified', 'joined'];
+  readonly columns = ['id', 'username', 'email', 'role', 'verified', 'joined', 'actions'];
+  readonly roles   = ['Customer', 'Staff', 'Admin'];
+
   readonly users      = signal<User[]>([]);
   readonly loading    = signal(true);
+  readonly saving     = signal(false);
   readonly totalCount = signal(0);
   readonly page       = signal(1);
   readonly pageSize   = 50;
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
 
-  constructor(private readonly userService: AdminUserService) {}
+  // ── Inline edit state
+  readonly editingUserId = signal<number | null>(null);
+  editRole         = 'Customer';
+  editRestaurantId: number | null = null;
+
+  constructor(
+    private readonly userService: AdminUserService,
+    private readonly toast: ToastService,
+  ) {}
 
   ngOnInit(): void { this.load(); }
 
   goTo(p: number): void { this.page.set(p); this.load(); }
+
+  startEdit(u: User): void {
+    this.editingUserId.set(u.id);
+    this.editRole = u.role;
+    this.editRestaurantId = u.restaurantId ?? null;
+  }
+
+  cancelEdit(): void { this.editingUserId.set(null); }
+
+  saveEdit(userId: number): void {
+    if (this.saving()) return;
+    this.saving.set(true);
+    const rid = this.editRole === 'Staff' ? (this.editRestaurantId ?? null) : null;
+    this.userService.updateUser(userId, this.editRole, rid).subscribe({
+      next: (updated) => {
+        this.users.update(list => list.map(u => u.id === updated.id ? updated : u));
+        this.editingUserId.set(null);
+        this.saving.set(false);
+        this.toast.success(`User #${userId} updated to ${updated.role} ✅`);
+      },
+      error: () => {
+        this.saving.set(false);
+        this.toast.error('Failed to update user');
+      },
+    });
+  }
 
   private load(): void {
     this.loading.set(true);

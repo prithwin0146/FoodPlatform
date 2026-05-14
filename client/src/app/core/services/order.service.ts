@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -12,11 +12,28 @@ import {
   UpdateStatusRequest,
 } from '../models';
 
+/** Active statuses — orders the customer still cares about in real-time. */
+const ACTIVE_STATUSES = new Set(['Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery']);
+
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private readonly url = `${environment.apiUrl}/orders`;
 
+  /** Live count of the customer's in-progress orders; updated by loadActiveCount(). */
+  readonly activeOrderCount = signal(0);
+
   constructor(private readonly http: HttpClient) {}
+
+  /**
+   * Fetches the customer's first-page orders and counts active ones.
+   * Called by the Header when a Customer session is present.
+   */
+  loadActiveCount(): void {
+    this.listMyOrders().subscribe({
+      next: orders => this.activeOrderCount.set(orders.filter(o => ACTIVE_STATUSES.has(o.status)).length),
+      error: () => { /* silently ignore — badge stays at 0 */ },
+    });
+  }
 
   place(req: PlaceOrderRequest): Observable<Order> {
     return this.http.post<Order>(this.url, req);

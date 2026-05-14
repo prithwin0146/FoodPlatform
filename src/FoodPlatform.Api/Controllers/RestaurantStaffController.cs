@@ -59,4 +59,20 @@ public class RestaurantStaffController : RestaurantScopedController
 
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// Replaces the weekly opening hours for the authenticated staff member's restaurant.
+    /// Send all 7 days (0=Sunday … 6=Saturday); set IsClosed=true to mark a day closed.
+    /// </summary>
+    [HttpPatch("hours")]
+    public async Task<IActionResult> UpdateHours(UpdateHoursRequest request)
+    {
+        var result = await _staffService.UpdateHoursAsync(CurrentRestaurantId, request);
+        if (!result.IsSuccess)
+            return result.Error == OrderServiceError.NotFound
+                ? NotFound(new { error = result.ErrorMessage })
+                : BadRequest(new { error = result.ErrorMessage });
+
+        return Ok(result.Value);
+    }
 }

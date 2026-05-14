@@ -45,3 +45,8 @@ public record UserDto(
     bool IsEmailVerified,
     int? RestaurantId,
     DateTime CreatedAt);
+
+/// <summary>Admin payload to update a user's role and restaurant assignment.</summary>
+public record UpdateUserRequest(
+    [Required] string Role,
+    int? RestaurantId);

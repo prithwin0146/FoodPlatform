@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Title } from '@angular/platform-browser';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
 import { switchMap, startWith } from 'rxjs/operators';
@@ -13,9 +13,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { OrderService } from '../../../core/services/order.service';
 import { RestaurantStaffService } from '../../../core/services/restaurant-staff.service';
+import { RestaurantService } from '../../../core/services/restaurant.service';
 import { AudioService } from '../../../core/services/audio.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Order, nextOrderStatus, Restaurant } from '../../../core/models';
+import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours } from '../../../core/models';
 import { OrderStatusEmojiPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
@@ -32,7 +33,7 @@ const POLL_INTERVAL_MS = 5_000;
 @Component({
   selector: 'app-dashboard',
   imports: [
-    CurrencyPipe, DatePipe, FormsModule,
+    CurrencyPipe, DatePipe, DecimalPipe, FormsModule,
     OrderStatusEmojiPipe, SafeUrlPipe,
     MatButtonModule, MatChipsModule, MatRippleModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule,
@@ -74,6 +75,21 @@ export class Dashboard implements OnInit, OnDestroy {
   /** Whether the open/closed toggle HTTP call is in-flight. */
   readonly activeToggling = signal(false);
 
+  // ── Hours panel state
+  readonly hoursSectionOpen = signal(false);
+  readonly hoursForm = signal<HoursFormRow[]>([]);
+  readonly hoursSaving = signal(false);
+
+  // ── Menu item availability state
+  readonly menuSectionOpen = signal(false);
+  readonly menuCategories = signal<MenuCategory[]>([]);
+  readonly menuLoading = signal(false);
+  readonly togglingItemId = signal<number | null>(null);
+
+  /** Flat list of all items across categories for quick rendering. */
+  readonly allMenuItems = computed(() =>
+    this.menuCategories().flatMap(c => c.items.map(i => ({ ...i, categoryName: c.name }))));
+
   readonly filters = ['all', 'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered'];
 
   private _pollSub?: Subscription;
@@ -81,6 +97,7 @@ export class Dashboard implements OnInit, OnDestroy {
   constructor(
     private readonly orderService: OrderService,
     private readonly staffService: RestaurantStaffService,
+    private readonly restaurantService: RestaurantService,
     private readonly audio: AudioService,
     private readonly toast: ToastService,
     private readonly titleService: Title,
@@ -102,8 +119,26 @@ export class Dashboard implements OnInit, OnDestroy {
       next: (r) => {
         this.myRestaurant.set(r);
         this.videoUrl.set(r.kitchenVideoUrl ?? '');
+        this.initHoursForm(r);
       },
     });
+  }
+
+  /** Seed the hours form with current data or sensible defaults (9–17, Mon–Fri open, Sat–Sun closed). */
+  private initHoursForm(r: Restaurant): void {
+    const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const existingHours: RestaurantHours[] = (r as any).hours ?? [];
+    const rows: HoursFormRow[] = Array.from({ length: 7 }, (_, i) => {
+      const existing = existingHours.find(h => h.dayOfWeek === i);
+      return {
+        dayOfWeek: i,
+        dayName: DAY_NAMES[i],
+        openTime: existing ? existing.openTime.substring(0, 5) : '09:00',
+        closeTime: existing ? existing.closeTime.substring(0, 5) : '17:00',
+        isClosed: existing ? existing.isClosed : (i === 0 || i === 6),
+      };
+    });
+    this.hoursForm.set(rows);
   }
 
   toggleVideoSection(): void {
@@ -146,6 +181,88 @@ export class Dashboard implements OnInit, OnDestroy {
       error: () => {
         this.activeToggling.set(false);
         this.toast.error('Failed to update status');
+      },
+    });
+  }
+
+  // ── Hours panel
+
+  toggleHoursSection(): void {
+    this.hoursSectionOpen.set(!this.hoursSectionOpen());
+  }
+
+  updateHoursRow(index: number, patch: Partial<HoursFormRow>): void {
+    this.hoursForm.update(rows => {
+      const updated = [...rows];
+      updated[index] = { ...updated[index], ...patch };
+      return updated;
+    });
+  }
+
+  saveHours(): void {
+    if (this.hoursSaving()) return;
+    this.hoursSaving.set(true);
+    const payload = this.hoursForm().map(row => ({
+      dayOfWeek: row.dayOfWeek,
+      openTime: row.openTime + ':00',
+      closeTime: row.closeTime + ':00',
+      isClosed: row.isClosed,
+    }));
+    this.staffService.updateHours(payload).subscribe({
+      next: () => {
+        this.hoursSaving.set(false);
+        this.toast.success('Opening hours saved ✅');
+      },
+      error: () => {
+        this.hoursSaving.set(false);
+        this.toast.error('Failed to save hours');
+      },
+    });
+  }
+
+  // ── Menu item availability
+
+  toggleMenuSection(): void {
+    const open = !this.menuSectionOpen();
+    this.menuSectionOpen.set(open);
+    if (open && this.menuCategories().length === 0) {
+      this.loadMenuItems();
+    }
+  }
+
+  private loadMenuItems(): void {
+    const r = this.myRestaurant();
+    if (!r) return;
+    this.menuLoading.set(true);
+    this.restaurantService.getMenu(r.id).subscribe({
+      next: cats => {
+        this.menuCategories.set(cats);
+        this.menuLoading.set(false);
+      },
+      error: () => {
+        this.menuLoading.set(false);
+        this.toast.error('Failed to load menu items');
+      },
+    });
+  }
+
+  toggleItemAvailability(itemId: number): void {
+    if (this.togglingItemId() !== null) return;
+    this.togglingItemId.set(itemId);
+    this.staffService.toggleItemAvailability(itemId).subscribe({
+      next: (updated) => {
+        this.menuCategories.update(cats =>
+          cats.map(c => ({
+            ...c,
+            items: c.items.map(i => i.id === updated.id ? { ...i, isAvailable: updated.isAvailable } : i),
+          }))
+        );
+        this.togglingItemId.set(null);
+        this.toast.success(updated.isAvailable ? `${updated.name} — available ✅` : `${updated.name} — hidden 🚫`);
+      },
+      error: () => {
+        this.togglingItemId.set(null);
+        this.toast.error('Failed to update item');
       },
     });
   }
@@ -288,4 +405,13 @@ export class Dashboard implements OnInit, OnDestroy {
     const next = nextOrderStatus(order.status);
     return next ? (emojis[next] ?? '→') : '';
   }
+}
+
+/** A single row in the hours edit form. */
+export interface HoursFormRow {
+  dayOfWeek: number;
+  dayName: string;
+  openTime: string;   // "HH:mm"
+  closeTime: string;  // "HH:mm"
+  isClosed: boolean;
 }

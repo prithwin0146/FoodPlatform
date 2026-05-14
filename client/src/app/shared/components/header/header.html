@@ -19,6 +19,9 @@
           <a routerLink="/orders" routerLinkActive="active" class="nav-link">
             <span class="material-symbols-rounded nav-icon">receipt_long</span>
             <span>My Orders</span>
+            @if (orderService.activeOrderCount() > 0) {
+              <span class="nav-order-badge">{{ orderService.activeOrderCount() }}</span>
+            }
           </a>
         }
         @if (dashboardLink()) {
@@ -71,6 +74,9 @@
                 </a>
                 <a routerLink="/orders" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
                   <span class="material-symbols-rounded">receipt_long</span> My Orders
+                  @if (orderService.activeOrderCount() > 0) {
+                    <span class="nav-order-badge nav-order-badge--sm">{{ orderService.activeOrderCount() }}</span>
+                  }
                 </a>
                 <a routerLink="/profile" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
                   <span class="material-symbols-rounded">manage_accounts</span> Profile

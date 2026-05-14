@@ -1,3 +1,4 @@
+using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,4 +24,12 @@ public class AdminUsersController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50) =>
         Ok(await _users.GetAllAsync(page, pageSize));
+
+    /// <summary>Changes a user's role and optional restaurant assignment.</summary>
+    [HttpPatch("{id:int}")]
+    public async Task<IActionResult> UpdateUser(int id, UpdateUserRequest request)
+    {
+        var result = await _users.UpdateUserAsync(id, request);
+        return result is null ? NotFound() : Ok(result);
+    }
 }

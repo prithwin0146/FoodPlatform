@@ -20,4 +20,9 @@ export class AdminUserService {
       `${this.url}?page=${page}&pageSize=${pageSize}`
     );
   }
+
+  /** Changes a user's role and optional restaurant assignment. */
+  updateUser(id: number, role: string, restaurantId: number | null): Observable<User> {
+    return this.http.patch<User>(`${this.url}/${id}`, { role, restaurantId });
+  }
 }

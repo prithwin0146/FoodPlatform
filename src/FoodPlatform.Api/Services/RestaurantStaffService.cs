@@ -51,4 +51,37 @@ public class RestaurantStaffService : IRestaurantStaffService
         new(r.Id, r.Name, r.Address, r.BasePostcode,
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
             r.CuisineType, r.EstimatedDeliveryMinutes);
+
+    public async Task<ServiceResult<IEnumerable<RestaurantHoursDto>>> UpdateHoursAsync(
+        int restaurantId, UpdateHoursRequest request)
+    {
+        var existing = await _db.RestaurantHours
+            .Where(h => h.RestaurantId == restaurantId)
+            .ToListAsync();
+
+        // Upsert each day in the request
+        foreach (var dto in request.Hours)
+        {
+            var row = existing.FirstOrDefault(h => h.DayOfWeek == dto.DayOfWeek);
+            if (row is null)
+            {
+                row = new Data.Entities.RestaurantHours { RestaurantId = restaurantId };
+                _db.RestaurantHours.Add(row);
+            }
+            row.DayOfWeek = dto.DayOfWeek;
+            row.OpenTime   = dto.OpenTime;
+            row.CloseTime  = dto.CloseTime;
+            row.IsClosed   = dto.IsClosed;
+        }
+
+        await _db.SaveChangesAsync();
+
+        var updated = await _db.RestaurantHours
+            .Where(h => h.RestaurantId == restaurantId)
+            .OrderBy(h => h.DayOfWeek)
+            .Select(h => new RestaurantHoursDto(h.DayOfWeek, h.OpenTime, h.CloseTime, h.IsClosed))
+            .ToListAsync();
+
+        return ServiceResult<IEnumerable<RestaurantHoursDto>>.Ok(updated);
+    }
 }

@@ -391,3 +391,50 @@
   .advance-btn { font-size: .88rem !important; }
   .filter-chip { padding: 7px 14px; font-size: .8rem; }
 }
+
+/* ── Hours panel ── */
+.hours-grid {
+  display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
+}
+.hours-row {
+  display: flex; align-items: center; gap: 14px; padding: 8px 12px;
+  border-radius: 10px; background: var(--bg-soft, #f7f7f9); border: 1px solid var(--border);
+  transition: opacity .2s;
+  &--closed { opacity: .55; }
+}
+.hours-day {
+  width: 90px; font-weight: 700; font-size: .88rem; color: var(--text-secondary); flex-shrink: 0;
+}
+.hours-closed-toggle {
+  display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0;
+  input[type="checkbox"] { accent-color: var(--brand-primary, #ff6b1a); width: 16px; height: 16px; }
+}
+.hours-closed-label { font-size: .82rem; font-weight: 600; color: var(--text-secondary); min-width: 46px; }
+.hours-time-input {
+  padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border-strong);
+  font-size: .88rem; background: #fff; color: var(--text); outline: none;
+  &:focus { border-color: var(--brand-primary, #ff6b1a); }
+}
+.hours-dash { color: var(--text-muted); font-size: .9rem; }
+.hours-closed-placeholder { font-size: .82rem; color: var(--text-muted); font-style: italic; }
+
+/* ── Menu availability panel ── */
+.menu-avail-category { margin-bottom: 22px; }
+.menu-avail-cat-name {
+  font-size: .85rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text-secondary); margin-bottom: 8px;
+}
+.menu-avail-row {
+  display: flex; align-items: center; gap: 12px; padding: 8px 10px;
+  border-radius: 10px; border: 1px solid var(--border); margin-bottom: 6px;
+  background: #fff; transition: opacity .2s;
+  &--hidden { opacity: .5; }
+}
+.menu-avail-name { flex: 1; font-size: .9rem; font-weight: 600; color: var(--text); }
+.menu-avail-price { font-size: .82rem; color: var(--text-secondary); flex-shrink: 0; }
+.menu-avail-btn {
+  flex-shrink: 0; border-radius: 8px !important; font-size: .8rem !important;
+  display: flex; align-items: center; gap: 4px; padding: 0 10px !important; height: 32px !important;
+  .material-symbols-rounded { font-size: 1rem; }
+  &--available { color: #0f7a3f !important; border-color: #b9e6c8 !important; }
+}

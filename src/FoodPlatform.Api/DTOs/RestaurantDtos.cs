@@ -26,6 +26,8 @@ public record CreateRestaurantRequest(
     [MaxLength(100)] string? CuisineType,
     int? EstimatedDeliveryMinutes);
 
+public record UpdateHoursRequest(List<RestaurantHoursDto> Hours);
+
 public record UpdateRestaurantRequest(
     [MaxLength(200)] string? Name,
     [MaxLength(500)] string? Address,

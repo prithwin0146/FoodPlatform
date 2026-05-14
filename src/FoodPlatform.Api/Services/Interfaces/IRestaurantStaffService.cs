@@ -26,4 +26,10 @@ public interface IRestaurantStaffService
     /// (OCP: new staff capability added without changing existing methods)
     /// </summary>
     Task<ServiceResult<RestaurantDto>> SetActiveAsync(int restaurantId, bool isActive);
+
+    /// <summary>
+    /// Replaces the restaurant's weekly opening hours (upsert per day-of-week).
+    /// (OCP: adding a new staff capability without modifying the existing methods)
+    /// </summary>
+    Task<ServiceResult<IEnumerable<RestaurantHoursDto>>> UpdateHoursAsync(int restaurantId, UpdateHoursRequest request);
 }

@@ -39,6 +39,16 @@
           <span class="material-symbols-rounded">videocam</span>
           Kitchen Video
         </button>
+        <button class="video-manage-btn" (click)="toggleHoursSection()" matRipple
+          [class.active]="hoursSectionOpen()">
+          <span class="material-symbols-rounded">schedule</span>
+          Hours
+        </button>
+        <button class="video-manage-btn" (click)="toggleMenuSection()" matRipple
+          [class.active]="menuSectionOpen()">
+          <span class="material-symbols-rounded">menu_book</span>
+          Menu Items
+        </button>
         <div class="live-dot">
           <span class="live-pulse"></span> Live
         </div>
@@ -117,6 +127,100 @@
             Customers can currently see your kitchen video on the order-tracking page.
           </div>
         }
+      </div>
+    }
+
+    <!-- ── Hours Management Panel ── -->
+    @if (hoursSectionOpen()) {
+      <div class="video-panel glass-card" appScrollReveal>
+        <div class="video-panel-header">
+          <span class="material-symbols-rounded vp-icon">schedule</span>
+          <div>
+            <h2 class="vp-title">Opening Hours</h2>
+            <p class="vp-sub">Set your weekly schedule. Customers see these hours on your restaurant page.</p>
+          </div>
+        </div>
+        <div class="video-panel-body">
+          <div class="hours-grid">
+            @for (row of hoursForm(); track row.dayOfWeek; let i = $index) {
+              <div class="hours-row" [class.hours-row--closed]="row.isClosed">
+                <span class="hours-day">{{ row.dayName }}</span>
+                <label class="hours-closed-toggle" [matTooltip]="row.isClosed ? 'Mark as open' : 'Mark as closed'">
+                  <input type="checkbox"
+                    [checked]="row.isClosed"
+                    (change)="updateHoursRow(i, { isClosed: $any($event.target).checked })">
+                  <span class="hours-closed-label">{{ row.isClosed ? 'Closed' : 'Open' }}</span>
+                </label>
+                @if (!row.isClosed) {
+                  <input class="hours-time-input" type="time"
+                    [value]="row.openTime"
+                    (change)="updateHoursRow(i, { openTime: $any($event.target).value })">
+                  <span class="hours-dash">–</span>
+                  <input class="hours-time-input" type="time"
+                    [value]="row.closeTime"
+                    (change)="updateHoursRow(i, { closeTime: $any($event.target).value })">
+                } @else {
+                  <span class="hours-closed-placeholder">Closed all day</span>
+                }
+              </div>
+            }
+          </div>
+          <div class="video-actions">
+            <button mat-flat-button class="save-video-btn" appMagnetic
+              [disabled]="hoursSaving()"
+              (click)="saveHours()">
+              <span class="material-symbols-rounded">save</span>
+              {{ hoursSaving() ? 'Saving…' : 'Save Hours' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ── Menu Item Availability Panel ── -->
+    @if (menuSectionOpen()) {
+      <div class="video-panel glass-card" appScrollReveal>
+        <div class="video-panel-header">
+          <span class="material-symbols-rounded vp-icon">menu_book</span>
+          <div>
+            <h2 class="vp-title">Menu Item Availability</h2>
+            <p class="vp-sub">Quickly hide or show individual items. Hidden items won't appear to customers.</p>
+          </div>
+        </div>
+        <div class="video-panel-body">
+          @if (menuLoading()) {
+            <p class="vp-sub">Loading menu…</p>
+          } @else if (menuCategories().length === 0) {
+            <p class="vp-sub">No menu items found.</p>
+          } @else {
+            @for (cat of menuCategories(); track cat.id) {
+              <div class="menu-avail-category">
+                <h3 class="menu-avail-cat-name">{{ cat.name }}</h3>
+                @for (item of cat.items; track item.id) {
+                  <div class="menu-avail-row" [class.menu-avail-row--hidden]="!item.isAvailable">
+                    <span class="menu-avail-name">{{ item.name }}</span>
+                    <span class="menu-avail-price">£{{ item.price | number:'1.2-2' }}</span>
+                    <button mat-stroked-button
+                      class="menu-avail-btn"
+                      [class.menu-avail-btn--available]="item.isAvailable"
+                      [disabled]="togglingItemId() === item.id"
+                      (click)="toggleItemAvailability(item.id)"
+                      [matTooltip]="item.isAvailable ? 'Hide from customers' : 'Make available'">
+                      @if (togglingItemId() === item.id) {
+                        <span class="material-symbols-rounded">hourglass_empty</span>
+                      } @else if (item.isAvailable) {
+                        <span class="material-symbols-rounded">visibility</span>
+                      } @else {
+                        <span class="material-symbols-rounded">visibility_off</span>
+                      }
+                      {{ item.isAvailable ? 'Available' : 'Hidden' }}
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
       </div>
     }
 
