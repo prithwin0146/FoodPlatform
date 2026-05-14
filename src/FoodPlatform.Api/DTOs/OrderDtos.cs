@@ -60,3 +60,5 @@ public record DisputeRequest(
      MinLength(10, ErrorMessage = "Please provide at least 10 characters describing the issue"),
      MaxLength(1000)]
     string Notes);
+
+public record ReorderRequest([Required] string IdempotencyKey);

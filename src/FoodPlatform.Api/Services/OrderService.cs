@@ -285,6 +285,31 @@ public class OrderService : IOrderService
         return ServiceResult<object>.Ok(new { order.Id, order.DisputeStatus });
     }
 
+    /// <summary>
+    /// Re-places a previous order with the same items and delivery address.
+    /// (OCP: extends order placement behaviour without modifying PlaceOrderAsync)
+    /// </summary>
+    public async Task<ServiceResult<OrderDto>> ReorderAsync(int originalOrderId, int userId, string idempotencyKey)
+    {
+        var original = await _db.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == originalOrderId && o.UserId == userId);
+
+        if (original is null)
+            return ServiceResult<OrderDto>.Fail(OrderServiceError.NotFound, "Original order not found");
+
+        var reorderRequest = new PlaceOrderRequest(
+            original.RestaurantId,
+            original.Items.Select(i => new OrderItemRequest(i.MenuItemId, i.Quantity)).ToList(),
+            original.DeliveryAddressLine1,
+            original.DeliveryCity,
+            original.DeliveryPostcode,
+            idempotencyKey,
+            null);
+
+        return await PlaceOrderAsync(reorderRequest, userId);
+    }
+
     internal static OrderDto MapToDto(Order o) => new(
         o.Id, o.RestaurantId, o.UserId, o.Status,
         o.RejectionReason, o.DisputeStatus, o.DisputeNotes,

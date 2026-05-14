@@ -10,6 +10,10 @@ export interface Restaurant {
   imageUrl?: string | null;
   /** Pre-recorded kitchen video URL set by staff/admin. Null = no video yet. */
   kitchenVideoUrl?: string | null;
+  /** Broad cuisine category, e.g. "Indian", "Italian", "Burgers". */
+  cuisineType: string;
+  /** Advertised prep + delivery window in minutes. */
+  estimatedDeliveryMinutes: number;
 }
 
 export interface RestaurantDetail extends Restaurant {
@@ -187,4 +191,19 @@ export function nextOrderStatus(current: OrderStatus): OrderStatus | null {
   return idx >= 0 && idx < ORDER_STATUS_FLOW.length - 1
     ? ORDER_STATUS_FLOW[idx + 1]
     : null;
+}
+
+// === Review ===
+export interface Review {
+  id: number;
+  orderId: number;
+  stars: number;
+  comment: string | null;
+  customerName: string;
+  createdAt: string;
+}
+
+export interface SubmitReviewRequest {
+  stars: number;
+  comment?: string | null;
 }

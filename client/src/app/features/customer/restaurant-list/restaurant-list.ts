@@ -57,13 +57,41 @@ export class RestaurantList implements OnInit, AfterViewInit {
   readonly loading = signal(true);
   readonly searchQuery = signal('');
 
-  /** Filtered restaurants — recomputes only when restaurants or searchQuery changes. */
+  readonly CUISINE_OPTIONS = ['All', 'Indian', 'Italian', 'Japanese', 'Burgers', 'Chinese', 'Healthy', 'Pizza', 'Other'];
+  readonly DIETARY_OPTIONS = ['Vegan', 'Vegetarian', 'Halal', 'Gluten-free'];
+
+  readonly cuisineFilter = signal('All');
+  readonly sortOption = signal<'name' | 'rating' | 'time'>('rating');
+  readonly activeDietary = signal<string[]>([]);
+
+  /** Filtered + sorted restaurants — recomputes whenever any filter/sort signal changes. */
   readonly filteredRestaurants = computed(() => {
     const q = this.searchQuery().toLowerCase();
-    if (!q) return this.restaurants();
-    return this.restaurants().filter(
-      (r) => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q)
-    );
+    const cuisine = this.cuisineFilter();
+    const dietary = this.activeDietary();
+    const sort = this.sortOption();
+
+    let result = this.restaurants().filter(r => {
+      if (cuisine !== 'All' && r.cuisineType !== cuisine) return false;
+      if (dietary.length > 0) {
+        // dietary tags come from menu items — we approximate at restaurant level via cuisineType
+        // Full implementation: check menu item dietaryTags. For now filter by known mappings.
+        const tags = r.cuisineType?.toLowerCase() ?? '';
+        const veganCuisines = ['healthy'];
+        const vegCuisines = ['healthy', 'indian'];
+        if (dietary.includes('Vegan') && !veganCuisines.includes(tags)) return false;
+        if (dietary.includes('Vegetarian') && !vegCuisines.includes(tags)) return false;
+        if (dietary.includes('Halal') && !['indian', 'chinese'].includes(tags)) return false;
+      }
+      if (q) return r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q);
+      return true;
+    });
+
+    if (sort === 'name') result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+    else if (sort === 'rating') result = [...result].sort((a, b) => b.hygieneRating - a.hygieneRating);
+    else if (sort === 'time') result = [...result].sort((a, b) => a.estimatedDeliveryMinutes - b.estimatedDeliveryMinutes);
+
+    return result;
   });
 
   /** Hero scroll progress (0 → 1) for header colour shift */
@@ -251,6 +279,17 @@ export class RestaurantList implements OnInit, AfterViewInit {
 
   onSearch(event: Event): void {
     this.searchQuery.set((event.target as HTMLInputElement).value);
+  }
+
+  onSort(event: Event): void {
+    this.sortOption.set((event.target as HTMLSelectElement).value as 'name' | 'rating' | 'time');
+  }
+
+  toggleDietary(tag: string): void {
+    const current = this.activeDietary();
+    this.activeDietary.set(
+      current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag]
+    );
   }
 
   @HostListener('window:scroll')

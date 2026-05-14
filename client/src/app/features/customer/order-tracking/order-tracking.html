@@ -170,6 +170,15 @@
           </button>
         }
 
+        <!-- ── Review Widget ── -->
+        @if (order()?.status === 'Delivered' && !existingReview()) {
+          <app-review-widget
+            [orderId]="order()!.id"
+            (reviewSubmitted)="existingReview.set($event)"
+            appScrollReveal [revealDelay]="310">
+          </app-review-widget>
+        }
+
         <!-- ── Dispute Panel ── -->
         @if (canDispute()) {
           <div class="dispute-panel glass-card" appScrollReveal [revealDelay]="320">

@@ -49,5 +49,6 @@ public class RestaurantStaffService : IRestaurantStaffService
 
     private static RestaurantDto ToDto(Data.Entities.Restaurant r) =>
         new(r.Id, r.Name, r.Address, r.BasePostcode,
-            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl);
+            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
+            r.CuisineType, r.EstimatedDeliveryMinutes);
 }

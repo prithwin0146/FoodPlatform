@@ -2008,3 +2008,108 @@
   .cta-card { padding: 2.5rem 1.5rem; border-radius: 24px; }
   .cta-headline { font-size: clamp(1.8rem, 7vw, 2.8rem); }
 }
+
+// ══════════════════════════════ CUISINE + DIETARY FILTER BARS ══
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.cuisine-chip {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-soft);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+
+  &:hover { border-color: var(--c-orange); color: var(--c-orange); transform: translateY(-1px); }
+
+  &.active {
+    background: var(--c-orange);
+    border-color: var(--c-orange);
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.sort-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 6px 12px;
+
+  .sort-icon {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+  }
+}
+
+.sort-select {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--c-text-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 4px;
+
+  option { background: var(--c-surface); color: var(--c-text-primary); }
+}
+
+.dietary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dietary-chip {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-text-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover { border-color: #22c55e; color: #22c55e; }
+
+  &.active {
+    background: #22c55e;
+    border-color: #22c55e;
+    color: #000;
+    font-weight: 700;
+  }
+}
+
+.cuisine-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(var(--brand-primary-rgb, 245, 124, 0), 0.12);
+  color: var(--c-orange);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

@@ -4,10 +4,12 @@ namespace FoodPlatform.Api.DTOs;
 
 // (SRP: restaurant DTOs isolated — changes don't force recompilation of order/menu DTOs)
 public record RestaurantDto(int Id, string Name, string Address, string BasePostcode,
-    double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl);
+    double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
+    string CuisineType, int EstimatedDeliveryMinutes);
 
 public record RestaurantDetailDto(int Id, string Name, string Address, string BasePostcode,
-    double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl, List<RestaurantHoursDto> Hours);
+    double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
+    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours);
 
 public record RestaurantHoursDto(int DayOfWeek, TimeSpan OpenTime, TimeSpan CloseTime, bool IsClosed);
 
@@ -20,7 +22,9 @@ public record CreateRestaurantRequest(
     [Range(0, 5, ErrorMessage = "Hygiene rating must be between 0 and 5")]
     int HygieneRating,
     [MaxLength(500)] string? ImageUrl,
-    [MaxLength(1000)] string? KitchenVideoUrl);
+    [MaxLength(1000)] string? KitchenVideoUrl,
+    [MaxLength(100)] string? CuisineType,
+    int? EstimatedDeliveryMinutes);
 
 public record UpdateRestaurantRequest(
     [MaxLength(200)] string? Name,
@@ -31,7 +35,9 @@ public record UpdateRestaurantRequest(
     [Range(0, 5, ErrorMessage = "Hygiene rating must be between 0 and 5")]
     int? HygieneRating,
     [MaxLength(500)] string? ImageUrl,
-    [MaxLength(1000)] string? KitchenVideoUrl);
+    [MaxLength(1000)] string? KitchenVideoUrl,
+    [MaxLength(100)] string? CuisineType,
+    int? EstimatedDeliveryMinutes);
 
 /// <summary>Staff-only request to update the kitchen video URL for their restaurant.</summary>
 public record UpdateKitchenVideoRequest([MaxLength(1000)] string? KitchenVideoUrl);

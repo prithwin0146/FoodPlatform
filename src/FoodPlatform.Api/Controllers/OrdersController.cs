@@ -98,6 +98,21 @@ public class OrdersController : RestaurantScopedController
         return ToActionResult(result);
     }
 
+    /// <summary>Re-place a previous order with the same items + delivery address.</summary>
+    [HttpPost("{id:int}/reorder")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> Reorder(int id, [FromBody] ReorderRequest request)
+    {
+        var result = await _orders.ReorderAsync(id, CurrentUserId, request.IdempotencyKey);
+        if (!result.IsSuccess)
+            return result.Error switch
+            {
+                OrderServiceError.NotFound => NotFound(new { error = result.ErrorMessage }),
+                _ => BadRequest(new { error = result.ErrorMessage })
+            };
+        return Ok(result.Value);
+    }
+
     private IActionResult ToActionResult(ServiceResult<object> result)
     {
         if (result.IsSuccess) return Ok(result.Value);

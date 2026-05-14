@@ -95,6 +95,9 @@ public static class ServiceCollectionExtensions
         // Staff-facing restaurant service
         services.AddScoped<IRestaurantStaffService, RestaurantStaffService>();
 
+        // Reviews
+        services.AddScoped<IReviewService, ReviewService>();
+
         // Infrastructure services
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IEmailService, ResendEmailService>();

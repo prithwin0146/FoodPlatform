@@ -82,6 +82,19 @@
                 {{ order.status | orderStatusEmoji }} {{ order.status | orderStatusLabel }}
               </span>
               <span class="order-total">{{ order.totalAmount | currency:'GBP' }}</span>
+              @if (!isActive(order)) {
+                <button mat-flat-button class="reorder-btn"
+                  (click)="$event.preventDefault(); $event.stopPropagation(); reorder(order)"
+                  [disabled]="reorderingId() !== null"
+                  matTooltip="Re-place this order">
+                  @if (reorderingId() === order.id) {
+                    <span class="material-symbols-rounded spin">progress_activity</span>
+                  } @else {
+                    <span class="material-symbols-rounded">replay</span>
+                  }
+                  Reorder
+                </button>
+              }
               <span class="material-symbols-rounded chevron">chevron_right</span>
             </div>
           </a>

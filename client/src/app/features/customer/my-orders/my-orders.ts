@@ -1,11 +1,12 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrderService } from '../../../core/services/order.service';
+import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
 import { Order } from '../../../core/models';
 import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -41,6 +42,8 @@ export class MyOrders implements OnInit {
 
   constructor(
     private readonly orderService: OrderService,
+    private readonly idempotencyKey: IdempotencyKeyService,
+    private readonly router: Router,
     title: Title
   ) {
     title.setTitle('My Orders | SeeThePrep');
@@ -56,5 +59,19 @@ export class MyOrders implements OnInit {
   /** True while an order is still in the active pipeline. */
   isActive(order: Order): boolean {
     return !['Delivered', 'Rejected', 'Cancelled'].includes(order.status);
+  }
+
+  readonly reorderingId = signal<number | null>(null);
+
+  reorder(order: Order): void {
+    if (this.reorderingId() !== null) return;
+    this.reorderingId.set(order.id);
+    this.orderService.reorder(order.id, this.idempotencyKey.generate()).subscribe({
+      next: (newOrder) => {
+        this.reorderingId.set(null);
+        this.router.navigate(['/order-tracking', newOrder.id]);
+      },
+      error: () => this.reorderingId.set(null),
+    });
   }
 }

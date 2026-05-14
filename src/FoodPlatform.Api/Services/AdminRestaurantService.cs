@@ -19,7 +19,8 @@ public class AdminRestaurantService : IAdminRestaurantService
     {
         return await _db.Restaurants
             .Select(r => new RestaurantDto(r.Id, r.Name, r.Address, r.BasePostcode,
-                            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl))
+                            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
+                            r.CuisineType, r.EstimatedDeliveryMinutes))
             .ToListAsync();
     }
 
@@ -32,7 +33,9 @@ public class AdminRestaurantService : IAdminRestaurantService
             BasePostcode = request.BasePostcode,
             DeliveryRadiusMiles = request.DeliveryRadiusMiles,
             HygieneRating = request.HygieneRating,
-            ImageUrl = request.ImageUrl
+            ImageUrl = request.ImageUrl,
+            CuisineType = request.CuisineType ?? "Other",
+            EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes ?? 30
         };
         _db.Restaurants.Add(restaurant);
         await _db.SaveChangesAsync();
@@ -52,6 +55,8 @@ public class AdminRestaurantService : IAdminRestaurantService
         if (request.ImageUrl != null) restaurant.ImageUrl = request.ImageUrl;
         // null means "no change"; empty string means "clear the URL"
         if (request.KitchenVideoUrl != null) restaurant.KitchenVideoUrl = request.KitchenVideoUrl == "" ? null : request.KitchenVideoUrl;
+        if (request.CuisineType != null) restaurant.CuisineType = request.CuisineType;
+        if (request.EstimatedDeliveryMinutes.HasValue) restaurant.EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes.Value;
 
         await _db.SaveChangesAsync();
         return ToDto(restaurant);
@@ -77,5 +82,5 @@ public class AdminRestaurantService : IAdminRestaurantService
     }
 
     private static RestaurantDto ToDto(Restaurant r) =>
-        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl);
+        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl, r.CuisineType, r.EstimatedDeliveryMinutes);
 }

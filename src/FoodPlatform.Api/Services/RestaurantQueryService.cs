@@ -21,7 +21,8 @@ public class RestaurantQueryService : IRestaurantQueryService
         return await _db.Restaurants
             .Where(r => r.IsActive)
             .Select(r => new RestaurantDto(r.Id, r.Name, r.Address, r.BasePostcode,
-                            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl))
+                            r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
+                            r.CuisineType, r.EstimatedDeliveryMinutes))
             .ToListAsync();
     }
 
@@ -35,6 +36,7 @@ public class RestaurantQueryService : IRestaurantQueryService
 
         return new RestaurantDetailDto(r.Id, r.Name, r.Address, r.BasePostcode,
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
+            r.CuisineType, r.EstimatedDeliveryMinutes,
             r.Hours.Select(h => new RestaurantHoursDto(h.DayOfWeek, h.OpenTime, h.CloseTime, h.IsClosed)).ToList());
     }
 

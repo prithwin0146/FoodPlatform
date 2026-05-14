@@ -54,4 +54,8 @@ export class OrderService {
   dispute(id: number, req: DisputeRequest): Observable<any> {
     return this.http.post(`${this.url}/${id}/dispute`, req);
   }
+
+  reorder(id: number, idempotencyKey: string): Observable<Order> {
+    return this.http.post<Order>(`${this.url}/${id}/reorder`, { idempotencyKey });
+  }
 }

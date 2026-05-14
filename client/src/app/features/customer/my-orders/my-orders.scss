@@ -140,6 +140,29 @@
 }
 .chevron { font-size: 1.1rem; color: var(--text-muted); }
 
+.reorder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(var(--brand-primary-rgb, 245, 124, 0), 0.15);
+  color: var(--brand-primary, #f57c00);
+  border: 1px solid rgba(var(--brand-primary-rgb, 245, 124, 0), 0.3);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  line-height: 1;
+
+  &:hover:not([disabled]) { background: rgba(var(--brand-primary-rgb, 245, 124, 0), 0.28); transform: translateY(-1px); }
+  &[disabled] { opacity: 0.5; cursor: default; }
+
+  .material-symbols-rounded { font-size: 1rem; }
+}
+
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ── Skeleton ── */
 .skeleton-list { display: flex; flex-direction: column; gap: 12px; }
 .skeleton-row {

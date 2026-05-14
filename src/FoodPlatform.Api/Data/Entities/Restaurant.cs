@@ -12,6 +12,10 @@ public class Restaurant
     public string? ImageUrl { get; set; }
     /// <summary>Pre-recorded kitchen video URL (YouTube embed, Vimeo, or direct MP4). Replaces placeholder on order-tracking page.</summary>
     public string? KitchenVideoUrl { get; set; }
+    /// <summary>Broad cuisine category displayed on the restaurant card (e.g. "Indian", "Italian", "Burgers").</summary>
+    public string CuisineType { get; set; } = "Other";
+    /// <summary>Advertised preparation + delivery window in minutes shown on the restaurant card.</summary>
+    public int EstimatedDeliveryMinutes { get; set; } = 30;
     public string? StripeAccountId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -1,0 +1,67 @@
+:host { display: block; margin-top: 1.5rem; }
+
+.review-form {
+  padding: 1.5rem;
+  border-radius: 20px;
+  max-width: 480px;
+}
+
+.review-title {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem;
+  color: var(--text-primary);
+  .material-symbols-rounded { color: var(--brand-primary, #f57c00); font-size: 1.3rem; }
+}
+
+.star-row {
+  display: flex; gap: 0.25rem; margin-bottom: 1rem;
+}
+
+.star-btn {
+  background: transparent; border: none; cursor: pointer; padding: 2px;
+  transition: transform 0.15s;
+  &:hover { transform: scale(1.2); }
+}
+
+.star-icon {
+  font-size: 2rem;
+  color: var(--text-muted, #888);
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+  transition: color 0.15s, font-variation-settings 0.15s;
+
+  &.filled {
+    color: #f59e0b;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+  }
+}
+
+.comment-field { width: 100%; margin-bottom: 1rem; }
+
+.submit-review-btn {
+  width: 100%;
+  background: var(--brand-primary, #f57c00) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+
+  &[disabled] { opacity: 0.5; }
+}
+
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.review-error { color: #f87171; font-size: 0.85rem; margin-top: 0.5rem; text-align: center; }
+
+// Submitted state
+.review-done {
+  text-align: center; padding: 1.5rem 0;
+}
+
+.review-stars-display {
+  display: flex; justify-content: center; gap: 0.25rem; margin-bottom: 0.75rem;
+  .star-icon { font-size: 1.75rem; }
+}
+
+.review-thanks { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.5rem; }
+.review-comment-display { font-style: italic; color: var(--text-secondary); font-size: 0.9rem; }

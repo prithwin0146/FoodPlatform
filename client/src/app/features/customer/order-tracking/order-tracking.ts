@@ -12,12 +12,14 @@ import { MatInputModule } from '@angular/material/input';
 import { ToastService } from '../../../core/services/toast.service';
 import { OrderService } from '../../../core/services/order.service';
 import { OrderPollingService } from '../../../core/services/order-polling.service';
-import { Order, ORDER_STATUS_FLOW, OrderStatus } from '../../../core/models';
+import { ReviewService } from '../../../core/services/review.service';
+import { Order, ORDER_STATUS_FLOW, OrderStatus, Review } from '../../../core/models';
 import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { ReviewWidget } from '../../../shared/components/review-widget/review-widget';
 
 /**
  * (SRP: polling logic extracted to OrderPollingService)
@@ -32,6 +34,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
     OrderStatusEmojiPipe, OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
     ScrollRevealDirective, TiltDirective, MagneticDirective,
+    ReviewWidget,
   ],
   templateUrl: './order-tracking.html',
   styleUrl: './order-tracking.scss',
@@ -41,6 +44,8 @@ export class OrderTracking implements OnInit, OnDestroy {
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly statusSteps = ORDER_STATUS_FLOW;
+  /** Populated once we confirm the current customer already reviewed this order. */
+  readonly existingReview = signal<Review | null>(null);
 
   private _pollSub?: Subscription;
 
@@ -48,6 +53,7 @@ export class OrderTracking implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly orderService: OrderService,
     private readonly polling: OrderPollingService,
+    private readonly reviewService: ReviewService,
     private readonly toast: ToastService
   ) {}
 
@@ -61,6 +67,13 @@ export class OrderTracking implements OnInit, OnDestroy {
         this.loading.set(false);
         if (OrderTracking.TERMINAL_STATUSES.includes(o.status)) {
           this._pollSub?.unsubscribe();
+        }
+        // Load any existing review when order is delivered
+        if (o.status === 'Delivered') {
+          this.reviewService.getMyReview(o.id).subscribe({
+            next: (r) => this.existingReview.set(r),
+            error: () => { /* 404 = no review yet, leave existingReview null */ },
+          });
         }
       },
       error: () => this.loading.set(false),

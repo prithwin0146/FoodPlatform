@@ -124,6 +124,30 @@
       </div>
     </div>
 
+    <!-- ── Cuisine filter chips ── -->
+    <div class="filter-bar" appScrollReveal>
+      @for (c of CUISINE_OPTIONS; track c) {
+        <button class="cuisine-chip" [class.active]="cuisineFilter() === c" (click)="cuisineFilter.set(c)">{{ c }}</button>
+      }
+    </div>
+
+    <!-- ── Sort + Dietary row ── -->
+    <div class="filter-row" appScrollReveal>
+      <div class="sort-wrapper">
+        <span class="material-symbols-rounded sort-icon">sort</span>
+        <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
+          <option value="rating">Top rated</option>
+          <option value="time">Fastest delivery</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <div class="dietary-chips">
+        @for (d of DIETARY_OPTIONS; track d) {
+          <button class="dietary-chip" [class.active]="activeDietary().includes(d)" (click)="toggleDietary(d)">{{ d }}</button>
+        }
+      </div>
+    </div>
+
     @if (loading()) {
       <div class="grid">
         @for (i of [1,2,3,4,5,6]; track i) {
@@ -173,13 +197,14 @@
                 {{ restaurant.address }}
               </p>
               <div class="restaurant-meta">
+                <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
                 <span class="meta-item">
-                  <span class="material-symbols-rounded meta-icon">pedal_bike</span>
-                  {{ restaurant.deliveryRadiusMiles }} mi delivery
+                  <span class="material-symbols-rounded meta-icon">schedule</span>
+                  ~{{ restaurant.estimatedDeliveryMinutes }} min
                 </span>
                 <span class="meta-item">
-                  <span class="material-symbols-rounded meta-icon">markunread_mailbox</span>
-                  {{ restaurant.basePostcode }}
+                  <span class="material-symbols-rounded meta-icon">pedal_bike</span>
+                  {{ restaurant.deliveryRadiusMiles }} mi
                 </span>
                 <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
               </div>

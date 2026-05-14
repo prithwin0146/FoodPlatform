@@ -25,4 +25,6 @@ public interface IOrderService
     Task<ServiceResult<object>> UpdateStatusAsync(int id, int restaurantId, UpdateStatusRequest request);
     Task<ServiceResult<object>> CancelAsync(int id, int userId);
     Task<ServiceResult<object>> DisputeAsync(int id, int userId, DisputeRequest request);
+    /// <summary>Re-places a past order with the same items and delivery address.</summary>
+    Task<ServiceResult<OrderDto>> ReorderAsync(int originalOrderId, int userId, string idempotencyKey);
 }
