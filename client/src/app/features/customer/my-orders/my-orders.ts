@@ -7,7 +7,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrderService } from '../../../core/services/order.service';
 import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
-import { Order } from '../../../core/models';
+import { Order, PaginatedResult } from '../../../core/models';
 import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
@@ -33,6 +33,14 @@ export class MyOrders implements OnInit {
   readonly loading = signal(true);
   readonly activeFilter = signal<'all' | 'active' | 'past'>('all');
 
+  // Pagination
+  readonly currentPage = signal(1);
+  readonly totalPages = signal(1);
+  readonly totalCount = signal(0);
+  readonly hasNextPage = signal(false);
+  readonly hasPrevPage = computed(() => this.currentPage() > 1);
+  readonly PAGE_SIZE = 10;
+
   readonly filteredOrders = computed(() => {
     const f = this.activeFilter();
     if (f === 'active') return this.orders().filter(o => this.isActive(o));
@@ -50,11 +58,26 @@ export class MyOrders implements OnInit {
   }
 
   ngOnInit(): void {
-    this.orderService.listMyOrders().subscribe({
-      next: (data) => { this.orders.set(data); this.loading.set(false); },
+    this.loadPage(1);
+  }
+
+  loadPage(page: number): void {
+    this.loading.set(true);
+    this.orderService.listMyOrdersPaged(page, this.PAGE_SIZE).subscribe({
+      next: (result: PaginatedResult<Order>) => {
+        this.orders.set(result.items);
+        this.currentPage.set(result.page);
+        this.totalPages.set(result.totalPages);
+        this.totalCount.set(result.totalCount);
+        this.hasNextPage.set(result.hasNextPage);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false),
     });
   }
+
+  nextPage(): void { this.loadPage(this.currentPage() + 1); }
+  prevPage(): void { this.loadPage(this.currentPage() - 1); }
 
   /** True while an order is still in the active pipeline. */
   isActive(order: Order): boolean {

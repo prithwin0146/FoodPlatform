@@ -6,6 +6,7 @@ import {
   AcceptOrderRequest,
   DisputeRequest,
   Order,
+  PaginatedResult,
   PlaceOrderRequest,
   RejectOrderRequest,
   UpdateStatusRequest,
@@ -33,6 +34,10 @@ export class OrderService {
 
   listMyOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.url}/my`);
+  }
+
+  listMyOrdersPaged(page = 1, pageSize = 10): Observable<PaginatedResult<Order>> {
+    return this.http.get<PaginatedResult<Order>>(`${this.url}/my?page=${page}&pageSize=${pageSize}`);
   }
 
   accept(id: number, req: AcceptOrderRequest): Observable<any> {

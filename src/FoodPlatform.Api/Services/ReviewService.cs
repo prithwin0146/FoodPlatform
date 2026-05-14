@@ -72,6 +72,31 @@ public class ReviewService : IReviewService
         return MapToDto(review, review.Customer.Username);
     }
 
+    public async Task<PaginatedResult<ReviewDto>> ListAllAsync(int page, int pageSize)
+    {
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        page = Math.Max(1, page);
+
+        var query = _db.Reviews.Include(r => r.Customer).OrderByDescending(r => r.CreatedAt);
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(r => new ReviewDto(r.Id, r.OrderId, r.Stars, r.Comment, r.Customer.Username, r.CreatedAt))
+            .ToListAsync();
+
+        return new PaginatedResult<ReviewDto>(items, totalCount, page, pageSize);
+    }
+
+    public async Task<bool> DeleteAsync(int reviewId)
+    {
+        var review = await _db.Reviews.FindAsync(reviewId);
+        if (review is null) return false;
+        _db.Reviews.Remove(review);
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
     private static ReviewDto MapToDto(Review r, string customerName) =>
         new(r.Id, r.OrderId, r.Stars, r.Comment, customerName, r.CreatedAt);
 }

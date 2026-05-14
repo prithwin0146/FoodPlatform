@@ -32,12 +32,15 @@
                 <span class="material-symbols-rounded">verified</span>
                 {{ r.hygieneRating | hygieneStars }} Hygiene
               </span>
-              @if (r.isActive) {
+              @if (isOpenNow()) {
                 <span class="badge badge-open">
-                  <span class="pulse-dot"></span> Open Now
+                  <span class="pulse-dot"></span> Open · {{ todayHoursLabel() }}
                 </span>
               } @else {
-                <span class="badge badge-closed">Closed</span>
+                <span class="badge badge-closed">
+                  <span class="material-symbols-rounded">schedule</span>
+                  Closed · {{ todayHoursLabel() }}
+                </span>
               }
               <span class="badge badge-delivery">
                 <span class="material-symbols-rounded">delivery_dining</span>

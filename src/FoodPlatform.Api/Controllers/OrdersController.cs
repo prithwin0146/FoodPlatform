@@ -45,9 +45,11 @@ public class OrdersController : RestaurantScopedController
 
     [HttpGet("my")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> ListMyOrders()
+    public async Task<IActionResult> ListMyOrders(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
-        return Ok(await _orders.ListForUserAsync(CurrentUserId));
+        return Ok(await _orders.ListForUserPagedAsync(CurrentUserId, page, pageSize));
     }
 
     [HttpGet]

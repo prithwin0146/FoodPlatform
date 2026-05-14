@@ -92,6 +92,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminMenuService, AdminMenuService>();
         services.AddScoped<IAdminUserService, AdminUserService>();
 
+        // Analytics
+        services.AddScoped<IAdminAnalyticsService, AdminAnalyticsService>();
+
         // Staff-facing restaurant service
         services.AddScoped<IRestaurantStaffService, RestaurantStaffService>();
 

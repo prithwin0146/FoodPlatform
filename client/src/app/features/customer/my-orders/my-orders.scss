@@ -210,3 +210,23 @@
   .item-tag { font-size: .7rem; }
   .status-chip { font-size: .7rem; }
 }
+
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+
+  .page-info {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}

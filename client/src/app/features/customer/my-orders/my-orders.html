@@ -100,6 +100,19 @@
           </a>
         }
       </div>
+
+      <!-- Pagination controls -->
+      @if (totalPages() > 1) {
+        <div class="pagination-row" appScrollReveal>
+          <button mat-stroked-button [disabled]="!hasPrevPage()" (click)="prevPage()">
+            <span class="material-symbols-rounded">chevron_left</span> Prev
+          </button>
+          <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }} · {{ totalCount() }} orders</span>
+          <button mat-stroked-button [disabled]="!hasNextPage()" (click)="nextPage()">
+            Next <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      }
     }
   </div>
 </div>

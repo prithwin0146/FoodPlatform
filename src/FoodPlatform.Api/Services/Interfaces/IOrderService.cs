@@ -20,6 +20,7 @@ public interface IOrderService
     Task<OrderDto?> GetAsync(int id);
     Task<IEnumerable<OrderDto>> ListAsync(int? restaurantId, string? status);
     Task<IEnumerable<OrderDto>> ListForUserAsync(int userId);
+    Task<PaginatedResult<OrderDto>> ListForUserPagedAsync(int userId, int page, int pageSize);
     Task<ServiceResult<object>> AcceptAsync(int id, int restaurantId, AcceptOrderRequest request);
     Task<ServiceResult<object>> RejectAsync(int id, int restaurantId, RejectOrderRequest request);
     Task<ServiceResult<object>> UpdateStatusAsync(int id, int restaurantId, UpdateStatusRequest request);

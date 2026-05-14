@@ -54,6 +54,34 @@ export class RestaurantMenu implements OnInit {
     return Math.round((rs.reduce((s, r) => s + r.stars, 0) / rs.length) * 10) / 10;
   });
 
+  // ── Open / closed status based on today's hours
+  readonly todayHours = computed(() => {
+    const r = this.restaurant();
+    if (!r?.hours?.length) return null;
+    const dayIndex = new Date().getDay(); // 0 = Sunday
+    return r.hours.find(h => h.dayOfWeek === dayIndex) ?? null;
+  });
+
+  readonly isOpenNow = computed(() => {
+    const r = this.restaurant();
+    if (!r?.isActive) return false;
+    const h = this.todayHours();
+    if (!h || h.isClosed) return false;
+    // openTime / closeTime arrive as "HH:mm:ss" strings from .NET TimeSpan serialization
+    const [oh, om] = h.openTime.split(':').map(Number);
+    const [ch, cm] = h.closeTime.split(':').map(Number);
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    return nowMins >= oh * 60 + om && nowMins <= ch * 60 + cm;
+  });
+
+  readonly todayHoursLabel = computed(() => {
+    const h = this.todayHours();
+    if (!h || h.isClosed) return 'Closed today';
+    const fmt = (t: string) => t.substring(0, 5); // "HH:mm"
+    return `${fmt(h.openTime)} – ${fmt(h.closeTime)}`;
+  });
+
   // ── Dietary filter (within this restaurant's menu)
   readonly MENU_DIETARY = ['Vegan', 'Vegetarian', 'Halal', 'Gluten-free'];
   readonly dietaryFilter = signal<string[]>([]);

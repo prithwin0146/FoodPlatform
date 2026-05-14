@@ -146,6 +146,24 @@ public class OrderService : IOrderService
         return orders.Select(MapToDto);
     }
 
+    public async Task<PaginatedResult<OrderDto>> ListForUserPagedAsync(int userId, int page, int pageSize)
+    {
+        pageSize = Math.Clamp(pageSize, 1, 50);
+        page = Math.Max(1, page);
+
+        var query = _db.Orders
+            .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+            .Include(o => o.Restaurant)
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PaginatedResult<OrderDto>(
+            items.Select(MapToDto).ToList(), totalCount, page, pageSize);
+    }
+
     public async Task<IEnumerable<OrderDto>> ListAsync(int? restaurantId, string? status)
     {
         var query = _db.Orders

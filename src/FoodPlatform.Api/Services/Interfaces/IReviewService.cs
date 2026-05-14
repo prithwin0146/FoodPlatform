@@ -17,4 +17,11 @@ public interface IReviewService
 
     /// <summary>Get the review the current customer left for a specific order, or null if none yet.</summary>
     Task<ReviewDto?> GetByOrderAsync(int orderId, int customerId);
+
+    // ── Admin operations ──────────────────────────────────────────────────────
+    /// <summary>List all reviews across the platform, newest first (admin only).</summary>
+    Task<PaginatedResult<ReviewDto>> ListAllAsync(int page, int pageSize);
+
+    /// <summary>Hard-delete a review by id. Returns false if not found.</summary>
+    Task<bool> DeleteAsync(int reviewId);
 }
