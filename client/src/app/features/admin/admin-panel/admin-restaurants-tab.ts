@@ -21,6 +21,8 @@ interface RestaurantForm {
   hygieneRating: number;
   imageUrl: string;
   kitchenVideoUrl: string;
+  cuisineType: string;
+  estimatedDeliveryMinutes: number;
 }
 
 /**
@@ -85,6 +87,14 @@ interface RestaurantForm {
             <input matInput [(ngModel)]="form.kitchenVideoUrl" placeholder="https://youtube.com/embed/… or direct MP4 link" />
             <mat-hint>YouTube embed, Vimeo, or direct video file link shown on order-tracking page.</mat-hint>
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Cuisine Type</mat-label>
+            <input matInput [(ngModel)]="form.cuisineType" placeholder="e.g. Indian, Italian, Burgers" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Est. Delivery Time (minutes)</mat-label>
+            <input matInput type="number" min="5" max="180" [(ngModel)]="form.estimatedDeliveryMinutes" />
+          </mat-form-field>
         </div>
         <div class="form-actions">
           <button mat-stroked-button (click)="closeForm()">Cancel</button>
@@ -120,6 +130,14 @@ interface RestaurantForm {
               <div class="r-meta-item">
                 <span class="material-symbols-rounded">local_shipping</span>
                 <span>{{ r.deliveryRadiusMiles }} mi radius</span>
+              </div>
+              <div class="r-meta-item">
+                <span class="material-symbols-rounded">restaurant</span>
+                <span>{{ r.cuisineType || 'Other' }}</span>
+              </div>
+              <div class="r-meta-item">
+                <span class="material-symbols-rounded">schedule</span>
+                <span>~{{ r.estimatedDeliveryMinutes }} min</span>
               </div>
             </div>
           </mat-card-content>
@@ -271,7 +289,7 @@ export class AdminRestaurantsTab implements OnInit {
 
   openEdit(r: Restaurant): void {
     this.editingId.set(r.id);
-    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '' };
+    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '', cuisineType: r.cuisineType ?? '', estimatedDeliveryMinutes: r.estimatedDeliveryMinutes ?? 30 };
     this.formOpen.set(true);
   }
 
@@ -328,7 +346,7 @@ export class AdminRestaurantsTab implements OnInit {
   }
 
   private emptyForm(): RestaurantForm {
-    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '' };
+    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '', cuisineType: 'Other', estimatedDeliveryMinutes: 30 };
   }
 }
 

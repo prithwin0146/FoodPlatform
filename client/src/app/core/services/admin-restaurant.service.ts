@@ -12,6 +12,8 @@ export interface CreateRestaurantPayload {
   hygieneRating: number;
   imageUrl?: string | null;
   kitchenVideoUrl?: string | null;
+  cuisineType?: string;
+  estimatedDeliveryMinutes?: number;
 }
 
 export interface UpdateRestaurantPayload {
@@ -22,6 +24,8 @@ export interface UpdateRestaurantPayload {
   hygieneRating?: number;
   imageUrl?: string | null;
   kitchenVideoUrl?: string | null;
+  cuisineType?: string;
+  estimatedDeliveryMinutes?: number;
 }
 
 /**

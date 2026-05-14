@@ -182,6 +182,19 @@ public class AuthService : IAuthService
         return (true, null);
     }
 
+    public async Task<(bool Success, string? Error)> ChangePasswordAsync(int userId, ChangePasswordRequest request)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) return (false, "User not found");
+
+        if (!_hasher.Verify(request.CurrentPassword, user.PasswordHash))
+            return (false, "Current password is incorrect");
+
+        user.PasswordHash = _hasher.Hash(request.NewPassword);
+        await _db.SaveChangesAsync();
+        return (true, null);
+    }
+
     // ── private ──────────────────────────────────────────────────────────────
 
     /// <summary>

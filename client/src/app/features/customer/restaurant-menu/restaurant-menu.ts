@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { DOCUMENT, CurrencyPipe } from '@angular/common';
+import { DOCUMENT, CurrencyPipe, DatePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { CanonicalService } from '../../../core/services/canonical.service';
+import { ReviewService } from '../../../core/services/review.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -13,7 +14,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { MenuCategory, MenuItem, RestaurantDetail } from '../../../core/models';
+import { MenuCategory, MenuItem, RestaurantDetail, Review } from '../../../core/models';
 import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
 import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 import { DietaryIconPipe } from '../../../shared/pipes/order-status.pipe';
@@ -28,7 +29,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
 @Component({
   selector: 'app-restaurant-menu',
   imports: [
-    CurrencyPipe, RouterLink,
+    CurrencyPipe, DatePipe, RouterLink,
     HygieneStarsPipe, MenuItemEmojiPipe, DietaryIconPipe, SafeUrlPipe,
     MatButtonModule, MatChipsModule, MatRippleModule,
     MatProgressSpinnerModule, MatTooltipModule, MatBadgeModule,
@@ -45,15 +46,38 @@ export class RestaurantMenu implements OnInit {
   readonly searchQuery = signal('');
   readonly liveModalOpen = signal(false);
 
+  // ── Reviews
+  readonly reviews = signal<Review[]>([]);
+  readonly avgRating = computed(() => {
+    const rs = this.reviews();
+    if (!rs.length) return null;
+    return Math.round((rs.reduce((s, r) => s + r.stars, 0) / rs.length) * 10) / 10;
+  });
+
+  // ── Dietary filter (within this restaurant's menu)
+  readonly MENU_DIETARY = ['Vegan', 'Vegetarian', 'Halal', 'Gluten-free'];
+  readonly dietaryFilter = signal<string[]>([]);
+
   readonly availableCategories = computed(() =>
     this.categories().filter((c) => c.items.some((i) => i.isAvailable))
   );
 
   readonly filteredCategories = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
-    if (!q) return this.availableCategories();
+    const dietary = this.dietaryFilter();
     return this.availableCategories()
-      .map((c) => ({ ...c, items: c.items.filter((i) => i.isAvailable && i.name.toLowerCase().includes(q)) }))
+      .map((c) => ({
+        ...c,
+        items: c.items.filter((i) => {
+          if (!i.isAvailable) return false;
+          if (q && !i.name.toLowerCase().includes(q)) return false;
+          if (dietary.length > 0) {
+            const tags = (i.dietaryTags ?? '').toLowerCase();
+            if (!dietary.every(d => tags.includes(d.toLowerCase()))) return false;
+          }
+          return true;
+        }),
+      }))
       .filter((c) => c.items.length > 0);
   });
 
@@ -65,6 +89,7 @@ export class RestaurantMenu implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly restaurantService: RestaurantService,
+    private readonly reviewService: ReviewService,
     readonly cart: CartService,
     private readonly toast: ToastService
   ) {}
@@ -74,10 +99,12 @@ export class RestaurantMenu implements OnInit {
     forkJoin({
       restaurant: this.restaurantService.get(id),
       menu: this.restaurantService.getMenu(id),
+      reviews: this.reviewService.listForRestaurant(id),
     }).subscribe({
-      next: ({ restaurant, menu }) => {
+      next: ({ restaurant, menu, reviews }) => {
         this.restaurant.set(restaurant);
         this.categories.set(menu);
+        this.reviews.set(reviews);
         if (menu.length) this.activeCategory.set(menu[0].id);
         this.loading.set(false);
 
@@ -140,6 +167,11 @@ export class RestaurantMenu implements OnInit {
   selectCategory(id: number): void {
     this.activeCategory.set(id);
     document.getElementById('cat-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  toggleMenuDietary(tag: string): void {
+    const cur = this.dietaryFilter();
+    this.dietaryFilter.set(cur.includes(tag) ? cur.filter(t => t !== tag) : [...cur, tag]);
   }
 
   addToCart(item: MenuItem): void {

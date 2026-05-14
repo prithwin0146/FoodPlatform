@@ -31,6 +31,12 @@ export const routes: Routes = [
       import('./features/customer/order-tracking/order-tracking').then((m) => m.OrderTracking),
   },
   {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/customer/profile/profile').then((m) => m.Profile),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login').then((m) => m.Login),

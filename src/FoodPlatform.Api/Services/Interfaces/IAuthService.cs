@@ -13,4 +13,5 @@ public interface IAuthService
     Task<(bool Success, string? Error)> ResendOtpAsync(ResendOtpRequest request);
     Task<(bool Success, string? Error)> ForgotPasswordAsync(ForgotPasswordRequest request);
     Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request);
+    Task<(bool Success, string? Error)> ChangePasswordAsync(int userId, ChangePasswordRequest request);
 }

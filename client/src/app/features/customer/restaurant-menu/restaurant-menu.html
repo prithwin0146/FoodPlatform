@@ -17,6 +17,13 @@
           </div>
           <div class="hero-info">
             <h1 class="restaurant-name">{{ r.name }}</h1>
+            @if (avgRating()) {
+              <div class="hero-avg-rating">
+                <span class="material-symbols-rounded star-filled">star</span>
+                <span class="avg-value">{{ avgRating() }}</span>
+                <span class="review-count">({{ reviews().length }} review{{ reviews().length !== 1 ? 's' : '' }})</span>
+              </div>
+            }
             <p class="restaurant-address">
               <span class="material-symbols-rounded">location_on</span> {{ r.address }}
             </p>
@@ -35,6 +42,13 @@
               <span class="badge badge-delivery">
                 <span class="material-symbols-rounded">delivery_dining</span>
                 {{ r.deliveryRadiusMiles }} mi delivery
+              </span>
+              @if (r.cuisineType) {
+                <span class="badge badge-cuisine">{{ r.cuisineType }}</span>
+              }
+              <span class="badge badge-time">
+                <span class="material-symbols-rounded">schedule</span>
+                ~{{ r.estimatedDeliveryMinutes }} min
               </span>
             </div>
             <button class="live-btn" (click)="liveModalOpen.set(true)" appMagnetic>
@@ -72,6 +86,12 @@
           <button class="search-clear" (click)="searchQuery.set('')">
             <span class="material-symbols-rounded">close</span>
           </button>
+        }
+      </div>
+      <!-- Dietary filter chips -->
+      <div class="dietary-filter-row">
+        @for (d of MENU_DIETARY; track d) {
+          <button class="menu-dietary-chip" [class.active]="dietaryFilter().includes(d)" (click)="toggleMenuDietary(d)">{{ d }}</button>
         }
       </div>
       <div class="category-list">
@@ -184,6 +204,46 @@
       }
     </main>
   </div>
+
+  <!-- Reviews Section -->
+  @if (reviews().length > 0) {
+    <section class="reviews-section container" appScrollReveal>
+      <div class="reviews-header">
+        <h2 class="reviews-title">
+          <span class="material-symbols-rounded">reviews</span>
+          Customer Reviews
+        </h2>
+        @if (avgRating()) {
+          <div class="reviews-avg">
+            <span class="material-symbols-rounded star-filled">star</span>
+            <span class="avg-big">{{ avgRating() }}</span>
+            <span class="avg-label">out of 5 &middot; {{ reviews().length }} review{{ reviews().length !== 1 ? 's' : '' }}</span>
+          </div>
+        }
+      </div>
+      <div class="reviews-grid">
+        @for (review of reviews(); track review.id; let i = $index) {
+          <div class="review-card glass-card" appScrollReveal [revealDelay]="i * 60">
+            <div class="review-card-header">
+              <div class="review-avatar">{{ review.customerName.charAt(0).toUpperCase() }}</div>
+              <div class="review-meta">
+                <span class="review-author">{{ review.customerName }}</span>
+                <span class="review-date">{{ review.createdAt | date:'d MMM y' }}</span>
+              </div>
+            </div>
+            <div class="review-stars">
+              @for (s of [1,2,3,4,5]; track s) {
+                <span class="material-symbols-rounded review-star" [class.filled]="s <= review.stars">star</span>
+              }
+            </div>
+            @if (review.comment) {
+              <p class="review-comment">{{ review.comment }}</p>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
 
   <!-- Watch Kitchen Live Modal -->
   @if (liveModalOpen()) {

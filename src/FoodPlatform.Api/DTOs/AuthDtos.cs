@@ -32,6 +32,10 @@ public record ResetPasswordRequest(
     [Required, StringLength(6, MinimumLength = 6)] string Otp,
     [Required, MinLength(8)] string NewPassword);
 
+public record ChangePasswordRequest(
+    [Required] string CurrentPassword,
+    [Required, MinLength(8)] string NewPassword);
+
 /// <summary>Admin-facing view of a registered user. (SRP: separate from AuthResponse which is customer-facing)</summary>
 public record UserDto(
     int Id,

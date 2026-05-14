@@ -1,0 +1,112 @@
+<div class="profile-page">
+  <div class="profile-bg" aria-hidden="true"></div>
+
+  <div class="profile-container container">
+
+    <!-- Avatar card -->
+    <div class="profile-hero glass-card" appScrollReveal>
+      <div class="profile-avatar">{{ userInitial() }}</div>
+      <div class="profile-identity">
+        <h1 class="profile-username">{{ auth.username() }}</h1>
+        <span class="profile-role-badge">{{ auth.role() }}</span>
+      </div>
+    </div>
+
+    <!-- Change password card -->
+    <div class="profile-section glass-card" appScrollReveal [revealDelay]="80">
+      <h2 class="section-title">
+        <span class="material-symbols-rounded">lock</span>
+        Change Password
+      </h2>
+
+      <form class="password-form" (ngSubmit)="changePassword()" #pwForm="ngForm" novalidate>
+
+        <!-- Current password -->
+        <mat-form-field appearance="outline" class="dark-field full-width">
+          <mat-label>Current Password</mat-label>
+          <input matInput
+            [type]="showCurrent() ? 'text' : 'password'"
+            [ngModel]="currentPassword()"
+            (ngModelChange)="currentPassword.set($event)"
+            name="currentPassword"
+            autocomplete="current-password"
+            required />
+          <button matSuffix mat-icon-button type="button"
+            (click)="showCurrent.update(v => !v)"
+            [matTooltip]="showCurrent() ? 'Hide' : 'Show'">
+            <span class="material-symbols-rounded">{{ showCurrent() ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </mat-form-field>
+
+        <!-- New password -->
+        <mat-form-field appearance="outline" class="dark-field full-width">
+          <mat-label>New Password</mat-label>
+          <input matInput
+            [type]="showNew() ? 'text' : 'password'"
+            [ngModel]="newPassword()"
+            (ngModelChange)="newPassword.set($event)"
+            name="newPassword"
+            autocomplete="new-password"
+            minlength="8"
+            required />
+          <mat-hint>Minimum 8 characters</mat-hint>
+          <button matSuffix mat-icon-button type="button"
+            (click)="showNew.update(v => !v)"
+            [matTooltip]="showNew() ? 'Hide' : 'Show'">
+            <span class="material-symbols-rounded">{{ showNew() ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </mat-form-field>
+
+        <!-- Confirm new password -->
+        <mat-form-field appearance="outline" class="dark-field full-width"
+          [class.field-mismatch]="!passwordsMatch()">
+          <mat-label>Confirm New Password</mat-label>
+          <input matInput
+            [type]="showConfirm() ? 'text' : 'password'"
+            [ngModel]="confirmPassword()"
+            (ngModelChange)="confirmPassword.set($event)"
+            name="confirmPassword"
+            autocomplete="new-password"
+            required />
+          @if (!passwordsMatch()) {
+            <mat-error>Passwords do not match</mat-error>
+          }
+          <button matSuffix mat-icon-button type="button"
+            (click)="showConfirm.update(v => !v)"
+            [matTooltip]="showConfirm() ? 'Hide' : 'Show'">
+            <span class="material-symbols-rounded">{{ showConfirm() ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </mat-form-field>
+
+        <!-- Feedback -->
+        @if (error()) {
+          <div class="feedback feedback--error">
+            <span class="material-symbols-rounded">error</span>
+            {{ error() }}
+          </div>
+        }
+        @if (successMsg()) {
+          <div class="feedback feedback--success">
+            <span class="material-symbols-rounded">check_circle</span>
+            {{ successMsg() }}
+          </div>
+        }
+
+        <!-- Submit -->
+        <button mat-flat-button type="submit"
+          class="submit-btn"
+          [disabled]="!canSubmit()">
+          @if (saving()) {
+            <mat-spinner diameter="18" />
+            Saving…
+          } @else {
+            <span class="material-symbols-rounded">save</span>
+            Update Password
+          }
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,175 @@
+.profile-page {
+  min-height: 100vh;
+  padding: 100px 0 60px;
+  position: relative;
+}
+
+.profile-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(var(--brand-primary-rgb), 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
+    var(--surface-primary);
+  z-index: -1;
+}
+
+.profile-container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ─── Hero card ─── */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 20px;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-primary), #a78bfa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(var(--brand-primary-rgb), 0.35);
+}
+
+.profile-username {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem;
+}
+
+.profile-role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(var(--brand-primary-rgb), 0.18);
+  color: var(--brand-primary);
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.35);
+}
+
+/* ─── Section card ─── */
+.profile-section {
+  padding: 2rem;
+  border-radius: 20px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1.75rem;
+
+  .material-symbols-rounded {
+    font-size: 1.25rem;
+    color: var(--brand-primary);
+  }
+}
+
+/* ─── Form ─── */
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.field-mismatch {
+  ::ng-deep .mat-mdc-form-field-outline {
+    border-color: #f87171 !important;
+  }
+}
+
+/* ─── Feedback banners ─── */
+.feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  .material-symbols-rounded { font-size: 1.1rem; }
+
+  &--error {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: #f87171;
+  }
+
+  &--success {
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #34d399;
+  }
+}
+
+/* ─── Submit button ─── */
+.submit-btn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.75rem;
+  height: 44px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  background: var(--brand-primary) !important;
+  color: #fff !important;
+  transition: opacity 0.2s, box-shadow 0.2s;
+
+  &:disabled {
+    opacity: 0.45;
+  }
+
+  &:not(:disabled):hover {
+    box-shadow: 0 6px 20px rgba(var(--brand-primary-rgb), 0.4);
+  }
+
+  mat-spinner {
+    --mdc-circular-progress-active-indicator-color: #fff;
+  }
+}
+
+/* ─── Dark Material overrides ─── */
+.profile-section {
+  ::ng-deep {
+    .mat-mdc-form-field.dark-field {
+      .mat-mdc-text-field-wrapper {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 10px;
+      }
+      .mat-mdc-form-field-outline { color: var(--border-color); }
+      .mdc-floating-label, .mat-mdc-floating-label { color: var(--text-secondary); }
+      input.mat-mdc-input-element { color: var(--text-primary); }
+      .mat-mdc-form-field-hint { color: var(--text-secondary); }
+    }
+  }
+}

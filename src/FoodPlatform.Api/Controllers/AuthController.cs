@@ -1,5 +1,6 @@
 using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -67,5 +68,18 @@ public class AuthController : ControllerBase
         var (success, error) = await _auth.ResetPasswordAsync(request);
         if (!success) return BadRequest(new { error });
         return Ok(new { message = "Password updated. You can now sign in with your new password." });
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            return Unauthorized();
+
+        var (success, error) = await _auth.ChangePasswordAsync(userId, request);
+        if (!success) return BadRequest(new { error });
+        return Ok(new { message = "Password changed successfully." });
     }
 }

@@ -33,4 +33,8 @@ export class ApiAuthService {
   resetPassword(req: { email: string; otp: string; newPassword: string }): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.url}/reset-password`, req);
   }
+
+  changePassword(req: { currentPassword: string; newPassword: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.url}/change-password`, req);
+  }
 }

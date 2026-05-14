@@ -72,6 +72,9 @@
                 <a routerLink="/orders" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
                   <span class="material-symbols-rounded">receipt_long</span> My Orders
                 </a>
+                <a routerLink="/profile" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">manage_accounts</span> Profile
+                </a>
               }
               @if (dashboardLink()) {
                 <a [routerLink]="dashboardLink()" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
