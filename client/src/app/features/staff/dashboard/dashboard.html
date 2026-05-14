@@ -224,6 +224,17 @@
       </div>
     }
 
+    <!-- Disputed orders warning banner -->
+    @if (disputedCount() > 0) {
+      <div class="dispute-warning-banner" appScrollReveal>
+        <span class="material-symbols-rounded dw-icon">report_problem</span>
+        <div class="dw-text">
+          <strong>{{ disputedCount() }} disputed {{ disputedCount() === 1 ? 'order' : 'orders' }}</strong>
+          <span> — review the order(s) below and contact the customer if needed. Admin will handle the resolution.</span>
+        </div>
+      </div>
+    }
+
     <!-- Filter Chips -->
     <div class="filter-bar" appScrollReveal [revealDelay]="80">
       @for (f of filters; track f) {
@@ -262,6 +273,7 @@
           <div
             class="order-card glass-card"
             [class]="'order-card glass-card border-' + order.status.toLowerCase()"
+            [class.order-card--disputed]="order.disputeStatus === 'Open'"
             appTilt [tiltMax]="6"
             appScrollReveal [revealDelay]="idx * 60"
           >
@@ -273,9 +285,17 @@
                 <span class="order-num">#{{ order.id }}</span>
                 <span class="order-time">{{ order.createdAt | date:'shortTime' }}</span>
               </div>
-              <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
-                {{ order.status | orderStatusEmoji }} {{ order.status }}
-              </span>
+              <div class="header-chips">
+                @if (order.disputeStatus === 'Open') {
+                  <span class="dispute-chip">
+                    <span class="material-symbols-rounded">report_problem</span>
+                    Disputed
+                  </span>
+                }
+                <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
+                  {{ order.status | orderStatusEmoji }} {{ order.status }}
+                </span>
+              </div>
             </div>
 
             <!-- Items -->

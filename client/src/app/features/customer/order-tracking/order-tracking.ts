@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, computed, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
@@ -20,6 +20,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { ReviewWidget } from '../../../shared/components/review-widget/review-widget';
+import { CancelCountdownPipe } from '../../../shared/pipes/cancel-countdown.pipe';
 
 /**
  * (SRP: polling logic extracted to OrderPollingService)
@@ -35,6 +36,7 @@ import { ReviewWidget } from '../../../shared/components/review-widget/review-wi
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
     ScrollRevealDirective, TiltDirective, MagneticDirective,
     ReviewWidget,
+    CancelCountdownPipe,
   ],
   templateUrl: './order-tracking.html',
   styleUrl: './order-tracking.scss',
@@ -48,6 +50,18 @@ export class OrderTracking implements OnInit, OnDestroy {
   readonly existingReview = signal<Review | null>(null);
 
   private _pollSub?: Subscription;
+  private _tickSub?: Subscription;
+
+  /** Ticks every second so cancelCountdown recomputes. */
+  private readonly _tick = signal(0);
+
+  /** Remaining seconds in the cancellation window, or 0 if expired/not applicable. */
+  readonly cancelCountdown = computed(() => {
+    this._tick(); // reactive dependency — re-evaluates every second
+    const o = this.order();
+    if (!o || o.status !== 'Pending') return 0;
+    return Math.max(0, Math.floor((new Date(o.cancellableUntil).getTime() - Date.now()) / 1000));
+  });
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -61,6 +75,8 @@ export class OrderTracking implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const id = +this.route.snapshot.params['id'];
+    this._tickSub = interval(1000).subscribe(() => this._tick.update(n => n + 1));
+
     this._pollSub = this.polling.poll(id).subscribe({
       next: (o) => {
         this.order.set(o);
@@ -82,6 +98,7 @@ export class OrderTracking implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._pollSub?.unsubscribe();
+    this._tickSub?.unsubscribe();
   }
 
   getStepIndex(status: OrderStatus): number {

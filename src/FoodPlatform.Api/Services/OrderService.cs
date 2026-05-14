@@ -300,6 +300,13 @@ public class OrderService : IOrderService
         order.DisputeStatus = "Open";
         order.DisputeNotes = request.Notes;
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(order.UserId);
+        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user != null && restaurant != null)
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendDisputeOpenedAsync(user.Email, user.Username, order.Id, restaurant.Name, request.Notes));
+
         return ServiceResult<object>.Ok(new { order.Id, order.DisputeStatus });
     }
 

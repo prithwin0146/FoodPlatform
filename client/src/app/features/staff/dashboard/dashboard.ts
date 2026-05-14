@@ -90,6 +90,10 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly allMenuItems = computed(() =>
     this.menuCategories().flatMap(c => c.items.map(i => ({ ...i, categoryName: c.name }))));
 
+  /** Count of orders with an open dispute — drives the warning banner. */
+  readonly disputedCount = computed(() =>
+    this.orders().filter(o => o.disputeStatus === 'Open').length);
+
   readonly filters = ['all', 'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered'];
 
   private _pollSub?: Subscription;

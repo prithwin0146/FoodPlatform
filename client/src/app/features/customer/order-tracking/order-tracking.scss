@@ -278,6 +278,10 @@
   font-weight: 700 !important;
   &:hover { background: #fde8e8 !important; }
 }
+.cancel-countdown {
+  font-size: 0.78rem; font-weight: 600; opacity: 0.75;
+  font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+}
 
 /* ── Dispute Panel ── */
 .dispute-panel {

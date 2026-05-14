@@ -1,6 +1,7 @@
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodPlatform.Api.Services;
@@ -13,11 +14,13 @@ public class AdminOrderService : IAdminOrderService
 {
     private readonly FoodPlatformDbContext _db;
     private readonly IStripeService _stripe;
+    private readonly IBackgroundJobClient _jobs;
 
-    public AdminOrderService(FoodPlatformDbContext db, IStripeService stripe)
+    public AdminOrderService(FoodPlatformDbContext db, IStripeService stripe, IBackgroundJobClient jobs)
     {
         _db = db;
         _stripe = stripe;
+        _jobs = jobs;
     }
 
     public async Task<PaginatedResult<OrderDto>> GetAllAsync(int page, int pageSize)
@@ -65,6 +68,13 @@ public class AdminOrderService : IAdminOrderService
         order.Status = "Cancelled";
         order.DisputeStatus = "Resolved";
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(order.UserId);
+        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user != null && restaurant != null)
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendDisputeResolvedAsync(user.Email, user.Username, order.Id, restaurant.Name, true));
+
         return new { order.Id, order.Status, order.DisputeStatus };
     }
 
@@ -75,6 +85,13 @@ public class AdminOrderService : IAdminOrderService
 
         order.DisputeStatus = "Resolved";
         await _db.SaveChangesAsync();
+
+        var user = await _db.Users.FindAsync(order.UserId);
+        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user != null && restaurant != null)
+            _jobs.Enqueue<IEmailService>(s =>
+                s.SendDisputeResolvedAsync(user.Email, user.Username, order.Id, restaurant.Name, false));
+
         return new { order.Id, order.DisputeStatus };
     }
 }

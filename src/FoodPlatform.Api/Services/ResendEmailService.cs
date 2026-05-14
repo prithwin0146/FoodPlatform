@@ -165,6 +165,49 @@ public class ResendEmailService : IEmailService
 </div>");
     }
 
+    public async Task SendDisputeOpenedAsync(string toEmail, string toName, int orderId,
+        string restaurantName, string notes)
+    {
+        await SendAsync(toEmail, $"Dispute received for Order #{orderId} 🔍", $@"
+<div style='font-family:sans-serif;max-width:580px;margin:0 auto;color:#1a1a2e'>
+  <div style='background:linear-gradient(135deg,#b45309,#d97706);padding:32px 24px;border-radius:16px 16px 0 0;text-align:center'>
+    <h1 style='color:#fff;margin:0;font-size:24px'>We've received your dispute 🔍</h1>
+  </div>
+  <div style='background:#fff;padding:32px 24px;border-radius:0 0 16px 16px;border:1px solid #eee'>
+    <p style='font-size:16px'>Hi <strong>{toName}</strong>,</p>
+    <p>We've received your dispute for Order <strong>#{orderId}</strong> from <strong>{restaurantName}</strong>. Our team will review it and get back to you within 24 hours.</p>
+    <div style='background:#fffbeb;border-left:4px solid #d97706;border-radius:8px;padding:16px 20px;margin:20px 0'>
+      <p style='margin:0 0 6px;font-weight:700;color:#92400e'>Your notes:</p>
+      <p style='margin:0;color:#78350f;font-size:14px'>{notes}</p>
+    </div>
+    <p style='color:#888;font-size:13px'>You can view the status of your dispute at any time from your order tracking page.</p>
+    <hr style='border:none;border-top:1px solid #eee;margin:24px 0'>
+    <p style='color:#aaa;font-size:12px;text-align:center'>SeeThePrep · Watch your meal being made live 📹</p>
+  </div>
+</div>");
+    }
+
+    public async Task SendDisputeResolvedAsync(string toEmail, string toName, int orderId,
+        string restaurantName, bool refunded)
+    {
+        var (heading, detail, emoji) = refunded
+            ? ("Your refund is on its way", $"We've reviewed your dispute for Order #{orderId} from {restaurantName} and issued a full refund. Please allow 5–10 business days for it to appear on your statement.", "💸")
+            : ("Your dispute has been resolved", $"We've reviewed your dispute for Order #{orderId} from {restaurantName} and closed the case. No refund has been issued.", "✅");
+
+        await SendAsync(toEmail, $"Dispute resolved for Order #{orderId} {emoji}", $@"
+<div style='font-family:sans-serif;max-width:580px;margin:0 auto;color:#1a1a2e'>
+  <div style='background:{(refunded ? "linear-gradient(135deg,#065f46,#10b981)" : "linear-gradient(135deg,#1e40af,#3b82f6)")};padding:32px 24px;border-radius:16px 16px 0 0;text-align:center'>
+    <h1 style='color:#fff;margin:0;font-size:24px'>{heading} {emoji}</h1>
+  </div>
+  <div style='background:#fff;padding:32px 24px;border-radius:0 0 16px 16px;border:1px solid #eee'>
+    <p style='font-size:16px'>Hi <strong>{toName}</strong>,</p>
+    <p>{detail}</p>
+    <hr style='border:none;border-top:1px solid #eee;margin:24px 0'>
+    <p style='color:#aaa;font-size:12px;text-align:center'>SeeThePrep · Watch your meal being made live 📹</p>
+  </div>
+</div>");
+    }
+
     // ── private ──────────────────────────────────────────────────────────────
 
     private async Task SendAsync(string toEmail, string subject, string htmlBody)

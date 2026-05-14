@@ -166,7 +166,11 @@
 
         @if (canCancel()) {
           <button mat-stroked-button class="cancel-btn" (click)="cancelOrder()" appScrollReveal [revealDelay]="300" appMagnetic>
-            <span class="material-symbols-rounded">cancel</span> Cancel Order
+            <span class="material-symbols-rounded">cancel</span>
+            Cancel Order
+            @if (cancelCountdown() > 0) {
+              <span class="cancel-countdown">({{ cancelCountdown() | cancelCountdown }})</span>
+            }
           </button>
         }
 

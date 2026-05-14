@@ -22,6 +22,12 @@ public interface IEmailService
     Task SendOrderDeliveredAsync(string toEmail, string toName, int orderId,
         string restaurantName);
 
+    Task SendDisputeOpenedAsync(string toEmail, string toName, int orderId,
+        string restaurantName, string notes);
+
+    Task SendDisputeResolvedAsync(string toEmail, string toName, int orderId,
+        string restaurantName, bool refunded);
+
     Task SendOtpAsync(string toEmail, string toName, string otp);
     Task SendPasswordResetOtpAsync(string toEmail, string toName, string otp);
 }
