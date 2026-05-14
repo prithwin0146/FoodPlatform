@@ -17,7 +17,9 @@ public class StripeService : IStripeService
     {
         _logger = logger;
         var key = config["Stripe:SecretKey"] ?? string.Empty;
-        _isConfigured = key.StartsWith("sk_", StringComparison.Ordinal);
+        _isConfigured = key.StartsWith("sk_live_", StringComparison.Ordinal)
+                     || key.StartsWith("sk_test_", StringComparison.Ordinal)
+                        && !key.Contains("placeholder", StringComparison.OrdinalIgnoreCase);
         if (_isConfigured)
             StripeConfiguration.ApiKey = key;
         else

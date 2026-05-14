@@ -18,8 +18,14 @@ export class StripeService {
 
   async load(): Promise<void> {
     if (this._stripe) return;
+    const key = environment.stripePublishableKey;
+    if (!key || key.includes('placeholder')) {
+      // Stripe not configured — checkout will show a clear error rather than a silent failure
+      this.loading.set(false);
+      return;
+    }
     this.loading.set(true);
-    this._stripe = await loadStripe(environment.stripePublishableKey);
+    this._stripe = await loadStripe(key);
     this.loading.set(false);
   }
 
@@ -52,8 +58,12 @@ export class StripeService {
   async confirmCardPayment(
     clientSecret: string
   ): Promise<{ paymentIntentId: string } | { error: string }> {
-    if (!this._stripe || !this._card)
+    if (!this._stripe || !this._card) {
+      const key = environment.stripePublishableKey;
+      if (!key || key.includes('placeholder'))
+        return { error: 'Payments are not yet configured. Please contact support.' };
       return { error: 'Stripe is not initialised. Please refresh and try again.' };
+    }
 
     const result = await this._stripe.confirmCardPayment(clientSecret, {
       payment_method: { card: this._card },

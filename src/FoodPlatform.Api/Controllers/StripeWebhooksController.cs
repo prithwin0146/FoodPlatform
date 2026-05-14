@@ -34,8 +34,9 @@ public class StripeWebhooksController : ControllerBase
     public async Task<IActionResult> Handle()
     {
         var webhookSecret = _config["Stripe:WebhookSecret"];
-        if (string.IsNullOrEmpty(webhookSecret) || webhookSecret == "whsec_placeholder")
-            return Ok(new { received = true }); // Dev: no-op
+        if (string.IsNullOrEmpty(webhookSecret)
+            || webhookSecret.Contains("placeholder", StringComparison.OrdinalIgnoreCase))
+            return Ok(new { received = true }); // Dev/unconfigured: no-op
 
         string json;
         using (var reader = new StreamReader(HttpContext.Request.Body))
