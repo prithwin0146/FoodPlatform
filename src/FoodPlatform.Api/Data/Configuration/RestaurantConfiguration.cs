@@ -14,6 +14,6 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
         e.Property(r => r.BasePostcode).HasMaxLength(10).IsRequired();
         e.Property(r => r.StripeAccountId).HasMaxLength(100);
         e.Property(r => r.KitchenVideoUrl).HasMaxLength(1000);
-        e.Property(r => r.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+        e.Property(r => r.CreatedAt).HasDefaultValueSql("NOW()");
     }
 }

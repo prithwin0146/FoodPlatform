@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: seetheprep-api
+    runtime: docker
+    # Dockerfile lives in the API project; Docker context is repo root
+    # so the COPY instructions in the Dockerfile can reference FoodPlatform.sln
+    dockerfilePath: ./src/FoodPlatform.Api/Dockerfile
+    dockerContext: .
+    region: oregon
+    # Free tier: spins down after 15 min of inactivity (~30s cold start).
+    # Upgrade to plan: starter ($7/month) for always-on when ready to demo.
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      # ── Non-secret config ────────────────────────────────────────────────
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Jwt__Issuer
+        value: FoodPlatform
+      - key: Jwt__Audience
+        value: FoodPlatformApp
+      - key: Cors__AllowedOrigins__0
+        value: https://seetheprep.com
+      - key: Cors__AllowedOrigins__1
+        value: https://www.seetheprep.com
+      - key: Cors__AllowedOrigins__2
+        value: http://localhost:4200
+      - key: Resend__FromAddress
+        value: SeeThePrep <orders@seetheprep.com>
+      # ── Secrets — set values in Render dashboard (sync: false = not in YAML) ─
+      - key: ConnectionStrings__DefaultConnection
+        sync: false   # postgresql://user:pass@host/neondb?sslmode=require
+      - key: Jwt__Key
+        sync: false   # min 32 chars, e.g. openssl rand -base64 48
+      - key: Stripe__SecretKey
+        sync: false
+      - key: Stripe__WebhookSecret
+        sync: false
+      - key: Resend__ApiKey
+        sync: false

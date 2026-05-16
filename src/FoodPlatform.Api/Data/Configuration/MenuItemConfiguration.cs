@@ -13,7 +13,7 @@ public class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
         e.Property(i => i.Price).HasColumnType("decimal(10,2)");
         e.Property(i => i.Allergens).HasMaxLength(500);
         e.Property(i => i.DietaryTags).HasMaxLength(200);
-        e.Property(i => i.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+        e.Property(i => i.CreatedAt).HasDefaultValueSql("NOW()");
         e.HasOne(i => i.Restaurant).WithMany(r => r.MenuItems)
             .HasForeignKey(i => i.RestaurantId).OnDelete(DeleteBehavior.NoAction);
         e.HasOne(i => i.Category).WithMany(c => c.Items)

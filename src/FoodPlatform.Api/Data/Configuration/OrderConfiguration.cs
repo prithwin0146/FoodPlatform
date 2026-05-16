@@ -18,7 +18,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         e.Property(o => o.DeliveryAddressLine1).HasMaxLength(300).IsRequired();
         e.Property(o => o.DeliveryCity).HasMaxLength(100).IsRequired();
         e.Property(o => o.DeliveryPostcode).HasMaxLength(10).IsRequired();
-        e.Property(o => o.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+        e.Property(o => o.CreatedAt).HasDefaultValueSql("NOW()");
         e.HasOne(o => o.Restaurant).WithMany(r => r.Orders)
             .HasForeignKey(o => o.RestaurantId).OnDelete(DeleteBehavior.NoAction);
         e.HasOne(o => o.User).WithMany(u => u.Orders)

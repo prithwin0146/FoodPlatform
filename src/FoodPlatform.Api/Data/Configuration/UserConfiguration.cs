@@ -14,7 +14,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         e.Property(u => u.Email).HasMaxLength(200).IsRequired();
         e.HasIndex(u => u.Email).IsUnique();
         e.Property(u => u.PasswordHash).HasMaxLength(500).IsRequired();
-        e.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+        e.Property(u => u.CreatedAt).HasDefaultValueSql("NOW()");
         e.HasOne(u => u.Restaurant).WithMany(r => r.Staff)
             .HasForeignKey(u => u.RestaurantId);
     }

@@ -23,7 +23,7 @@ public record PlaceOrderRequest(
     [Required] string DeliveryPostcode,
     [Required, MaxLength(100)] string IdempotencyKey,
     string? PaymentIntentId,
-    [MaxLength(500)] string? SpecialInstructions);
+    [MaxLength(500)] string? SpecialInstructions = null);
 
 public record OrderItemRequest(
     int MenuItemId,

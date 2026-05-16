@@ -4,8 +4,7 @@ using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Services;
 using FoodPlatform.Api.Services.Interfaces;
 using Hangfire;
-using Hangfire.SqlServer;
-using HealthChecks.SqlServer;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +23,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<FoodPlatformDbContext>(options =>
-            options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
         return services;
     }
 
@@ -70,7 +69,7 @@ public static class ServiceCollectionExtensions
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
-            .UseSqlServerStorage(config.GetConnectionString("DefaultConnection")));
+            .UsePostgreSqlStorage(o => o.UseNpgsqlConnection(config.GetConnectionString("DefaultConnection")!)));
         services.AddHangfireServer();
         return services;
     }
@@ -188,7 +187,7 @@ public static class ServiceCollectionExtensions
             ?? throw new InvalidOperationException("DefaultConnection is not configured.");
 
         services.AddHealthChecks()
-            .AddSqlServer(connectionString, name: "sqlserver", tags: ["db", "ready"]);
+            .AddNpgSql(connectionString, name: "npgsql", tags: ["db", "ready"]);
 
         return services;
     }
