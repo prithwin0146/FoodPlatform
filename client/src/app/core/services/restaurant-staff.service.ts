@@ -32,6 +32,15 @@ export class RestaurantStaffService {
     return this.http.patch<Restaurant>(`${this.url}/active`, { isActive });
   }
 
+  /**
+   * Sets or clears the Mux live stream playback ID.
+   * Pass the playback ID string from Mux dashboard to go live.
+   * Pass null or '' to stop streaming.
+   */
+  updateLiveStream(playbackId: string | null): Observable<Restaurant> {
+    return this.http.patch<Restaurant>(`${this.url}/live-stream`, { playbackId });
+  }
+
   /** Replaces the weekly opening hours schedule. Send all 7 days (0=Sun … 6=Sat). */
   updateHours(hours: RestaurantHours[]): Observable<RestaurantHours[]> {
     return this.http.patch<RestaurantHours[]>(`${this.url}/hours`, { hours });

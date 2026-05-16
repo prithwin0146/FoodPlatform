@@ -1,0 +1,48 @@
+<div class="player-wrap">
+  <!-- Loading -->
+  @if (state() === 'loading') {
+    <div class="player-overlay">
+      <div class="live-spinner"></div>
+      <span class="overlay-text">Connecting to live stream…</span>
+    </div>
+  }
+
+  <!-- Offline -->
+  @if (state() === 'offline') {
+    <div class="player-overlay offline">
+      <span class="material-symbols-rounded offline-icon">wifi_off</span>
+      <p class="overlay-text">Stream is offline</p>
+      <p class="overlay-sub">The kitchen camera hasn't started yet. Check back once your order is accepted.</p>
+      <button class="retry-btn" (click)="retry()">
+        <span class="material-symbols-rounded">refresh</span> Retry
+      </button>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (state() === 'error') {
+    <div class="player-overlay offline">
+      <span class="material-symbols-rounded offline-icon">videocam_off</span>
+      <p class="overlay-text">Playback not supported</p>
+      <p class="overlay-sub">Try opening in Chrome, Firefox, or Safari.</p>
+    </div>
+  }
+
+  <!-- Video element — always in DOM so hls.js can attach -->
+  <video
+    #videoEl
+    class="hls-video"
+    [class.hidden]="state() !== 'playing'"
+    autoplay
+    muted
+    playsinline
+    controls
+  ></video>
+
+  <!-- LIVE badge — shown when playing -->
+  @if (state() === 'playing') {
+    <div class="live-badge">
+      <span class="live-dot"></span> LIVE
+    </div>
+  }
+</div>

@@ -21,6 +21,7 @@ import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { ReviewWidget } from '../../../shared/components/review-widget/review-widget';
 import { CancelCountdownPipe } from '../../../shared/pipes/cancel-countdown.pipe';
+import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/live-stream-player';
 
 /**
  * (SRP: polling logic extracted to OrderPollingService)
@@ -37,6 +38,7 @@ import { CancelCountdownPipe } from '../../../shared/pipes/cancel-countdown.pipe
     ScrollRevealDirective, TiltDirective, MagneticDirective,
     ReviewWidget,
     CancelCountdownPipe,
+    LiveStreamPlayer,
   ],
   templateUrl: './order-tracking.html',
   styleUrl: './order-tracking.scss',

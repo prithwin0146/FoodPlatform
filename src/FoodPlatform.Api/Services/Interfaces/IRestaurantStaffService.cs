@@ -28,6 +28,12 @@ public interface IRestaurantStaffService
     Task<ServiceResult<RestaurantDto>> SetActiveAsync(int restaurantId, bool isActive);
 
     /// <summary>
+    /// Sets or clears the Mux live stream playback ID for this restaurant.
+    /// Pass null or empty string to stop streaming.
+    /// </summary>
+    Task<ServiceResult<RestaurantDto>> UpdateLiveStreamAsync(int restaurantId, string? playbackId);
+
+    /// <summary>
     /// Replaces the restaurant's weekly opening hours (upsert per day-of-week).
     /// (OCP: adding a new staff capability without modifying the existing methods)
     /// </summary>

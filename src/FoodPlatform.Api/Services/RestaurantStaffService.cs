@@ -47,10 +47,22 @@ public class RestaurantStaffService : IRestaurantStaffService
         return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
     }
 
+    public async Task<ServiceResult<RestaurantDto>> UpdateLiveStreamAsync(int restaurantId, string? playbackId)
+    {
+        var restaurant = await _db.Restaurants.FindAsync(restaurantId);
+        if (restaurant is null)
+            return ServiceResult<RestaurantDto>.Fail(OrderServiceError.NotFound, "Restaurant not found");
+
+        restaurant.LiveStreamPlaybackId = string.IsNullOrWhiteSpace(playbackId) ? null : playbackId.Trim();
+        await _db.SaveChangesAsync();
+
+        return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
+    }
+
     private static RestaurantDto ToDto(Data.Entities.Restaurant r) =>
         new(r.Id, r.Name, r.Address, r.BasePostcode,
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
-            r.CuisineType, r.EstimatedDeliveryMinutes);
+            r.CuisineType, r.EstimatedDeliveryMinutes, r.LiveStreamPlaybackId);
 
     public async Task<ServiceResult<IEnumerable<RestaurantHoursDto>>> UpdateHoursAsync(
         int restaurantId, UpdateHoursRequest request)

@@ -20,7 +20,7 @@ public class AdminRestaurantService : IAdminRestaurantService
         return await _db.Restaurants
             .Select(r => new RestaurantDto(r.Id, r.Name, r.Address, r.BasePostcode,
                             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
-                            r.CuisineType, r.EstimatedDeliveryMinutes))
+                            r.CuisineType, r.EstimatedDeliveryMinutes, r.LiveStreamPlaybackId))
             .ToListAsync();
     }
 
@@ -82,5 +82,5 @@ public class AdminRestaurantService : IAdminRestaurantService
     }
 
     private static RestaurantDto ToDto(Restaurant r) =>
-        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl, r.CuisineType, r.EstimatedDeliveryMinutes);
+        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl, r.CuisineType, r.EstimatedDeliveryMinutes, r.LiveStreamPlaybackId);
 }

@@ -61,6 +61,23 @@ public class RestaurantStaffController : RestaurantScopedController
     }
 
     /// <summary>
+    /// Sets or clears the Mux live stream playback ID for this restaurant.
+    /// PATCH { "playbackId": "abc123" } to go live; PATCH { "playbackId": null } to stop.
+    /// The playback ID is obtained from Mux dashboard → Video → Live Streams.
+    /// </summary>
+    [HttpPatch("live-stream")]
+    public async Task<IActionResult> UpdateLiveStream(UpdateLiveStreamRequest request)
+    {
+        var result = await _staffService.UpdateLiveStreamAsync(CurrentRestaurantId, request.PlaybackId);
+        if (!result.IsSuccess)
+            return result.Error == OrderServiceError.NotFound
+                ? NotFound(new { error = result.ErrorMessage })
+                : BadRequest(new { error = result.ErrorMessage });
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
     /// Replaces the weekly opening hours for the authenticated staff member's restaurant.
     /// Send all 7 days (0=Sunday … 6=Saturday); set IsClosed=true to mark a day closed.
     /// </summary>

@@ -5,11 +5,11 @@ namespace FoodPlatform.Api.DTOs;
 // (SRP: restaurant DTOs isolated — changes don't force recompilation of order/menu DTOs)
 public record RestaurantDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
-    string CuisineType, int EstimatedDeliveryMinutes);
+    string CuisineType, int EstimatedDeliveryMinutes, string? LiveStreamPlaybackId = null);
 
 public record RestaurantDetailDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
-    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours);
+    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours, string? LiveStreamPlaybackId = null);
 
 public record RestaurantHoursDto(int DayOfWeek, TimeSpan OpenTime, TimeSpan CloseTime, bool IsClosed);
 
@@ -46,3 +46,6 @@ public record UpdateKitchenVideoRequest([MaxLength(1000)] string? KitchenVideoUr
 
 /// <summary>Staff-only request to toggle the restaurant open/closed status.</summary>
 public record SetActiveRequest([Required] bool IsActive);
+
+/// <summary>Staff-only request to set or clear the Mux live stream playback ID for their restaurant.</summary>
+public record UpdateLiveStreamRequest([MaxLength(200)] string? PlaybackId);

@@ -75,6 +75,11 @@ export class Dashboard implements OnInit, OnDestroy {
   /** Whether the open/closed toggle HTTP call is in-flight. */
   readonly activeToggling = signal(false);
 
+  // ── Live stream state (Mux HLS)
+  readonly liveStreamSectionOpen = signal(false);
+  readonly liveStreamPlaybackId = signal('');
+  readonly liveStreamSaving = signal(false);
+
   // ── Hours panel state
   readonly hoursSectionOpen = signal(false);
   readonly hoursForm = signal<HoursFormRow[]>([]);
@@ -142,6 +147,7 @@ export class Dashboard implements OnInit, OnDestroy {
       next: (r) => {
         this.myRestaurant.set(r);
         this.videoUrl.set(r.kitchenVideoUrl ?? '');
+        this.liveStreamPlaybackId.set(r.liveStreamPlaybackId ?? '');
         this.initHoursForm(r);
       },
     });
@@ -166,6 +172,32 @@ export class Dashboard implements OnInit, OnDestroy {
 
   toggleVideoSection(): void {
     this.videoSectionOpen.set(!this.videoSectionOpen());
+  }
+
+  toggleLiveStreamSection(): void {
+    this.liveStreamSectionOpen.set(!this.liveStreamSectionOpen());
+  }
+
+  goLive(): void {
+    const id = this.liveStreamPlaybackId().trim() || null;
+    this.liveStreamSaving.set(true);
+    this.staffService.updateLiveStream(id).subscribe({
+      next: (r) => {
+        this.myRestaurant.set(r);
+        this.liveStreamPlaybackId.set(r.liveStreamPlaybackId ?? '');
+        this.liveStreamSaving.set(false);
+        this.toast.success(id ? '🔴 Stream is now LIVE! Customers can watch.' : 'Stream stopped.');
+      },
+      error: () => {
+        this.liveStreamSaving.set(false);
+        this.toast.error('Failed to update stream');
+      },
+    });
+  }
+
+  stopStream(): void {
+    this.liveStreamPlaybackId.set('');
+    this.goLive();
   }
 
   saveVideo(): void {
