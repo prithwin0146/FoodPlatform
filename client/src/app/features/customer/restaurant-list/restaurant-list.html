@@ -4,9 +4,9 @@
   <video #heroVideo class="hero-video"
     autoplay muted loop playsinline
     preload="metadata"
-    poster="https://seetheprepstorage.blob.core.windows.net/videos/hero-kitchen-poster.jpg"
+    [poster]="heroPosterUrl"
     crossorigin="anonymous" aria-hidden="true">
-    <source src="https://seetheprepstorage.blob.core.windows.net/videos/hero-kitchen.mp4" type="video/mp4">
+    <source [src]="heroVideoUrl" type="video/mp4">
   </video>
   <!-- Dark overlay so text stays legible -->
   <div class="hero-video-overlay" aria-hidden="true"></div>

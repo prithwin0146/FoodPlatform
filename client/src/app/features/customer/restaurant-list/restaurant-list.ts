@@ -5,6 +5,7 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { retry } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { CanonicalService } from '../../../core/services/canonical.service';
+import { environment } from '../../../../environments/environment';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
@@ -141,6 +142,12 @@ export class RestaurantList implements OnInit, AfterViewInit {
   ];
 
 
+  readonly heroVideoUrl = environment.videoCdnUrl
+    ? `${environment.videoCdnUrl}/hero-kitchen.mp4`
+    : '/hero-kitchen.mp4';
+  readonly heroPosterUrl = environment.videoCdnUrl
+    ? `${environment.videoCdnUrl}/hero-kitchen-poster.jpg`
+    : '/hero-kitchen-poster.jpg';
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly doc = inject(DOCUMENT);
 
