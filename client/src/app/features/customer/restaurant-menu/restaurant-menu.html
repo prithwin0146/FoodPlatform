@@ -273,6 +273,9 @@
                 <span class="material-symbols-rounded video-icon">videocam_off</span>
                 <p>Stream unavailable right now</p>
                 <span class="stream-hint">The kitchen camera is offline. Try again shortly.</span>
+                <button class="retry-btn" (click)="openLiveModal()">
+                  <span class="material-symbols-rounded">refresh</span> Retry
+                </button>
               </div>
             }
           } @else if (restaurant()?.kitchenVideoUrl; as videoUrl) {

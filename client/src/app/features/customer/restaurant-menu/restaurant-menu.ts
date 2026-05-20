@@ -47,18 +47,20 @@ export class RestaurantMenu implements OnInit {
   readonly activeCategory = signal<number | null>(null);
   readonly searchQuery = signal('');
   readonly liveModalOpen = signal(false);
-  /** Angelcam HLS URL — fetched once when the live modal is first opened. */
+  /** Angelcam HLS URL — fetched once when the live modal is first opened. Null = not yet fetched, '' = fetch failed. */
   readonly liveStreamUrl = signal<string | null>(null);
   readonly liveStreamLoading = signal(false);
 
   openLiveModal(): void {
     this.liveModalOpen.set(true);
     const r = this.restaurant();
-    if (!r?.liveStreamPlaybackId || this.liveStreamUrl() !== null) return;
+    // Skip fetch if: no camera configured, already loading, or already have a valid URL.
+    // Allow retry if previous fetch failed (liveStreamUrl() === '').
+    if (!r?.liveStreamPlaybackId || this.liveStreamLoading() || !!this.liveStreamUrl()) return;
     this.liveStreamLoading.set(true);
     this.restaurantService.getLiveStreamUrl(r.id).subscribe({
       next: (res) => { this.liveStreamUrl.set(res.hlsUrl); this.liveStreamLoading.set(false); },
-      error: () => { this.liveStreamUrl.set(''); this.liveStreamLoading.set(false); },
+      error: () => { this.liveStreamUrl.set(null); this.liveStreamLoading.set(false); },
     });
   }
 
