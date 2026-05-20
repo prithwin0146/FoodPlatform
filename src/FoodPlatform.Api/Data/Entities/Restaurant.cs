@@ -13,7 +13,7 @@ public class Restaurant
     /// <summary>Pre-recorded kitchen video URL (YouTube embed, Vimeo, or direct MP4). Replaces placeholder on order-tracking page.</summary>
     public string? KitchenVideoUrl { get; set; }
     /// <summary>Mux live stream playback ID. Non-null = stream is active. Cleared when staff stop streaming.</summary>
-    public string? LiveStreamPlaybackId { get; set; }
+    public string? AngelcamCameraId { get; set; }
     /// <summary>Broad cuisine category displayed on the restaurant card (e.g. "Indian", "Italian", "Burgers").</summary>
     public string CuisineType { get; set; } = "Other";
     /// <summary>Advertised preparation + delivery window in minutes shown on the restaurant card.</summary>

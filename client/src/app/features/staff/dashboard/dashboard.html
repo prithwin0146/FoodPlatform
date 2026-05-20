@@ -41,8 +41,8 @@
         </button>
         <button class="video-manage-btn go-live-btn" (click)="toggleLiveStreamSection()" matRipple
           [class.active]="liveStreamSectionOpen()"
-          [class.go-live-btn--live]="myRestaurant()?.liveStreamPlaybackId">
-          @if (myRestaurant()?.liveStreamPlaybackId) {
+          [class.go-live-btn--live]="myRestaurant()?.angelcamCameraId">
+          @if (myRestaurant()?.angelcamCameraId) {
             <span class="live-pulse-sm"></span> ON AIR
           } @else {
             <span class="material-symbols-rounded">live_tv</span>
@@ -156,7 +156,7 @@
         </div>
 
         <div class="video-panel-body">
-          @if (myRestaurant()?.liveStreamPlaybackId) {
+          @if (myRestaurant()?.angelcamCameraId) {
             <div class="stream-active-banner">
               <span class="live-pulse-sm"></span>
               <strong>You are LIVE!</strong> Customers watching your order-tracking page can see your kitchen stream.
@@ -166,20 +166,20 @@
           <mat-form-field appearance="outline" class="video-url-field">
             <mat-label>Angelcam Camera ID</mat-label>
             <input matInput
-              [ngModel]="liveStreamPlaybackId()"
-              (ngModelChange)="liveStreamPlaybackId.set($event)"
+              [ngModel]="angelcamCameraId()"
+              (ngModelChange)="angelcamCameraId.set($event)"
               placeholder="e.g. 133627">
             <mat-hint>Numeric ID from your camera's URL in the Angelcam dashboard.</mat-hint>
           </mat-form-field>
 
           <div class="video-actions">
             <button mat-flat-button class="save-video-btn go-live-cta" appMagnetic
-              [disabled]="liveStreamSaving() || !liveStreamPlaybackId().trim()"
+              [disabled]="liveStreamSaving() || !angelcamCameraId().trim()"
               (click)="goLive()">
               <span class="material-symbols-rounded">sensors</span>
               {{ liveStreamSaving() ? 'Starting…' : 'Start Stream' }}
             </button>
-            @if (myRestaurant()?.liveStreamPlaybackId) {
+            @if (myRestaurant()?.angelcamCameraId) {
               <button mat-stroked-button class="clear-video-btn"
                 [disabled]="liveStreamSaving()"
                 (click)="stopStream()">

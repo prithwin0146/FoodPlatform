@@ -77,7 +77,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   // ── Live stream state (Mux HLS)
   readonly liveStreamSectionOpen = signal(false);
-  readonly liveStreamPlaybackId = signal('');
+  readonly angelcamCameraId = signal('');
   readonly liveStreamSaving = signal(false);
 
   // ── Hours panel state
@@ -148,7 +148,7 @@ export class Dashboard implements OnInit, OnDestroy {
       next: (r) => {
         this.myRestaurant.set(r);
         this.videoUrl.set(r.kitchenVideoUrl ?? '');
-        this.liveStreamPlaybackId.set(r.liveStreamPlaybackId ?? '');
+        this.angelcamCameraId.set(r.angelcamCameraId ?? '');
         this.initHoursForm(r);
       },
     });
@@ -180,12 +180,12 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   goLive(): void {
-    const id = this.liveStreamPlaybackId().trim() || null;
+    const id = this.angelcamCameraId().trim() || null;
     this.liveStreamSaving.set(true);
     this.staffService.updateLiveStream(id).subscribe({
       next: (r) => {
         this.myRestaurant.set(r);
-        this.liveStreamPlaybackId.set(r.liveStreamPlaybackId ?? '');
+        this.angelcamCameraId.set(r.angelcamCameraId ?? '');
         this.liveStreamSaving.set(false);
         this.toast.success(id ? '🔴 Stream is now LIVE! Customers can watch.' : 'Stream stopped.');
       },
@@ -197,7 +197,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   stopStream(): void {
-    this.liveStreamPlaybackId.set('');
+    this.angelcamCameraId.set('');
     this.goLive();
   }
 

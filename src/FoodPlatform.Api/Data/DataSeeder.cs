@@ -23,7 +23,7 @@ public static class DataSeeder
     private static void SeedRestaurants(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Restaurant>().HasData(
-            new Restaurant { Id = 1, Name = "Spice Garden",     Address = "42 High Street, Westminster, London", BasePostcode = "SW1A 1AA", DeliveryRadiusMiles = 3.0, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate, LiveStreamPlaybackId = "133627" },
+            new Restaurant { Id = 1, Name = "Spice Garden",     Address = "42 High Street, Westminster, London", BasePostcode = "SW1A 1AA", DeliveryRadiusMiles = 3.0, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate, AngelcamCameraId = "133627" },
             new Restaurant { Id = 2, Name = "Bella Napoli",     Address = "18 Soho Square, London",              BasePostcode = "W1D 3QL", DeliveryRadiusMiles = 2.5, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
             new Restaurant { Id = 3, Name = "Sakura Sushi",     Address = "7 Shoreditch High Street, London",    BasePostcode = "E1 6JE",  DeliveryRadiusMiles = 4.0, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
             new Restaurant { Id = 4, Name = "The Burger Joint", Address = "55 Camden High Street, London",       BasePostcode = "NW1 7JH", DeliveryRadiusMiles = 3.5, HygieneRating = 4, IsActive = true, CreatedAt = SeedDate },

@@ -56,7 +56,7 @@ export class RestaurantMenu implements OnInit {
     const r = this.restaurant();
     // Skip fetch if: no camera configured, already loading, or already have a valid URL.
     // Allow retry if previous fetch failed (liveStreamUrl() === '').
-    if (!r?.liveStreamPlaybackId || this.liveStreamLoading() || !!this.liveStreamUrl()) return;
+    if (!r?.angelcamCameraId || this.liveStreamLoading() || !!this.liveStreamUrl()) return;
     this.liveStreamLoading.set(true);
     this.restaurantService.getLiveStreamUrl(r.hashId).subscribe({
       next: (res) => { this.liveStreamUrl.set(res.hlsUrl); this.liveStreamLoading.set(false); },

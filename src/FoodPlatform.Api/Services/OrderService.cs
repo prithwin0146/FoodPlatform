@@ -393,7 +393,7 @@ public class OrderService : IOrderService
         o.RejectionReason, o.DisputeStatus, o.DisputeNotes,
         o.TotalAmount,
         o.DeliveryAddressLine1, o.DeliveryCity, o.DeliveryPostcode,
-        o.Restaurant?.Name ?? string.Empty, o.Restaurant?.KitchenVideoUrl, o.Restaurant?.LiveStreamPlaybackId,
+        o.Restaurant?.Name ?? string.Empty, o.Restaurant?.KitchenVideoUrl, o.Restaurant?.AngelcamCameraId,
         o.EstimatedDeliveryTime,
         o.CancellableUntil, o.CreatedAt, o.DeliveredAt,
         o.SpecialInstructions,

@@ -157,10 +157,10 @@ public class OrdersController : RestaurantScopedController
         var order = await _orders.GetAsync(id.Value);
         if (order == null || order.UserId != CurrentUserId)
             return NotFound(new { error = "Order not found" });
-        if (string.IsNullOrEmpty(order.LiveStreamPlaybackId))
+        if (string.IsNullOrEmpty(order.AngelcamCameraId))
             return NotFound(new { error = "No camera configured for this restaurant" });
 
-        var hlsUrl = await _angelcam.GetHlsUrlAsync(order.LiveStreamPlaybackId);
+        var hlsUrl = await _angelcam.GetHlsUrlAsync(order.AngelcamCameraId);
         if (hlsUrl == null)
             return NotFound(new { error = "Stream is currently unavailable" });
 

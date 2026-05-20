@@ -12,7 +12,7 @@ import { isPlatformBrowser } from '@angular/common';
  * DIP : consumers depend only on the [playbackId] input contract; hls.js is an implementation detail.
  *
  * Usage:
- *   <app-live-stream-player [playbackId]="order.liveStreamPlaybackId" />
+ *   <app-live-stream-player [playbackId]="order.angelcamCameraId" />
  *
  * Mux HLS URL pattern:
  *   https://stream.mux.com/{playbackId}.m3u8

@@ -94,7 +94,7 @@ export class OrderTracking implements OnInit, OnDestroy {
 
   readonly shouldShowStream = computed(() => {
     const o = this.order();
-    return !!o && OrderTracking.LIVE_STATUSES.has(o.status) && !!o.liveStreamPlaybackId;
+    return !!o && OrderTracking.LIVE_STATUSES.has(o.status) && !!o.angelcamCameraId;
   });
 
   ngOnInit(): void {
@@ -110,7 +110,7 @@ export class OrderTracking implements OnInit, OnDestroy {
         }
         // Fetch a fresh Angelcam HLS URL once we know the order has a camera configured
         // and the order is in the active cooking window (Accepted → Packed)
-        if (o.liveStreamPlaybackId && OrderTracking.LIVE_STATUSES.has(o.status) && this.liveStreamUrl() === null) {
+        if (o.angelcamCameraId && OrderTracking.LIVE_STATUSES.has(o.status) && this.liveStreamUrl() === null) {
           this.orderService.getLiveStreamUrl(hash).subscribe({
             next: (res) => this.liveStreamUrl.set(res.hlsUrl),
             error: () => this.liveStreamUrl.set(''),  // empty string = no stream available

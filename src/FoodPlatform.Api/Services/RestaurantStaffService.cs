@@ -53,7 +53,7 @@ public class RestaurantStaffService : IRestaurantStaffService
         if (restaurant is null)
             return ServiceResult<RestaurantDto>.Fail(OrderServiceError.NotFound, "Restaurant not found");
 
-        restaurant.LiveStreamPlaybackId = string.IsNullOrWhiteSpace(playbackId) ? null : playbackId.Trim();
+        restaurant.AngelcamCameraId = string.IsNullOrWhiteSpace(playbackId) ? null : playbackId.Trim();
         await _db.SaveChangesAsync();
 
         return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
@@ -62,7 +62,7 @@ public class RestaurantStaffService : IRestaurantStaffService
     private static RestaurantDto ToDto(Data.Entities.Restaurant r) =>
         new(r.Id, r.Name, r.Address, r.BasePostcode,
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
-            r.CuisineType, r.EstimatedDeliveryMinutes, r.LiveStreamPlaybackId);
+            r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId);
 
     public async Task<ServiceResult<IEnumerable<RestaurantHoursDto>>> UpdateHoursAsync(
         int restaurantId, UpdateHoursRequest request)

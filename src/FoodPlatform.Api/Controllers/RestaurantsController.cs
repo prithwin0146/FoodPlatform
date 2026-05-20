@@ -52,10 +52,10 @@ public class RestaurantsController : ControllerBase
         var restaurant = await _restaurants.GetDetailAsync(id.Value);
         if (restaurant is null)
             return NotFound();
-        if (string.IsNullOrEmpty(restaurant.LiveStreamPlaybackId))
+        if (string.IsNullOrEmpty(restaurant.AngelcamCameraId))
             return NotFound(new { error = "No camera configured for this restaurant" });
 
-        var hlsUrl = await _angelcam.GetHlsUrlAsync(restaurant.LiveStreamPlaybackId);
+        var hlsUrl = await _angelcam.GetHlsUrlAsync(restaurant.AngelcamCameraId);
         if (hlsUrl == null)
             return NotFound(new { error = "Stream is currently unavailable" });
 

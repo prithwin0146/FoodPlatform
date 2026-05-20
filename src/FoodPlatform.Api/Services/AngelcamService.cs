@@ -6,7 +6,7 @@ namespace FoodPlatform.Api.Services;
 
 /// <summary>
 /// Calls the Angelcam REST API to obtain a fresh, short-lived HLS URL for a camera.
-/// Results are cached in-memory for 90 minutes to avoid rate-limiting and reduce API calls
+/// Results are cached in-memory for 60 minutes to avoid rate-limiting and reduce API calls
 /// when many customers watch simultaneously.
 /// (SRP: owns only Angelcam HTTP communication + caching)
 /// (DIP: injected as IAngelcamService so callers never reference this concrete class)
@@ -16,7 +16,7 @@ public class AngelcamService : IAngelcamService
     private readonly HttpClient _http;
     private readonly IMemoryCache _cache;
     private readonly ILogger<AngelcamService> _logger;
-    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(90);
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(60);
 
     public AngelcamService(HttpClient http, IMemoryCache cache, ILogger<AngelcamService> logger)
     {
