@@ -68,6 +68,18 @@
 
       </form>
 
+      @if (emailNotVerified()) {
+        <div class="verify-banner">
+          <span class="material-symbols-rounded">mark_email_unread</span>
+          <div>
+            <strong>Email not verified</strong>
+            <p>Please check your inbox and click the verification link before signing in.
+              <a [routerLink]="['/verify-email']" [queryParams]="{ email: email }">Resend code →</a>
+            </p>
+          </div>
+        </div>
+      }
+
       <p class="form-footer">
         Don't have an account?&nbsp;<a routerLink="/register" mat-button>Register here</a>
       </p>

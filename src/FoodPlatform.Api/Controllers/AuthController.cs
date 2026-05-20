@@ -20,8 +20,12 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var result = await _auth.LoginAsync(request);
-        if (result == null) return Unauthorized(new { error = "Invalid email or password. Make sure your email is verified." });
-        return Ok(result);
+        return result.Outcome switch
+        {
+            LoginOutcome.Success           => Ok(result.Token),
+            LoginOutcome.EmailNotVerified  => Unauthorized(new { error = "Please verify your email before signing in.", code = "EMAIL_NOT_VERIFIED" }),
+            _                              => Unauthorized(new { error = "Invalid email or password." })
+        };
     }
 
     [HttpPost("register")]

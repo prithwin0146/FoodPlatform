@@ -33,6 +33,7 @@ export class Login {
   password = '';
   readonly loading = signal(false);
   readonly showPw = signal(false);
+  readonly emailNotVerified = signal(false);
 
   constructor(
     private readonly apiAuth: ApiAuthService,
@@ -61,7 +62,12 @@ export class Login {
       },
       error: (err) => {
         this.loading.set(false);
-        this.toast.error(err.error?.message ?? 'Invalid credentials');
+        if (err.error?.code === 'EMAIL_NOT_VERIFIED') {
+          this.emailNotVerified.set(true);
+        } else {
+          this.emailNotVerified.set(false);
+          this.toast.error(err.error?.error ?? 'Invalid email or password');
+        }
       },
     });
   }

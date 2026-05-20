@@ -39,15 +39,17 @@ public class AuthService : IAuthService
         _jobs = jobs;
     }
 
-    public async Task<AuthResponse?> LoginAsync(LoginRequest request)
+    public async Task<LoginResult> LoginAsync(LoginRequest request)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null || !_hasher.Verify(request.Password, user.PasswordHash))
-            return null;
+            return new LoginResult(LoginOutcome.InvalidCredentials);
         if (!user.IsEmailVerified)
-            return null; // treat unverified as bad credentials (intentional, see security notes)
+            return new LoginResult(LoginOutcome.EmailNotVerified);
 
-        return new AuthResponse(_jwt.GenerateToken(user), user.Role, user.Username, user.Id, user.RestaurantId);
+        var token = _jwt.GenerateToken(user);
+        return new LoginResult(LoginOutcome.Success,
+            new AuthResponse(token, user.Role, user.Username, user.Id, user.RestaurantId));
     }
 
     public async Task<(RegisterResponse? Response, string? Error)> RegisterAsync(RegisterRequest request)
