@@ -22,6 +22,7 @@ import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/live-stream-player';
 
 /**
  * (SRP: display helpers extracted to pipes; forkJoin ensures atomic data loading)
@@ -34,6 +35,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
     MatButtonModule, MatChipsModule, MatRippleModule,
     MatProgressSpinnerModule, MatTooltipModule, MatBadgeModule,
     TiltDirective, ScrollRevealDirective, MagneticDirective,
+    LiveStreamPlayer,
   ],
   templateUrl: './restaurant-menu.html',
   styleUrl: './restaurant-menu.scss',
@@ -45,6 +47,20 @@ export class RestaurantMenu implements OnInit {
   readonly activeCategory = signal<number | null>(null);
   readonly searchQuery = signal('');
   readonly liveModalOpen = signal(false);
+  /** Angelcam HLS URL — fetched once when the live modal is first opened. */
+  readonly liveStreamUrl = signal<string | null>(null);
+  readonly liveStreamLoading = signal(false);
+
+  openLiveModal(): void {
+    this.liveModalOpen.set(true);
+    const r = this.restaurant();
+    if (!r?.liveStreamPlaybackId || this.liveStreamUrl() !== null) return;
+    this.liveStreamLoading.set(true);
+    this.restaurantService.getLiveStreamUrl(r.id).subscribe({
+      next: (res) => { this.liveStreamUrl.set(res.hlsUrl); this.liveStreamLoading.set(false); },
+      error: () => { this.liveStreamUrl.set(''); this.liveStreamLoading.set(false); },
+    });
+  }
 
   // ── Reviews
   readonly reviews = signal<Review[]>([]);

@@ -115,6 +115,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAngelcam(
         this IServiceCollection services, IConfiguration config)
     {
+        services.AddMemoryCache();
         var token = config["Angelcam:AccessToken"];
         services.AddHttpClient<AngelcamService>(client =>
         {

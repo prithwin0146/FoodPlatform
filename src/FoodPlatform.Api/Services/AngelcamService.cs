@@ -1,27 +1,37 @@
 using System.Text.Json;
 using FoodPlatform.Api.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FoodPlatform.Api.Services;
 
 /// <summary>
 /// Calls the Angelcam REST API to obtain a fresh, short-lived HLS URL for a camera.
-/// (SRP: owns only Angelcam HTTP communication)
+/// Results are cached in-memory for 90 minutes to avoid rate-limiting and reduce API calls
+/// when many customers watch simultaneously.
+/// (SRP: owns only Angelcam HTTP communication + caching)
 /// (DIP: injected as IAngelcamService so callers never reference this concrete class)
 /// </summary>
 public class AngelcamService : IAngelcamService
 {
     private readonly HttpClient _http;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<AngelcamService> _logger;
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(90);
 
-    public AngelcamService(HttpClient http, ILogger<AngelcamService> logger)
+    public AngelcamService(HttpClient http, IMemoryCache cache, ILogger<AngelcamService> logger)
     {
         _http = http;
+        _cache = cache;
         _logger = logger;
     }
 
     /// <inheritdoc/>
     public async Task<string?> GetHlsUrlAsync(string cameraId)
     {
+        var cacheKey = $"angelcam:hls:{cameraId}";
+        if (_cache.TryGetValue(cacheKey, out string? cached))
+            return cached;
+
         try
         {
             // Single camera endpoint returns the camera object with streams inline
@@ -55,7 +65,10 @@ public class AngelcamService : IAngelcamService
                     fmt.GetString()?.Equals("hls", StringComparison.OrdinalIgnoreCase) == true &&
                     stream.TryGetProperty("url", out var url))
                 {
-                    return url.GetString();
+                    var hlsUrl = url.GetString();
+                    if (hlsUrl != null)
+                        _cache.Set(cacheKey, hlsUrl, CacheTtl);
+                    return hlsUrl;
                 }
             }
 

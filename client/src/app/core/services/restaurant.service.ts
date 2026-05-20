@@ -32,4 +32,12 @@ export class RestaurantService {
   getMenu(id: number): Observable<MenuCategory[]> {
     return this.http.get<MenuCategory[]>(`${this.url}/${id}/menu`);
   }
+
+  /**
+   * Returns a fresh Angelcam HLS URL for the restaurant's live camera.
+   * Cached on the backend for 90 min — safe to call on every page load.
+   */
+  getLiveStreamUrl(id: number): Observable<{ hlsUrl: string }> {
+    return this.http.get<{ hlsUrl: string }>(`${this.url}/${id}/live-stream-url`);
+  }
 }

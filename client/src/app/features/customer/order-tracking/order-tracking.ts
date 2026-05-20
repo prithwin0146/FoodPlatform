@@ -89,6 +89,13 @@ export class OrderTracking implements OnInit, OnDestroy {
   ) {}
 
   private static readonly TERMINAL_STATUSES: OrderStatus[] = ['Delivered', 'Rejected', 'Cancelled'];
+  /** Statuses during which the kitchen stream is visible. Stops at OutForDelivery — food has left. */
+  private static readonly LIVE_STATUSES = new Set<OrderStatus>(['Accepted', 'Preparing', 'Cooking', 'Packed']);
+
+  readonly shouldShowStream = computed(() => {
+    const o = this.order();
+    return !!o && OrderTracking.LIVE_STATUSES.has(o.status) && !!o.liveStreamPlaybackId;
+  });
 
   ngOnInit(): void {
     const id = +this.route.snapshot.params['id'];
@@ -102,7 +109,8 @@ export class OrderTracking implements OnInit, OnDestroy {
           this._pollSub?.unsubscribe();
         }
         // Fetch a fresh Angelcam HLS URL once we know the order has a camera configured
-        if (o.liveStreamPlaybackId && this.liveStreamUrl() === null) {
+        // and the order is in the active cooking window (Accepted → Packed)
+        if (o.liveStreamPlaybackId && OrderTracking.LIVE_STATUSES.has(o.status) && this.liveStreamUrl() === null) {
           this.orderService.getLiveStreamUrl(id).subscribe({
             next: (res) => this.liveStreamUrl.set(res.hlsUrl),
             error: () => this.liveStreamUrl.set(''),  // empty string = no stream available

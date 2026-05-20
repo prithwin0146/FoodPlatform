@@ -54,7 +54,7 @@
                 ~{{ r.estimatedDeliveryMinutes }} min
               </span>
             </div>
-            <button class="live-btn" (click)="liveModalOpen.set(true)" appMagnetic>
+            <button class="live-btn" (click)="openLiveModal()" appMagnetic>
               <span class="live-dot"></span>
               <span class="material-symbols-rounded">videocam</span>
               Watch Kitchen Live
@@ -260,7 +260,22 @@
           </button>
         </div>
         <div class="live-modal-body">
-          @if (restaurant()?.kitchenVideoUrl; as videoUrl) {
+          @if (restaurant()?.liveStreamPlaybackId) {
+            @if (liveStreamLoading()) {
+              <div class="live-video-placeholder">
+                <span class="material-symbols-rounded video-icon">wifi_tethering</span>
+                <p>Connecting to live stream…</p>
+              </div>
+            } @else if (liveStreamUrl()) {
+              <app-live-stream-player [hlsUrl]="liveStreamUrl()!" />
+            } @else {
+              <div class="live-video-placeholder">
+                <span class="material-symbols-rounded video-icon">videocam_off</span>
+                <p>Stream unavailable right now</p>
+                <span class="stream-hint">The kitchen camera is offline. Try again shortly.</span>
+              </div>
+            }
+          } @else if (restaurant()?.kitchenVideoUrl; as videoUrl) {
             @if (videoUrl.includes('youtube') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo')) {
               <iframe
                 class="kitchen-video"
