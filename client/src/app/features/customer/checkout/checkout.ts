@@ -18,6 +18,7 @@ import { ConfettiService } from '../../../core/services/confetti.service';
 import { StripeService } from '../../../core/services/stripe.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { ukPostcodeValidator } from '../../../shared/validators/uk-postcode.validator';
+import { environment } from '../../../../environments/environment';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
@@ -110,6 +111,34 @@ export class Checkout implements AfterViewInit, OnDestroy {
     this.placing.set(true);
     const key = this.idempotencyKey.generate();
 
+    // ── Demo mode: Stripe not configured — skip payment, use mock ID ──
+    if (!this.isStripeConfigured) {
+      this.paymentStep.set('placing');
+      this.orderService.place({
+        restaurantId: this.cart.restaurantId()!,
+        items: this.cart.items().map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
+        deliveryAddressLine1: this.addressLine1,
+        deliveryCity: this.city,
+        deliveryPostcode: this.postcodeControl.value!.toUpperCase(),
+        idempotencyKey: key,
+        paymentIntentId: 'pi_mock_demo_' + key.slice(0, 16),
+        specialInstructions: this.specialInstructions.trim() || null,
+      }).subscribe({
+        next: (order) => {
+          this.cart.clear();
+          this.confetti.burst();
+          this.toast.success('Order placed! Watch your chef get started 👨‍🍳');
+          setTimeout(() => this.router.navigate(['/orders', order.id]), 900);
+        },
+        error: (err) => {
+          this.placing.set(false);
+          this.paymentStep.set('idle');
+          this.toast.error(err.error?.message ?? 'Failed to place order');
+        },
+      });
+      return;
+    }
+
     // ── Step 1: Create PaymentIntent server-side (amount validated on backend) ──
     this.paymentStep.set('confirming');
     this.paymentService.createIntent({
@@ -159,6 +188,10 @@ export class Checkout implements AfterViewInit, OnDestroy {
         this.toast.error(err.error?.error ?? 'Could not initialise payment');
       },
     });
+  }
+
+  get isStripeConfigured(): boolean {
+    return !environment.stripePublishableKey.includes('placeholder');
   }
 }
 
