@@ -23,8 +23,11 @@
   @if (state() === 'error') {
     <div class="player-overlay offline">
       <span class="material-symbols-rounded offline-icon">videocam_off</span>
-      <p class="overlay-text">Playback not supported</p>
-      <p class="overlay-sub">Try opening in Chrome, Firefox, or Safari.</p>
+      <p class="overlay-text">Couldn't load stream</p>
+      <p class="overlay-sub">Try refreshing, or open in Chrome, Firefox, or Safari.</p>
+      <button class="retry-btn" (click)="retry()">
+        <span class="material-symbols-rounded">refresh</span> Retry
+      </button>
     </div>
   }
 
@@ -37,6 +40,7 @@
     muted
     playsinline
     controls
+    crossorigin="anonymous"
   ></video>
 
   <!-- LIVE badge — shown when playing -->

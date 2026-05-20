@@ -59,22 +59,24 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
     const video = this.videoRef?.nativeElement;
     if (!video || !this.hlsUrl) return;
 
-    // Native HLS (Safari/iOS) — no hls.js needed
+    // Native HLS (Safari / iOS Chrome / all iOS browsers) — no hls.js needed.
+    // Use loadedmetadata (not 'playing') so we show the video even when autoplay
+    // is blocked — the controls will be visible and the user can tap play.
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = this.hlsUrl;
-      video.addEventListener('playing', () => {
+      video.addEventListener('loadedmetadata', () => {
         this._clearPlayingTimeout();
         this.state.set('playing');
+        video.play().catch(() => { /* autoplay blocked — controls visible, user taps */ });
       }, { once: true });
       video.addEventListener('error', () => {
         this._clearPlayingTimeout();
         this.state.set('offline');
       }, { once: true });
-      // Start a timeout — if no real frames within 8s, treat as offline
       this._playingTimeout = setTimeout(() => {
         if (this.state() !== 'playing') this.state.set('offline');
-      }, 8000);
-      video.play().catch(() => { /* autoplay blocked — user will tap play */ });
+      }, 12000);
+      video.load();
       return;
     }
 
@@ -83,7 +85,17 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
       const Hls = (await import('hls.js')).default;
 
       if (!Hls.isSupported()) {
-        this.state.set('error');
+        // Last-ditch: a few mobile browsers support HLS natively even without Safari
+        video.src = this.hlsUrl;
+        video.addEventListener('loadedmetadata', () => {
+          this.state.set('playing');
+          video.play().catch(() => { /* autoplay blocked */ });
+        }, { once: true });
+        video.addEventListener('error', () => this.state.set('error'), { once: true });
+        this._playingTimeout = setTimeout(() => {
+          if (this.state() !== 'playing') this.state.set('error');
+        }, 12000);
+        video.load();
         return;
       }
 
@@ -95,27 +107,26 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
       this.hls.loadSource(this.hlsUrl);
       this.hls.attachMedia(video);
 
+      // Show the video immediately when the manifest is available —
+      // don't wait for 'playing' which requires autoplay to succeed.
+      // If autoplay is blocked the controls are visible and the user taps play.
       this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // Don't mark playing yet — wait for actual video frames via the 'playing' event.
-        // Start a timeout: if no real playback starts within 8s, the stream is idle/offline.
-        this._playingTimeout = setTimeout(() => {
-          if (this.state() !== 'playing') {
-            this.state.set('offline');
-            this.destroyPlayer();
-          }
-        }, 8000);
-        video.play().catch(() => { /* autoplay blocked */ });
-      });
-
-      // Actual frames are rendering — stream is genuinely live.
-      video.addEventListener('playing', () => {
         this._clearPlayingTimeout();
         this.state.set('playing');
-      }, { once: true });
+        video.play().catch(() => { /* autoplay blocked — user will tap play */ });
+      });
+
+      // Start a timeout only to detect when the manifest itself never arrives
+      // (e.g. camera offline, DNS error, token expired).
+      this._playingTimeout = setTimeout(() => {
+        if (this.state() === 'loading') {
+          this.state.set('offline');
+          this.destroyPlayer();
+        }
+      }, 12000);
 
       this.hls.on(Hls.Events.ERROR, (_: unknown, data: { fatal: boolean; type: string }) => {
         if (data.fatal) {
-          // Network error = stream offline / not started
           this._clearPlayingTimeout();
           this.state.set('offline');
           this.destroyPlayer();
