@@ -117,13 +117,15 @@ public static class ServiceCollectionExtensions
     {
         services.AddMemoryCache();
         var token = config["Angelcam:AccessToken"];
-        services.AddHttpClient<AngelcamService>(client =>
+        // Use the interface-typed overload so DI resolves IAngelcamService through
+        // the typed HttpClient factory — this guarantees the configured HttpClient
+        // (with the Authorization header) is injected, not a plain default one.
+        services.AddHttpClient<IAngelcamService, AngelcamService>(client =>
         {
             client.BaseAddress = new Uri("https://api.angelcam.com/");
             if (!string.IsNullOrWhiteSpace(token))
                 client.DefaultRequestHeaders.Add("Authorization", $"PersonalAccessToken {token}");
         });
-        services.AddScoped<IAngelcamService, AngelcamService>();
         return services;
     }
 
