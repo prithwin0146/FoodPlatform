@@ -35,7 +35,7 @@ export class RestaurantService {
 
   /**
    * Returns a fresh Angelcam HLS URL for the restaurant's live camera.
-   * Cached on the backend for 60 min — safe to call on every page load.
+   * Cached on the backend for 50 min — safe to call on every page load.
    */
   getLiveStreamUrl(hash: string): Observable<{ hlsUrl: string }> {
     return this.http.get<{ hlsUrl: string }>(`${this.url}/${hash}/live-stream-url`);

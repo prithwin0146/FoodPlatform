@@ -100,7 +100,7 @@ export class MyOrders implements OnInit {
     this.orderService.reorder(order.hashId, this.idempotencyKey.generate()).subscribe({
       next: (newOrder) => {
         this.reorderingId.set(null);
-        this.router.navigate(['/order-tracking', newOrder.hashId]);
+        this.router.navigate(['/orders', newOrder.hashId]);
       },
       error: () => this.reorderingId.set(null),
     });
