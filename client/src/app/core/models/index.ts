@@ -95,7 +95,8 @@ export type OrderStatus =
   | 'OutForDelivery'
   | 'Delivered'
   | 'Rejected'
-  | 'Cancelled';
+  | 'Cancelled'
+  | 'Cancelling';
 
 // === Auth ===
 export interface PaginatedResult<T> {

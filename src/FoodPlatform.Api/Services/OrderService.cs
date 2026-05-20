@@ -206,7 +206,18 @@ public class OrderService : IOrderService
 
         order.Status = "Accepted";
         order.EstimatedDeliveryTime = DateTime.UtcNow.AddMinutes(request.EstimatedMinutes);
-        await _db.SaveChangesAsync();
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Another staff member already acted on this order — reload and report current status
+            await _db.Entry(order).ReloadAsync();
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition,
+                $"Order was already updated to '{order.Status}' by another request");
+        }
 
         var user = await _db.Users.FindAsync(order.UserId);
         var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
@@ -232,7 +243,16 @@ public class OrderService : IOrderService
         if (!string.IsNullOrEmpty(order.StripePaymentIntentId))
             await _stripe.RefundAsync(order.StripePaymentIntentId);
 
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await _db.Entry(order).ReloadAsync();
+            return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition,
+                $"Order was already updated to '{order.Status}' by another request");
+        }
 
         var user = await _db.Users.FindAsync(order.UserId);
         var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
@@ -282,11 +302,28 @@ public class OrderService : IOrderService
         if (DateTime.UtcNow > order.CancellableUntil)
             return ServiceResult<object>.Fail(OrderServiceError.WindowExpired, "Cancellation window has expired");
 
-        order.Status = "Cancelled";
+        // Race-safe cancel: mark as Cancelling FIRST so no other path can double-act on it,
+        // then attempt the Stripe refund, and only commit Cancelled once the refund succeeds.
+        order.Status = "Cancelling";
+        await _db.SaveChangesAsync(); // Locks out concurrent accept/reject via concurrency token
 
         if (!string.IsNullOrEmpty(order.StripePaymentIntentId))
-            await _stripe.RefundAsync(order.StripePaymentIntentId);
+        {
+            try
+            {
+                await _stripe.RefundAsync(order.StripePaymentIntentId);
+            }
+            catch
+            {
+                // Stripe failed — revert to Pending so customer can retry
+                order.Status = "Pending";
+                await _db.SaveChangesAsync();
+                return ServiceResult<object>.Fail(OrderServiceError.PaymentError,
+                    "Refund failed — please try again or contact support");
+            }
+        }
 
+        order.Status = "Cancelled";
         await _db.SaveChangesAsync();
 
         var user = await _db.Users.FindAsync(order.UserId);

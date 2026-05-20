@@ -174,6 +174,9 @@ public class OrdersController : RestaurantScopedController
         {
             OrderServiceError.NotFound      => NotFound(new { error = result.ErrorMessage }),
             OrderServiceError.Unauthorized  => Unauthorized(new { error = result.ErrorMessage }),
+            OrderServiceError.InvalidTransition when result.ErrorMessage!.Contains("already updated")
+                                            => Conflict(new { error = result.ErrorMessage }),
+            OrderServiceError.PaymentError  => StatusCode(502, new { error = result.ErrorMessage }),
             _                               => BadRequest(new { error = result.ErrorMessage })
         };
     }

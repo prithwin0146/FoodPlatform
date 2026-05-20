@@ -2,7 +2,7 @@ using FoodPlatform.Api.DTOs;
 
 namespace FoodPlatform.Api.Services.Interfaces;
 
-public enum OrderServiceError { NotFound, Unauthorized, InvalidTransition, WindowExpired, ValidationFailed }
+public enum OrderServiceError { NotFound, Unauthorized, InvalidTransition, WindowExpired, ValidationFailed, PaymentError }
 
 public readonly record struct ServiceResult<T>(T? Value, OrderServiceError? Error, string? ErrorMessage)
 {

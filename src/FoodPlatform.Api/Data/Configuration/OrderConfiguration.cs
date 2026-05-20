@@ -36,5 +36,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         // Performance: restaurant staff dashboard filtering by status
         e.HasIndex(o => new { o.RestaurantId, o.Status })
             .HasDatabaseName("IX_Orders_RestaurantId_Status");
+
+        // Optimistic concurrency: uses PostgreSQL's built-in xmin system column
+        // so no extra column is needed. EF checks xmin on UPDATE to detect races.
+        e.Property(o => o.RowVersion).HasColumnName("xmin").HasColumnType("xid").IsRowVersion();
     }
 }

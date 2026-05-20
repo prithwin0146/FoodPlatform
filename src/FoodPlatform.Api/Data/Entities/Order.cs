@@ -12,6 +12,8 @@ public class Order
     public decimal TotalAmount { get; set; }
     public string? StripePaymentIntentId { get; set; }
     public string IdempotencyKey { get; set; } = string.Empty;
+    /// <summary>Optimistic concurrency token — EF checks this on UPDATE to prevent double-accept/reject races.</summary>
+    public uint RowVersion { get; set; }
     public string DeliveryAddressLine1 { get; set; } = string.Empty;
     public string DeliveryCity { get; set; } = string.Empty;
     public string DeliveryPostcode { get; set; } = string.Empty;

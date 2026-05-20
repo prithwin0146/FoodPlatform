@@ -4,7 +4,7 @@ import { OrderStatus } from '../../core/models';
 const STATUS_EMOJI: Record<string, string> = {
   Pending: '⏳', Accepted: '✅', Preparing: '👨‍🍳', Cooking: '🔥',
   Packed: '📦', OutForDelivery: '🚴', Delivered: '🎉',
-  Rejected: '❌', Cancelled: '🚫',
+  Rejected: '❌', Cancelled: '🚫', Cancelling: '⏳',
 };
 
 /**
