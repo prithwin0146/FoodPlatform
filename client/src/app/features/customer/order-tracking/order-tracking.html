@@ -70,8 +70,9 @@
         <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160" appTilt [tiltMax]="5">
           <div class="lk-video">
             @if (shouldShowStream() && liveStreamUrl()) {
-              <!-- Live Angelcam HLS stream — active only during Accepted → Packed window -->
-              <app-live-stream-player [hlsUrl]="liveStreamUrl()!" />
+              <!-- Live Angelcam HLS stream — active only during Accepted → Packed window.
+                   (streamOffline) resets the URL so the next poll re-fetches if the token expired. -->
+              <app-live-stream-player [hlsUrl]="liveStreamUrl()!" (streamOffline)="onStreamOffline()" />
             } @else if (o.kitchenVideoUrl) {
               @if (o.kitchenVideoUrl.includes('youtube') || o.kitchenVideoUrl.includes('youtu.be') || o.kitchenVideoUrl.includes('vimeo')) {
                 <iframe

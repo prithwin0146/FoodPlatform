@@ -107,10 +107,13 @@ export class OrderTracking implements OnInit, OnDestroy {
         this.loading.set(false);
         if (OrderTracking.TERMINAL_STATUSES.includes(o.status)) {
           this._pollSub?.unsubscribe();
+          this._tickSub?.unsubscribe(); // countdown no longer needed
         }
         // Fetch a fresh Angelcam HLS URL once we know the order has a camera configured
-        // and the order is in the active cooking window (Accepted → Packed)
-        if (o.angelcamCameraId && OrderTracking.LIVE_STATUSES.has(o.status) && this.liveStreamUrl() === null) {
+        // and the order is in the active cooking window (Accepted → Packed).
+        // !liveStreamUrl covers null (never fetched) AND '' (previous attempt failed),
+        // so a camera that wasn't online when the order was accepted is retried each poll.
+        if (o.angelcamCameraId && OrderTracking.LIVE_STATUSES.has(o.status) && !this.liveStreamUrl()) {
           this.orderService.getLiveStreamUrl(hash).subscribe({
             next: (res) => this.liveStreamUrl.set(res.hlsUrl),
             error: () => this.liveStreamUrl.set(''),  // empty string = no stream available
@@ -153,6 +156,15 @@ export class OrderTracking implements OnInit, OnDestroy {
     if (!o) return 0;
     const idx = this.getStepIndex(o.status as OrderStatus);
     return idx < 0 ? 0 : Math.round((idx / (this.statusSteps.length - 1)) * 100);
+  }
+
+  /**
+   * Called when the LiveStreamPlayer emits (streamOffline) due to a fatal HLS error.
+   * Resets the cached URL to null so the next poll cycle re-fetches a fresh Angelcam URL
+   * from the backend — handles the case where the embedded token has expired mid-session.
+   */
+  onStreamOffline(): void {
+    this.liveStreamUrl.set(null);
   }
 
   cancelOrder(): void {

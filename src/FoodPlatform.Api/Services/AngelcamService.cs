@@ -16,7 +16,7 @@ public class AngelcamService : IAngelcamService
     private readonly HttpClient _http;
     private readonly IMemoryCache _cache;
     private readonly ILogger<AngelcamService> _logger;
-    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(60);
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(50);
 
     public AngelcamService(HttpClient http, IMemoryCache cache, ILogger<AngelcamService> logger)
     {
@@ -80,5 +80,12 @@ public class AngelcamService : IAngelcamService
             _logger.LogError(ex, "Failed to fetch Angelcam HLS URL for camera {CameraId}", cameraId);
             return null;
         }
+    }
+
+    /// <inheritdoc/>
+    public void InvalidateCache(string cameraId)
+    {
+        _cache.Remove($"angelcam:hls:{cameraId}");
+        _logger.LogInformation("Angelcam HLS cache invalidated for camera {CameraId}", cameraId);
     }
 }

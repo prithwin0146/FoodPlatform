@@ -1,21 +1,22 @@
 import {
   Component, Input, OnChanges, OnDestroy, SimpleChanges,
   ElementRef, ViewChild, AfterViewInit, signal, PLATFORM_ID, inject,
+  Output, EventEmitter,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 /**
- * Renders a Mux HLS live stream inside a <video> element using hls.js.
+ * Renders an Angelcam (or any CORS-accessible) HLS live stream using hls.js.
  *
  * SRP : owns only HLS playback initialisation and teardown — no business logic.
- * OCP : extend Mux playback URL format without changing consumers (pass a new playbackId).
- * DIP : consumers depend only on the [playbackId] input contract; hls.js is an implementation detail.
+ * OCP : extend stream source without changing consumers (pass a new hlsUrl).
+ * DIP : consumers depend only on the [hlsUrl] input contract; hls.js is an implementation detail.
  *
  * Usage:
- *   <app-live-stream-player [playbackId]="order.angelcamCameraId" />
+ *   <app-live-stream-player [hlsUrl]="liveStreamUrl()!" (streamOffline)="onStreamOffline()" />
  *
- * Mux HLS URL pattern:
- *   https://stream.mux.com/{playbackId}.m3u8
+ * Emits (streamOffline) on fatal HLS error or timeout so the parent can evict its
+ * cached URL signal and trigger a fresh backend fetch on the next poll cycle.
  */
 @Component({
   selector: 'app-live-stream-player',
@@ -26,6 +27,13 @@ import { isPlatformBrowser } from '@angular/common';
 export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
   /** Full HLS playlist URL (e.g. from Angelcam or any CORS-accessible m3u8 endpoint). */
   @Input({ required: true }) hlsUrl!: string;
+
+  /**
+   * Emitted when the player enters the 'offline' or 'error' state due to a fatal HLS failure.
+   * The parent should reset its cached URL signal to null so the next poll cycle re-fetches
+   * a fresh URL from the backend (in case the Angelcam token has expired).
+   */
+  @Output() readonly streamOffline = new EventEmitter<void>();
 
   @ViewChild('videoEl') private videoRef!: ElementRef<HTMLVideoElement>;
 
@@ -74,7 +82,10 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
         this.state.set('offline');
       }, { once: true });
       this._playingTimeout = setTimeout(() => {
-        if (this.state() !== 'playing') this.state.set('offline');
+        if (this.state() !== 'playing') {
+          this.state.set('offline');
+          this.streamOffline.emit();
+        }
       }, 12000);
       video.load();
       return;
@@ -121,6 +132,7 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
       this._playingTimeout = setTimeout(() => {
         if (this.state() === 'loading') {
           this.state.set('offline');
+          this.streamOffline.emit();
           this.destroyPlayer();
         }
       }, 12000);
@@ -129,6 +141,7 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
         if (data.fatal) {
           this._clearPlayingTimeout();
           this.state.set('offline');
+          this.streamOffline.emit();
           this.destroyPlayer();
         }
       });

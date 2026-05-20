@@ -12,4 +12,11 @@ public interface IAngelcamService
     /// or null if the camera is offline or the API call fails.
     /// </summary>
     Task<string?> GetHlsUrlAsync(string cameraId);
+
+    /// <summary>
+    /// Removes the cached HLS URL for the given camera ID so the next call to
+    /// <see cref="GetHlsUrlAsync"/> fetches a fresh, valid URL from the Angelcam API.
+    /// Call this whenever a restaurant changes or removes its camera ID.
+    /// </summary>
+    void InvalidateCache(string cameraId);
 }

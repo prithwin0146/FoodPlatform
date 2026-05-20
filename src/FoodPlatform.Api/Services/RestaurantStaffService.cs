@@ -13,8 +13,13 @@ namespace FoodPlatform.Api.Services;
 public class RestaurantStaffService : IRestaurantStaffService
 {
     private readonly FoodPlatformDbContext _db;
+    private readonly IAngelcamService _angelcam;
 
-    public RestaurantStaffService(FoodPlatformDbContext db) => _db = db;
+    public RestaurantStaffService(FoodPlatformDbContext db, IAngelcamService angelcam)
+    {
+        _db = db;
+        _angelcam = angelcam;
+    }
 
     public async Task<RestaurantDto?> GetMyRestaurantAsync(int restaurantId)
     {
@@ -52,6 +57,11 @@ public class RestaurantStaffService : IRestaurantStaffService
         var restaurant = await _db.Restaurants.FindAsync(restaurantId);
         if (restaurant is null)
             return ServiceResult<RestaurantDto>.Fail(OrderServiceError.NotFound, "Restaurant not found");
+
+        // Evict stale cached HLS URL so the next customer request fetches a fresh one.
+        // Covers: camera removed, same ID re-configured after a token rotation.
+        if (!string.IsNullOrWhiteSpace(restaurant.AngelcamCameraId))
+            _angelcam.InvalidateCache(restaurant.AngelcamCameraId);
 
         restaurant.AngelcamCameraId = string.IsNullOrWhiteSpace(playbackId) ? null : playbackId.Trim();
         await _db.SaveChangesAsync();
