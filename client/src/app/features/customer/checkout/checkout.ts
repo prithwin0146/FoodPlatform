@@ -70,9 +70,10 @@ export class Checkout implements AfterViewInit, OnDestroy {
   ) {}
 
   async ngAfterViewInit(): Promise<void> {
-    if (this.cart.isEmpty()) return;
+    if (this.cart.isEmpty() || !this.isStripeConfigured) return;
     await this.stripeService.load();
-    this.stripeService.mountCard(this.cardElementRef.nativeElement);
+    if (this.cardElementRef?.nativeElement)
+      this.stripeService.mountCard(this.cardElementRef.nativeElement);
   }
 
   ngOnDestroy(): void {

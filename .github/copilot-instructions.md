@@ -1,4 +1,4 @@
-  # GitHub Copilot Instructions — SeeThePrep
+    # GitHub Copilot Instructions — SeeThePrep
 
 ## Project Overview
 
