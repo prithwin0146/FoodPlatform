@@ -8,22 +8,29 @@ namespace FoodPlatform.Api.Controllers;
 /// <summary>
 /// Review endpoints — customers submit, anyone can read.
 /// (SRP: HTTP adapter only; delegates to IReviewService)
-/// (DIP: depends on IReviewService abstraction)
+/// (DIP: depends on IReviewService and IHashIdService abstractions)
 /// </summary>
 [Route("api")]
 [ApiController]
 public class ReviewsController : RestaurantScopedController
 {
     private readonly IReviewService _reviews;
+    private readonly IHashIdService _hashIds;
 
-    public ReviewsController(IReviewService reviews) => _reviews = reviews;
+    public ReviewsController(IReviewService reviews, IHashIdService hashIds)
+    {
+        _reviews = reviews;
+        _hashIds = hashIds;
+    }
 
     /// <summary>Submit a review for a delivered order.</summary>
-    [HttpPost("orders/{orderId:int}/review")]
+    [HttpPost("orders/{hash}/review")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> Submit(int orderId, SubmitReviewRequest request)
+    public async Task<IActionResult> Submit(string hash, SubmitReviewRequest request)
     {
-        var result = await _reviews.SubmitAsync(orderId, CurrentUserId, request);
+        var id = _hashIds.Decode(hash);
+        if (id is null) return NotFound();
+        var result = await _reviews.SubmitAsync(id.Value, CurrentUserId, request);
         if (!result.IsSuccess)
             return result.Error switch
             {
@@ -43,11 +50,13 @@ public class ReviewsController : RestaurantScopedController
     }
 
     /// <summary>Get the customer's review for a specific order (if any).</summary>
-    [HttpGet("orders/{orderId:int}/review")]
+    [HttpGet("orders/{hash}/review")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> GetMyReview(int orderId)
+    public async Task<IActionResult> GetMyReview(string hash)
     {
-        var review = await _reviews.GetByOrderAsync(orderId, CurrentUserId);
+        var id = _hashIds.Decode(hash);
+        if (id is null) return NotFound();
+        var review = await _reviews.GetByOrderAsync(id.Value, CurrentUserId);
         if (review is null) return NotFound();
         return Ok(review);
     }

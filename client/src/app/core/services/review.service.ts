@@ -15,15 +15,15 @@ export class ReviewService {
 
   constructor(private readonly http: HttpClient) {}
 
-  submit(orderId: number, req: SubmitReviewRequest): Observable<Review> {
-    return this.http.post<Review>(`${this.base}/orders/${orderId}/review`, req);
+  submit(orderHash: string, req: SubmitReviewRequest): Observable<Review> {
+    return this.http.post<Review>(`${this.base}/orders/${orderHash}/review`, req);
   }
 
   listForRestaurant(restaurantId: number): Observable<Review[]> {
     return this.http.get<Review[]>(`${this.base}/restaurants/${restaurantId}/reviews`);
   }
 
-  getMyReview(orderId: number): Observable<Review> {
-    return this.http.get<Review>(`${this.base}/orders/${orderId}/review`);
+  getMyReview(orderHash: string): Observable<Review> {
+    return this.http.get<Review>(`${this.base}/orders/${orderHash}/review`);
   }
 }

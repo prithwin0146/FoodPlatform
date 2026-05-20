@@ -28,7 +28,7 @@ public interface IRestaurantStaffService
     Task<ServiceResult<RestaurantDto>> SetActiveAsync(int restaurantId, bool isActive);
 
     /// <summary>
-    /// Sets or clears the Mux live stream playback ID for this restaurant.
+    /// Sets or clears the Angelcam Camera ID for this restaurant.
     /// Pass null or empty string to stop streaming.
     /// </summary>
     Task<ServiceResult<RestaurantDto>> UpdateLiveStreamAsync(int restaurantId, string? playbackId);

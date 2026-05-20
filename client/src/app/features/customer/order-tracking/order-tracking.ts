@@ -121,7 +121,7 @@ export class OrderTracking implements OnInit, OnDestroy {
         }
         // Load any existing review when order is delivered
         if (o.status === 'Delivered') {
-          this.reviewService.getMyReview(o.id).subscribe({
+          this.reviewService.getMyReview(o.hashId).subscribe({
             next: (r) => this.existingReview.set(r),
             error: () => { /* 404 = no review yet, leave existingReview null */ },
           });

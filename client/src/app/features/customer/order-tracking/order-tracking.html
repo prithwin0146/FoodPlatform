@@ -199,7 +199,7 @@
         <!-- ── Review Widget ── -->
         @if (order()?.status === 'Delivered' && !existingReview()) {
           <app-review-widget
-            [orderId]="order()!.id"
+            [orderHash]="order()!.hashId"
             (reviewSubmitted)="existingReview.set($event)"
             appScrollReveal [revealDelay]="310">
           </app-review-widget>

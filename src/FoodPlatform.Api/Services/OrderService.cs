@@ -24,12 +24,15 @@ public class OrderService : IOrderService
     private readonly FoodPlatformDbContext _db;
     private readonly IStripeService _stripe;
     private readonly IBackgroundJobClient _jobs;
+    private readonly ILogger<OrderService> _logger;
 
-    public OrderService(FoodPlatformDbContext db, IStripeService stripe, IBackgroundJobClient jobs)
+    public OrderService(FoodPlatformDbContext db, IStripeService stripe,
+        IBackgroundJobClient jobs, ILogger<OrderService> logger)
     {
         _db = db;
         _stripe = stripe;
         _jobs = jobs;
+        _logger = logger;
     }
 
     public async Task<ServiceResult<OrderDto>> PlaceOrderAsync(PlaceOrderRequest request, int userId)
@@ -240,9 +243,9 @@ public class OrderService : IOrderService
         order.Status = "Rejected";
         order.RejectionReason = request.Reason;
 
-        if (!string.IsNullOrEmpty(order.StripePaymentIntentId))
-            await _stripe.RefundAsync(order.StripePaymentIntentId);
-
+        // Persist the rejection BEFORE calling Stripe, mirroring the CancelAsync pattern.
+        // Old order: Stripe refunded → SaveChanges threw concurrency exception → order stayed
+        // Pending → staff retried → potential double-refund.
         try
         {
             await _db.SaveChangesAsync();
@@ -252,6 +255,18 @@ public class OrderService : IOrderService
             await _db.Entry(order).ReloadAsync();
             return ServiceResult<object>.Fail(OrderServiceError.InvalidTransition,
                 $"Order was already updated to '{order.Status}' by another request");
+        }
+
+        // Refund after committing — rejection is already durable. If Stripe fails,
+        // StripeService logs the error and an admin can issue the refund manually.
+        if (!string.IsNullOrEmpty(order.StripePaymentIntentId))
+        {
+            try { await _stripe.RefundAsync(order.StripePaymentIntentId); }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Stripe refund failed for rejected order {OrderId} — manual refund required", id);
+            }
         }
 
         var user = await _db.Users.FindAsync(order.UserId);
@@ -348,6 +363,11 @@ public class OrderService : IOrderService
         if (DateTime.UtcNow - deliveredAt > TimeSpan.FromHours(48))
             return ServiceResult<object>.Fail(OrderServiceError.WindowExpired,
                 "Disputes must be raised within 48 hours of delivery");
+
+        // Guard against concurrent duplicate submissions — frontend checks too but API must be authoritative.
+        if (order.DisputeStatus != "None")
+            return ServiceResult<object>.Fail(OrderServiceError.ValidationFailed,
+                "A dispute has already been raised for this order");
 
         order.DisputeStatus = "Open";
         order.DisputeNotes = request.Notes;

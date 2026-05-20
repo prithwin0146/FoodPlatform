@@ -6,6 +6,7 @@ using FoodPlatform.Api.Services.Interfaces;
 using FoodPlatform.Tests.Helpers;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Xunit;
 
@@ -27,7 +28,7 @@ public class OrderServiceTests
         stripe.VerifyPaymentSucceededAsync(Arg.Any<string>(), Arg.Any<decimal>())
               .Returns(true);
         var jobs = Substitute.For<IBackgroundJobClient>();
-        return new OrderService(db, stripe, jobs);
+        return new OrderService(db, stripe, jobs, NullLogger<OrderService>.Instance);
     }
 
     /// <summary>Seeds a restaurant that is open 00:00–23:59 every day.</summary>

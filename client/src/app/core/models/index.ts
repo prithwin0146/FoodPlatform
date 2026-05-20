@@ -12,7 +12,7 @@ export interface Restaurant {
   imageUrl?: string | null;
   /** Pre-recorded kitchen video URL set by staff/admin. Null = no video yet. */
   kitchenVideoUrl?: string | null;
-  /** Mux live stream playback ID. Non-null = stream is currently active. */
+  /** Angelcam Camera ID. Non-null = live stream is currently active for this restaurant. */
   angelcamCameraId?: string | null;
   /** Broad cuisine category, e.g. "Indian", "Italian", "Burgers". */
   cuisineType: string;
@@ -68,7 +68,7 @@ export interface Order {
   deliveryPostcode: string;
   restaurantName: string;
   kitchenVideoUrl: string | null;
-  /** Mux live stream playback ID from the restaurant. Non-null = stream active. */
+  /** Angelcam Camera ID from the restaurant. Non-null = live kitchen stream is active. */
   angelcamCameraId: string | null;
   estimatedDeliveryTime: string | null;
   cancellableUntil: string;

@@ -63,7 +63,7 @@ import { Review } from '../../../core/models';
   styleUrl: './review-widget.scss',
 })
 export class ReviewWidget {
-  @Input({ required: true }) orderId!: number;
+  @Input({ required: true }) orderHash!: string;
   @Output() reviewSubmitted = new EventEmitter<Review>();
 
   readonly selectedStar = signal(0);
@@ -79,7 +79,7 @@ export class ReviewWidget {
     if (this.selectedStar() === 0 || this.submitting()) return;
     this.submitting.set(true);
     this.error.set(null);
-    this.reviewService.submit(this.orderId, {
+    this.reviewService.submit(this.orderHash, {
       stars: this.selectedStar(),
       comment: this.comment() || null,
     }).subscribe({
