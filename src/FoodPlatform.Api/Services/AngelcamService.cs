@@ -24,8 +24,8 @@ public class AngelcamService : IAngelcamService
     {
         try
         {
-            // Angelcam camera streams endpoint returns an array of available stream formats
-            var response = await _http.GetAsync($"v1/cameras/{cameraId}/streams/");
+            // Single camera endpoint returns the camera object with streams inline
+            var response = await _http.GetAsync($"v1/cameras/{cameraId}/");
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Angelcam API returned {Status} for camera {CameraId}",
@@ -37,19 +37,15 @@ public class AngelcamService : IAngelcamService
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            // Response may be a top-level array or { "streams": [...] }
+            // Response is a single camera object: { "streams": [...], ... }
             IEnumerable<JsonElement> streams;
-            if (root.ValueKind == JsonValueKind.Array)
-            {
-                streams = root.EnumerateArray();
-            }
-            else if (root.TryGetProperty("streams", out var arr) && arr.ValueKind == JsonValueKind.Array)
+            if (root.TryGetProperty("streams", out var arr) && arr.ValueKind == JsonValueKind.Array)
             {
                 streams = arr.EnumerateArray();
             }
             else
             {
-                _logger.LogWarning("Angelcam API response for camera {CameraId} has unexpected shape", cameraId);
+                _logger.LogWarning("Angelcam API response for camera {CameraId} has no streams array", cameraId);
                 return null;
             }
 
