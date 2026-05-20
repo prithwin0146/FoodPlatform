@@ -6,7 +6,9 @@
     { "source": "/og-image.png", "destination": "/og-image.png" },
     { "source": "/og-image-v2.png", "destination": "/og-image-v2.png" },
     { "source": "/manifest.webmanifest", "destination": "/manifest.webmanifest" },
-    { "source": "/((?!og-image|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|assets/|hero-kitchen).*)", "destination": "/index.html" }
+    { "source": "/hero-kitchen.mp4", "destination": "/hero-kitchen.mp4" },
+    { "source": "/hero-kitchen-poster.jpg", "destination": "/hero-kitchen-poster.jpg" },
+    { "source": "/((?!og-image|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|assets/).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
