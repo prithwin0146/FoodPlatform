@@ -99,7 +99,7 @@ public class StripeWebhooksController : ControllerBase
     {
         if (intent is null) return;
 
-        // If the order is still "Pending" with this PaymentIntentId, it's confirmed
+        // Primary lookup: find order by PaymentIntentId (normal happy path)
         var order = await _db.Orders
             .FirstOrDefaultAsync(o => o.StripePaymentIntentId == intent.Id);
 
@@ -107,8 +107,17 @@ public class StripeWebhooksController : ControllerBase
         {
             _logger.LogInformation(
                 "Webhook: payment_intent.succeeded for order {OrderId}", order.Id);
-            // Order was already created when payment was confirmed — nothing else to do
-            // (the sync flow already handles this; webhook is a safety net)
+            // Sync flow already created the order and verified payment — no action needed.
+            // The webhook is a safety net confirming the payment was received.
+        }
+        else if (order is null)
+        {
+            // Order not found by PaymentIntentId — may mean PlaceOrderAsync is still in-flight
+            // or crashed before persisting. Log for alerting; no corrective action here
+            // (the idempotency key allows the client to safely retry PlaceOrder).
+            _logger.LogWarning(
+                "Webhook: payment_intent.succeeded for PaymentIntent {PIId} but no matching order found. " +
+                "Client should retry PlaceOrder with its idempotency key.", intent.Id);
         }
     }
 
