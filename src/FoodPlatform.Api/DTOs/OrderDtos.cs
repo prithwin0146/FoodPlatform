@@ -34,7 +34,11 @@ public record OrderItemRequest(
 /// aren't forced to receive dispute/delivery fields they don't use)
 /// </summary>
 public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Status,
-    decimal TotalAmount, DateTime CreatedAt, List<OrderItemDto> Items);
+    decimal TotalAmount, DateTime CreatedAt, List<OrderItemDto> Items)
+{
+    /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
+    public string HashId { get; init; } = string.Empty;
+}
 
 /// <summary>Full order detail for single-order fetch and admin dispute management.</summary>
 public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
@@ -45,7 +49,11 @@ public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     DateTime? EstimatedDeliveryTime,
     DateTime CancellableUntil, DateTime CreatedAt, DateTime? DeliveredAt,
     string? SpecialInstructions,
-    List<OrderItemDto> Items);
+    List<OrderItemDto> Items)
+{
+    /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
+    public string HashId { get; init; } = string.Empty;
+}
 
 public record OrderItemDto(int Id, int MenuItemId, string MenuItemName, int Quantity, decimal UnitPrice);
 

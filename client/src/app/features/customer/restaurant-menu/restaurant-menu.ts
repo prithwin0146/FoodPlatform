@@ -58,7 +58,7 @@ export class RestaurantMenu implements OnInit {
     // Allow retry if previous fetch failed (liveStreamUrl() === '').
     if (!r?.liveStreamPlaybackId || this.liveStreamLoading() || !!this.liveStreamUrl()) return;
     this.liveStreamLoading.set(true);
-    this.restaurantService.getLiveStreamUrl(r.id).subscribe({
+    this.restaurantService.getLiveStreamUrl(r.hashId).subscribe({
       next: (res) => { this.liveStreamUrl.set(res.hlsUrl); this.liveStreamLoading.set(false); },
       error: () => { this.liveStreamUrl.set(null); this.liveStreamLoading.set(false); },
     });
@@ -141,16 +141,16 @@ export class RestaurantMenu implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = +this.route.snapshot.params['id'];
+    const hash = this.route.snapshot.params['id'] as string;
     forkJoin({
-      restaurant: this.restaurantService.get(id),
-      menu: this.restaurantService.getMenu(id),
-      reviews: this.reviewService.listForRestaurant(id),
+      restaurant: this.restaurantService.get(hash),
+      menu: this.restaurantService.getMenu(hash),
     }).subscribe({
-      next: ({ restaurant, menu, reviews }) => {
+      next: ({ restaurant, menu }) => {
         this.restaurant.set(restaurant);
         this.categories.set(menu);
-        this.reviews.set(reviews);
+        // Reviews need the numeric restaurantId which is returned in the restaurant response
+        this.reviewService.listForRestaurant(restaurant.id).subscribe(r => this.reviews.set(r));
         if (menu.length) this.activeCategory.set(menu[0].id);
         this.loading.set(false);
 
@@ -160,11 +160,11 @@ export class RestaurantMenu implements OnInit {
         this.metaSvc.updateTag({ name: 'description', content: `Order from ${restaurant.name} on SeeThePrep and watch your meal being prepared live on camera. ${restaurant.hygieneRating === 5 ? 'FSA 5-star rated. ' : ''}Full allergen transparency. UK food delivery.` });
         this.metaSvc.updateTag({ property: 'og:title', content: pageTitle });
         this.metaSvc.updateTag({ property: 'og:description', content: `Watch the chefs at ${restaurant.name} cook your food in real time. Live kitchen camera, allergen-safe ordering, fast delivery.` });
-        this.metaSvc.updateTag({ property: 'og:url', content: `https://seetheprep.com/restaurant/${id}` });
+        this.metaSvc.updateTag({ property: 'og:url', content: `https://seetheprep.com/restaurant/${hash}` });
         if (restaurant.imageUrl) {
           this.metaSvc.updateTag({ property: 'og:image', content: restaurant.imageUrl });
         }
-        this.canonicalSvc.set(`https://seetheprep.com/restaurant/${id}`);
+        this.canonicalSvc.set(`https://seetheprep.com/restaurant/${hash}`);
 
         // Breadcrumb JSON-LD
         const breadcrumb = this.doc.createElement('script');
@@ -174,7 +174,7 @@ export class RestaurantMenu implements OnInit {
           '@type': 'BreadcrumbList',
           itemListElement: [
             { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://seetheprep.com/' },
-            { '@type': 'ListItem', position: 2, name: restaurant.name, item: `https://seetheprep.com/restaurant/${id}` },
+            { '@type': 'ListItem', position: 2, name: restaurant.name, item: `https://seetheprep.com/restaurant/${hash}` },
           ],
         });
         this.doc.head.appendChild(breadcrumb);
@@ -187,9 +187,9 @@ export class RestaurantMenu implements OnInit {
           '@type': 'FoodEstablishment',
           name: restaurant.name,
           address: restaurant.address,
-          url: `https://seetheprep.com/restaurant/${id}`,
+          url: `https://seetheprep.com/restaurant/${hash}`,
           ...(restaurant.imageUrl ? { image: restaurant.imageUrl } : {}),
-          hasMap: `https://seetheprep.com/restaurant/${id}`,
+          hasMap: `https://seetheprep.com/restaurant/${hash}`,
           aggregateRating: restaurant.hygieneRating === 5 ? {
             '@type': 'AggregateRating',
             ratingValue: '5',
@@ -200,7 +200,7 @@ export class RestaurantMenu implements OnInit {
           } : undefined,
           potentialAction: {
             '@type': 'OrderAction',
-            target: `https://seetheprep.com/restaurant/${id}`,
+            target: `https://seetheprep.com/restaurant/${hash}`,
             deliveryMethod: 'http://purl.org/goodrelations/v1#DeliveryModeOwnFleet',
           },
         });

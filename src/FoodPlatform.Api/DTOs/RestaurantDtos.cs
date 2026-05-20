@@ -5,11 +5,19 @@ namespace FoodPlatform.Api.DTOs;
 // (SRP: restaurant DTOs isolated — changes don't force recompilation of order/menu DTOs)
 public record RestaurantDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
-    string CuisineType, int EstimatedDeliveryMinutes, string? LiveStreamPlaybackId = null);
+    string CuisineType, int EstimatedDeliveryMinutes, string? LiveStreamPlaybackId = null)
+{
+    /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
+    public string HashId { get; init; } = string.Empty;
+}
 
 public record RestaurantDetailDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
-    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours, string? LiveStreamPlaybackId = null);
+    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours, string? LiveStreamPlaybackId = null)
+{
+    /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
+    public string HashId { get; init; } = string.Empty;
+}
 
 public record RestaurantHoursDto(int DayOfWeek, TimeSpan OpenTime, TimeSpan CloseTime, bool IsClosed);
 

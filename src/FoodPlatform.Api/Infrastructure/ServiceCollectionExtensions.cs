@@ -77,6 +77,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services)
     {
+        // ID obfuscation (SRP: hashing of PKs for URL safety)
+        services.AddSingleton<IHashIdService, HashIdService>();
+
         // Auth (DIP: register interfaces, not concrete classes)
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();

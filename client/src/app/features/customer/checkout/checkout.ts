@@ -129,7 +129,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
           this.cart.clear();
           this.confetti.burst();
           this.toast.success('Order placed! Watch your chef get started 👨‍🍳');
-          setTimeout(() => this.router.navigate(['/orders', order.id]), 900);
+          setTimeout(() => this.router.navigate(['/orders', order.hashId]), 900);
         },
         error: (err) => {
           this.placing.set(false);
@@ -174,7 +174,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
             this.cart.clear();
             this.confetti.burst();
             this.toast.success('Order placed! Watch your chef get started 👨‍🍳');
-            setTimeout(() => this.router.navigate(['/orders', order.id]), 900);
+            setTimeout(() => this.router.navigate(['/orders', order.hashId]), 900);
           },
           error: (err) => {
             this.placing.set(false);

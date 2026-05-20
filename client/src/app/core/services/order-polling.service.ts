@@ -18,9 +18,9 @@ export class OrderPollingService implements OnDestroy {
    * Returns a shared observable that polls the given order every `intervalMs` milliseconds.
    * Unsubscribing stops polling.
    */
-  poll(orderId: number, intervalMs = 5_000): Observable<Order> {
+  poll(orderHash: string, intervalMs = 5_000): Observable<Order> {
     return timer(0, intervalMs).pipe(
-      switchMap(() => this.orderService.get(orderId)),
+      switchMap(() => this.orderService.get(orderHash)),
       takeUntil(this._stop$),
       share()
     );

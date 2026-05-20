@@ -162,7 +162,7 @@
     } @else {
       <div class="grid">
         @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
-          <a [routerLink]="['/restaurant', restaurant.id]"
+          <a [routerLink]="['/restaurant', restaurant.hashId]"
              class="tilt-card restaurant-card"
              appTilt [tiltMax]="12"
              appScrollReveal [revealDelay]="i * 70"

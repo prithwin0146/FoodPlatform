@@ -21,23 +21,23 @@ export class RestaurantService {
     });
   }
 
-  get(id: number): Observable<RestaurantDetail> {
-    return this.http.get<RestaurantDetail>(`${this.url}/${id}`);
+  get(hash: string): Observable<RestaurantDetail> {
+    return this.http.get<RestaurantDetail>(`${this.url}/${hash}`);
   }
 
-  getHours(id: number): Observable<RestaurantHours[]> {
-    return this.http.get<RestaurantHours[]>(`${this.url}/${id}/hours`);
+  getHours(hash: string): Observable<RestaurantHours[]> {
+    return this.http.get<RestaurantHours[]>(`${this.url}/${hash}/hours`);
   }
 
-  getMenu(id: number): Observable<MenuCategory[]> {
-    return this.http.get<MenuCategory[]>(`${this.url}/${id}/menu`);
+  getMenu(hash: string): Observable<MenuCategory[]> {
+    return this.http.get<MenuCategory[]>(`${this.url}/${hash}/menu`);
   }
 
   /**
    * Returns a fresh Angelcam HLS URL for the restaurant's live camera.
-   * Cached on the backend for 90 min — safe to call on every page load.
+   * Cached on the backend for 60 min — safe to call on every page load.
    */
-  getLiveStreamUrl(id: number): Observable<{ hlsUrl: string }> {
-    return this.http.get<{ hlsUrl: string }>(`${this.url}/${id}/live-stream-url`);
+  getLiveStreamUrl(hash: string): Observable<{ hlsUrl: string }> {
+    return this.http.get<{ hlsUrl: string }>(`${this.url}/${hash}/live-stream-url`);
   }
 }

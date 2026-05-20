@@ -41,8 +41,8 @@ export class OrderService {
     return this.http.post<Order>(this.url, req);
   }
 
-  get(id: number): Observable<Order> {
-    return this.http.get<Order>(`${this.url}/${id}`);
+  get(hash: string): Observable<Order> {
+    return this.http.get<Order>(`${this.url}/${hash}`);
   }
 
   listForRestaurant(status?: string): Observable<Order[]> {
@@ -59,35 +59,35 @@ export class OrderService {
     return this.http.get<PaginatedResult<Order>>(`${this.url}/my?page=${page}&pageSize=${pageSize}`);
   }
 
-  accept(id: number, req: AcceptOrderRequest): Observable<any> {
-    return this.http.patch(`${this.url}/${id}/accept`, req);
+  accept(hash: string, req: AcceptOrderRequest): Observable<any> {
+    return this.http.patch(`${this.url}/${hash}/accept`, req);
   }
 
-  reject(id: number, req: RejectOrderRequest): Observable<any> {
-    return this.http.patch(`${this.url}/${id}/reject`, req);
+  reject(hash: string, req: RejectOrderRequest): Observable<any> {
+    return this.http.patch(`${this.url}/${hash}/reject`, req);
   }
 
-  updateStatus(id: number, req: UpdateStatusRequest): Observable<any> {
-    return this.http.patch(`${this.url}/${id}/status`, req);
+  updateStatus(hash: string, req: UpdateStatusRequest): Observable<any> {
+    return this.http.patch(`${this.url}/${hash}/status`, req);
   }
 
-  cancel(id: number): Observable<any> {
-    return this.http.post(`${this.url}/${id}/cancel`, {});
+  cancel(hash: string): Observable<any> {
+    return this.http.post(`${this.url}/${hash}/cancel`, {});
   }
 
-  dispute(id: number, req: DisputeRequest): Observable<any> {
-    return this.http.post(`${this.url}/${id}/dispute`, req);
+  dispute(hash: string, req: DisputeRequest): Observable<any> {
+    return this.http.post(`${this.url}/${hash}/dispute`, req);
   }
 
-  reorder(id: number, idempotencyKey: string): Observable<Order> {
-    return this.http.post<Order>(`${this.url}/${id}/reorder`, { idempotencyKey });
+  reorder(hash: string, idempotencyKey: string): Observable<Order> {
+    return this.http.post<Order>(`${this.url}/${hash}/reorder`, { idempotencyKey });
   }
 
   /**
    * Fetches a fresh Angelcam HLS URL for the order's restaurant camera.
    * The token embedded in the URL is short-lived — call this each time the page loads.
    */
-  getLiveStreamUrl(orderId: number): Observable<{ hlsUrl: string }> {
-    return this.http.get<{ hlsUrl: string }>(`${this.url}/${orderId}/live-stream-url`);
+  getLiveStreamUrl(orderHash: string): Observable<{ hlsUrl: string }> {
+    return this.http.get<{ hlsUrl: string }>(`${this.url}/${orderHash}/live-stream-url`);
   }
 }

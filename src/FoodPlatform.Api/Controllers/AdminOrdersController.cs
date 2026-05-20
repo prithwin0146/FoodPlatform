@@ -14,30 +14,49 @@ namespace FoodPlatform.Api.Controllers;
 public class AdminOrdersController : ControllerBase
 {
     private readonly IAdminOrderService _orders;
+    private readonly IHashIdService _hashIds;
 
-    public AdminOrdersController(IAdminOrderService orders) => _orders = orders;
+    public AdminOrdersController(IAdminOrderService orders, IHashIdService hashIds)
+    {
+        _orders = orders;
+        _hashIds = hashIds;
+    }
 
     [HttpGet]
     public async Task<IActionResult> AllOrders(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50) =>
-        Ok(await _orders.GetAllAsync(page, pageSize));
+        [FromQuery] int pageSize = 50)
+    {
+        var paged = await _orders.GetAllAsync(page, pageSize);
+        var enriched = paged with
+        {
+            Items = paged.Items.Select(o => o with { HashId = _hashIds.Encode(o.Id) }).ToList()
+        };
+        return Ok(enriched);
+    }
 
     [HttpGet("disputed")]
-    public async Task<IActionResult> DisputedOrders() =>
-        Ok(await _orders.GetDisputedAsync());
-
-    [HttpPost("{id:int}/refund")]
-    public async Task<IActionResult> Refund(int id)
+    public async Task<IActionResult> DisputedOrders()
     {
-        var result = await _orders.RefundAsync(id);
+        var orders = await _orders.GetDisputedAsync();
+        return Ok(orders.Select(o => o with { HashId = _hashIds.Encode(o.Id) }));
+    }
+
+    [HttpPost("{hash}/refund")]
+    public async Task<IActionResult> Refund(string hash)
+    {
+        var id = _hashIds.Decode(hash);
+        if (id is null) return NotFound();
+        var result = await _orders.RefundAsync(id.Value);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpPatch("{id:int}/resolve")]
-    public async Task<IActionResult> Resolve(int id)
+    [HttpPatch("{hash}/resolve")]
+    public async Task<IActionResult> Resolve(string hash)
     {
-        var result = await _orders.ResolveAsync(id);
+        var id = _hashIds.Decode(hash);
+        if (id is null) return NotFound();
+        var result = await _orders.ResolveAsync(id.Value);
         return result is null ? NotFound() : Ok(result);
     }
 }

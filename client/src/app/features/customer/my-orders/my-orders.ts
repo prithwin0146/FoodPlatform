@@ -97,10 +97,10 @@ export class MyOrders implements OnInit {
   reorder(order: Order): void {
     if (this.reorderingId() !== null) return;
     this.reorderingId.set(order.id);
-    this.orderService.reorder(order.id, this.idempotencyKey.generate()).subscribe({
+    this.orderService.reorder(order.hashId, this.idempotencyKey.generate()).subscribe({
       next: (newOrder) => {
         this.reorderingId.set(null);
-        this.router.navigate(['/order-tracking', newOrder.id]);
+        this.router.navigate(['/order-tracking', newOrder.hashId]);
       },
       error: () => this.reorderingId.set(null),
     });

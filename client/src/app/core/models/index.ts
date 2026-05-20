@@ -1,6 +1,8 @@
 // === Restaurant ===
 export interface Restaurant {
   id: number;
+  /** Opaque hash of id — use this in URLs, never the raw numeric id. */
+  hashId: string;
   name: string;
   address: string;
   basePostcode: string;
@@ -52,6 +54,8 @@ export interface MenuItem {
 // === Order ===
 export interface Order {
   id: number;
+  /** Opaque hash of id — use this in URLs, never the raw numeric id. */
+  hashId: string;
   restaurantId: number;
   userId: number;
   status: OrderStatus;

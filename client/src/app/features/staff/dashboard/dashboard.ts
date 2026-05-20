@@ -289,7 +289,7 @@ export class Dashboard implements OnInit, OnDestroy {
     const r = this.myRestaurant();
     if (!r) return;
     this.menuLoading.set(true);
-    this.restaurantService.getMenu(r.id).subscribe({
+    this.restaurantService.getMenu(r.hashId).subscribe({
       next: cats => {
         this.menuCategories.set(cats);
         this.menuLoading.set(false);
@@ -392,7 +392,7 @@ export class Dashboard implements OnInit, OnDestroy {
   accept(order: Order): void {
     if (this.isActionInProgress(order.id)) return;
     this.setActionInProgress(order.id, true);
-    this.orderService.accept(order.id, { estimatedMinutes: this.getEta(order.id) }).subscribe({
+    this.orderService.accept(order.hashId, { estimatedMinutes: this.getEta(order.id) }).subscribe({
       next: () => {
         this.toast.success('Order accepted ✅');
         this.setActionInProgress(order.id, false);
@@ -413,7 +413,7 @@ export class Dashboard implements OnInit, OnDestroy {
     const reason = this.rejectReason().trim();
     if (!reason || this.isActionInProgress(order.id)) return;
     this.setActionInProgress(order.id, true);
-    this.orderService.reject(order.id, { reason }).subscribe({
+    this.orderService.reject(order.hashId, { reason }).subscribe({
       next: () => {
         this.rejectingOrderId.set(null);
         this.toast.success('Order rejected');
@@ -434,7 +434,7 @@ export class Dashboard implements OnInit, OnDestroy {
     const next = nextOrderStatus(order.status);
     if (!next || this.isActionInProgress(order.id)) return;
     this.setActionInProgress(order.id, true);
-    this.orderService.updateStatus(order.id, { status: next }).subscribe({
+    this.orderService.updateStatus(order.hashId, { status: next }).subscribe({
       next: () => {
         this.toast.success(`→ ${next}`);
         this.setActionInProgress(order.id, false);

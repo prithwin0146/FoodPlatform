@@ -98,10 +98,10 @@ export class OrderTracking implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    const id = +this.route.snapshot.params['id'];
+    const hash = this.route.snapshot.params['id'] as string;
     this._tickSub = interval(1000).subscribe(() => this._tick.update(n => n + 1));
 
-    this._pollSub = this.polling.poll(id).subscribe({
+    this._pollSub = this.polling.poll(hash).subscribe({
       next: (o) => {
         this.order.set(o);
         this.loading.set(false);
@@ -111,7 +111,7 @@ export class OrderTracking implements OnInit, OnDestroy {
         // Fetch a fresh Angelcam HLS URL once we know the order has a camera configured
         // and the order is in the active cooking window (Accepted → Packed)
         if (o.liveStreamPlaybackId && OrderTracking.LIVE_STATUSES.has(o.status) && this.liveStreamUrl() === null) {
-          this.orderService.getLiveStreamUrl(id).subscribe({
+          this.orderService.getLiveStreamUrl(hash).subscribe({
             next: (res) => this.liveStreamUrl.set(res.hlsUrl),
             error: () => this.liveStreamUrl.set(''),  // empty string = no stream available
           });
@@ -158,7 +158,7 @@ export class OrderTracking implements OnInit, OnDestroy {
   cancelOrder(): void {
     const o = this.order();
     if (!o) return;
-    this.orderService.cancel(o.id).subscribe({
+    this.orderService.cancel(o.hashId).subscribe({
       next: () => this.toast.success('Order cancelled'),
       error: (err: { error?: { message?: string } }) =>
         this.toast.error(err.error?.message ?? 'Cannot cancel'),
@@ -191,13 +191,13 @@ export class OrderTracking implements OnInit, OnDestroy {
     const o = this.order();
     if (!o || !this.disputeNotes().trim()) return;
     this.disputeSubmitting.set(true);
-    this.orderService.dispute(o.id, { notes: this.disputeNotes() }).subscribe({
+    this.orderService.dispute(o.hashId, { notes: this.disputeNotes() }).subscribe({
       next: () => {
         this.toast.success('Dispute raised — our team will be in touch within 24 hours.');
         this.disputeOpen.set(false);
         this.disputeNotes.set('');
         // Refresh order state to reflect disputeStatus = Open
-        this.orderService.get(o.id).subscribe({ next: (updated) => this.order.set(updated) });
+        this.orderService.get(o.hashId).subscribe({ next: (updated) => this.order.set(updated) });
       },
       error: (err: { error?: { error?: string } }) => {
         this.toast.error(err.error?.error ?? 'Could not raise dispute');
