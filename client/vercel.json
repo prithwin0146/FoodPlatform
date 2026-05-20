@@ -6,7 +6,7 @@
     { "source": "/og-image.png", "destination": "/og-image.png" },
     { "source": "/og-image-v2.png", "destination": "/og-image-v2.png" },
     { "source": "/manifest.webmanifest", "destination": "/manifest.webmanifest" },
-    { "source": "/((?!og-image|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|assets/).*)", "destination": "/index.html" }
+    { "source": "/((?!og-image|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|assets/|hero-kitchen).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
