@@ -16,9 +16,18 @@ public class HashIdService : IHashIdService
 
     public HashIdService(IConfiguration config)
     {
-        var salt = config["HashIds:Salt"]
+        var rawSalt = config["HashIds:Salt"]
             ?? throw new InvalidOperationException(
                 "HashIds:Salt is not configured. Set the HASHIDS__SALT environment variable.");
+
+        // Reject the placeholder that ships in appsettings.json — if this reaches production
+        // it means the Render env var was never set and hashes would be predictable.
+        if (rawSalt.StartsWith("<") || rawSalt.Length < 16)
+            throw new InvalidOperationException(
+                "HashIds:Salt looks like the default placeholder. " +
+                "Set a real random value in the HASHIDS__SALT environment variable.");
+
+        var salt = rawSalt;
         var minLength = int.TryParse(config["HashIds:MinLength"], out var ml) ? ml : 6;
         _hashids = new Hashids(salt, minLength);
     }
