@@ -108,6 +108,25 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Registers the Angelcam typed HttpClient and service.
+    /// (SRP: Angelcam wiring isolated here; callers get IAngelcamService via DI)
+    /// Call this from Program.cs after loading configuration.
+    /// </summary>
+    public static IServiceCollection AddAngelcam(
+        this IServiceCollection services, IConfiguration config)
+    {
+        var token = config["Angelcam:AccessToken"];
+        services.AddHttpClient<AngelcamService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.angelcam.com/");
+            if (!string.IsNullOrWhiteSpace(token))
+                client.DefaultRequestHeaders.Add("Authorization", $"PersonalAccessToken {token}");
+        });
+        services.AddScoped<IAngelcamService, AngelcamService>();
+        return services;
+    }
+
+    /// <summary>
     /// Wires up the Resend email SDK.
     /// (SRP: email infrastructure registration isolated from everything else)
     /// </summary>

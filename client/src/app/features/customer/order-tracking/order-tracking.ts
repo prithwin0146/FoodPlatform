@@ -50,6 +50,8 @@ export class OrderTracking implements OnInit, OnDestroy {
   readonly statusSteps = ORDER_STATUS_FLOW;
   /** Populated once we confirm the current customer already reviewed this order. */
   readonly existingReview = signal<Review | null>(null);
+  /** Fresh Angelcam HLS URL fetched from the backend. Null = no stream / not yet loaded. */
+  readonly liveStreamUrl = signal<string | null>(null);
 
   private _pollSub?: Subscription;
   private _tickSub?: Subscription;
@@ -98,6 +100,13 @@ export class OrderTracking implements OnInit, OnDestroy {
         this.loading.set(false);
         if (OrderTracking.TERMINAL_STATUSES.includes(o.status)) {
           this._pollSub?.unsubscribe();
+        }
+        // Fetch a fresh Angelcam HLS URL once we know the order has a camera configured
+        if (o.liveStreamPlaybackId && this.liveStreamUrl() === null) {
+          this.orderService.getLiveStreamUrl(id).subscribe({
+            next: (res) => this.liveStreamUrl.set(res.hlsUrl),
+            error: () => this.liveStreamUrl.set(''),  // empty string = no stream available
+          });
         }
         // Load any existing review when order is delivered
         if (o.status === 'Delivered') {

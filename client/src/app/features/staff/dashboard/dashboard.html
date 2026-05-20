@@ -140,7 +140,7 @@
       </div>
     }
 
-    <!-- ── Go Live Panel (Mux HLS) ── -->
+    <!-- ── Go Live Panel (Angelcam HLS) ── -->
     @if (liveStreamSectionOpen()) {
       <div class="video-panel glass-card go-live-panel" appScrollReveal>
         <div class="video-panel-header">
@@ -148,8 +148,8 @@
           <div>
             <h2 class="vp-title">Live Kitchen Stream</h2>
             <p class="vp-sub">
-              Paste your <strong>Mux Playback ID</strong> to start streaming.
-              Get it from <strong>mux.com → Video → Live Streams</strong>.
+              Enter your <strong>Angelcam Camera ID</strong> to stream your kitchen live.
+              Find it in <strong>angelcam.com → My Cameras → your camera → ID in the URL</strong>.
               Customers on the order-tracking page will see your live feed instantly.
             </p>
           </div>
@@ -164,12 +164,12 @@
           }
 
           <mat-form-field appearance="outline" class="video-url-field">
-            <mat-label>Mux Playback ID</mat-label>
+            <mat-label>Angelcam Camera ID</mat-label>
             <input matInput
               [ngModel]="liveStreamPlaybackId()"
               (ngModelChange)="liveStreamPlaybackId.set($event)"
-              placeholder="e.g. abc123XYZdef">
-            <mat-hint>Found in Mux dashboard under Video → Live Streams → your stream → Playback ID.</mat-hint>
+              placeholder="e.g. 133627">
+            <mat-hint>Numeric ID from your camera's URL in the Angelcam dashboard.</mat-hint>
           </mat-form-field>
 
           <div class="video-actions">
@@ -192,8 +192,7 @@
 
         <div class="current-video-note go-live-setup-note">
           <span class="material-symbols-rounded">info</span>
-          OBS Studio setup: Settings → Stream → Service: Custom → Server:
-          <code>rtmps://global-live.mux.com:443/app</code> → Stream Key: (from Mux dashboard).
+          To find your Camera ID: log in to angelcam.com → My Cameras → click your camera → the number in the URL is your Camera ID (e.g. <code>/cameras/133627/</code>).
         </div>
       </div>
     }

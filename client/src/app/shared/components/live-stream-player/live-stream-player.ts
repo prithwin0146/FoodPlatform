@@ -24,7 +24,8 @@ import { isPlatformBrowser } from '@angular/common';
   standalone: true,
 })
 export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
-  @Input({ required: true }) playbackId!: string;
+  /** Full HLS playlist URL (e.g. from Angelcam or any CORS-accessible m3u8 endpoint). */
+  @Input({ required: true }) hlsUrl!: string;
 
   @ViewChild('videoEl') private videoRef!: ElementRef<HTMLVideoElement>;
 
@@ -34,13 +35,15 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private hls: any = null;
+  private _playingTimeout: ReturnType<typeof setTimeout> | null = null;
 
   ngAfterViewInit(): void {
     if (this.isBrowser) this.initPlayer();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['playbackId'] && !changes['playbackId'].firstChange && this.isBrowser) {
+    if (changes['hlsUrl'] && !changes['hlsUrl'].firstChange && this.isBrowser) {
+      this._clearPlayingTimeout();
       this.destroyPlayer();
       this.state.set('loading');
       this.initPlayer();
@@ -48,22 +51,29 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this._clearPlayingTimeout();
     this.destroyPlayer();
-  }
-
-  private get hlsUrl(): string {
-    return `https://stream.mux.com/${this.playbackId}.m3u8`;
   }
 
   private async initPlayer(): Promise<void> {
     const video = this.videoRef?.nativeElement;
-    if (!video || !this.playbackId) return;
+    if (!video || !this.hlsUrl) return;
 
     // Native HLS (Safari/iOS) — no hls.js needed
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = this.hlsUrl;
-      video.addEventListener('loadedmetadata', () => this.state.set('playing'), { once: true });
-      video.addEventListener('error', () => this.state.set('offline'), { once: true });
+      video.addEventListener('playing', () => {
+        this._clearPlayingTimeout();
+        this.state.set('playing');
+      }, { once: true });
+      video.addEventListener('error', () => {
+        this._clearPlayingTimeout();
+        this.state.set('offline');
+      }, { once: true });
+      // Start a timeout — if no real frames within 8s, treat as offline
+      this._playingTimeout = setTimeout(() => {
+        if (this.state() !== 'playing') this.state.set('offline');
+      }, 8000);
       video.play().catch(() => { /* autoplay blocked — user will tap play */ });
       return;
     }
@@ -86,13 +96,27 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
       this.hls.attachMedia(video);
 
       this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        this.state.set('playing');
+        // Don't mark playing yet — wait for actual video frames via the 'playing' event.
+        // Start a timeout: if no real playback starts within 8s, the stream is idle/offline.
+        this._playingTimeout = setTimeout(() => {
+          if (this.state() !== 'playing') {
+            this.state.set('offline');
+            this.destroyPlayer();
+          }
+        }, 8000);
         video.play().catch(() => { /* autoplay blocked */ });
       });
+
+      // Actual frames are rendering — stream is genuinely live.
+      video.addEventListener('playing', () => {
+        this._clearPlayingTimeout();
+        this.state.set('playing');
+      }, { once: true });
 
       this.hls.on(Hls.Events.ERROR, (_: unknown, data: { fatal: boolean; type: string }) => {
         if (data.fatal) {
           // Network error = stream offline / not started
+          this._clearPlayingTimeout();
           this.state.set('offline');
           this.destroyPlayer();
         }
@@ -109,8 +133,16 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
+  private _clearPlayingTimeout(): void {
+    if (this._playingTimeout !== null) {
+      clearTimeout(this._playingTimeout);
+      this._playingTimeout = null;
+    }
+  }
+
   retry(): void {
     this.state.set('loading');
+    this._clearPlayingTimeout();
     this.destroyPlayer();
     this.initPlayer();
   }

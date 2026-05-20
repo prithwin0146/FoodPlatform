@@ -27,6 +27,7 @@ builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddHangfireJobs(builder.Configuration)
     .AddApplicationServices()
+    .AddAngelcam(builder.Configuration)
     .AddResendEmail(builder.Configuration)
     .AddApiCors(builder.Configuration)
     .AddRateLimiting()

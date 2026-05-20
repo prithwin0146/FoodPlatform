@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SILENT_ERROR_HEADER } from '../auth/error.interceptor';
 import {
   AcceptOrderRequest,
   DisputeRequest,
@@ -29,7 +30,8 @@ export class OrderService {
    * Called by the Header when a Customer session is present.
    */
   loadActiveCount(): void {
-    this.listMyOrders().subscribe({
+    const headers = new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' });
+    this.http.get<Order[]>(`${this.url}/my`, { headers }).subscribe({
       next: orders => this.activeOrderCount.set(orders.filter(o => ACTIVE_STATUSES.has(o.status)).length),
       error: () => { /* silently ignore — badge stays at 0 */ },
     });
@@ -79,5 +81,13 @@ export class OrderService {
 
   reorder(id: number, idempotencyKey: string): Observable<Order> {
     return this.http.post<Order>(`${this.url}/${id}/reorder`, { idempotencyKey });
+  }
+
+  /**
+   * Fetches a fresh Angelcam HLS URL for the order's restaurant camera.
+   * The token embedded in the URL is short-lived — call this each time the page loads.
+   */
+  getLiveStreamUrl(orderId: number): Observable<{ hlsUrl: string }> {
+    return this.http.get<{ hlsUrl: string }>(`${this.url}/${orderId}/live-stream-url`);
   }
 }

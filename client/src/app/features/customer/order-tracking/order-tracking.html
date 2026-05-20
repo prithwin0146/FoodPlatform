@@ -69,9 +69,9 @@
         <!-- ── Live Kitchen Panel ── -->
         <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160" appTilt [tiltMax]="5">
           <div class="lk-video">
-            @if (o.liveStreamPlaybackId) {
-              <!-- Live Mux HLS stream — shown when restaurant is actively streaming -->
-              <app-live-stream-player [playbackId]="o.liveStreamPlaybackId" />
+            @if (o.liveStreamPlaybackId && liveStreamUrl()) {
+              <!-- Live Angelcam HLS stream — fresh URL fetched from backend each page load -->
+              <app-live-stream-player [hlsUrl]="liveStreamUrl()!" />
             } @else if (o.kitchenVideoUrl) {
               @if (o.kitchenVideoUrl.includes('youtube') || o.kitchenVideoUrl.includes('youtu.be') || o.kitchenVideoUrl.includes('vimeo')) {
                 <iframe

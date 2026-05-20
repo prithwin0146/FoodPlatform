@@ -15,8 +15,13 @@ namespace FoodPlatform.Api.Controllers;
 public class OrdersController : RestaurantScopedController
 {
     private readonly IOrderService _orders;
+    private readonly IAngelcamService _angelcam;
 
-    public OrdersController(IOrderService orders) => _orders = orders;
+    public OrdersController(IOrderService orders, IAngelcamService angelcam)
+    {
+        _orders = orders;
+        _angelcam = angelcam;
+    }
 
     [HttpPost]
     [Authorize(Roles = "Customer")]
@@ -113,6 +118,27 @@ public class OrdersController : RestaurantScopedController
                 _ => BadRequest(new { error = result.ErrorMessage })
             };
         return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Returns a fresh, time-limited Angelcam HLS URL for the order's restaurant camera.
+    /// (SRP: Angelcam HTTP call is delegated to IAngelcamService)
+    /// </summary>
+    [HttpGet("{id:int}/live-stream-url")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> GetLiveStreamUrl(int id)
+    {
+        var order = await _orders.GetAsync(id);
+        if (order == null || order.UserId != CurrentUserId)
+            return NotFound(new { error = "Order not found" });
+        if (string.IsNullOrEmpty(order.LiveStreamPlaybackId))
+            return NotFound(new { error = "No camera configured for this restaurant" });
+
+        var hlsUrl = await _angelcam.GetHlsUrlAsync(order.LiveStreamPlaybackId);
+        if (hlsUrl == null)
+            return NotFound(new { error = "Stream is currently unavailable" });
+
+        return Ok(new { hlsUrl });
     }
 
     private IActionResult ToActionResult(ServiceResult<object> result)
