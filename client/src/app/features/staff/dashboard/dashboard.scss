@@ -521,4 +521,7 @@
   display: flex; align-items: center; gap: 4px; padding: 0 10px !important; height: 32px !important;
   .material-symbols-rounded { font-size: 1rem; }
   &--available { color: #0f7a3f !important; border-color: #b9e6c8 !important; }
+  &--delete { color: #e53935 !important; border-color: rgba(229,57,53,.4) !important; min-width: 36px !important; padding: 0 8px !important;
+    &:hover:not(:disabled) { background: rgba(229,57,53,.08) !important; }
+  }
 }

@@ -14,6 +14,9 @@ public class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
         e.Property(i => i.Allergens).HasMaxLength(500);
         e.Property(i => i.DietaryTags).HasMaxLength(200);
         e.Property(i => i.CreatedAt).HasDefaultValueSql("NOW()");
+        // Global query filter: soft-deleted items are invisible to all queries
+        // unless explicitly called with .IgnoreQueryFilters()
+        e.HasQueryFilter(i => !i.IsDeleted);
         e.HasOne(i => i.Restaurant).WithMany(r => r.MenuItems)
             .HasForeignKey(i => i.RestaurantId).OnDelete(DeleteBehavior.NoAction);
         e.HasOne(i => i.Category).WithMany(c => c.Items)

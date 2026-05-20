@@ -50,4 +50,9 @@ export class RestaurantStaffService {
   toggleItemAvailability(itemId: number): Observable<MenuItem> {
     return this.http.patch<MenuItem>(`${environment.apiUrl}/menu/items/${itemId}/availability`, {});
   }
+
+  /** Soft-deletes a menu item — it will no longer appear in menus or new orders. */
+  deleteItem(itemId: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/menu/items/${itemId}`);
+  }
 }

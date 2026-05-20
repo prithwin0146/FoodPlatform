@@ -41,4 +41,12 @@ public class MenuController : RestaurantScopedController
         var result = await _menu.ToggleAvailabilityAsync(CurrentRestaurantId, id);
         return result is null ? Unauthorized() : Ok(result);
     }
+
+    /// <summary>Soft-deletes a menu item — item is hidden from menus but preserved in order history.</summary>
+    [HttpDelete("items/{id:int}")]
+    public async Task<IActionResult> DeleteItem(int id)
+    {
+        var deleted = await _menu.DeleteItemAsync(CurrentRestaurantId, id);
+        return deleted ? NoContent() : NotFound();
+    }
 }

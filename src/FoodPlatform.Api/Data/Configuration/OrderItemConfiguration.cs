@@ -12,6 +12,6 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         e.HasOne(oi => oi.Order).WithMany(o => o.Items)
             .HasForeignKey(oi => oi.OrderId);
         e.HasOne(oi => oi.MenuItem).WithMany()
-            .HasForeignKey(oi => oi.MenuItemId).OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(oi => oi.MenuItemId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
     }
 }

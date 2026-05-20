@@ -93,4 +93,19 @@ public class MenuService : IMenuService
         await _db.SaveChangesAsync();
         return new { item.Id, item.IsAvailable };
     }
-}
+
+    /// <summary>
+    /// Soft-deletes a menu item so it never appears in menus or orders again,
+    /// but order history referencing it is preserved. (OCP: new deletion strategy without changing order queries)
+    /// </summary>
+    public async Task<bool> DeleteItemAsync(int restaurantId, int itemId)
+    {
+        var item = await _db.MenuItems.FindAsync(itemId);
+        if (item == null || item.RestaurantId != restaurantId)
+            return false;
+
+        item.IsDeleted = true;
+        item.IsAvailable = false; // belt-and-suspenders: also mark unavailable
+        await _db.SaveChangesAsync();
+        return true;
+    }}

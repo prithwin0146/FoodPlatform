@@ -90,6 +90,7 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly menuCategories = signal<MenuCategory[]>([]);
   readonly menuLoading = signal(false);
   readonly togglingItemId = signal<number | null>(null);
+  readonly deletingItemId = signal<number | null>(null);
 
   /** Flat list of all items across categories for quick rendering. */
   readonly allMenuItems = computed(() =>
@@ -318,6 +319,25 @@ export class Dashboard implements OnInit, OnDestroy {
       error: () => {
         this.togglingItemId.set(null);
         this.toast.error('Failed to update item');
+      },
+    });
+  }
+
+  deleteItem(itemId: number, itemName: string): void {
+    if (!confirm(`Delete "${itemName}"? This cannot be undone.`)) return;
+    if (this.deletingItemId() !== null) return;
+    this.deletingItemId.set(itemId);
+    this.staffService.deleteItem(itemId).subscribe({
+      next: () => {
+        this.menuCategories.update(cats =>
+          cats.map(c => ({ ...c, items: c.items.filter(i => i.id !== itemId) }))
+        );
+        this.deletingItemId.set(null);
+        this.toast.success(`"${itemName}" deleted`);
+      },
+      error: () => {
+        this.deletingItemId.set(null);
+        this.toast.error('Failed to delete item');
       },
     });
   }

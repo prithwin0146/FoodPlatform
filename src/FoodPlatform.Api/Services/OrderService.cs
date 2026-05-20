@@ -340,7 +340,7 @@ public class OrderService : IOrderService
 
         var reorderRequest = new PlaceOrderRequest(
             original.RestaurantId,
-            original.Items.Select(i => new OrderItemRequest(i.MenuItemId, i.Quantity)).ToList(),
+            original.Items.Where(i => i.MenuItemId.HasValue).Select(i => new OrderItemRequest(i.MenuItemId!.Value, i.Quantity)).ToList(),
             original.DeliveryAddressLine1,
             original.DeliveryCity,
             original.DeliveryPostcode,
@@ -360,6 +360,6 @@ public class OrderService : IOrderService
         o.EstimatedDeliveryTime,
         o.CancellableUntil, o.CreatedAt, o.DeliveredAt,
         o.SpecialInstructions,
-        o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId,
-            i.MenuItem?.Name ?? "", i.Quantity, i.UnitPrice)).ToList());
+        o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId ?? 0,
+            i.MenuItem?.Name ?? "(removed)", i.Quantity, i.UnitPrice)).ToList());
 }

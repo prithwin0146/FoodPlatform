@@ -11,4 +11,6 @@ public interface IMenuService
     Task<MenuItemDto?> CreateItemAsync(int restaurantId, CreateMenuItemRequest request);
     Task<MenuItemDto?> UpdateItemAsync(int restaurantId, int itemId, UpdateMenuItemRequest request);
     Task<object?> ToggleAvailabilityAsync(int restaurantId, int itemId);
+    /// <summary>Soft-deletes an item (sets IsDeleted=true). Returns null if not found / wrong restaurant.</summary>
+    Task<bool> DeleteItemAsync(int restaurantId, int itemId);
 }

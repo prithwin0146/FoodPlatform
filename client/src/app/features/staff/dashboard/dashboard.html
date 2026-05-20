@@ -282,6 +282,17 @@
                       }
                       {{ item.isAvailable ? 'Available' : 'Hidden' }}
                     </button>
+                    <button mat-stroked-button
+                      class="menu-avail-btn menu-avail-btn--delete"
+                      [disabled]="deletingItemId() === item.id"
+                      (click)="deleteItem(item.id, item.name)"
+                      matTooltip="Permanently remove this item">
+                      @if (deletingItemId() === item.id) {
+                        <span class="material-symbols-rounded">hourglass_empty</span>
+                      } @else {
+                        <span class="material-symbols-rounded">delete</span>
+                      }
+                    </button>
                   </div>
                 }
               </div>
