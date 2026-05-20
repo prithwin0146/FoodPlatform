@@ -59,10 +59,12 @@ public class StripeWebhooksController : ControllerBase
         switch (stripeEvent.Type)
         {
             case "payment_intent.succeeded":
+                if (!await MarkProcessedAsync(stripeEvent.Id)) return Ok(new { received = true, duplicate = true });
                 await HandlePaymentSucceededAsync(stripeEvent.Data.Object as PaymentIntent);
                 break;
 
             case "payment_intent.payment_failed":
+                if (!await MarkProcessedAsync(stripeEvent.Id)) return Ok(new { received = true, duplicate = true });
                 await HandlePaymentFailedAsync(stripeEvent.Data.Object as PaymentIntent);
                 break;
         }
@@ -71,6 +73,27 @@ public class StripeWebhooksController : ControllerBase
     }
 
     // ── private ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Inserts the event ID; returns false if the event was already processed.
+    /// Uses INSERT … ON CONFLICT DO NOTHING to avoid a race between two simultaneous retries.
+    /// (SRP: idempotency concern isolated here — business handlers stay pure)
+    /// </summary>
+    private async Task<bool> MarkProcessedAsync(string eventId)
+    {
+        try
+        {
+            _db.ProcessedStripeEvents.Add(new Data.Entities.ProcessedStripeEvent { EventId = eventId });
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException)
+        {
+            // Unique constraint violated — duplicate event
+            _logger.LogInformation("Duplicate Stripe event {EventId} skipped", eventId);
+            return false;
+        }
+    }
 
     private async Task HandlePaymentSucceededAsync(PaymentIntent? intent)
     {
