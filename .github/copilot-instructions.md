@@ -6,7 +6,7 @@ Full-stack food delivery platform where customers can **watch their food being p
 
 - **Backend**: .NET 8 Web API (`/src/FoodPlatform.Api/`)
 - **Frontend**: Angular 17+ standalone components (`/client/src/app/`)
-- **Database**: SQL Server via Entity Framework Core + Migrations
+- **Database**: PostgreSQL (Neon) via Entity Framework Core + Migrations
 - **Auth**: JWT Bearer tokens
 - **Background jobs**: Hangfire
 - **Payments**: Stripe (PaymentIntents + Connect for restaurant payouts)
@@ -16,20 +16,22 @@ Full-stack food delivery platform where customers can **watch their food being p
 - **Frontend**: Deployed on **Vercel** → [seetheprep.com](https://seetheprep.com)
   - Deploy command: `cd client && vercel --prod`
   - Angular `fileReplacements` in `angular.json` swaps `environment.ts` → `environment.prod.ts` for prod builds
-- **Backend**: Deployed on **Azure App Service** → `https://seetheprep-api.azurewebsites.net`
-  - App name: `seetheprep-api`
-  - Auto-deployed via GitHub Actions (`.github/workflows/azure-deploy.yml`) on push to `main` (paths: `src/**`)
-  - Manual deploy: push to `main` or trigger `workflow_dispatch` in GitHub Actions
-- **Database**: **Azure SQL** (managed, connected via connection string in Azure App Settings)
-- **Secrets**: Stored as Azure App Settings (never in `appsettings.json` which is gitignored)
+- **Backend**: Deployed on **Render** (Docker) → `https://seetheprep-api.onrender.com`
+  - Service name: `seetheprep-api`
+  - Defined in `render.yaml` at repo root — Render auto-deploys on push to `main` (Docker build)
+  - Manual deploy: push to `main` or trigger a manual deploy in the Render dashboard
+  - ⚠️ Free tier spins down after 15 min of inactivity (~30s cold start on first request)
+- **Database**: **Neon** (serverless PostgreSQL) — connection string stored as a Render secret env var
+  - Connection string format: `postgresql://user:pass@host/neondb?sslmode=require`
+  - EF Core migrations run automatically on startup (`app.MigrateAsync()` in `Program.cs`)
+- **Secrets**: Stored as Render Environment Variables (Dashboard → seetheprep-api → Environment)
   - `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
-  - `ConnectionStrings__DefaultConnection`
+  - `ConnectionStrings__DefaultConnection` (Neon connection string)
   - `Stripe__SecretKey`, `Stripe__WebhookSecret`
   - `Resend__ApiKey`, `Resend__FromAddress`
-  - `Cors__AllowedOrigins__0` = `http://localhost:4200`
-  - `Cors__AllowedOrigins__1` = `https://seetheprep.com`
-  - `Cors__AllowedOrigins__2` = `https://www.seetheprep.com`
-- **Production API URL** (in `environment.prod.ts`): `https://seetheprep-api.azurewebsites.net/api`
+  - `Angelcam__AccessToken`
+  - CORS origins are set directly in `render.yaml` (non-secret)
+- **Production API URL** (in `environment.prod.ts`): `https://seetheprep-api.onrender.com/api`
 
 ### Delivery Model
 Delivery is **restaurant-managed** — every restaurant handles its own dispatch and drivers in-house. We do **not** build a courier marketplace, driver app, or platform-side driver assignment. The platform's role for delivery is:

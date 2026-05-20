@@ -38,3 +38,5 @@ services:
         sync: false
       - key: Resend__ApiKey
         sync: false
+      - key: Angelcam__AccessToken
+        sync: false   # PersonalAccessToken from angelcam.com → Account → API Tokens
