@@ -49,12 +49,13 @@ public class AuthServiceTests
 
         var result = await svc.LoginAsync(new LoginRequest("u@test.com", "correct"));
 
-        Assert.NotNull(result);
-        Assert.Equal("stub-token", result.Token);
+        Assert.Equal(LoginOutcome.Success, result.Outcome);
+        Assert.NotNull(result.Token);
+        Assert.Equal("stub-token", result.Token!.Token);
     }
 
     [Fact]
-    public async Task LoginAsync_WrongPassword_ReturnsNull()
+    public async Task LoginAsync_WrongPassword_ReturnsInvalidCredentials()
     {
         var svc = BuildService(out var db);
         db.Users.Add(new User
@@ -66,11 +67,12 @@ public class AuthServiceTests
 
         var result = await svc.LoginAsync(new LoginRequest("u@test.com", "wrong"));
 
-        Assert.Null(result);
+        Assert.Equal(LoginOutcome.InvalidCredentials, result.Outcome);
+        Assert.Null(result.Token);
     }
 
     [Fact]
-    public async Task LoginAsync_UnverifiedUser_ReturnsNull()
+    public async Task LoginAsync_UnverifiedUser_ReturnsEmailNotVerified()
     {
         var svc = BuildService(out var db);
         db.Users.Add(new User
@@ -82,17 +84,19 @@ public class AuthServiceTests
 
         var result = await svc.LoginAsync(new LoginRequest("u@test.com", "correct"));
 
-        Assert.Null(result);
+        Assert.Equal(LoginOutcome.EmailNotVerified, result.Outcome);
+        Assert.Null(result.Token);
     }
 
     [Fact]
-    public async Task LoginAsync_UnknownEmail_ReturnsNull()
+    public async Task LoginAsync_UnknownEmail_ReturnsInvalidCredentials()
     {
         var svc = BuildService(out var db);
 
         var result = await svc.LoginAsync(new LoginRequest("ghost@test.com", "pw"));
 
-        Assert.Null(result);
+        Assert.Equal(LoginOutcome.InvalidCredentials, result.Outcome);
+        Assert.Null(result.Token);
     }
 
     // ── RegisterAsync ────────────────────────────────────────────────────────
