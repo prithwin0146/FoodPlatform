@@ -36,13 +36,33 @@ public class AdminUserService : IAdminUserService
         return new PaginatedResult<UserDto>(dtos, totalCount, page, pageSize);
     }
 
-    public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserRequest request)
+    public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserRequest request, int callerUserId)
     {
         var user = await _db.Users.FindAsync(userId);
         if (user is null) return null;
 
+        // S1-5a: Prevent admins from demoting themselves — avoid accidental lockout.
+        if (userId == callerUserId && request.Role != "Admin")
+            return null; // controller maps null to 400
+
+        // S1-5b: Refuse to demote the last Admin — platform must always have at least one.
+        if (user.Role == "Admin" && request.Role != "Admin")
+        {
+            var adminCount = await _db.Users.CountAsync(u => u.Role == "Admin");
+            if (adminCount <= 1)
+                return null;
+        }
+
+        // S1-5c: Staff must be linked to a real restaurant.
+        if (request.Role == "Staff" && request.RestaurantId.HasValue)
+        {
+            var restaurantExists = await _db.Restaurants.AnyAsync(r => r.Id == request.RestaurantId.Value);
+            if (!restaurantExists)
+                return null;
+        }
+
         user.Role         = request.Role;
-        user.RestaurantId = request.RestaurantId;
+        user.RestaurantId = request.Role == "Staff" ? request.RestaurantId : null;
         await _db.SaveChangesAsync();
 
         return new UserDto(user.Id, user.Username, user.Email, user.Role,

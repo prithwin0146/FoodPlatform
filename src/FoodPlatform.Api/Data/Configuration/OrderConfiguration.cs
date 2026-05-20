@@ -23,5 +23,18 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(o => o.RestaurantId).OnDelete(DeleteBehavior.NoAction);
         e.HasOne(o => o.User).WithMany(u => u.Orders)
             .HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.NoAction);
+
+        // Idempotency: prevent duplicate orders from concurrent requests with same key
+        e.HasIndex(o => new { o.IdempotencyKey, o.UserId }).IsUnique()
+            .HasDatabaseName("IX_Orders_IdempotencyKey_UserId");
+
+        // Performance: customer order history page (sorted by newest first)
+        e.HasIndex(o => new { o.UserId, o.CreatedAt })
+            .IsDescending(false, true)
+            .HasDatabaseName("IX_Orders_UserId_CreatedAt_Desc");
+
+        // Performance: restaurant staff dashboard filtering by status
+        e.HasIndex(o => new { o.RestaurantId, o.Status })
+            .HasDatabaseName("IX_Orders_RestaurantId_Status");
     }
 }

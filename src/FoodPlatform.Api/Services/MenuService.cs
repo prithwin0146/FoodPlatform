@@ -66,7 +66,15 @@ public class MenuService : IMenuService
         if (request.Price.HasValue) item.Price = request.Price.Value;
         if (request.Allergens != null) item.Allergens = request.Allergens;
         if (request.DietaryTags != null) item.DietaryTags = request.DietaryTags;
-        if (request.CategoryId.HasValue) item.CategoryId = request.CategoryId.Value;
+        if (request.CategoryId.HasValue)
+        {
+            // Ownership check: the target category must belong to the same restaurant.
+            // Without this, a malicious staff member could move items into another restaurant's category.
+            var targetCategory = await _db.MenuCategories.FindAsync(request.CategoryId.Value);
+            if (targetCategory == null || targetCategory.RestaurantId != restaurantId)
+                return null;
+            item.CategoryId = request.CategoryId.Value;
+        }
         if (request.ImageUrl != null) item.ImageUrl = request.ImageUrl;
         if (request.IsAvailable.HasValue) item.IsAvailable = request.IsAvailable.Value;
 

@@ -29,7 +29,13 @@ public class AdminUsersController : ControllerBase
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> UpdateUser(int id, UpdateUserRequest request)
     {
-        var result = await _users.UpdateUserAsync(id, request);
-        return result is null ? NotFound() : Ok(result);
+        var callerUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+        var result = await _users.UpdateUserAsync(id, request, callerUserId);
+        if (result is null)
+        {
+            // null can mean NotFound OR a lockout-protection violation — return 400 with a hint
+            return BadRequest(new { error = "Update rejected. Possible reasons: user not found, self-demotion, last-admin demotion, or invalid RestaurantId." });
+        }
+        return Ok(result);
     }
 }

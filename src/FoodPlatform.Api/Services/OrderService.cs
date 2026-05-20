@@ -111,7 +111,21 @@ public class OrderService : IOrderService
         };
 
         _db.Orders.Add(order);
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("IX_Orders_IdempotencyKey_UserId") == true)
+        {
+            // Race condition: two concurrent requests with the same idempotency key both
+            // passed the pre-check above. The DB unique constraint fired on the second one.
+            // Fetch the already-persisted order and return it (idempotent response).
+            var raceWinner = await _db.Orders
+                .Include(o => o.Items).ThenInclude(i => i.MenuItem)
+                .Include(o => o.Restaurant)
+                .FirstAsync(o => o.IdempotencyKey == request.IdempotencyKey && o.UserId == userId);
+            return ServiceResult<OrderDto>.Ok(MapToDto(raceWinner));
+        }
 
         // Enqueue confirmation email via Hangfire — automatic retries on Resend outage;
         // email failure never blocks or fails the order response.

@@ -12,6 +12,8 @@ public interface IAdminUserService
     /// <summary>Returns a paginated list of all registered users, newest first.</summary>
     Task<PaginatedResult<UserDto>> GetAllAsync(int page, int pageSize);
 
-    /// <summary>Updates a user's role and optional restaurant assignment.</summary>
-    Task<UserDto?> UpdateUserAsync(int userId, UpdateUserRequest request);
+    /// <summary>Updates a user's role and optional restaurant assignment.
+    /// Returns null when the update would violate admin-lockout rules (self-demotion, last-admin demotion, invalid RestaurantId).
+    /// </summary>
+    Task<UserDto?> UpdateUserAsync(int userId, UpdateUserRequest request, int callerUserId);
 }
