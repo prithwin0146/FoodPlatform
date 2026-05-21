@@ -45,7 +45,7 @@ namespace FoodPlatform.Api.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("MenuCategories");
+                    b.ToTable("MenuCategories", (string)null);
 
                     b.HasData(
                         new
@@ -272,7 +272,7 @@ namespace FoodPlatform.Api.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("MenuItems");
+                    b.ToTable("MenuItems", (string)null);
 
                     b.HasData(
                         new
@@ -1001,7 +1001,7 @@ namespace FoodPlatform.Api.Migrations
                         .IsDescending(false, true)
                         .HasDatabaseName("IX_Orders_UserId_CreatedAt_Desc");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("FoodPlatform.Api.Data.Entities.OrderItem", b =>
@@ -1030,7 +1030,7 @@ namespace FoodPlatform.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("FoodPlatform.Api.Data.Entities.ProcessedStripeEvent", b =>
@@ -1046,7 +1046,7 @@ namespace FoodPlatform.Api.Migrations
 
                     b.HasKey("EventId");
 
-                    b.ToTable("ProcessedStripeEvents");
+                    b.ToTable("ProcessedStripeEvents", (string)null);
                 });
 
             modelBuilder.Entity("FoodPlatform.Api.Data.Entities.Restaurant", b =>
@@ -1110,7 +1110,7 @@ namespace FoodPlatform.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Restaurants");
+                    b.ToTable("Restaurants", (string)null);
 
                     b.HasData(
                         new
@@ -1221,7 +1221,7 @@ namespace FoodPlatform.Api.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("RestaurantHours");
+                    b.ToTable("RestaurantHours", (string)null);
 
                     b.HasData(
                         new
@@ -1645,7 +1645,7 @@ namespace FoodPlatform.Api.Migrations
                         .IsDescending(false, true)
                         .HasDatabaseName("IX_Reviews_RestaurantId_CreatedAt_Desc");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("FoodPlatform.Api.Data.Entities.User", b =>
@@ -1706,7 +1706,7 @@ namespace FoodPlatform.Api.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FoodPlatform.Api.Data.Entities.MenuCategory", b =>

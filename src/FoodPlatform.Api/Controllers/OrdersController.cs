@@ -16,13 +16,13 @@ public class OrdersController : RestaurantScopedController
 {
     private readonly IOrderService _orders;
     private readonly IAngelcamService _angelcam;
-    private readonly IHashIdService _hashIds;
+    private readonly IUrlEncryptionService _urlEncryption;
 
-    public OrdersController(IOrderService orders, IAngelcamService angelcam, IHashIdService hashIds)
+    public OrdersController(IOrderService orders, IAngelcamService angelcam, IUrlEncryptionService urlEncryption)
     {
         _orders = orders;
         _angelcam = angelcam;
-        _hashIds = hashIds;
+        _urlEncryption = urlEncryption;
     }
 
     [HttpPost]
@@ -33,13 +33,13 @@ public class OrdersController : RestaurantScopedController
         if (!result.IsSuccess)
             return BadRequest(new { error = result.ErrorMessage });
         var order = result.Value!;
-        return Ok(order with { HashId = _hashIds.Encode(order.Id) });
+        return Ok(order with { HashId = _urlEncryption.Encrypt(order.Id) });
     }
 
     [HttpGet("{hash}")]
     public async Task<IActionResult> Get(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var order = await _orders.GetAsync(id.Value);
         if (order == null) return NotFound();
@@ -62,7 +62,7 @@ public class OrdersController : RestaurantScopedController
         var paged = await _orders.ListForUserPagedAsync(CurrentUserId, page, pageSize);
         var enriched = paged with
         {
-            Items = paged.Items.Select(o => o with { HashId = _hashIds.Encode(o.Id) }).ToList()
+            Items = paged.Items.Select(o => o with { HashId = _urlEncryption.Encrypt(o.Id) }).ToList()
         };
         return Ok(enriched);
     }
@@ -73,14 +73,14 @@ public class OrdersController : RestaurantScopedController
     {
         int? restaurantId = IsAdmin ? null : CurrentRestaurantId;
         var orders = await _orders.ListAsync(restaurantId, status);
-        return Ok(orders.Select(o => o with { HashId = _hashIds.Encode(o.Id) }));
+        return Ok(orders.Select(o => o with { HashId = _urlEncryption.Encrypt(o.Id) }));
     }
 
     [HttpPatch("{hash}/accept")]
     [Authorize(Roles = "Staff")]
     public async Task<IActionResult> Accept(string hash, AcceptOrderRequest request)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.AcceptAsync(id.Value, CurrentRestaurantId, request);
         return ToActionResult(result);
@@ -90,7 +90,7 @@ public class OrdersController : RestaurantScopedController
     [Authorize(Roles = "Staff")]
     public async Task<IActionResult> Reject(string hash, RejectOrderRequest request)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.RejectAsync(id.Value, CurrentRestaurantId, request);
         return ToActionResult(result);
@@ -100,7 +100,7 @@ public class OrdersController : RestaurantScopedController
     [Authorize(Roles = "Staff")]
     public async Task<IActionResult> UpdateStatus(string hash, UpdateStatusRequest request)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.UpdateStatusAsync(id.Value, CurrentRestaurantId, request);
         return ToActionResult(result);
@@ -110,7 +110,7 @@ public class OrdersController : RestaurantScopedController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> Cancel(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.CancelAsync(id.Value, CurrentUserId);
         return ToActionResult(result);
@@ -120,7 +120,7 @@ public class OrdersController : RestaurantScopedController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> Dispute(string hash, DisputeRequest request)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.DisputeAsync(id.Value, CurrentUserId, request);
         return ToActionResult(result);
@@ -131,7 +131,7 @@ public class OrdersController : RestaurantScopedController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> Reorder(string hash, [FromBody] ReorderRequest request)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.ReorderAsync(id.Value, CurrentUserId, request.IdempotencyKey);
         if (!result.IsSuccess)
@@ -141,7 +141,7 @@ public class OrdersController : RestaurantScopedController
                 _ => BadRequest(new { error = result.ErrorMessage })
             };
         var reorder = result.Value!;
-        return Ok(reorder with { HashId = _hashIds.Encode(reorder.Id) });
+        return Ok(reorder with { HashId = _urlEncryption.Encrypt(reorder.Id) });
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public class OrdersController : RestaurantScopedController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> GetLiveStreamUrl(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var order = await _orders.GetAsync(id.Value);
         if (order == null || order.UserId != CurrentUserId)

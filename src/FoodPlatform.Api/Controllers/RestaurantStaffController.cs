@@ -15,12 +15,12 @@ namespace FoodPlatform.Api.Controllers;
 public class RestaurantStaffController : RestaurantScopedController
 {
     private readonly IRestaurantStaffService _staffService;
-    private readonly IHashIdService _hashIds;
+    private readonly IUrlEncryptionService _urlEncryption;
 
-    public RestaurantStaffController(IRestaurantStaffService staffService, IHashIdService hashIds)
+    public RestaurantStaffController(IRestaurantStaffService staffService, IUrlEncryptionService urlEncryption)
     {
         _staffService = staffService;
-        _hashIds = hashIds;
+        _urlEncryption = urlEncryption;
     }
 
     /// <summary>Returns the authenticated staff member's restaurant profile.</summary>
@@ -29,7 +29,7 @@ public class RestaurantStaffController : RestaurantScopedController
     {
         var dto = await _staffService.GetMyRestaurantAsync(CurrentRestaurantId);
         if (dto is null) return NotFound();
-        return Ok(dto with { HashId = _hashIds.Encode(dto.Id) });
+        return Ok(dto with { HashId = _urlEncryption.Encrypt(dto.Id) });
     }
 
     /// <summary>

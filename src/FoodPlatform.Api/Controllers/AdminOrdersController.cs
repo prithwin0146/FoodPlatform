@@ -14,12 +14,12 @@ namespace FoodPlatform.Api.Controllers;
 public class AdminOrdersController : ControllerBase
 {
     private readonly IAdminOrderService _orders;
-    private readonly IHashIdService _hashIds;
+    private readonly IUrlEncryptionService _urlEncryption;
 
-    public AdminOrdersController(IAdminOrderService orders, IHashIdService hashIds)
+    public AdminOrdersController(IAdminOrderService orders, IUrlEncryptionService urlEncryption)
     {
         _orders = orders;
-        _hashIds = hashIds;
+        _urlEncryption = urlEncryption;
     }
 
     [HttpGet]
@@ -30,7 +30,7 @@ public class AdminOrdersController : ControllerBase
         var paged = await _orders.GetAllAsync(page, pageSize);
         var enriched = paged with
         {
-            Items = paged.Items.Select(o => o with { HashId = _hashIds.Encode(o.Id) }).ToList()
+            Items = paged.Items.Select(o => o with { HashId = _urlEncryption.Encrypt(o.Id) }).ToList()
         };
         return Ok(enriched);
     }
@@ -39,13 +39,13 @@ public class AdminOrdersController : ControllerBase
     public async Task<IActionResult> DisputedOrders()
     {
         var orders = await _orders.GetDisputedAsync();
-        return Ok(orders.Select(o => o with { HashId = _hashIds.Encode(o.Id) }));
+        return Ok(orders.Select(o => o with { HashId = _urlEncryption.Encrypt(o.Id) }));
     }
 
     [HttpPost("{hash}/refund")]
     public async Task<IActionResult> Refund(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.RefundAsync(id.Value);
         return result is null ? NotFound() : Ok(result);
@@ -54,7 +54,7 @@ public class AdminOrdersController : ControllerBase
     [HttpPatch("{hash}/resolve")]
     public async Task<IActionResult> Resolve(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _orders.ResolveAsync(id.Value);
         return result is null ? NotFound() : Ok(result);

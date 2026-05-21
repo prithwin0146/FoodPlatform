@@ -77,8 +77,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services)
     {
-        // ID obfuscation (SRP: hashing of PKs for URL safety)
-        services.AddSingleton<IHashIdService, HashIdService>();
+        // ID encryption using ASP.NET Core Data Protection (AES-256-CBC + HMAC-SHA256)
+        services.AddDataProtection();
+        services.AddSingleton<IUrlEncryptionService, UrlEncryptionService>();
 
         // Auth (DIP: register interfaces, not concrete classes)
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();

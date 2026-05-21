@@ -8,19 +8,19 @@ namespace FoodPlatform.Api.Controllers;
 /// <summary>
 /// Review endpoints — customers submit, anyone can read.
 /// (SRP: HTTP adapter only; delegates to IReviewService)
-/// (DIP: depends on IReviewService and IHashIdService abstractions)
+/// (DIP: depends on IReviewService and IUrlEncryptionService abstractions)
 /// </summary>
 [Route("api")]
 [ApiController]
 public class ReviewsController : RestaurantScopedController
 {
     private readonly IReviewService _reviews;
-    private readonly IHashIdService _hashIds;
+    private readonly IUrlEncryptionService _urlEncryption;
 
-    public ReviewsController(IReviewService reviews, IHashIdService hashIds)
+    public ReviewsController(IReviewService reviews, IUrlEncryptionService urlEncryption)
     {
         _reviews = reviews;
-        _hashIds = hashIds;
+        _urlEncryption = urlEncryption;
     }
 
     /// <summary>Submit a review for a delivered order.</summary>
@@ -28,7 +28,7 @@ public class ReviewsController : RestaurantScopedController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> Submit(string hash, SubmitReviewRequest request)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _reviews.SubmitAsync(id.Value, CurrentUserId, request);
         if (!result.IsSuccess)
@@ -54,7 +54,7 @@ public class ReviewsController : RestaurantScopedController
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> GetMyReview(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var review = await _reviews.GetByOrderAsync(id.Value, CurrentUserId);
         if (review is null) return NotFound();

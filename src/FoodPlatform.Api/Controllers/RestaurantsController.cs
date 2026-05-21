@@ -14,26 +14,26 @@ public class RestaurantsController : ControllerBase
 {
     private readonly IRestaurantQueryService _restaurants;
     private readonly IAngelcamService _angelcam;
-    private readonly IHashIdService _hashIds;
+    private readonly IUrlEncryptionService _urlEncryption;
 
-    public RestaurantsController(IRestaurantQueryService restaurants, IAngelcamService angelcam, IHashIdService hashIds)
+    public RestaurantsController(IRestaurantQueryService restaurants, IAngelcamService angelcam, IUrlEncryptionService urlEncryption)
     {
         _restaurants = restaurants;
         _angelcam = angelcam;
-        _hashIds = hashIds;
+        _urlEncryption = urlEncryption;
     }
 
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? postcode)
     {
         var list = await _restaurants.ListActiveAsync(postcode);
-        return Ok(list.Select(r => r with { HashId = _hashIds.Encode(r.Id) }));
+        return Ok(list.Select(r => r with { HashId = _urlEncryption.Encrypt(r.Id) }));
     }
 
     [HttpGet("{hash}")]
     public async Task<IActionResult> Get(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var result = await _restaurants.GetDetailAsync(id.Value);
         return result is null ? NotFound() : Ok(result with { HashId = hash });
@@ -47,7 +47,7 @@ public class RestaurantsController : ControllerBase
     [HttpGet("{hash}/live-stream-url")]
     public async Task<IActionResult> GetLiveStreamUrl(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         var restaurant = await _restaurants.GetDetailAsync(id.Value);
         if (restaurant is null)
@@ -65,7 +65,7 @@ public class RestaurantsController : ControllerBase
     [HttpGet("{hash}/hours")]
     public async Task<IActionResult> GetHours(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         return Ok(await _restaurants.GetHoursAsync(id.Value));
     }
@@ -73,7 +73,7 @@ public class RestaurantsController : ControllerBase
     [HttpGet("{hash}/menu")]
     public async Task<IActionResult> GetMenu(string hash)
     {
-        var id = _hashIds.Decode(hash);
+        var id = _urlEncryption.Decrypt(hash);
         if (id is null) return NotFound();
         return Ok(await _restaurants.GetMenuAsync(id.Value));
     }
