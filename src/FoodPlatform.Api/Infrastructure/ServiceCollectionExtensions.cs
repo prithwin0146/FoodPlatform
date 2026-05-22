@@ -4,6 +4,7 @@ using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Services;
 using FoodPlatform.Api.Services.Interfaces;
 using Hangfire;
+using Microsoft.AspNetCore.DataProtection;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -78,7 +79,9 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services)
     {
         // ID encryption using ASP.NET Core Data Protection (AES-256-CBC + HMAC-SHA256)
-        services.AddDataProtection();
+        // Keys are persisted in PostgreSQL so they survive Render container restarts.
+        services.AddDataProtection()
+            .PersistKeysToDbContext<FoodPlatformDbContext>();
         services.AddSingleton<IUrlEncryptionService, UrlEncryptionService>();
 
         // Auth (DIP: register interfaces, not concrete classes)

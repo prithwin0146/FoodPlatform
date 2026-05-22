@@ -1,4 +1,5 @@
 using FoodPlatform.Api.Data.Entities;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodPlatform.Api.Data;
@@ -7,8 +8,10 @@ namespace FoodPlatform.Api.Data;
 /// Thin DbContext: delegates schema configuration to IEntityTypeConfiguration classes
 /// and seed data to DataSeeder. (SRP: only owns the DbSet registrations and wiring)
 /// (OCP: new entities are picked up automatically via ApplyConfigurationsFromAssembly)
+/// Implements IDataProtectionKeyContext so ASP.NET Core Data Protection keys are
+/// persisted in PostgreSQL — survives Render container restarts / redeployments.
 /// </summary>
-public class FoodPlatformDbContext : DbContext
+public class FoodPlatformDbContext : DbContext, IDataProtectionKeyContext
 {
     public FoodPlatformDbContext(DbContextOptions<FoodPlatformDbContext> options) : base(options) { }
 
@@ -21,6 +24,8 @@ public class FoodPlatformDbContext : DbContext
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<ProcessedStripeEvent> ProcessedStripeEvents => Set<ProcessedStripeEvent>();
+    // Required by IDataProtectionKeyContext — keys stored in "DataProtectionKeys" table
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
