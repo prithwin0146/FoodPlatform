@@ -1,11 +1,14 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { AdminOrderService } from '../../../core/services/admin-order.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Order } from '../../../core/models';
@@ -17,8 +20,9 @@ import { Order } from '../../../core/models';
 @Component({
   selector: 'app-admin-orders-tab',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, MatTableModule, MatChipsModule, MatCardModule,
-            MatProgressBarModule, MatButtonModule, MatTooltipModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CurrencyPipe, DatePipe, FormsModule, MatTableModule, MatChipsModule, MatCardModule,
+            MatProgressBarModule, MatButtonModule, MatTooltipModule, MatFormFieldModule, MatInputModule],
   template: `
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -32,6 +36,30 @@ import { Order } from '../../../core/models';
         <mat-card-subtitle>{{ totalCount() }} total orders across all restaurants</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
+
+        <!-- ── Search + Status Filter ── -->
+        <div class="filter-bar">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search orders</mat-label>
+            <span matPrefix class="material-symbols-rounded prefix-icon">search</span>
+            <input matInput [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Address or item name…" />
+            @if (searchText) {
+              <button matSuffix mat-icon-button (click)="clearSearch()" matTooltip="Clear">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            }
+          </mat-form-field>
+          <div class="status-chips">
+            @for (s of statusOptions; track s) {
+              <button mat-stroked-button
+                [class.active-filter]="activeStatus() === s"
+                (click)="setStatus(s)">
+                {{ s === '' ? 'All' : s }}
+              </button>
+            }
+          </div>
+        </div>
+
         @if (orders().length === 0 && !loading()) {
           <div class="empty-state">
             <span class="material-symbols-rounded empty-icon">inbox</span>
@@ -107,6 +135,19 @@ import { Order } from '../../../core/models';
       mat-card-content { padding: 16px 0 0; }
     }
 
+    /* ── Filter Bar ── */
+    .filter-bar {
+      display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+      padding: 0 24px 12px;
+    }
+    .search-field { flex: 1; min-width: 220px; }
+    .prefix-icon { font-size: 18px; color: #9ca3af; margin-right: 4px; }
+    .status-chips {
+      display: flex; flex-wrap: wrap; gap: 6px; padding-top: 6px;
+      button { font-size: 0.75rem; height: 32px; padding: 0 12px; border-radius: 20px; }
+      button.active-filter { background: #0f0f13; color: #fff; border-color: #0f0f13; }
+    }
+
     .table-wrap { overflow-x: auto; }
 
     .orders-table {
@@ -152,8 +193,13 @@ export class AdminOrdersTab implements OnInit {
   readonly totalCount = signal(0);
   readonly totalPages = signal(1);
   readonly hasNextPage = computed(() => this.currentPage() < this.totalPages());
+  readonly activeStatus = signal('');
   readonly cols = ['id', 'status', 'total', 'items', 'date'];
 
+  searchText = '';
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+  readonly statusOptions = ['', 'Pending', 'Accepted', 'Preparing', 'OutForDelivery', 'Delivered', 'Rejected', 'Cancelled', 'Disputed'];
   private readonly PAGE_SIZE = 50;
 
   constructor(
@@ -162,12 +208,14 @@ export class AdminOrdersTab implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadPage(this.currentPage());
+    this.loadPage(1);
   }
 
   private loadPage(page: number): void {
     this.loading.set(true);
-    this.adminOrderService.allOrders(page, this.PAGE_SIZE).subscribe({
+    const status = this.activeStatus() || undefined;
+    const search = this.searchText.trim() || undefined;
+    this.adminOrderService.allOrders(page, this.PAGE_SIZE, status, search).subscribe({
       next: (result) => {
         this.orders.set(result.items);
         this.totalCount.set(result.totalCount);
@@ -177,6 +225,21 @@ export class AdminOrdersTab implements OnInit {
       },
       error: () => { this.toast.error('Failed to load orders'); this.loading.set(false); },
     });
+  }
+
+  setStatus(status: string): void {
+    this.activeStatus.set(status);
+    this.loadPage(1);
+  }
+
+  onSearchChange(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.loadPage(1), 400);
+  }
+
+  clearSearch(): void {
+    this.searchText = '';
+    this.loadPage(1);
   }
 
   nextPage(): void {

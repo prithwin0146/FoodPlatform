@@ -20,10 +20,8 @@ public class AdminUsersController : ControllerBase
     public AdminUsersController(IAdminUserService users) => _users = users;
 
     [HttpGet]
-    public async Task<IActionResult> AllUsers(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50) =>
-        Ok(await _users.GetAllAsync(page, pageSize));
+    public async Task<IActionResult> AllUsers([FromQuery] PaginationRequest pagination) =>
+        Ok(await _users.GetAllAsync(pagination.Page, pagination.PageSize));
 
     /// <summary>Changes a user's role and optional restaurant assignment.</summary>
     [HttpPatch("{id:int}")]

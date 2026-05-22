@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Order, PaginatedResult } from '../models';
@@ -13,8 +13,11 @@ export class AdminOrderService {
 
   constructor(private readonly http: HttpClient) {}
 
-  allOrders(page = 1, pageSize = 50): Observable<PaginatedResult<Order>> {
-    return this.http.get<PaginatedResult<Order>>(`${this.url}?page=${page}&pageSize=${pageSize}`);
+  allOrders(page = 1, pageSize = 50, status?: string, search?: string): Observable<PaginatedResult<Order>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (status) params = params.set('status', status);
+    if (search?.trim()) params = params.set('search', search.trim());
+    return this.http.get<PaginatedResult<Order>>(this.url, { params });
   }
 
   disputedOrders(): Observable<Order[]> {

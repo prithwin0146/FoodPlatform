@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Restaurant } from '../models';
+import { RestaurantService } from './restaurant.service';
 
 export interface CreateRestaurantPayload {
   name: string;
@@ -35,26 +37,37 @@ export interface UpdateRestaurantPayload {
 export class AdminRestaurantService {
   private readonly url = `${environment.apiUrl}/admin/restaurants`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly restaurantService: RestaurantService,
+  ) {}
 
   allRestaurants(): Observable<Restaurant[]> {
     return this.http.get<Restaurant[]>(this.url);
   }
 
   create(payload: CreateRestaurantPayload): Observable<Restaurant> {
-    return this.http.post<Restaurant>(this.url, payload);
+    return this.http.post<Restaurant>(this.url, payload).pipe(
+      tap(() => this.restaurantService.invalidateListCache())
+    );
   }
 
   update(hash: string, payload: UpdateRestaurantPayload): Observable<Restaurant> {
-    return this.http.patch<Restaurant>(`${this.url}/${hash}`, payload);
+    return this.http.patch<Restaurant>(`${this.url}/${hash}`, payload).pipe(
+      tap(() => this.restaurantService.invalidateListCache())
+    );
   }
 
   toggleActive(hash: string): Observable<unknown> {
-    return this.http.patch(`${this.url}/${hash}/activate`, {});
+    return this.http.patch(`${this.url}/${hash}/activate`, {}).pipe(
+      tap(() => this.restaurantService.invalidateListCache())
+    );
   }
 
   delete(hash: string): Observable<void> {
-    return this.http.delete<void>(`${this.url}/${hash}`);
+    return this.http.delete<void>(`${this.url}/${hash}`).pipe(
+      tap(() => this.restaurantService.invalidateListCache())
+    );
   }
 }
 

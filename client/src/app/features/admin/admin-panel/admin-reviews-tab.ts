@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +17,7 @@ import { PaginatedResult, Review } from '../../../core/models';
 @Component({
   selector: 'app-admin-reviews-tab',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, MatButtonModule, MatCardModule, MatChipsModule, MatProgressBarModule, MatTooltipModule],
   template: `
     @if (loading()) {

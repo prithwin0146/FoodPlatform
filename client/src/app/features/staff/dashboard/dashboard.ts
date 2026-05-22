@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
@@ -32,6 +32,7 @@ const POLL_INTERVAL_MS = 5_000;
  */
 @Component({
   selector: 'app-dashboard',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CurrencyPipe, DatePipe, DecimalPipe, FormsModule,
     OrderStatusEmojiPipe, SafeUrlPipe,

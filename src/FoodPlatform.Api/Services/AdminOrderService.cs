@@ -23,7 +23,7 @@ public class AdminOrderService : IAdminOrderService
         _jobs = jobs;
     }
 
-    public async Task<PaginatedResult<OrderDto>> GetAllAsync(int page, int pageSize)
+    public async Task<PaginatedResult<OrderDto>> GetAllAsync(int page, int pageSize, string? status = null, string? search = null)
     {
         // Cap pageSize to prevent runaway queries.
         pageSize = Math.Clamp(pageSize, 1, 100);
@@ -31,7 +31,20 @@ public class AdminOrderService : IAdminOrderService
 
         var query = _db.Orders
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
-            .OrderByDescending(o => o.CreatedAt);
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status))
+            query = query.Where(o => o.Status == status);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lower = search.Trim().ToLower();
+            query = query.Where(o =>
+                o.DeliveryAddressLine1.ToLower().Contains(lower) ||
+                o.Items.Any(i => i.MenuItem.Name.ToLower().Contains(lower)));
+        }
+
+        query = query.OrderByDescending(o => o.CreatedAt);
 
         var totalCount = await query.CountAsync();
         var items = await query

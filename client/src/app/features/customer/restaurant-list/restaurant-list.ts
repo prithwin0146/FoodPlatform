@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -40,6 +40,7 @@ interface Promise {
 
 @Component({
   selector: 'app-restaurant-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     HygieneStarsPipe, HygieneLabelPipe, RestaurantEmojiPipe,

@@ -56,10 +56,9 @@ public class OrdersController : RestaurantScopedController
     [HttpGet("my")]
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> ListMyOrders(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10)
+        [FromQuery] PaginationRequest pagination)
     {
-        var paged = await _orders.ListForUserPagedAsync(CurrentUserId, page, pageSize);
+        var paged = await _orders.ListForUserPagedAsync(CurrentUserId, pagination.Page, pagination.PageSize);
         var enriched = paged with
         {
             Items = paged.Items.Select(o => o with { HashId = _urlEncryption.Encrypt(o.Id) }).ToList()

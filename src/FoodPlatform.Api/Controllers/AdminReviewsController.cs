@@ -1,3 +1,4 @@
+using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,8 @@ public class AdminReviewsController : ControllerBase
     public AdminReviewsController(IReviewService reviews) => _reviews = reviews;
 
     [HttpGet]
-    public async Task<IActionResult> All(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20) =>
-        Ok(await _reviews.ListAllAsync(page, pageSize));
+    public async Task<IActionResult> All([FromQuery] PaginationRequest pagination) =>
+        Ok(await _reviews.ListAllAsync(pagination.Page, pagination.PageSize));
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)

@@ -1,3 +1,4 @@
+using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,10 +25,11 @@ public class AdminOrdersController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> AllOrders(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] PaginationRequest pagination,
+        [FromQuery] string? status = null,
+        [FromQuery] string? search = null)
     {
-        var paged = await _orders.GetAllAsync(page, pageSize);
+        var paged = await _orders.GetAllAsync(pagination.Page, pagination.PageSize, status, search);
         var enriched = paged with
         {
             Items = paged.Items.Select(o => o with { HashId = _urlEncryption.Encrypt(o.Id) }).ToList()

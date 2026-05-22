@@ -1,24 +1,47 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { MenuCategory, Restaurant, RestaurantDetail, RestaurantHours } from '../models';
 import { SILENT_ERROR_HEADER } from '../auth/error.interceptor';
 
+/**
+ * Public restaurant HTTP operations.
+ * (SRP: HTTP + 5-minute in-memory cache for the restaurant list only)
+ * (OCP: cache invalidation is triggered externally via invalidateListCache() —
+ *  no change needed here when new mutation services are added)
+ */
 @Injectable({ providedIn: 'root' })
 export class RestaurantService {
   private readonly url = `${environment.apiUrl}/restaurants`;
 
+  /** In-memory cache for the restaurant list — keyed by postcode (or '' for no filter). */
+  private listCache = new Map<string, { data: Restaurant[]; timestamp: number }>();
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   constructor(private readonly http: HttpClient) {}
 
-  /** Public listing — uses silent header so retry logic handles transient errors without toast spam. */
+  /** Public listing with 5-minute cache. Bypass: call invalidateListCache() before. */
   list(postcode?: string): Observable<Restaurant[]> {
+    const key = postcode ?? '';
+    const cached = this.listCache.get(key);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
+      return of(cached.data);
+    }
     const params: Record<string, string> = {};
     if (postcode) params['postcode'] = postcode;
     return this.http.get<Restaurant[]>(this.url, {
       params,
       headers: { [SILENT_ERROR_HEADER]: '1' },
-    });
+    }).pipe(
+      tap(data => this.listCache.set(key, { data, timestamp: Date.now() }))
+    );
+  }
+
+  /** Call after any restaurant create/update/delete to force a fresh fetch. */
+  invalidateListCache(): void {
+    this.listCache.clear();
   }
 
   get(hash: string): Observable<RestaurantDetail> {
