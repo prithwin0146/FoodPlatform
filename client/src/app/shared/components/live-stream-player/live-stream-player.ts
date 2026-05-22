@@ -151,6 +151,14 @@ export class LiveStreamPlayer implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private destroyPlayer(): void {
+    // Pause and clear the video src first — hls.destroy() alone doesn't stop the
+    // browser from playing already-buffered audio frames, causing audible tail after close.
+    const video = this.videoRef?.nativeElement;
+    if (video) {
+      video.pause();
+      video.src = '';
+      video.load(); // forces the browser to release the media resource immediately
+    }
     if (this.hls) {
       this.hls.destroy();
       this.hls = null;

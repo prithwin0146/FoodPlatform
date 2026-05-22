@@ -10,7 +10,9 @@
   position: relative;
   overflow-x: clip;
   opacity: 1;
-  transform: translateY(0);
+  // ⚠️ Do NOT add transform here — any CSS transform (even translateY(0)) creates a new
+  // containing block and breaks position:fixed descendants (modals, overlays, cart bar).
+  // The transition animates from 'none' → translateY(6px) cleanly without a base transform.
   transition: opacity 0.18s ease, transform 0.18s ease;
 
   &.route-transitioning {
