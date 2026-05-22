@@ -45,16 +45,16 @@ export class AdminRestaurantService {
     return this.http.post<Restaurant>(this.url, payload);
   }
 
-  update(id: number, payload: UpdateRestaurantPayload): Observable<Restaurant> {
-    return this.http.patch<Restaurant>(`${this.url}/${id}`, payload);
+  update(hash: string, payload: UpdateRestaurantPayload): Observable<Restaurant> {
+    return this.http.patch<Restaurant>(`${this.url}/${hash}`, payload);
   }
 
-  toggleActive(id: number): Observable<unknown> {
-    return this.http.patch(`${this.url}/${id}/activate`, {});
+  toggleActive(hash: string): Observable<unknown> {
+    return this.http.patch(`${this.url}/${hash}/activate`, {});
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.url}/${id}`);
+  delete(hash: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${hash}`);
   }
 }
 

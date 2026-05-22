@@ -151,7 +151,7 @@ interface RestaurantForm {
             <button mat-stroked-button
               [color]="r.isActive ? 'warn' : 'primary'"
               [matTooltip]="r.isActive ? 'Deactivate' : 'Activate'"
-              (click)="toggle(r.id)">
+              (click)="toggle(r.hashId)">
               {{ r.isActive ? 'Deactivate' : 'Activate' }}
             </button>
             <button mat-icon-button color="warn" matTooltip="Delete restaurant"
@@ -255,7 +255,7 @@ export class AdminRestaurantsTab implements OnInit {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly formOpen = signal(false);
-  readonly editingId = signal<number | null>(null);
+  readonly editingId = signal<string | null>(null);
   readonly deleteTarget = signal<Restaurant | null>(null);
 
   form: RestaurantForm = this.emptyForm();
@@ -288,7 +288,7 @@ export class AdminRestaurantsTab implements OnInit {
   }
 
   openEdit(r: Restaurant): void {
-    this.editingId.set(r.id);
+    this.editingId.set(r.hashId);
     this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '', cuisineType: r.cuisineType ?? '', estimatedDeliveryMinutes: r.estimatedDeliveryMinutes ?? 30 };
     this.formOpen.set(true);
   }
@@ -318,8 +318,8 @@ export class AdminRestaurantsTab implements OnInit {
     });
   }
 
-  toggle(id: number): void {
-    this.adminRestaurantService.toggleActive(id).subscribe({
+  toggle(hash: string): void {
+    this.adminRestaurantService.toggleActive(hash).subscribe({
       next: () => { this.toast.success('Restaurant updated'); this.ngOnInit(); },
       error: (err) => this.toast.error(err.error?.message ?? 'Failed'),
     });
@@ -331,7 +331,7 @@ export class AdminRestaurantsTab implements OnInit {
     const r = this.deleteTarget();
     if (!r) return;
     this.saving.set(true);
-    this.adminRestaurantService.delete(r.id).subscribe({
+    this.adminRestaurantService.delete(r.hashId).subscribe({
       next: () => {
         this.toast.success(`"${r.name}" deleted`);
         this.deleteTarget.set(null);

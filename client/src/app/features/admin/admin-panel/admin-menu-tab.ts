@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,13 +44,13 @@ interface ItemForm {
     <div class="tab-toolbar">
       <mat-form-field appearance="outline" class="restaurant-picker">
         <mat-label>Select Restaurant</mat-label>
-        <mat-select [ngModel]="selectedRestaurantId()" (ngModelChange)="selectRestaurant($event)">
+        <mat-select [ngModel]="selectedRestaurant()" (ngModelChange)="selectRestaurant($event)">
           @for (r of restaurants(); track r.id) {
-            <mat-option [value]="r.id">{{ r.name }}</mat-option>
+            <mat-option [value]="r">{{ r.name }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
-      @if (selectedRestaurantId()) {
+      @if (selectedRestaurant()) {
         <button mat-stroked-button (click)="openAddCategory()">
           <span class="material-symbols-rounded">create_new_folder</span> Add Category
         </button>
@@ -79,7 +79,7 @@ interface ItemForm {
     }
 
     <!-- ── Categories + Items ── -->
-    @if (selectedRestaurantId() && !loading()) {
+    @if (selectedRestaurant() && !loading()) {
       @if (categories().length === 0) {
         <p class="empty-hint">No menu yet. Add a category to get started.</p>
       }
@@ -225,7 +225,7 @@ export class AdminMenuTab implements OnInit {
 
   readonly restaurants = signal<Restaurant[]>([]);
   readonly categories = signal<MenuCategory[]>([]);
-  readonly selectedRestaurantId = signal<number | null>(null);
+  readonly selectedRestaurant = signal<Restaurant | null>(null);
 
   // Category form
   readonly catFormOpen = signal(false);
@@ -251,14 +251,14 @@ export class AdminMenuTab implements OnInit {
     });
   }
 
-  selectRestaurant(id: number): void {
-    this.selectedRestaurantId.set(id);
-    this.loadMenu(id);
+  selectRestaurant(r: Restaurant): void {
+    this.selectedRestaurant.set(r);
+    this.loadMenu(r.hashId);
   }
 
-  private loadMenu(id: number): void {
+  private loadMenu(hash: string): void {
     this.loading.set(true);
-    this.menuSvc.getMenu(id).subscribe({
+    this.menuSvc.getMenu(hash).subscribe({
       next: cats => { this.categories.set(cats); this.loading.set(false); },
       error: () => { this.toast.show('Failed to load menu', 'error'); this.loading.set(false); },
     });
@@ -271,7 +271,7 @@ export class AdminMenuTab implements OnInit {
   }
 
   saveCategory(): void {
-    const rid = this.selectedRestaurantId();
+    const rid = this.selectedRestaurant()?.id;
     if (!rid) return;
     this.menuSvc.createCategory({ restaurantId: rid, name: this.newCatName.trim(), sortOrder: this.newCatSort }).subscribe({
       next: cat => {
@@ -322,7 +322,7 @@ export class AdminMenuTab implements OnInit {
   }
 
   saveItem(): void {
-    const rid = this.selectedRestaurantId();
+    const rid = this.selectedRestaurant()?.id;
     if (!rid || !this.itemForm.price) return;
     this.savingItem.set(true);
 

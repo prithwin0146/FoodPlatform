@@ -22,8 +22,8 @@ export class AdminMenuService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getMenu(restaurantId: number): Observable<MenuCategory[]> {
-    return this.http.get<MenuCategory[]>(`${this.base}/restaurants/${restaurantId}`);
+  getMenu(restaurantHash: string): Observable<MenuCategory[]> {
+    return this.http.get<MenuCategory[]>(`${this.base}/restaurants/${restaurantHash}`);
   }
 
   createCategory(payload: AdminCreateCategoryPayload): Observable<MenuCategory> {

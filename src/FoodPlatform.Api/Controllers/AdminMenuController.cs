@@ -5,24 +5,35 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FoodPlatform.Api.Controllers;
 
-/// <summary>Admin-only controller for cross-restaurant menu management. (SRP: thin HTTP layer)</summary>
+/// <summary>Admin-only controller for cross-restaurant menu management. (SRP: thin HTTP layer)
+/// (DIP: depends on IAdminMenuService and IUrlEncryptionService abstractions)</summary>
 [ApiController]
 [Route("api/admin/menu")]
 [Authorize(Roles = "Admin")]
 public class AdminMenuController : ControllerBase
 {
     private readonly IAdminMenuService _menu;
-    public AdminMenuController(IAdminMenuService menu) => _menu = menu;
+    private readonly IUrlEncryptionService _urlEncryption;
 
-    [HttpGet("restaurants/{restaurantId:int}")]
-    public async Task<IActionResult> GetMenu(int restaurantId) =>
-        Ok(await _menu.GetMenuAsync(restaurantId));
+    public AdminMenuController(IAdminMenuService menu, IUrlEncryptionService urlEncryption)
+    {
+        _menu = menu;
+        _urlEncryption = urlEncryption;
+    }
+
+    [HttpGet("restaurants/{restaurantHash}")]
+    public async Task<IActionResult> GetMenu(string restaurantHash)
+    {
+        var id = _urlEncryption.Decrypt(restaurantHash);
+        if (id is null) return BadRequest("Invalid restaurant identifier.");
+        return Ok(await _menu.GetMenuAsync(id.Value));
+    }
 
     [HttpPost("categories")]
     public async Task<IActionResult> CreateCategory([FromBody] AdminCreateCategoryRequest request)
     {
         var cat = await _menu.CreateCategoryAsync(request);
-        return CreatedAtAction(nameof(GetMenu), new { restaurantId = request.RestaurantId }, cat);
+        return CreatedAtAction(nameof(GetMenu), new { restaurantHash = _urlEncryption.Encrypt(request.RestaurantId) }, cat);
     }
 
     [HttpDelete("categories/{categoryId:int}")]
@@ -36,7 +47,7 @@ public class AdminMenuController : ControllerBase
     public async Task<IActionResult> CreateItem([FromBody] AdminCreateMenuItemRequest request)
     {
         var item = await _menu.CreateItemAsync(request);
-        return CreatedAtAction(nameof(GetMenu), new { restaurantId = request.RestaurantId }, item);
+        return CreatedAtAction(nameof(GetMenu), new { restaurantHash = _urlEncryption.Encrypt(request.RestaurantId) }, item);
     }
 
     [HttpPatch("items/{itemId:int}")]
