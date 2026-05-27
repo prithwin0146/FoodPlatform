@@ -258,14 +258,23 @@
           <div class="how-num">{{ step.num }}</div>
           @if (i === 1 && demoVideoUrl()) {
             <div class="how-video-wrap">
-              <iframe
-                [src]="safeVideoUrl(demoVideoUrl())"
-                class="how-video-frame"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                title="Watch it cook — live kitchen demo"
-              ></iframe>
+              @if (isEmbedVideo(demoVideoUrl())) {
+                <iframe
+                  [src]="safeVideoUrl(demoVideoUrl())"
+                  class="how-video-frame"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  title="Watch it cook — live kitchen demo"
+                ></iframe>
+              } @else {
+                <video
+                  class="how-video-frame"
+                  [src]="demoVideoUrl()"
+                  autoplay muted loop playsinline
+                  title="Watch it cook — live kitchen demo">
+                </video>
+              }
             </div>
           } @else {
             <div class="how-icon">
@@ -641,6 +650,19 @@
         <a routerLink="/register">Create account</a>
       </div>
     </nav>
+  </div>
+
+  <!-- Partners strip -->
+  <div class="footer-partners">
+    <div class="container">
+      <span class="footer-partners-label">Trusted partners</span>
+      <div class="footer-partners-logos">
+        <a class="partner-logo-link" href="https://www.thejobbuddy.in/" target="_blank" rel="noopener noreferrer" aria-label="JobBuddy — Workforce & Management Platform">
+          <span class="partner-logo-text">JobBuddy</span>
+          <span class="partner-logo-sub">Workforce & Management</span>
+        </a>
+      </div>
+    </div>
   </div>
 
   <div class="container footer-bottom">

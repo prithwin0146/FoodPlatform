@@ -239,6 +239,11 @@ export class RestaurantList implements OnInit, AfterViewInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
+  isEmbedVideo(url: string): boolean {
+    return url.includes('youtube.com') || url.includes('youtu.be') ||
+           url.includes('vimeo.com') || url.includes('embed');
+  }
+
   ngOnInit(): void {
     this.restaurantService.list()
       .pipe(retry({ count: 3, delay: () => timer(2000) }))

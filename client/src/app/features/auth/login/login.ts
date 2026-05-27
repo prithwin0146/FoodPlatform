@@ -11,6 +11,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { Logo } from '../../../shared/components/logo/logo';
 
 
 @Component({
@@ -24,6 +25,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
     MatProgressSpinnerModule,
     ScrollRevealDirective,
     MagneticDirective,
+    Logo,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

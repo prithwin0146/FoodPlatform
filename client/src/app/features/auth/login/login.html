@@ -3,7 +3,9 @@
   <!-- ── LEFT BRAND PANEL ─────────────────────────────────────── -->
   <div class="brand-panel" aria-hidden="true">
     <div class="brand-panel__inner">
-      <div class="brand-wordmark" appScrollReveal>see the <em>prep</em>&#9646;</div>
+      <div class="brand-wordmark" appScrollReveal>
+        <app-logo variant="wordmark" [size]="44" [showTag]="false" />
+      </div>
       <p class="brand-panel__tagline" appScrollReveal [revealDelay]="60">Food delivery, on the record.</p>
 
       <ul class="brand-panel__pills">
