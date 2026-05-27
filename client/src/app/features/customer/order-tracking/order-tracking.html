@@ -9,7 +9,7 @@
       <div class="loading-state">
         <div class="orbit-loader">
           <div class="orbit-ring"></div>
-          <div class="orbit-core">🍽️</div>
+          <div class="orbit-core"><span class="material-symbols-rounded">restaurant</span></div>
         </div>
         <p>Loading your order…</p>
       </div>
@@ -50,7 +50,7 @@
                     @if (isStepComplete(step) && !isActive(step)) {
                       <span class="material-symbols-rounded check">check</span>
                     } @else {
-                      <span class="step-emoji">{{ step | orderStatusEmoji }}</span>
+                      <span class="step-dot-inner"></span>
                     }
                     @if (isActive(step)) {
                       <div class="active-ring"></div>
@@ -168,7 +168,7 @@
                       <span class="eta-static">· {{ o.estimatedDeliveryTime | date:'shortTime' }}</span>
                     </p>
                   } @else if (etaCountdown() === 0) {
-                    <p class="delivery-val eta-val eta-due">Arriving now 🛵</p>
+                    <p class="delivery-val eta-val eta-due">Arriving now</p>
                   } @else {
                     <p class="delivery-val eta-val">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
                   }
@@ -264,7 +264,7 @@
 
         <!-- Rejected / Cancelled -->
         <div class="status-message glass-card" [class.rejected]="o.status === 'Rejected'" [class.cancelled]="o.status === 'Cancelled'" appScrollReveal [revealDelay]="80">
-          <div class="status-icon-big">{{ o.status | orderStatusEmoji }}</div>
+          <span class="status-icon-big material-symbols-rounded">{{ o.status === 'Rejected' ? 'block' : 'cancel' }}</span>
           <h2>Order {{ o.status }}</h2>
           @if (o.rejectionReason) {
             <p class="rejection-reason">{{ o.rejectionReason }}</p>
@@ -275,7 +275,7 @@
 
     } @else {
       <div class="empty-state glass-card" appScrollReveal>
-        <div class="empty-icon">🔍</div>
+        <span class="empty-icon material-symbols-rounded">search_off</span>
         <h3>Order not found</h3>
       </div>
     }

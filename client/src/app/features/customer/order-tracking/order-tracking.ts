@@ -14,7 +14,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { OrderPollingService } from '../../../core/services/order-polling.service';
 import { ReviewService } from '../../../core/services/review.service';
 import { Order, ORDER_STATUS_FLOW, OrderStatus, Review } from '../../../core/models';
-import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
+import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
@@ -33,7 +33,7 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
   imports: [
     CurrencyPipe, DatePipe, RouterLink,
     FormsModule, MatFormFieldModule, MatInputModule,
-    OrderStatusEmojiPipe, OrderStatusLabelPipe, SafeUrlPipe,
+    OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
     ScrollRevealDirective, TiltDirective, MagneticDirective,
     ReviewWidget,

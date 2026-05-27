@@ -1,22 +1,17 @@
   import { Pipe, PipeTransform } from '@angular/core';
 import { OrderStatus } from '../../core/models';
 
-const STATUS_EMOJI: Record<string, string> = {
-  Pending: '⏳', Accepted: '✅', Preparing: '👨‍🍳', Cooking: '🔥',
-  Packed: '📦', OutForDelivery: '🚴', Delivered: '🎉',
-  Rejected: '❌', Cancelled: '🚫', Cancelling: '⏳',
-};
-
 /**
- * Maps an OrderStatus to an emoji.
- * (SRP: extracted from order-tracking and staff-dashboard components)
- * (OCP: add a new status by adding one entry to STATUS_EMOJI — no component changes needed)
+ * Order-status emoji pipe — intentionally returns an empty string.
+ *
+ * Emojis were stripped from the UI to keep status chips professional;
+ * the chip's colour + label now carry the meaning. Pipe is kept so
+ * existing templates compile unchanged.
+ * (SRP: display formatting only.)
  */
 @Pipe({ name: 'orderStatusEmoji', standalone: true })
 export class OrderStatusEmojiPipe implements PipeTransform {
-  transform(status: OrderStatus | string): string {
-    return STATUS_EMOJI[status] ?? '📋';
-  }
+  transform(_status: OrderStatus | string): string { return ''; }
 }
 
 /**
@@ -43,16 +38,8 @@ export class HygieneLabelPipe implements PipeTransform {
   }
 }
 
-/**
- * Maps a dietary tag string to an emoji icon.
- */
+/** Dietary tag icon pipe — emojis suppressed for professional UI. */
 @Pipe({ name: 'dietaryIcon', standalone: true })
 export class DietaryIconPipe implements PipeTransform {
-  private static readonly MAP: Record<string, string> = {
-    vegetarian: '🥬', vegan: '🌱', 'gluten-free': '🌾', halal: '☪️', spicy: '🌶️',
-  };
-
-  transform(tag: string): string {
-    return DietaryIconPipe.MAP[tag.toLowerCase().trim()] ?? '🏷️';
-  }
+  transform(_tag: string): string { return ''; }
 }

@@ -46,34 +46,18 @@
 
     <header class="admin-topbar">
       <div class="topbar-title">
-        @if (tab() === 'orders') {
-          <span class="material-symbols-rounded">receipt_long</span>
-          <h2>All Orders</h2>
-        }
-        @if (tab() === 'disputes') {
-          <span class="material-symbols-rounded">report_problem</span>
-          <h2>Disputes</h2>
-        }
-        @if (tab() === 'restaurants') {
-          <span class="material-symbols-rounded">storefront</span>
-          <h2>Restaurants</h2>
-        }
-        @if (tab() === 'menu') {
-          <span class="material-symbols-rounded">restaurant_menu</span>
-          <h2>Menu Items</h2>
-        }
-        @if (tab() === 'users') {
-          <span class="material-symbols-rounded">group</span>
-          <h2>Users</h2>
-        }
-        @if (tab() === 'analytics') {
-          <span class="material-symbols-rounded">analytics</span>
-          <h2>Analytics</h2>
-        }
-        @if (tab() === 'reviews') {
-          <span class="material-symbols-rounded">rate_review</span>
-          <h2>Reviews</h2>
-        }
+        <span class="topbar-crumb">Admin</span>
+        <span class="topbar-sep material-symbols-rounded">chevron_right</span>
+        @if (tab() === 'orders')      { <span class="material-symbols-rounded">receipt_long</span> <h2>All Orders</h2> }
+        @if (tab() === 'disputes')    { <span class="material-symbols-rounded">report_problem</span> <h2>Disputes</h2> }
+        @if (tab() === 'restaurants') { <span class="material-symbols-rounded">storefront</span> <h2>Restaurants</h2> }
+        @if (tab() === 'menu')        { <span class="material-symbols-rounded">restaurant_menu</span> <h2>Menu Items</h2> }
+        @if (tab() === 'users')       { <span class="material-symbols-rounded">group</span> <h2>Users</h2> }
+        @if (tab() === 'analytics')   { <span class="material-symbols-rounded">analytics</span> <h2>Analytics</h2> }
+        @if (tab() === 'reviews')     { <span class="material-symbols-rounded">rate_review</span> <h2>Reviews</h2> }
+      </div>
+      <div class="topbar-meta">
+        <span class="topbar-env">Production</span>
       </div>
     </header>
 

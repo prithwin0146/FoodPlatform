@@ -4,7 +4,7 @@
 
     <div class="page-header" appScrollReveal>
       <div class="page-title-wrap">
-        <span class="page-icon">🧾</span>
+        <span class="page-icon material-symbols-rounded">receipt_long</span>
         <div>
           <h1 class="page-title">My Orders</h1>
           <p class="page-sub">Track your orders and revisit past deliveries.</p>
@@ -52,7 +52,7 @@
       </div>
     } @else if (filteredOrders().length === 0) {
       <div class="empty-state glass-card" appScrollReveal>
-        <div class="empty-icon">📭</div>
+        <span class="empty-icon material-symbols-rounded">inbox</span>
         <h3>No orders yet</h3>
         <p>Your order history will appear here once you place your first order.</p>
         <a routerLink="/" mat-flat-button class="browse-btn">
@@ -67,12 +67,9 @@
             class="order-row glass-card"
             [class.order-row--active]="isActive(order)"
             [routerLink]="['/orders', order.hashId]"
-            appTilt [tiltMax]="4"
-            appScrollReveal [revealDelay]="idx * 50"
+            appScrollReveal [revealDelay]="idx * 40"
             matRipple
           >
-            <div class="card-glare"></div>
-
             <div class="row-left">
               <div class="order-num-wrap">
                 <span class="order-num">#{{ order.id }}</span>
@@ -95,7 +92,8 @@
 
             <div class="row-right">
               <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
-                {{ order.status | orderStatusEmoji }} {{ order.status | orderStatusLabel }}
+                <span class="status-dot"></span>
+                {{ order.status | orderStatusLabel }}
               </span>
               <span class="order-total">{{ order.totalAmount | currency:'GBP' }}</span>
               @if (!isActive(order)) {

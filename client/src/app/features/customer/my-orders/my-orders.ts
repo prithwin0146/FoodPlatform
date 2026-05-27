@@ -11,23 +11,21 @@ import { MatInputModule } from '@angular/material/input';
 import { OrderService } from '../../../core/services/order.service';
 import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
 import { Order, PaginatedResult } from '../../../core/models';
-import { OrderStatusEmojiPipe, OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
+import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
-import { TiltDirective } from '../../../shared/directives/tilt.directive';
 
 /**
  * Displays all orders placed by the current customer.
  * (SRP: data loading via OrderService; status display via pipes)
- * (OCP: new statuses automatically appear via OrderStatusEmojiPipe)
  */
 @Component({
   selector: 'app-my-orders',
   imports: [
     CurrencyPipe, DatePipe, RouterLink, FormsModule,
-    OrderStatusEmojiPipe, OrderStatusLabelPipe,
+    OrderStatusLabelPipe,
     MatButtonModule, MatRippleModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule,
-    ScrollRevealDirective, TiltDirective,
+    ScrollRevealDirective,
   ],
   templateUrl: './my-orders.html',
   styleUrl: './my-orders.scss',

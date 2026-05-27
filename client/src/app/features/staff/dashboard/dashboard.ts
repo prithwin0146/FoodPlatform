@@ -17,7 +17,6 @@ import { RestaurantService } from '../../../core/services/restaurant.service';
 import { AudioService } from '../../../core/services/audio.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours } from '../../../core/models';
-import { OrderStatusEmojiPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -35,7 +34,7 @@ const POLL_INTERVAL_MS = 5_000;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CurrencyPipe, DatePipe, DecimalPipe, FormsModule,
-    OrderStatusEmojiPipe, SafeUrlPipe,
+    SafeUrlPipe,
     MatButtonModule, MatChipsModule, MatRippleModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule,
     TiltDirective, ScrollRevealDirective, MagneticDirective,

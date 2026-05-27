@@ -193,13 +193,13 @@
 
         @if (filteredCategories().length === 0 && searchQuery()) {
           <div class="empty-state">
-            <span class="empty-icon">🔍</span>
+            <span class="empty-icon material-symbols-rounded">search_off</span>
             <h3>No dishes found</h3>
             <p>Try a different search term.</p>
           </div>
         } @else if (availableCategories().length === 0) {
           <div class="empty-state">
-            <span class="empty-icon">📋</span>
+            <span class="empty-icon material-symbols-rounded">restaurant_menu</span>
             <h3>No menu available</h3>
             <p>This restaurant hasn't added any items yet.</p>
           </div>

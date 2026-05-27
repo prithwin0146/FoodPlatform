@@ -13,7 +13,7 @@ namespace FoodPlatform.Api.Services;
 /// </summary>
 public class AngelcamService : IAngelcamService
 {
-    private readonly HttpClient _http;
+    private readonly HttpClient _http;  
     private readonly IMemoryCache _cache;
     private readonly ILogger<AngelcamService> _logger;
     private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(50);

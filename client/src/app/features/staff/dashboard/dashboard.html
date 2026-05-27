@@ -5,7 +5,7 @@
     <!-- Header -->
     <div class="dash-header" appScrollReveal>
       <div class="dash-title-wrap">
-        <span class="dash-icon">🏪</span>
+        <span class="dash-icon material-symbols-rounded">storefront</span>
         <div>
           <h1 class="dash-title">
             Restaurant Dashboard
@@ -341,7 +341,7 @@
           (click)="setFilter(f)"
           matRipple
         >
-          {{ f === 'all' ? '📋 All' : (f | orderStatusEmoji) + ' ' + f }}
+          {{ f === 'all' ? 'All' : f }}
         </button>
       }
     </div>
@@ -360,7 +360,7 @@
       </div>
     } @else if (orders().length === 0) {
       <div class="empty-state glass-card" appScrollReveal>
-        <div class="empty-icon">📭</div>
+        <span class="empty-icon material-symbols-rounded">inbox</span>
         <h3>No orders found</h3>
         <p>Orders will appear here automatically — no refresh needed.</p>
       </div>
@@ -390,7 +390,7 @@
                   </span>
                 }
                 <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
-                  {{ order.status | orderStatusEmoji }} {{ order.status }}
+                  <span class="status-dot"></span>{{ order.status }}
                 </span>
               </div>
             </div>
@@ -482,7 +482,7 @@
                   [disabled]="isActionInProgress(order.id)"
                   (click)="advanceStatus(order)" appMagnetic
                   [matTooltip]="nextStatusLabel(order)">
-                  <span class="btn-emoji">{{ nextStatusEmoji(order) }}</span>
+                  <span class="material-symbols-rounded">arrow_forward</span>
                   {{ isActionInProgress(order.id) ? 'Updating…' : nextStatusLabel(order) }}
                 </button>
               </div>
