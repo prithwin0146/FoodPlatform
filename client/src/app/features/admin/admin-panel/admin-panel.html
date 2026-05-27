@@ -33,6 +33,10 @@
         <span class="material-symbols-rounded">rate_review</span>
         <span>Reviews</span>
       </button>
+      <button class="nav-item" [class.active]="tab() === 'settings'" (click)="setTab('settings')">
+        <span class="material-symbols-rounded">settings</span>
+        <span>Settings</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -55,6 +59,7 @@
         @if (tab() === 'users')       { <span class="material-symbols-rounded">group</span> <h2>Users</h2> }
         @if (tab() === 'analytics')   { <span class="material-symbols-rounded">analytics</span> <h2>Analytics</h2> }
         @if (tab() === 'reviews')     { <span class="material-symbols-rounded">rate_review</span> <h2>Reviews</h2> }
+        @if (tab() === 'settings')    { <span class="material-symbols-rounded">settings</span> <h2>Settings</h2> }
       </div>
       <div class="topbar-meta">
         <span class="topbar-env">Production</span>
@@ -82,6 +87,9 @@
       }
       @if (tab() === 'reviews') {
         <app-admin-reviews-tab />
+      }
+      @if (tab() === 'settings') {
+        <app-admin-settings-tab />
       }
     </div>
 

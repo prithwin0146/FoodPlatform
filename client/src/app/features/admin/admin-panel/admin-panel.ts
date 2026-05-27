@@ -8,6 +8,7 @@ import { AdminMenuTab } from './admin-menu-tab';
 import { AdminUsersTab } from './admin-users-tab';
 import { AdminAnalyticsTab } from './admin-analytics-tab';
 import { AdminReviewsTab } from './admin-reviews-tab';
+import { AdminSettingsTab } from './admin-settings-tab';
 
 /**
  * Shell component — owns only the tab switcher state.
@@ -16,14 +17,14 @@ import { AdminReviewsTab } from './admin-reviews-tab';
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [AdminOrdersTab, AdminDisputesTab, AdminRestaurantsTab, AdminMenuTab, AdminUsersTab, AdminAnalyticsTab, AdminReviewsTab, MatTabsModule, MatButtonModule],
+  imports: [AdminOrdersTab, AdminDisputesTab, AdminRestaurantsTab, AdminMenuTab, AdminUsersTab, AdminAnalyticsTab, AdminReviewsTab, AdminSettingsTab, MatTabsModule, MatButtonModule],
   templateUrl: './admin-panel.html',
   styleUrl: './admin-panel.scss',
 })
 export class AdminPanel {
-  readonly tab = signal<'orders' | 'disputes' | 'restaurants' | 'menu' | 'users' | 'analytics' | 'reviews'>('orders');
+  readonly tab = signal<'orders' | 'disputes' | 'restaurants' | 'menu' | 'users' | 'analytics' | 'reviews' | 'settings'>('orders');
 
-  setTab(t: 'orders' | 'disputes' | 'restaurants' | 'menu' | 'users' | 'analytics' | 'reviews'): void {
+  setTab(t: 'orders' | 'disputes' | 'restaurants' | 'menu' | 'users' | 'analytics' | 'reviews' | 'settings'): void {
     this.tab.set(t);
   }
 }

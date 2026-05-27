@@ -371,7 +371,6 @@
             class="order-card glass-card"
             [class]="'order-card glass-card border-' + order.status.toLowerCase()"
             [class.order-card--disputed]="order.disputeStatus === 'Open'"
-            appTilt [tiltMax]="6"
             appScrollReveal [revealDelay]="idx * 60"
           >
             <div class="card-glare"></div>

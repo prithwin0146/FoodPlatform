@@ -107,6 +107,9 @@ public static class ServiceCollectionExtensions
         // Reviews
         services.AddScoped<IReviewService, ReviewService>();
 
+        // Platform settings (homepage video, etc.)
+        services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
+
         // Infrastructure services
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IEmailService, ResendEmailService>();

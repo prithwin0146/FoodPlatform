@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Title, Meta } from '@angular/platform-browser';
+import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { retry } from 'rxjs/operators';
 import { timer } from 'rxjs';
@@ -14,6 +14,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { RestaurantService } from '../../../core/services/restaurant.service';
+import { PlatformSettingsService } from '../../../core/services/platform-settings.service';
 import { Restaurant } from '../../../core/models';
 import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
 import { HygieneLabelPipe } from '../../../shared/pipes/order-status.pipe';
@@ -58,6 +59,9 @@ export class RestaurantList implements OnInit, AfterViewInit {
   readonly restaurants = signal<Restaurant[]>([]);
   readonly loading = signal(true);
   readonly searchQuery = signal('');
+  readonly demoVideoUrl = signal<string>('');
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly platformSettings = inject(PlatformSettingsService);
 
   readonly CUISINE_OPTIONS = ['All', 'Indian', 'Italian', 'Japanese', 'Burgers', 'Chinese', 'Healthy', 'Pizza', 'Other'];
   readonly DIETARY_OPTIONS = ['Vegan', 'Vegetarian', 'Halal', 'Gluten-free'];
@@ -231,6 +235,10 @@ export class RestaurantList implements OnInit, AfterViewInit {
     doc.head.appendChild(script);
   }
 
+  safeVideoUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
   ngOnInit(): void {
     this.restaurantService.list()
       .pipe(retry({ count: 3, delay: () => timer(2000) }))
@@ -238,6 +246,10 @@ export class RestaurantList implements OnInit, AfterViewInit {
         next: (data) => { this.restaurants.set(data); this.loading.set(false); },
         error: () => this.loading.set(false),
       });
+    this.platformSettings.getPublicSettings().subscribe(s => {
+      const v = s['homepage_demo_video'];
+      if (v) this.demoVideoUrl.set(v);
+    });
   }
 
   ngAfterViewInit(): void {

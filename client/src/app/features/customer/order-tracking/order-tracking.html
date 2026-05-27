@@ -16,7 +16,7 @@
     } @else if (order(); as o) {
 
       <!-- ── Order Header Card ── -->
-      <div class="order-header-card glass-card" appScrollReveal appTilt [tiltMax]="6">
+      <div class="order-header-card glass-card" appScrollReveal>
         <div class="hc-left">
           <h1 class="order-title">Order <span class="order-id">#{{ o.id }}</span></h1>
           <p class="order-restaurant">{{ o.restaurantName }}</p>
@@ -37,7 +37,7 @@
       @if (o.status !== 'Rejected' && o.status !== 'Cancelled') {
 
         <!-- ── Status Stepper ── -->
-        <div class="stepper-card glass-card" appScrollReveal [revealDelay]="80" appTilt [tiltMax]="5">
+        <div class="stepper-card glass-card" appScrollReveal [revealDelay]="80">
           <div class="stepper-track">
             @for (step of statusSteps; track step; let idx = $index; let last = $last) {
               <div class="step-wrapper">
@@ -67,7 +67,7 @@
         </div>
 
         <!-- ── Live Kitchen Panel ── -->
-        <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160" appTilt [tiltMax]="5">
+        <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160">
           <div class="lk-video">
             @if (shouldShowStream() && liveStreamUrl()) {
               <!-- Live Angelcam HLS stream — active only during Accepted → Packed window.
@@ -117,7 +117,7 @@
         <div class="lower-grid" appScrollReveal [revealDelay]="240">
 
           <!-- Order Items -->
-          <div class="glass-card items-card" appTilt [tiltMax]="6">
+          <div class="glass-card items-card">
             <div class="card-header">
               <span class="material-symbols-rounded header-icon">restaurant_menu</span>
               <h2>Order Items</h2>
@@ -136,7 +136,7 @@
           </div>
 
           <!-- Delivery Details -->
-          <div class="glass-card delivery-card" appTilt [tiltMax]="6">
+          <div class="glass-card delivery-card">
             <div class="card-header">
               <span class="material-symbols-rounded header-icon">local_shipping</span>
               <h2>Delivery Details</h2>
