@@ -44,15 +44,18 @@ public class MenuService : IMenuService
             Name = request.Name,
             Description = request.Description,
             Price = request.Price,
-            Allergens = request.Allergens,
-            DietaryTags = request.DietaryTags,
+            Allergens = Infrastructure.JsonStringList.Serialize(request.Allergens),
+            DietaryTags = Infrastructure.JsonStringList.Serialize(request.DietaryTags),
             ImageUrl = request.ImageUrl
         };
         _db.MenuItems.Add(item);
         await _db.SaveChangesAsync();
 
         return new MenuItemDto(item.Id, item.CategoryId, item.Name, item.Description,
-            item.Price, item.Allergens, item.DietaryTags, item.IsAvailable, item.ImageUrl);
+            item.Price,
+            Infrastructure.JsonStringList.Parse(item.Allergens),
+            Infrastructure.JsonStringList.Parse(item.DietaryTags),
+            item.IsAvailable, item.ImageUrl);
     }
 
     public async Task<MenuItemDto?> UpdateItemAsync(int restaurantId, int itemId, UpdateMenuItemRequest request)
@@ -64,8 +67,8 @@ public class MenuService : IMenuService
         if (request.Name != null) item.Name = request.Name;
         if (request.Description != null) item.Description = request.Description;
         if (request.Price.HasValue) item.Price = request.Price.Value;
-        if (request.Allergens != null) item.Allergens = request.Allergens;
-        if (request.DietaryTags != null) item.DietaryTags = request.DietaryTags;
+        if (request.Allergens != null) item.Allergens = Infrastructure.JsonStringList.Serialize(request.Allergens);
+        if (request.DietaryTags != null) item.DietaryTags = Infrastructure.JsonStringList.Serialize(request.DietaryTags);
         if (request.CategoryId.HasValue)
         {
             // Ownership check: the target category must belong to the same restaurant.
@@ -80,7 +83,10 @@ public class MenuService : IMenuService
 
         await _db.SaveChangesAsync();
         return new MenuItemDto(item.Id, item.CategoryId, item.Name, item.Description,
-            item.Price, item.Allergens, item.DietaryTags, item.IsAvailable, item.ImageUrl);
+            item.Price,
+            Infrastructure.JsonStringList.Parse(item.Allergens),
+            Infrastructure.JsonStringList.Parse(item.DietaryTags),
+            item.IsAvailable, item.ImageUrl);
     }
 
     public async Task<object?> ToggleAvailabilityAsync(int restaurantId, int itemId)

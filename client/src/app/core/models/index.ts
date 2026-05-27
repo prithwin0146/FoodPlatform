@@ -45,8 +45,8 @@ export interface MenuItem {
   name: string;
   description: string | null;
   price: number;
-  allergens: string | null;
-  dietaryTags: string | null;
+  allergens: string[];
+  dietaryTags: string[];
   isAvailable: boolean;
   imageUrl?: string | null;
 }

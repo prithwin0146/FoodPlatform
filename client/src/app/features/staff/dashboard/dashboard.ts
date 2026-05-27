@@ -18,7 +18,7 @@ import { AudioService } from '../../../core/services/audio.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours } from '../../../core/models';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
-import { TiltDirective } from '../../../shared/directives/tilt.directive';
+import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 
@@ -34,10 +34,10 @@ const POLL_INTERVAL_MS = 5_000;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CurrencyPipe, DatePipe, DecimalPipe, FormsModule,
-    SafeUrlPipe,
+    SafeUrlPipe, OrderStatusLabelPipe,
     MatButtonModule, MatChipsModule, MatRippleModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule,
-    TiltDirective, ScrollRevealDirective, MagneticDirective,
+    ScrollRevealDirective, MagneticDirective,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -466,19 +466,12 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-  /** Returns e.g. "Mark as Cooking" for the advance button label. */
+  /** Returns e.g. "Mark as Out For Delivery" for the advance button label. */
   nextStatusLabel(order: Order): string {
     const next = nextOrderStatus(order.status);
-    return next ? `Mark as ${next}` : '';
-  }
-
-  nextStatusEmoji(order: Order): string {
-    const emojis: Record<string, string> = {
-      Accepted: '✅', Preparing: '🔪', Cooking: '🔥',
-      Packed: '📦', OutForDelivery: '🛵', Delivered: '🎉',
-    };
-    const next = nextOrderStatus(order.status);
-    return next ? (emojis[next] ?? '→') : '';
+    if (!next) return '';
+    const spaced = next.replace(/([A-Z])/g, ' $1').trim();
+    return `Mark as ${spaced}`;
   }
 }
 

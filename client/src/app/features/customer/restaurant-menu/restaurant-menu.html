@@ -3,6 +3,11 @@
   @if (restaurant(); as r) {
     <section class="restaurant-hero" appScrollReveal>
       <div class="hero-bg-glow"></div>
+      @if (r.imageUrl) {
+        <div class="menu-hero-cover" [style.background-image]="'url(' + r.imageUrl + ')'">
+          <div class="menu-hero-cover-overlay"></div>
+        </div>
+      }
       <div class="container">
         <a routerLink="/" mat-button class="back-btn">
           <span class="material-symbols-rounded">arrow_back</span> All Restaurants
@@ -12,7 +17,7 @@
             @if (r.imageUrl) {
               <img class="restaurant-hero-img" [src]="r.imageUrl" [alt]="r.name" width="120" height="120" loading="eager">
             } @else {
-              <span class="restaurant-emoji">{{ r.name | menuItemEmoji }}</span>
+              <app-image-fallback [name]="r.name" tone="auto" />
             }
           </div>
           <div class="hero-info">
@@ -142,7 +147,7 @@
                       @if (item.imageUrl) {
                         <img class="item-img" [src]="item.imageUrl" [alt]="item.name" width="160" height="160" loading="lazy">
                       } @else {
-                        <span class="item-emoji">{{ item.name | menuItemEmoji }}</span>
+                        <app-image-fallback [name]="item.name" tone="auto" />
                       }
                     </div>
                     <div class="item-body">
@@ -150,16 +155,17 @@
                       @if (item.description) {
                         <p class="item-desc">{{ item.description }}</p>
                       }
-                      @if (item.dietaryTags) {
+                      @if (item.dietaryTags.length) {
                         <div class="dietary-tags">
-                          @for (tag of item.dietaryTags.split(','); track tag) {
-                            <span class="dietary-tag">{{ tag | dietaryIcon }} {{ tag.trim() }}</span>
+                          @for (tag of item.dietaryTags; track tag) {
+                            <span class="dietary-tag">{{ tag }}</span>
                           }
                         </div>
                       }
-                      @if (item.allergens) {
+                      @if (item.allergens.length) {
                         <p class="allergens">
-                          <span class="material-symbols-rounded">warning</span> {{ item.allergens }}
+                          <span class="material-symbols-rounded">warning</span>
+                          Contains: {{ item.allergens.join(', ') }}
                         </p>
                       }
                     </div>

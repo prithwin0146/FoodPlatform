@@ -74,16 +74,23 @@
 
 /* ── Filter Tabs ── */
 .filter-tabs {
-  display: flex; gap: 8px; margin-bottom: 24px;
+  display: inline-flex; gap: 4px; margin-bottom: 24px;
+  padding: 4px; border-radius: 14px;
+  background: var(--surface-card, rgba(255,255,255,.04));
+  border: 1px solid var(--border-color);
 }
 .filter-tab {
-  padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-color);
-  background: transparent; color: var(--text-secondary); font-size: .85rem; cursor: pointer;
-  transition: all .2s;
-  &:hover { border-color: var(--brand-primary); color: var(--text-primary); }
+  position: relative;
+  padding: 9px 22px; border-radius: 10px;
+  border: none; background: transparent;
+  color: var(--text-secondary); font-size: .85rem; font-weight: 600;
+  cursor: pointer;
+  transition: color .2s var(--ease-out), background .2s var(--ease-out), transform .15s var(--ease-out);
+  &:hover { color: var(--text-primary); }
   &.active {
-    background: var(--brand-primary); border-color: var(--brand-primary);
-    color: #fff; font-weight: 600;
+    background: linear-gradient(135deg, #ff6b1a, #ff3d8a);
+    color: #fff; font-weight: 700;
+    box-shadow: 0 4px 12px -4px rgba(255, 61, 138, .45);
   }
 }
 

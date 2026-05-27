@@ -173,7 +173,7 @@
               @if (restaurant.imageUrl) {
                 <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy">
               } @else {
-                <div class="restaurant-emoji">{{ restaurant.name | restaurantEmoji }}</div>
+                <app-image-fallback [name]="restaurant.name" tone="auto" />
               }
               <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating">
                 <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>

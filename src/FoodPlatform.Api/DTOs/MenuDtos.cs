@@ -6,7 +6,7 @@ namespace FoodPlatform.Api.DTOs;
 public record MenuCategoryDto(int Id, string Name, int SortOrder, List<MenuItemDto> Items);
 
 public record MenuItemDto(int Id, int CategoryId, string Name, string? Description,
-    decimal Price, string? Allergens, string? DietaryTags, bool IsAvailable, string? ImageUrl);
+    decimal Price, List<string> Allergens, List<string> DietaryTags, bool IsAvailable, string? ImageUrl);
 
 public record CreateMenuItemRequest(
     [Required] int CategoryId,
@@ -14,8 +14,8 @@ public record CreateMenuItemRequest(
     [MaxLength(500)] string? Description,
     [Required, Range(0.01, 9999.99, ErrorMessage = "Price must be between £0.01 and £9,999.99")]
     decimal Price,
-    [MaxLength(500)] string? Allergens,
-    [MaxLength(200)] string? DietaryTags,
+    List<string>? Allergens,
+    List<string>? DietaryTags,
     [MaxLength(500)] string? ImageUrl);
 
 public record UpdateMenuItemRequest(
@@ -24,8 +24,8 @@ public record UpdateMenuItemRequest(
     [MaxLength(500)] string? Description,
     [Range(0.01, 9999.99, ErrorMessage = "Price must be between £0.01 and £9,999.99")]
     decimal? Price,
-    [MaxLength(500)] string? Allergens,
-    [MaxLength(200)] string? DietaryTags,
+    List<string>? Allergens,
+    List<string>? DietaryTags,
     [MaxLength(500)] string? ImageUrl,
     bool? IsAvailable);
 
@@ -39,8 +39,8 @@ public record AdminCreateMenuItemRequest(
     [MaxLength(500)] string? Description,
     [Required, Range(0.01, 9999.99, ErrorMessage = "Price must be between £0.01 and £9,999.99")]
     decimal Price,
-    [MaxLength(500)] string? Allergens,
-    [MaxLength(200)] string? DietaryTags,
+    List<string>? Allergens,
+    List<string>? DietaryTags,
     [MaxLength(500)] string? ImageUrl);
 
 /// <summary>Admin-only: update any item regardless of restaurant.</summary>
@@ -50,8 +50,8 @@ public record AdminUpdateMenuItemRequest(
     [MaxLength(500)] string? Description,
     [Range(0.01, 9999.99, ErrorMessage = "Price must be between £0.01 and £9,999.99")]
     decimal? Price,
-    [MaxLength(500)] string? Allergens,
-    [MaxLength(200)] string? DietaryTags,
+    List<string>? Allergens,
+    List<string>? DietaryTags,
     [MaxLength(500)] string? ImageUrl,
     bool? IsAvailable);
 

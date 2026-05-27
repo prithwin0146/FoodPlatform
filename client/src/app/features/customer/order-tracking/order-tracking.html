@@ -89,8 +89,12 @@
               }
             } @else {
               <div class="video-placeholder">
-                <span class="material-symbols-rounded vp-icon">videocam_off</span>
-                <p class="watch-label">Live kitchen feed coming soon!</p>
+                <div class="vp-shimmer"></div>
+                <div class="vp-content">
+                  <span class="vp-status-dot"></span>
+                  <p class="vp-status-label">Awaiting kitchen feed</p>
+                  <p class="vp-status-sub">Your live view will start the moment the chef begins cooking.</p>
+                </div>
               </div>
             }
           </div>

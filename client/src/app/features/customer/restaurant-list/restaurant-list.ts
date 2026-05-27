@@ -18,12 +18,12 @@ import { PlatformSettingsService } from '../../../core/services/platform-setting
 import { Restaurant } from '../../../core/models';
 import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
 import { HygieneLabelPipe } from '../../../shared/pipes/order-status.pipe';
-import { RestaurantEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { CountUpDirective } from '../../../shared/directives/count-up.directive';
 import { Logo } from '../../../shared/components/logo/logo';
+import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
 interface HowStep {
   num: string; title: string; copy: string; icon: string;
@@ -44,9 +44,9 @@ interface Promise {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    HygieneStarsPipe, HygieneLabelPipe, RestaurantEmojiPipe,
+    HygieneStarsPipe, HygieneLabelPipe,
     TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
-    Logo,
+    Logo, ImageFallback,
     MatFormFieldModule, MatInputModule, MatChipsModule,
     MatProgressSpinnerModule, MatRippleModule, MatTooltipModule, MatButtonModule,
   ],

@@ -59,21 +59,8 @@
 }
 
 .brand-wordmark {
-  font-family: var(--font-display, 'Fraunces', Georgia, serif);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.03em;
+  display: flex; align-items: center;
   margin-bottom: 12px;
-  line-height: 1;
-
-  em {
-    font-style: italic;
-    background: linear-gradient(90deg, #ff6b1a 0%, #ff3d8a 55%, #a855f7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
 }
 
 .brand-panel__tagline {
@@ -129,9 +116,31 @@
   }
 }
 
+.brand-panel__trust {
+  margin-top: 32px;
+  display: flex; flex-direction: column; gap: 8px;
+  .trust-label {
+    font-size: .7rem; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .trust-row {
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .trust-tag {
+    font-family: var(--font-display);
+    font-size: .95rem; font-weight: 700; color: var(--text);
+    letter-spacing: -.01em;
+  }
+  .trust-dot { color: var(--text-muted); font-weight: 700; }
+}
+
 /* ── Right: Form panel ── */
 .form-panel {
-  background: #fff;
+  position: relative;
+  background:
+    radial-gradient(800px circle at 100% 0%, rgba(255, 107, 26, .06), transparent 55%),
+    radial-gradient(600px circle at 0% 100%, rgba(255, 61, 138, .05), transparent 55%),
+    #fff;
   display: flex;
   align-items: center;
   justify-content: center;

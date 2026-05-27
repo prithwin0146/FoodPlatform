@@ -23,6 +23,7 @@ import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/live-stream-player';
+import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
 /**
  * (SRP: display helpers extracted to pipes; forkJoin ensures atomic data loading)
@@ -31,11 +32,11 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
   selector: 'app-restaurant-menu',
   imports: [
     CurrencyPipe, DatePipe, RouterLink,
-    HygieneStarsPipe, MenuItemEmojiPipe, DietaryIconPipe, SafeUrlPipe,
+    HygieneStarsPipe, SafeUrlPipe,
     MatButtonModule, MatChipsModule, MatRippleModule,
     MatProgressSpinnerModule, MatTooltipModule, MatBadgeModule,
-    TiltDirective, ScrollRevealDirective, MagneticDirective,
-    LiveStreamPlayer,
+    ScrollRevealDirective, MagneticDirective,
+    LiveStreamPlayer, ImageFallback,
   ],
   templateUrl: './restaurant-menu.html',
   styleUrl: './restaurant-menu.scss',
@@ -118,7 +119,7 @@ export class RestaurantMenu implements OnInit {
           if (!i.isAvailable) return false;
           if (q && !i.name.toLowerCase().includes(q)) return false;
           if (dietary.length > 0) {
-            const tags = (i.dietaryTags ?? '').toLowerCase();
+            const tags = (i.dietaryTags ?? []).map(t => t.toLowerCase());
             if (!dietary.every(d => tags.includes(d.toLowerCase()))) return false;
           }
           return true;

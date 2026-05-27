@@ -308,8 +308,8 @@ export class AdminMenuTab implements OnInit {
       name: item.name,
       description: item.description ?? '',
       price: item.price,
-      allergens: item.allergens ?? '',
-      dietaryTags: item.dietaryTags ?? '',
+      allergens: (item.allergens ?? []).join(', '),
+      dietaryTags: (item.dietaryTags ?? []).join(', '),
       imageUrl: item.imageUrl ?? '',
       isAvailable: item.isAvailable,
     };
@@ -333,8 +333,8 @@ export class AdminMenuTab implements OnInit {
         name: this.itemForm.name.trim(),
         description: this.itemForm.description || null,
         price: this.itemForm.price,
-        allergens: this.itemForm.allergens || null,
-        dietaryTags: this.itemForm.dietaryTags || null,
+        allergens: this.splitCsv(this.itemForm.allergens),
+        dietaryTags: this.splitCsv(this.itemForm.dietaryTags),
         imageUrl: this.itemForm.imageUrl || null,
         isAvailable: this.itemForm.isAvailable,
       };
@@ -356,8 +356,8 @@ export class AdminMenuTab implements OnInit {
         name: this.itemForm.name.trim(),
         description: this.itemForm.description || null,
         price: this.itemForm.price,
-        allergens: this.itemForm.allergens || null,
-        dietaryTags: this.itemForm.dietaryTags || null,
+        allergens: this.splitCsv(this.itemForm.allergens),
+        dietaryTags: this.splitCsv(this.itemForm.dietaryTags),
         imageUrl: this.itemForm.imageUrl || null,
       };
       this.menuSvc.createItem(payload).subscribe({
@@ -387,5 +387,10 @@ export class AdminMenuTab implements OnInit {
 
   private blankItemForm(catId: number | null = null): ItemForm {
     return { categoryId: catId, name: '', description: '', price: null, allergens: '', dietaryTags: '', imageUrl: '', isAvailable: true };
+  }
+
+  private splitCsv(value: string): string[] | null {
+    const parts = (value || '').split(',').map(s => s.trim()).filter(Boolean);
+    return parts.length ? parts : null;
   }
 }

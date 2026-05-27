@@ -6,7 +6,9 @@
 
     @if (cart.isEmpty()) {
       <div class="empty-state" appScrollReveal [revealDelay]="100">
-        <div class="empty-icon">🛒</div>
+        <div class="empty-icon">
+          <span class="material-symbols-rounded">shopping_cart</span>
+        </div>
         <h3>Your cart is empty</h3>
         <p>Add some delicious items first!</p>
         <a routerLink="/" mat-flat-button class="browse-btn" appMagnetic>
@@ -102,7 +104,13 @@
             <div class="cart-items">
               @for (item of cart.items(); track item.menuItem.id; let idx = $index) {
                 <div class="cart-item" [style.animation-delay]="idx * 50 + 'ms'">
-                  <span class="item-emoji">{{ item.menuItem.name | menuItemEmoji }}</span>
+                  <div class="cart-thumb">
+                    @if (item.menuItem.imageUrl) {
+                      <img [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name" loading="lazy">
+                    } @else {
+                      <app-image-fallback [name]="item.menuItem.name" />
+                    }
+                  </div>
                   <div class="cart-item-info">
                     <h4>{{ item.menuItem.name }}</h4>
                     <p class="item-qty-label">Qty {{ item.quantity }}</p>

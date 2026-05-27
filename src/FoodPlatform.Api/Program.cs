@@ -119,6 +119,12 @@ app.MapHealthChecks("/healthz", new HealthCheckOptions
     }
 });
 
+// Runs in every environment — only backfills rows where ImageUrl is null/empty.
+{
+    var imgLogger = app.Services.GetRequiredService<ILogger<Program>>();
+    await ImageSeeder.BackfillAsync(app.Services, imgLogger);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseHangfireDashboard("/hangfire");

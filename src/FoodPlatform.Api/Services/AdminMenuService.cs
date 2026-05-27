@@ -19,17 +19,21 @@ public class AdminMenuService : IAdminMenuService
 
     public async Task<IEnumerable<MenuCategoryDto>> GetMenuAsync(int restaurantId)
     {
-        return await _db.MenuCategories
+        var cats = await _db.MenuCategories
             .Include(c => c.Items)
             .Where(c => c.RestaurantId == restaurantId)
             .OrderBy(c => c.SortOrder)
-            .Select(c => new MenuCategoryDto(
-                c.Id, c.Name, c.SortOrder,
-                c.Items
-                 .Select(i => new MenuItemDto(i.Id, i.CategoryId, i.Name, i.Description,
-                     i.Price, i.Allergens, i.DietaryTags, i.IsAvailable, i.ImageUrl))
-                 .ToList()))
             .ToListAsync();
+
+        return cats.Select(c => new MenuCategoryDto(
+            c.Id, c.Name, c.SortOrder,
+            c.Items
+             .Select(i => new MenuItemDto(i.Id, i.CategoryId, i.Name, i.Description,
+                 i.Price,
+                 Infrastructure.JsonStringList.Parse(i.Allergens),
+                 Infrastructure.JsonStringList.Parse(i.DietaryTags),
+                 i.IsAvailable, i.ImageUrl))
+             .ToList()));
     }
 
     public async Task<MenuCategoryDto> CreateCategoryAsync(AdminCreateCategoryRequest request)
@@ -63,8 +67,8 @@ public class AdminMenuService : IAdminMenuService
             Name = request.Name,
             Description = request.Description,
             Price = request.Price,
-            Allergens = request.Allergens,
-            DietaryTags = request.DietaryTags,
+            Allergens = Infrastructure.JsonStringList.Serialize(request.Allergens),
+            DietaryTags = Infrastructure.JsonStringList.Serialize(request.DietaryTags),
             ImageUrl = request.ImageUrl
         };
         _db.MenuItems.Add(item);
@@ -80,8 +84,8 @@ public class AdminMenuService : IAdminMenuService
         if (request.Name != null)        item.Name = request.Name;
         if (request.Description != null) item.Description = request.Description;
         if (request.Price.HasValue)      item.Price = request.Price.Value;
-        if (request.Allergens != null)   item.Allergens = request.Allergens;
-        if (request.DietaryTags != null) item.DietaryTags = request.DietaryTags;
+        if (request.Allergens != null)   item.Allergens = Infrastructure.JsonStringList.Serialize(request.Allergens);
+        if (request.DietaryTags != null) item.DietaryTags = Infrastructure.JsonStringList.Serialize(request.DietaryTags);
         if (request.CategoryId.HasValue) item.CategoryId = request.CategoryId.Value;
         if (request.ImageUrl != null)    item.ImageUrl = request.ImageUrl;
         if (request.IsAvailable.HasValue) item.IsAvailable = request.IsAvailable.Value;
@@ -101,5 +105,8 @@ public class AdminMenuService : IAdminMenuService
 
     private static MenuItemDto ToDto(MenuItem i) =>
         new(i.Id, i.CategoryId, i.Name, i.Description,
-            i.Price, i.Allergens, i.DietaryTags, i.IsAvailable, i.ImageUrl);
+            i.Price,
+            Infrastructure.JsonStringList.Parse(i.Allergens),
+            Infrastructure.JsonStringList.Parse(i.DietaryTags),
+            i.IsAvailable, i.ImageUrl);
 }

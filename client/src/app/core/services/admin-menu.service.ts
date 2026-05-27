@@ -8,11 +8,11 @@ export interface AdminCreateCategoryPayload { restaurantId: number; name: string
 export interface AdminCreateItemPayload {
   restaurantId: number; categoryId: number; name: string;
   description?: string | null; price: number;
-  allergens?: string | null; dietaryTags?: string | null; imageUrl?: string | null;
+  allergens?: string[] | null; dietaryTags?: string[] | null; imageUrl?: string | null;
 }
 export interface AdminUpdateItemPayload {
   categoryId?: number; name?: string; description?: string | null; price?: number;
-  allergens?: string | null; dietaryTags?: string | null; imageUrl?: string | null; isAvailable?: boolean;
+  allergens?: string[] | null; dietaryTags?: string[] | null; imageUrl?: string | null; isAvailable?: boolean;
 }
 
 /** Admin menu HTTP operations — cross-restaurant. (SRP: menu ops split from restaurant ops) */

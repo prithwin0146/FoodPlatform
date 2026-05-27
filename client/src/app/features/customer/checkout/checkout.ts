@@ -23,6 +23,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
+import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
 /**
  * (SRP: postcode → ukPostcodeValidator; idempotency → IdempotencyKeyService;
@@ -34,7 +35,7 @@ import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
     FormsModule, ReactiveFormsModule, CurrencyPipe, RouterLink,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatDividerModule, MatProgressSpinnerModule, MatRippleModule,
-    ScrollRevealDirective, MagneticDirective, TiltDirective, MenuItemEmojiPipe,
+    ScrollRevealDirective, MagneticDirective, ImageFallback,
   ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',

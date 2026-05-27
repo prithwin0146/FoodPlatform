@@ -51,16 +51,20 @@ public class RestaurantQueryService : IRestaurantQueryService
 
     public async Task<IEnumerable<MenuCategoryDto>> GetMenuAsync(int id)
     {
-        return await _db.MenuCategories
+        var cats = await _db.MenuCategories
             .Include(c => c.Items)
             .Where(c => c.RestaurantId == id)
             .OrderBy(c => c.SortOrder)
-            .Select(c => new MenuCategoryDto(
-                c.Id, c.Name, c.SortOrder,
-                c.Items.Where(i => i.IsAvailable)
-                       .Select(i => new MenuItemDto(i.Id, i.CategoryId, i.Name, i.Description,
-                           i.Price, i.Allergens, i.DietaryTags, i.IsAvailable, i.ImageUrl))
-                       .ToList()))
             .ToListAsync();
+
+        return cats.Select(c => new MenuCategoryDto(
+            c.Id, c.Name, c.SortOrder,
+            c.Items.Where(i => i.IsAvailable)
+                   .Select(i => new MenuItemDto(i.Id, i.CategoryId, i.Name, i.Description,
+                       i.Price,
+                       Infrastructure.JsonStringList.Parse(i.Allergens),
+                       Infrastructure.JsonStringList.Parse(i.DietaryTags),
+                       i.IsAvailable, i.ImageUrl))
+                   .ToList()));
     }
 }

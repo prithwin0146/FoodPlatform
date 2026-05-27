@@ -315,20 +315,26 @@
 
     <!-- KPI strip -->
     <div class="kpi-strip" appScrollReveal [revealDelay]="60">
-      <div class="kpi-card glass-card">
-        <span class="material-symbols-rounded kpi-icon">pending_actions</span>
-        <span class="kpi-val">{{ pendingCount() }}</span>
-        <span class="kpi-label">Pending</span>
+      <div class="kpi-card">
+        <span class="kpi-icon-tile"><span class="material-symbols-rounded">pending_actions</span></span>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ pendingCount() }}</span>
+          <span class="kpi-label">Pending Orders</span>
+        </div>
       </div>
-      <div class="kpi-card glass-card">
-        <span class="material-symbols-rounded kpi-icon">receipt_long</span>
-        <span class="kpi-val">{{ todayOrders() }}</span>
-        <span class="kpi-label">Today's Orders</span>
+      <div class="kpi-card">
+        <span class="kpi-icon-tile"><span class="material-symbols-rounded">receipt_long</span></span>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ todayOrders() }}</span>
+          <span class="kpi-label">Today's Orders</span>
+        </div>
       </div>
-      <div class="kpi-card glass-card">
-        <span class="material-symbols-rounded kpi-icon">payments</span>
-        <span class="kpi-val">{{ todayRevenue() | currency:'GBP' }}</span>
-        <span class="kpi-label">Today's Revenue</span>
+      <div class="kpi-card">
+        <span class="kpi-icon-tile"><span class="material-symbols-rounded">payments</span></span>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ todayRevenue() | currency:'GBP' }}</span>
+          <span class="kpi-label">Today's Revenue</span>
+        </div>
       </div>
     </div>
 
@@ -341,7 +347,7 @@
           (click)="setFilter(f)"
           matRipple
         >
-          {{ f === 'all' ? 'All' : f }}
+          {{ f === 'all' ? 'All' : (f | orderStatusLabel) }}
         </button>
       }
     </div>
@@ -389,7 +395,7 @@
                   </span>
                 }
                 <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
-                  <span class="status-dot"></span>{{ order.status }}
+                  <span class="status-dot"></span>{{ order.status | orderStatusLabel }}
                 </span>
               </div>
             </div>
