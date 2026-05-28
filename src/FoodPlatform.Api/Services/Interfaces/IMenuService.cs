@@ -8,6 +8,8 @@ namespace FoodPlatform.Api.Services.Interfaces;
 public interface IMenuService
 {
     Task<MenuCategoryDto> CreateCategoryAsync(int restaurantId, CreateCategoryRequest request);
+    /// <summary>Deletes a category and all its items if owned by the given restaurant.</summary>
+    Task<bool> DeleteCategoryAsync(int restaurantId, int categoryId);
     Task<MenuItemDto?> CreateItemAsync(int restaurantId, CreateMenuItemRequest request);
     Task<MenuItemDto?> UpdateItemAsync(int restaurantId, int itemId, UpdateMenuItemRequest request);
     Task<object?> ToggleAvailabilityAsync(int restaurantId, int itemId);

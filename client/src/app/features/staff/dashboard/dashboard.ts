@@ -11,8 +11,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { OrderService } from '../../../core/services/order.service';
-import { RestaurantStaffService } from '../../../core/services/restaurant-staff.service';
+import { RestaurantStaffService, StaffCreateCategoryPayload, StaffCreateItemPayload, StaffUpdateItemPayload } from '../../../core/services/restaurant-staff.service';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { AudioService } from '../../../core/services/audio.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -36,7 +38,7 @@ const POLL_INTERVAL_MS = 5_000;
     CurrencyPipe, DatePipe, DecimalPipe, FormsModule,
     SafeUrlPipe, OrderStatusLabelPipe,
     MatButtonModule, MatChipsModule, MatRippleModule, MatTooltipModule,
-    MatFormFieldModule, MatInputModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule,
     ScrollRevealDirective, MagneticDirective,
   ],
   templateUrl: './dashboard.html',
@@ -91,6 +93,15 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly menuLoading = signal(false);
   readonly togglingItemId = signal<number | null>(null);
   readonly deletingItemId = signal<number | null>(null);
+
+  // ── Menu CRUD form state
+  readonly catFormOpen = signal(false);
+  newCatName = '';
+  newCatSort = 0;
+  readonly itemFormCatId = signal<number | null>(null);
+  readonly editingItemId = signal<number | null>(null);
+  readonly savingItem = signal(false);
+  itemForm: StaffItemForm = this.blankItemForm();
 
   /** Flat list of all items across categories for quick rendering. */
   readonly allMenuItems = computed(() =>
@@ -241,6 +252,19 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
+  /** Closes all management panels — used by the sidebar "Orders" nav item. */
+  closeAllPanels(): void {
+    this.videoSectionOpen.set(false);
+    this.liveStreamSectionOpen.set(false);
+    this.hoursSectionOpen.set(false);
+    this.menuSectionOpen.set(false);
+  }
+
+  /** Returns true when no management panel is open (i.e. "Orders" view is active). */
+  readonly isOrdersActive = computed(() =>
+    !this.videoSectionOpen() && !this.liveStreamSectionOpen()
+    && !this.hoursSectionOpen() && !this.menuSectionOpen());
+
   // ── Hours panel
 
   toggleHoursSection(): void {
@@ -300,6 +324,124 @@ export class Dashboard implements OnInit, OnDestroy {
         this.toast.error('Failed to load menu items');
       },
     });
+  }
+
+  // ── Category CRUD
+
+  openAddCategory(): void {
+    this.newCatName = ''; this.newCatSort = this.menuCategories().length;
+    this.catFormOpen.set(true);
+  }
+
+  saveCategory(): void {
+    const name = this.newCatName.trim();
+    if (!name) return;
+    const payload: StaffCreateCategoryPayload = { name, sortOrder: this.newCatSort };
+    this.staffService.createCategory(payload).subscribe({
+      next: cat => {
+        this.menuCategories.update(cs => [...cs, { ...cat, items: [] }]);
+        this.catFormOpen.set(false);
+        this.toast.success(`Category "${cat.name}" added`);
+      },
+      error: () => this.toast.error('Failed to add category'),
+    });
+  }
+
+  deleteCategory(catId: number, catName: string): void {
+    if (!confirm(`Delete "${catName}" and all its items? This cannot be undone.`)) return;
+    this.staffService.deleteCategory(catId).subscribe({
+      next: () => {
+        this.menuCategories.update(cs => cs.filter(c => c.id !== catId));
+        this.toast.success(`Category "${catName}" deleted`);
+      },
+      error: () => this.toast.error('Failed to delete category'),
+    });
+  }
+
+  // ── Item CRUD
+
+  openAddItem(catId: number): void {
+    this.editingItemId.set(null);
+    this.itemForm = this.blankItemForm(catId);
+    this.itemFormCatId.set(catId);
+  }
+
+  openEditItem(item: MenuCategory['items'][0], catId: number): void {
+    this.editingItemId.set(item.id);
+    this.itemForm = {
+      categoryId: item.categoryId,
+      name: item.name,
+      description: item.description ?? '',
+      price: item.price,
+      allergens: (item.allergens ?? []).join(', '),
+      dietaryTags: (item.dietaryTags ?? []).join(', '),
+      imageUrl: item.imageUrl ?? '',
+      isAvailable: item.isAvailable,
+    };
+    this.itemFormCatId.set(catId);
+  }
+
+  closeItemForm(): void {
+    this.itemFormCatId.set(null);
+    this.editingItemId.set(null);
+  }
+
+  saveItem(): void {
+    if (!this.itemForm.price || this.savingItem()) return;
+    this.savingItem.set(true);
+    const editId = this.editingItemId();
+    if (editId) {
+      const payload: StaffUpdateItemPayload = {
+        categoryId: this.itemForm.categoryId ?? undefined,
+        name: this.itemForm.name.trim(),
+        description: this.itemForm.description || null,
+        price: this.itemForm.price,
+        allergens: this.splitCsv(this.itemForm.allergens),
+        dietaryTags: this.splitCsv(this.itemForm.dietaryTags),
+        imageUrl: this.itemForm.imageUrl || null,
+        isAvailable: this.itemForm.isAvailable,
+      };
+      this.staffService.updateItem(editId, payload).subscribe({
+        next: updated => {
+          this.menuCategories.update(cs => cs.map(c => ({
+            ...c, items: c.items.map(i => i.id === editId ? updated : i),
+          })));
+          this.toast.success(`"${updated.name}" updated`);
+          this.closeItemForm(); this.savingItem.set(false);
+        },
+        error: () => { this.toast.error('Failed to update item'); this.savingItem.set(false); },
+      });
+    } else {
+      const catId = this.itemForm.categoryId ?? this.itemFormCatId()!;
+      const payload: StaffCreateItemPayload = {
+        categoryId: catId,
+        name: this.itemForm.name.trim(),
+        description: this.itemForm.description || null,
+        price: this.itemForm.price,
+        allergens: this.splitCsv(this.itemForm.allergens),
+        dietaryTags: this.splitCsv(this.itemForm.dietaryTags),
+        imageUrl: this.itemForm.imageUrl || null,
+      };
+      this.staffService.createItem(payload).subscribe({
+        next: created => {
+          this.menuCategories.update(cs => cs.map(c =>
+            c.id === catId ? { ...c, items: [...c.items, created] } : c
+          ));
+          this.toast.success(`"${created.name}" added`);
+          this.closeItemForm(); this.savingItem.set(false);
+        },
+        error: () => { this.toast.error('Failed to add item'); this.savingItem.set(false); },
+      });
+    }
+  }
+
+  private blankItemForm(catId: number | null = null): StaffItemForm {
+    return { categoryId: catId, name: '', description: '', price: null, allergens: '', dietaryTags: '', imageUrl: '', isAvailable: true };
+  }
+
+  private splitCsv(value: string): string[] | null {
+    const parts = (value || '').split(',').map(s => s.trim()).filter(Boolean);
+    return parts.length ? parts : null;
   }
 
   toggleItemAvailability(itemId: number): void {
@@ -482,4 +624,16 @@ export interface HoursFormRow {
   openTime: string;   // "HH:mm"
   closeTime: string;  // "HH:mm"
   isClosed: boolean;
+}
+
+/** Form shape for creating or editing a menu item. */
+export interface StaffItemForm {
+  categoryId: number | null;
+  name: string;
+  description: string;
+  price: number | null;
+  allergens: string;
+  dietaryTags: string;
+  imageUrl: string;
+  isAvailable: boolean;
 }

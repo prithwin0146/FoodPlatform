@@ -1,23 +1,87 @@
-<div class="dashboard-page">
-  <div class="page-bg"></div>
-  <div class="container">
+<div class="staff-shell">
 
-    <!-- Header -->
-    <div class="dash-header" appScrollReveal>
-      <div class="dash-title-wrap">
-        <span class="dash-icon material-symbols-rounded">storefront</span>
-        <div>
-          <h1 class="dash-title">
-            Restaurant Dashboard
-            @if (newOrderCount() > 0) {
-              <span class="new-order-badge">{{ newOrderCount() }} new</span>
-            }
-          </h1>
-          <p class="dash-sub">Auto-refreshes every 5 s · {{ myRestaurant()?.name ?? '' }}</p>
-        </div>
+  <!-- ── Sidebar ────────────────────────────────────────────── -->
+  <aside class="staff-sidebar">
+    <div class="sidebar-restaurant">
+      <div class="sidebar-brand-mark">
+        <span class="material-symbols-rounded">storefront</span>
       </div>
-      <div class="header-actions">
-        <!-- Open / Closed toggle -->
+      <div class="sidebar-brand-text">
+        <span class="sidebar-brand-title">{{ myRestaurant()?.name ?? 'My Restaurant' }}</span>
+        <span class="sidebar-brand-sub">Restaurant Staff</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Management</div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="isOrdersActive()" (click)="closeAllPanels()">
+        <span class="material-symbols-rounded">receipt_long</span>
+        <span>Orders</span>
+        @if (newOrderCount() > 0) {
+          <span class="sidebar-badge">{{ newOrderCount() }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="videoSectionOpen()" (click)="toggleVideoSection()">
+        <span class="material-symbols-rounded">videocam</span>
+        <span>Kitchen Video</span>
+      </button>
+      <button class="nav-item"
+        [class.active]="liveStreamSectionOpen()"
+        [class.nav-item--live]="myRestaurant()?.angelcamCameraId"
+        (click)="toggleLiveStreamSection()">
+        @if (myRestaurant()?.angelcamCameraId) {
+          <span class="live-pulse-sm"></span>
+        } @else {
+          <span class="material-symbols-rounded">live_tv</span>
+        }
+        <span>{{ myRestaurant()?.angelcamCameraId ? 'ON AIR' : 'Go Live' }}</span>
+      </button>
+      <button class="nav-item" [class.active]="hoursSectionOpen()" (click)="toggleHoursSection()">
+        <span class="material-symbols-rounded">schedule</span>
+        <span>Hours</span>
+      </button>
+      <button class="nav-item" [class.active]="menuSectionOpen()" (click)="toggleMenuSection()">
+        <span class="material-symbols-rounded">menu_book</span>
+        <span>Menu</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="material-symbols-rounded">shield_person</span>
+      <span>Staff Portal</span>
+    </div>
+  </aside>
+
+  <!-- ── Main content ──────────────────────────────────────── -->
+  <main class="staff-main">
+
+    <header class="staff-topbar">
+      <div class="topbar-title">
+        <span class="topbar-crumb">Staff</span>
+        <span class="topbar-sep material-symbols-rounded">chevron_right</span>
+        @if (isOrdersActive()) {
+          <span class="material-symbols-rounded">receipt_long</span>
+          <h2>Live Orders</h2>
+        }
+        @if (videoSectionOpen()) {
+          <span class="material-symbols-rounded">videocam</span>
+          <h2>Kitchen Video</h2>
+        }
+        @if (liveStreamSectionOpen()) {
+          <span class="material-symbols-rounded">live_tv</span>
+          <h2>Live Stream</h2>
+        }
+        @if (hoursSectionOpen()) {
+          <span class="material-symbols-rounded">schedule</span>
+          <h2>Opening Hours</h2>
+        }
+        @if (menuSectionOpen()) {
+          <span class="material-symbols-rounded">menu_book</span>
+          <h2>Menu Management</h2>
+        }
+      </div>
+      <div class="topbar-meta">
         <button class="status-toggle-btn"
           [class.status-toggle-btn--open]="myRestaurant()?.isActive"
           [class.status-toggle-btn--closed]="!myRestaurant()?.isActive"
@@ -34,468 +98,493 @@
             Closed
           }
         </button>
-        <button class="video-manage-btn" (click)="toggleVideoSection()" matRipple
-          [class.active]="videoSectionOpen()">
-          <span class="material-symbols-rounded">videocam</span>
-          Kitchen Video
-        </button>
-        <button class="video-manage-btn go-live-btn" (click)="toggleLiveStreamSection()" matRipple
-          [class.active]="liveStreamSectionOpen()"
-          [class.go-live-btn--live]="myRestaurant()?.angelcamCameraId">
-          @if (myRestaurant()?.angelcamCameraId) {
-            <span class="live-pulse-sm"></span> ON AIR
-          } @else {
-            <span class="material-symbols-rounded">live_tv</span>
-            Go Live
-          }
-        </button>
-        <button class="video-manage-btn" (click)="toggleHoursSection()" matRipple
-          [class.active]="hoursSectionOpen()">
-          <span class="material-symbols-rounded">schedule</span>
-          Hours
-        </button>
-        <button class="video-manage-btn" (click)="toggleMenuSection()" matRipple
-          [class.active]="menuSectionOpen()">
-          <span class="material-symbols-rounded">menu_book</span>
-          Menu Items
-        </button>
-        <div class="live-dot">
-          <span class="live-pulse"></span> Live
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Kitchen Video Management Panel ── -->
-    @if (videoSectionOpen()) {
-      <div class="video-panel glass-card" appScrollReveal>
-        <div class="video-panel-header">
-          <span class="material-symbols-rounded vp-icon">movie</span>
-          <div>
-            <h2 class="vp-title">Kitchen Video</h2>
-            <p class="vp-sub">
-              Paste a YouTube, Vimeo or direct MP4/WebM URL. Customers see this on their order-tracking page.
-            </p>
+        @if (myRestaurant()?.angelcamCameraId) {
+          <div class="topbar-live topbar-live--onair">
+            <span class="live-pulse-red"></span> ON AIR
           </div>
-        </div>
+        } @else {
+          <div class="topbar-live">
+            <span class="live-pulse"></span> Auto-refresh
+          </div>
+        }
+      </div>
+    </header>
 
-        <div class="video-panel-body">
-          <mat-form-field appearance="outline" class="video-url-field">
-            <mat-label>Video URL</mat-label>
-            <input matInput
-              [ngModel]="videoUrl()"
-              (ngModelChange)="videoUrl.set($event)"
-              placeholder="https://youtube.com/embed/… or https://cdn.example.com/kitchen.mp4">
-            <mat-hint>YouTube embed URL, Vimeo URL, or a direct video file link.</mat-hint>
-          </mat-form-field>
+    <div class="staff-content">
 
-          <!-- Preview -->
-          @if (videoUrl().trim()) {
-            <div class="video-preview">
-              @if (videoUrl().includes('youtube') || videoUrl().includes('youtu.be') || videoUrl().includes('vimeo')) {
-                <iframe
-                  [src]="videoUrl() | safeUrl"
-                  class="preview-frame"
-                  frameborder="0"
-                  allow="autoplay; fullscreen"
-                  allowfullscreen>
-                </iframe>
-              } @else {
-                <video class="preview-video" controls [src]="videoUrl()">
-                  Your browser does not support the video element.
-                </video>
+      <!-- ── Kitchen Video Panel ── -->
+      @if (videoSectionOpen()) {
+        <div class="content-panel glass-panel" appScrollReveal>
+          <div class="panel-header">
+            <span class="material-symbols-rounded panel-icon">movie</span>
+            <div>
+              <h2 class="panel-title">Kitchen Video</h2>
+              <p class="panel-sub">Paste a YouTube, Vimeo or direct MP4/WebM URL. Customers see this on their order-tracking page.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <mat-form-field appearance="outline" class="video-url-field">
+              <mat-label>Video URL</mat-label>
+              <input matInput [ngModel]="videoUrl()" (ngModelChange)="videoUrl.set($event)"
+                placeholder="https://youtube.com/embed/… or https://cdn.example.com/kitchen.mp4">
+              <mat-hint>YouTube embed URL, Vimeo URL, or a direct video file link.</mat-hint>
+            </mat-form-field>
+            @if (videoUrl().trim()) {
+              <div class="video-preview">
+                @if (videoUrl().includes('youtube') || videoUrl().includes('youtu.be') || videoUrl().includes('vimeo')) {
+                  <iframe [src]="videoUrl() | safeUrl" class="preview-frame"
+                    frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                } @else {
+                  <video class="preview-video" controls [src]="videoUrl()">Your browser does not support the video element.</video>
+                }
+              </div>
+            } @else {
+              <div class="video-empty-hint">
+                <span class="material-symbols-rounded">play_circle</span>
+                <p>No video set yet. Add a URL above to preview it here.</p>
+              </div>
+            }
+            <div class="panel-actions">
+              <button mat-flat-button class="save-btn" appMagnetic [disabled]="videoSaving()" (click)="saveVideo()">
+                <span class="material-symbols-rounded">save</span>
+                {{ videoSaving() ? 'Saving…' : 'Save Video' }}
+              </button>
+              @if (myRestaurant()?.kitchenVideoUrl) {
+                <button mat-stroked-button class="danger-btn" [disabled]="videoSaving()" (click)="clearVideo()">
+                  <span class="material-symbols-rounded">delete</span> Remove Video
+                </button>
               }
             </div>
-          } @else {
-            <div class="video-empty-hint">
-              <span class="material-symbols-rounded">play_circle</span>
-              <p>No video set yet. Add a URL above to preview it here.</p>
+          </div>
+          @if (myRestaurant()?.kitchenVideoUrl) {
+            <div class="panel-success-note">
+              <span class="material-symbols-rounded">check_circle</span>
+              Customers can currently see your kitchen video on the order-tracking page.
             </div>
           }
-
-          <div class="video-actions">
-            <button mat-flat-button class="save-video-btn" appMagnetic
-              [disabled]="videoSaving()"
-              (click)="saveVideo()">
-              <span class="material-symbols-rounded">save</span>
-              {{ videoSaving() ? 'Saving…' : 'Save Video' }}
-            </button>
-            @if (myRestaurant()?.kitchenVideoUrl) {
-              <button mat-stroked-button class="clear-video-btn"
-                [disabled]="videoSaving()"
-                (click)="clearVideo()">
-                <span class="material-symbols-rounded">delete</span>
-                Remove Video
-              </button>
-            }
-          </div>
         </div>
-
-        <!-- Current live preview badge -->
-        @if (myRestaurant()?.kitchenVideoUrl) {
-          <div class="current-video-note">
-            <span class="material-symbols-rounded">check_circle</span>
-            Customers can currently see your kitchen video on the order-tracking page.
-          </div>
-        }
-      </div>
-    }
-
-    <!-- ── Go Live Panel (Angelcam HLS) ── -->
-    @if (liveStreamSectionOpen()) {
-      <div class="video-panel glass-card go-live-panel" appScrollReveal>
-        <div class="video-panel-header">
-          <span class="material-symbols-rounded vp-icon live-icon">live_tv</span>
-          <div>
-            <h2 class="vp-title">Live Kitchen Stream</h2>
-            <p class="vp-sub">
-              Enter your <strong>Angelcam Camera ID</strong> to stream your kitchen live.
-              Find it in <strong>angelcam.com → My Cameras → your camera → ID in the URL</strong>.
-              Customers on the order-tracking page will see your live feed instantly.
-            </p>
-          </div>
-        </div>
-
-        <div class="video-panel-body">
-          @if (myRestaurant()?.angelcamCameraId) {
-            <div class="stream-active-banner">
-              <span class="live-pulse-sm"></span>
-              <strong>You are LIVE!</strong> Customers watching your order-tracking page can see your kitchen stream.
-            </div>
-          }
-
-          <mat-form-field appearance="outline" class="video-url-field">
-            <mat-label>Angelcam Camera ID</mat-label>
-            <input matInput
-              [ngModel]="angelcamCameraId()"
-              (ngModelChange)="angelcamCameraId.set($event)"
-              placeholder="e.g. 133627">
-            <mat-hint>Numeric ID from your camera's URL in the Angelcam dashboard.</mat-hint>
-          </mat-form-field>
-
-          <div class="video-actions">
-            <button mat-flat-button class="save-video-btn go-live-cta" appMagnetic
-              [disabled]="liveStreamSaving() || !angelcamCameraId().trim()"
-              (click)="goLive()">
-              <span class="material-symbols-rounded">sensors</span>
-              {{ liveStreamSaving() ? 'Starting…' : 'Start Stream' }}
-            </button>
-            @if (myRestaurant()?.angelcamCameraId) {
-              <button mat-stroked-button class="clear-video-btn"
-                [disabled]="liveStreamSaving()"
-                (click)="stopStream()">
-                <span class="material-symbols-rounded">stop_circle</span>
-                Stop Stream
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="current-video-note go-live-setup-note">
-          <span class="material-symbols-rounded">info</span>
-          To find your Camera ID: log in to angelcam.com → My Cameras → click your camera → the number in the URL is your Camera ID (e.g. <code>/cameras/133627/</code>).
-        </div>
-      </div>
-    }
-
-    <!-- ── Hours Management Panel ── -->
-    @if (hoursSectionOpen()) {
-      <div class="video-panel glass-card" appScrollReveal>
-        <div class="video-panel-header">
-          <span class="material-symbols-rounded vp-icon">schedule</span>
-          <div>
-            <h2 class="vp-title">Opening Hours</h2>
-            <p class="vp-sub">Set your weekly schedule. Customers see these hours on your restaurant page.</p>
-          </div>
-        </div>
-        <div class="video-panel-body">
-          <div class="hours-grid">
-            @for (row of hoursForm(); track row.dayOfWeek; let i = $index) {
-              <div class="hours-row" [class.hours-row--closed]="row.isClosed">
-                <span class="hours-day">{{ row.dayName }}</span>
-                <label class="hours-closed-toggle" [matTooltip]="row.isClosed ? 'Mark as open' : 'Mark as closed'">
-                  <input type="checkbox"
-                    [checked]="row.isClosed"
-                    (change)="updateHoursRow(i, { isClosed: $any($event.target).checked })">
-                  <span class="hours-closed-label">{{ row.isClosed ? 'Closed' : 'Open' }}</span>
-                </label>
-                @if (!row.isClosed) {
-                  <input class="hours-time-input" type="time"
-                    [value]="row.openTime"
-                    (change)="updateHoursRow(i, { openTime: $any($event.target).value })">
-                  <span class="hours-dash">–</span>
-                  <input class="hours-time-input" type="time"
-                    [value]="row.closeTime"
-                    (change)="updateHoursRow(i, { closeTime: $any($event.target).value })">
-                } @else {
-                  <span class="hours-closed-placeholder">Closed all day</span>
-                }
-              </div>
-            }
-          </div>
-          <div class="video-actions">
-            <button mat-flat-button class="save-video-btn" appMagnetic
-              [disabled]="hoursSaving()"
-              (click)="saveHours()">
-              <span class="material-symbols-rounded">save</span>
-              {{ hoursSaving() ? 'Saving…' : 'Save Hours' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- ── Menu Item Availability Panel ── -->
-    @if (menuSectionOpen()) {
-      <div class="video-panel glass-card" appScrollReveal>
-        <div class="video-panel-header">
-          <span class="material-symbols-rounded vp-icon">menu_book</span>
-          <div>
-            <h2 class="vp-title">Menu Item Availability</h2>
-            <p class="vp-sub">Quickly hide or show individual items. Hidden items won't appear to customers.</p>
-          </div>
-        </div>
-        <div class="video-panel-body">
-          @if (menuLoading()) {
-            <p class="vp-sub">Loading menu…</p>
-          } @else if (menuCategories().length === 0) {
-            <p class="vp-sub">No menu items found.</p>
-          } @else {
-            @for (cat of menuCategories(); track cat.id) {
-              <div class="menu-avail-category">
-                <h3 class="menu-avail-cat-name">{{ cat.name }}</h3>
-                @for (item of cat.items; track item.id) {
-                  <div class="menu-avail-row" [class.menu-avail-row--hidden]="!item.isAvailable">
-                    <span class="menu-avail-name">{{ item.name }}</span>
-                    <span class="menu-avail-price">£{{ item.price | number:'1.2-2' }}</span>
-                    <button mat-stroked-button
-                      class="menu-avail-btn"
-                      [class.menu-avail-btn--available]="item.isAvailable"
-                      [disabled]="togglingItemId() === item.id"
-                      (click)="toggleItemAvailability(item.id)"
-                      [matTooltip]="item.isAvailable ? 'Hide from customers' : 'Make available'">
-                      @if (togglingItemId() === item.id) {
-                        <span class="material-symbols-rounded">hourglass_empty</span>
-                      } @else if (item.isAvailable) {
-                        <span class="material-symbols-rounded">visibility</span>
-                      } @else {
-                        <span class="material-symbols-rounded">visibility_off</span>
-                      }
-                      {{ item.isAvailable ? 'Available' : 'Hidden' }}
-                    </button>
-                    <button mat-stroked-button
-                      class="menu-avail-btn menu-avail-btn--delete"
-                      [disabled]="deletingItemId() === item.id"
-                      (click)="deleteItem(item.id, item.name)"
-                      matTooltip="Permanently remove this item">
-                      @if (deletingItemId() === item.id) {
-                        <span class="material-symbols-rounded">hourglass_empty</span>
-                      } @else {
-                        <span class="material-symbols-rounded">delete</span>
-                      }
-                    </button>
-                  </div>
-                }
-              </div>
-            }
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Disputed orders warning banner -->
-    @if (disputedCount() > 0) {
-      <div class="dispute-warning-banner" appScrollReveal>
-        <span class="material-symbols-rounded dw-icon">report_problem</span>
-        <div class="dw-text">
-          <strong>{{ disputedCount() }} disputed {{ disputedCount() === 1 ? 'order' : 'orders' }}</strong>
-          <span> — review the order(s) below and contact the customer if needed. Admin will handle the resolution.</span>
-        </div>
-      </div>
-    }
-
-    <!-- KPI strip -->
-    <div class="kpi-strip" appScrollReveal [revealDelay]="60">
-      <div class="kpi-card">
-        <span class="kpi-icon-tile"><span class="material-symbols-rounded">pending_actions</span></span>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ pendingCount() }}</span>
-          <span class="kpi-label">Pending Orders</span>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-icon-tile"><span class="material-symbols-rounded">receipt_long</span></span>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ todayOrders() }}</span>
-          <span class="kpi-label">Today's Orders</span>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-icon-tile"><span class="material-symbols-rounded">payments</span></span>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ todayRevenue() | currency:'GBP' }}</span>
-          <span class="kpi-label">Today's Revenue</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter Chips -->
-    <div class="filter-bar" appScrollReveal [revealDelay]="80">
-      @for (f of filters; track f) {
-        <button
-          class="filter-chip"
-          [class.active]="filter() === f"
-          (click)="setFilter(f)"
-          matRipple
-        >
-          {{ f === 'all' ? 'All' : (f | orderStatusLabel) }}
-        </button>
       }
-    </div>
 
-    @if (loading()) {
-      <!-- Skeleton grid -->
-      <div class="skeleton-grid">
-        @for (i of [1,2,3,4]; track i) {
-          <div class="skeleton-card">
-            <div class="sk-line" style="width:40%;height:18px;"></div>
-            <div class="sk-line" style="width:70%;height:12px;margin-top:10px;"></div>
-            <div class="sk-line" style="width:55%;height:12px;margin-top:6px;"></div>
-            <div class="sk-line" style="width:30%;height:14px;margin-top:14px;"></div>
-          </div>
-        }
-      </div>
-    } @else if (orders().length === 0) {
-      <div class="empty-state glass-card" appScrollReveal>
-        <span class="empty-icon material-symbols-rounded">inbox</span>
-        <h3>No orders found</h3>
-        <p>Orders will appear here automatically — no refresh needed.</p>
-      </div>
-    } @else {
-      <div class="orders-grid">
-        @for (order of orders(); track order.id; let idx = $index) {
-          <div
-            class="order-card glass-card"
-            [class]="'order-card glass-card border-' + order.status.toLowerCase()"
-            [class.order-card--disputed]="order.disputeStatus === 'Open'"
-            appScrollReveal [revealDelay]="idx * 60"
-          >
-            <div class="card-glare"></div>
-
-            <!-- Card Header -->
-            <div class="order-card-header">
-              <div class="order-id-wrap">
-                <span class="order-num">#{{ order.id }}</span>
-                <span class="order-time">{{ order.createdAt | date:'shortTime' }}</span>
-              </div>
-              <div class="header-chips">
-                @if (order.disputeStatus === 'Open') {
-                  <span class="dispute-chip">
-                    <span class="material-symbols-rounded">report_problem</span>
-                    Disputed
-                  </span>
-                }
-                <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
-                  <span class="status-dot"></span>{{ order.status | orderStatusLabel }}
-                </span>
-              </div>
+      <!-- ── Go Live Panel ── -->
+      @if (liveStreamSectionOpen()) {
+        <div class="content-panel glass-panel go-live-panel" appScrollReveal>
+          <div class="panel-header">
+            <span class="material-symbols-rounded panel-icon live-icon">live_tv</span>
+            <div>
+              <h2 class="panel-title">Live Kitchen Stream</h2>
+              <p class="panel-sub">Enter your <strong>Angelcam Camera ID</strong> to stream your kitchen live. Customers on the order-tracking page will see your live feed instantly.</p>
             </div>
+          </div>
+          <div class="panel-body">
+            @if (myRestaurant()?.angelcamCameraId) {
+              <div class="stream-active-banner">
+                <span class="live-pulse-sm"></span>
+                <strong>You are LIVE!</strong> Customers watching your order-tracking page can see your kitchen stream.
+              </div>
+            }
+            <mat-form-field appearance="outline" class="video-url-field">
+              <mat-label>Angelcam Camera ID</mat-label>
+              <input matInput [ngModel]="angelcamCameraId()" (ngModelChange)="angelcamCameraId.set($event)" placeholder="e.g. 133627">
+              <mat-hint>Numeric ID from your camera's URL in the Angelcam dashboard.</mat-hint>
+            </mat-form-field>
+            <div class="panel-actions">
+              <button mat-flat-button class="save-btn go-live-cta" appMagnetic
+                [disabled]="liveStreamSaving() || !angelcamCameraId().trim()" (click)="goLive()">
+                <span class="material-symbols-rounded">sensors</span>
+                {{ liveStreamSaving() ? 'Starting…' : 'Start Stream' }}
+              </button>
+              @if (myRestaurant()?.angelcamCameraId) {
+                <button mat-stroked-button class="danger-btn" [disabled]="liveStreamSaving()" (click)="stopStream()">
+                  <span class="material-symbols-rounded">stop_circle</span> Stop Stream
+                </button>
+              }
+            </div>
+          </div>
+          <div class="panel-info-note">
+            <span class="material-symbols-rounded">info</span>
+            Find your Camera ID: angelcam.com → My Cameras → click your camera → number in URL (e.g. <code>/cameras/133627/</code>).
+          </div>
+        </div>
+      }
 
-            <!-- Items -->
-            <div class="order-items-list">
-              @for (item of order.items; track item.id) {
-                <div class="order-item-row">
-                  <span class="item-qty">{{ item.quantity }}×</span>
-                  <span class="item-name">{{ item.menuItemName }}</span>
-                  <span class="item-price">{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
+      <!-- ── Hours Panel ── -->
+      @if (hoursSectionOpen()) {
+        <div class="content-panel glass-panel" appScrollReveal>
+          <div class="panel-header">
+            <span class="material-symbols-rounded panel-icon">schedule</span>
+            <div>
+              <h2 class="panel-title">Opening Hours</h2>
+              <p class="panel-sub">Set your weekly schedule. Customers see these hours on your restaurant page.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="hours-grid">
+              @for (row of hoursForm(); track row.dayOfWeek; let i = $index) {
+                <div class="hours-row" [class.hours-row--closed]="row.isClosed">
+                  <span class="hours-day">{{ row.dayName }}</span>
+                  <label class="hours-closed-toggle" [matTooltip]="row.isClosed ? 'Mark as open' : 'Mark as closed'">
+                    <input type="checkbox" [checked]="row.isClosed"
+                      (change)="updateHoursRow(i, { isClosed: $any($event.target).checked })">
+                    <span class="hours-closed-label">{{ row.isClosed ? 'Closed' : 'Open' }}</span>
+                  </label>
+                  @if (!row.isClosed) {
+                    <input class="hours-time-input" type="time" [value]="row.openTime"
+                      (change)="updateHoursRow(i, { openTime: $any($event.target).value })">
+                    <span class="hours-dash">–</span>
+                    <input class="hours-time-input" type="time" [value]="row.closeTime"
+                      (change)="updateHoursRow(i, { closeTime: $any($event.target).value })">
+                  } @else {
+                    <span class="hours-closed-placeholder">Closed all day</span>
+                  }
                 </div>
               }
             </div>
-
-            <!-- Delivery address -->
-            <div class="delivery-address-row">
-              <span class="material-symbols-rounded addr-icon">location_on</span>
-              <span class="addr-text">
-                {{ order.deliveryAddressLine1 }}, {{ order.deliveryCity }}, {{ order.deliveryPostcode }}
-              </span>
+            <div class="panel-actions">
+              <button mat-flat-button class="save-btn" appMagnetic [disabled]="hoursSaving()" (click)="saveHours()">
+                <span class="material-symbols-rounded">save</span>
+                {{ hoursSaving() ? 'Saving…' : 'Save Hours' }}
+              </button>
             </div>
+          </div>
+        </div>
+      }
 
-            <!-- Special instructions -->
-            @if (order.specialInstructions) {
-              <div class="special-instructions-row">
-                <span class="material-symbols-rounded si-icon">chat_bubble</span>
-                <span class="si-text">{{ order.specialInstructions }}</span>
-              </div>
-            }
-
-            <!-- Footer -->
-            <div class="order-card-footer">
-              <div class="order-total-amount">{{ order.totalAmount | currency:'GBP' }}</div>
-              <div class="order-date-text">{{ order.createdAt | date:'shortDate' }}</div>
+      <!-- ── Menu Management Panel ── -->
+      @if (menuSectionOpen()) {
+        <div class="content-panel glass-panel" appScrollReveal>
+          <div class="panel-header">
+            <span class="material-symbols-rounded panel-icon">menu_book</span>
+            <div>
+              <h2 class="panel-title">Menu Management</h2>
+              <p class="panel-sub">Add, edit, and remove categories and items. Changes go live instantly for customers.</p>
             </div>
+            <button mat-flat-button class="save-btn" style="margin-left:auto" (click)="openAddCategory()">
+              <span class="material-symbols-rounded">create_new_folder</span> Add Category
+            </button>
+          </div>
 
-            <!-- Actions -->
-            @if (order.status === 'Pending') {
-              <div class="order-actions">
-                <mat-form-field appearance="outline" class="eta-field">
-                  <mat-label>ETA (min)</mat-label>
-                  <input matInput type="number"
-                    [ngModel]="getEta(order.id)"
-                    (ngModelChange)="setEta(order.id, $event)"
-                    min="5" max="120">
+          <!-- Add Category form -->
+          @if (catFormOpen()) {
+            <div class="form-panel">
+              <h3 class="form-panel-title">New Category</h3>
+              <div class="form-grid">
+                <mat-form-field appearance="outline" class="dark-field">
+                  <mat-label>Category Name</mat-label>
+                  <input matInput [(ngModel)]="newCatName" placeholder="e.g. Starters" />
                 </mat-form-field>
-                @if (rejectingOrderId() === order.id) {
-                  <div class="reject-form">
-                    <mat-form-field appearance="outline" class="reason-field">
-                      <mat-label>Rejection reason</mat-label>
-                      <textarea matInput rows="2"
-                        [ngModel]="rejectReason()"
-                        (ngModelChange)="rejectReason.set($event)"
-                        placeholder="e.g. Out of key ingredients">
-                      </textarea>
-                    </mat-form-field>
-                    <div class="action-btns">
-                      <button mat-flat-button class="reject-btn" appMagnetic
-                        [disabled]="!rejectReason().trim() || isActionInProgress(order.id)"
-                        (click)="confirmReject(order)">
-                        <span class="material-symbols-rounded">cancel</span>
-                        {{ isActionInProgress(order.id) ? 'Rejecting…' : 'Confirm Reject' }}
+                <mat-form-field appearance="outline" class="dark-field">
+                  <mat-label>Sort Order</mat-label>
+                  <input matInput type="number" [(ngModel)]="newCatSort" />
+                </mat-form-field>
+              </div>
+              <div class="panel-actions">
+                <button mat-flat-button class="save-btn" (click)="saveCategory()" [disabled]="!newCatName.trim()">Save Category</button>
+                <button mat-stroked-button (click)="catFormOpen.set(false)">Cancel</button>
+              </div>
+            </div>
+          }
+
+          <div class="panel-body">
+            @if (menuLoading()) {
+              <p class="panel-sub">Loading menu…</p>
+            } @else if (menuCategories().length === 0) {
+              <div class="menu-empty-hint">
+                <span class="material-symbols-rounded">restaurant_menu</span>
+                <p>No categories yet. Click "Add Category" to get started.</p>
+              </div>
+            } @else {
+              @for (cat of menuCategories(); track cat.id) {
+                <div class="menu-cat-block">
+                  <div class="menu-cat-header">
+                    <h3 class="menu-cat-name">{{ cat.name }}</h3>
+                    <div class="menu-cat-actions">
+                      <button mat-stroked-button class="danger-btn danger-btn--sm"
+                        (click)="deleteCategory(cat.id, cat.name)"
+                        matTooltip="Delete category and all its items">
+                        <span class="material-symbols-rounded">delete</span>
                       </button>
-                      <button mat-stroked-button appMagnetic (click)="cancelReject()">
-                        <span class="material-symbols-rounded">close</span> Cancel
+                      <button mat-flat-button class="save-btn save-btn--sm" (click)="openAddItem(cat.id)">
+                        <span class="material-symbols-rounded">add</span> Add Item
                       </button>
                     </div>
                   </div>
-                } @else {
-                  <div class="action-btns">
-                    <button mat-flat-button class="accept-btn"
+
+                  <!-- Item form (add or edit) -->
+                  @if (itemFormCatId() === cat.id) {
+                    <div class="form-panel form-panel--item">
+                      <h4 class="form-panel-title">{{ editingItemId() ? 'Edit Item' : 'New Item in "' + cat.name + '"' }}</h4>
+                      <div class="form-grid form-grid--items">
+                        <mat-form-field appearance="outline" class="dark-field">
+                          <mat-label>Name</mat-label>
+                          <input matInput [(ngModel)]="itemForm.name" placeholder="e.g. Chicken Tikka" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="dark-field">
+                          <mat-label>Price (£)</mat-label>
+                          <input matInput type="number" step="0.01" [(ngModel)]="itemForm.price" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="dark-field span-2">
+                          <mat-label>Description</mat-label>
+                          <textarea matInput rows="2" [(ngModel)]="itemForm.description"></textarea>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="dark-field span-2">
+                          <mat-label>Image URL</mat-label>
+                          <input matInput [(ngModel)]="itemForm.imageUrl" placeholder="https://…" />
+                          <mat-hint>Paste an image link (Cloudinary, Imgur, etc.)</mat-hint>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="dark-field">
+                          <mat-label>Allergens (comma-separated)</mat-label>
+                          <input matInput [(ngModel)]="itemForm.allergens" placeholder="gluten, milk" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="dark-field">
+                          <mat-label>Dietary Tags (comma-separated)</mat-label>
+                          <input matInput [(ngModel)]="itemForm.dietaryTags" placeholder="vegan, gluten-free" />
+                        </mat-form-field>
+                        @if (editingItemId()) {
+                          <div class="toggle-row">
+                            <mat-slide-toggle [(ngModel)]="itemForm.isAvailable">Available to customers</mat-slide-toggle>
+                          </div>
+                        }
+                      </div>
+                      <div class="panel-actions">
+                        <button mat-flat-button class="save-btn"
+                          [disabled]="savingItem() || !itemForm.name.trim() || !itemForm.price"
+                          (click)="saveItem()">
+                          {{ savingItem() ? 'Saving…' : (editingItemId() ? 'Update Item' : 'Add Item') }}
+                        </button>
+                        <button mat-stroked-button (click)="closeItemForm()">Cancel</button>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Items list -->
+                  @if (cat.items.length === 0) {
+                    <p class="menu-empty-cat">No items yet. Click "Add Item" above.</p>
+                  } @else {
+                    @for (item of cat.items; track item.id) {
+                      <div class="menu-item-row" [class.menu-item-row--hidden]="!item.isAvailable">
+                        @if (item.imageUrl) {
+                          <img class="menu-item-thumb" [src]="item.imageUrl" [alt]="item.name" />
+                        } @else {
+                          <div class="menu-item-thumb menu-item-thumb--empty">🍽️</div>
+                        }
+                        <div class="menu-item-info">
+                          <span class="menu-item-name">{{ item.name }}</span>
+                          <span class="menu-item-price">£{{ item.price | number:'1.2-2' }}</span>
+                          @if (!item.isAvailable) {
+                            <span class="menu-unavail-badge">Hidden</span>
+                          }
+                        </div>
+                        <div class="menu-item-actions">
+                          <button mat-icon-button (click)="toggleItemAvailability(item.id)"
+                            [disabled]="togglingItemId() === item.id"
+                            [matTooltip]="item.isAvailable ? 'Hide from customers' : 'Make available'">
+                            @if (togglingItemId() === item.id) {
+                              <span class="material-symbols-rounded">hourglass_empty</span>
+                            } @else if (item.isAvailable) {
+                              <span class="material-symbols-rounded">visibility</span>
+                            } @else {
+                              <span class="material-symbols-rounded">visibility_off</span>
+                            }
+                          </button>
+                          <button mat-icon-button (click)="openEditItem(item, cat.id)" matTooltip="Edit item">
+                            <span class="material-symbols-rounded">edit</span>
+                          </button>
+                          <button mat-icon-button color="warn"
+                            [disabled]="deletingItemId() === item.id"
+                            (click)="deleteItem(item.id, item.name)" matTooltip="Delete item">
+                            @if (deletingItemId() === item.id) {
+                              <span class="material-symbols-rounded">hourglass_empty</span>
+                            } @else {
+                              <span class="material-symbols-rounded">delete</span>
+                            }
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ── Orders view ── -->
+      @if (isOrdersActive()) {
+
+        @if (disputedCount() > 0) {
+          <div class="dispute-warning-banner" appScrollReveal>
+            <div class="dw-icon"><span class="material-symbols-rounded">report_problem</span></div>
+            <div class="dw-text">
+              <strong>{{ disputedCount() }} disputed {{ disputedCount() === 1 ? 'order' : 'orders' }}</strong>
+              <span> — review below and contact the customer. Admin will handle the resolution.</span>
+            </div>
+          </div>
+        }
+
+        <div class="kpi-strip" appScrollReveal [revealDelay]="60">
+          <div class="kpi-card">
+            <span class="kpi-icon-tile"><span class="material-symbols-rounded">pending_actions</span></span>
+            <div class="kpi-body">
+              <span class="kpi-val">{{ pendingCount() }}</span>
+              <span class="kpi-label">Pending Orders</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-icon-tile"><span class="material-symbols-rounded">receipt_long</span></span>
+            <div class="kpi-body">
+              <span class="kpi-val">{{ todayOrders() }}</span>
+              <span class="kpi-label">Today's Orders</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-icon-tile"><span class="material-symbols-rounded">payments</span></span>
+            <div class="kpi-body">
+              <span class="kpi-val">{{ todayRevenue() | currency:'GBP' }}</span>
+              <span class="kpi-label">Today's Revenue</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-bar" appScrollReveal [revealDelay]="80">
+          @for (f of filters; track f) {
+            <button class="filter-chip" [class.active]="filter() === f" (click)="setFilter(f)" matRipple>
+              {{ f === 'all' ? 'All' : (f | orderStatusLabel) }}
+            </button>
+          }
+        </div>
+
+        @if (loading()) {
+          <div class="skeleton-grid">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="skeleton-card">
+                <div class="sk-line" style="width:40%;height:18px;"></div>
+                <div class="sk-line" style="width:70%;height:12px;margin-top:10px;"></div>
+                <div class="sk-line" style="width:55%;height:12px;margin-top:6px;"></div>
+                <div class="sk-line" style="width:30%;height:14px;margin-top:14px;"></div>
+              </div>
+            }
+          </div>
+        } @else if (orders().length === 0) {
+          <div class="empty-state glass-card" appScrollReveal>
+            <span class="empty-icon material-symbols-rounded">inbox</span>
+            <h3>No orders found</h3>
+            <p>Orders will appear here automatically — no refresh needed.</p>
+          </div>
+        } @else {
+          <div class="orders-grid">
+            @for (order of orders(); track order.id; let idx = $index) {
+              <div class="order-card glass-card"
+                [class]="'order-card glass-card border-' + order.status.toLowerCase()"
+                [class.order-card--disputed]="order.disputeStatus === 'Open'"
+                appScrollReveal [revealDelay]="idx * 60">
+                <div class="card-glare"></div>
+
+                <div class="order-card-header">
+                  <div class="order-id-wrap">
+                    <span class="order-num">#{{ order.id }}</span>
+                    <span class="order-time">{{ order.createdAt | date:'shortTime' }}</span>
+                  </div>
+                  <div class="header-chips">
+                    @if (order.disputeStatus === 'Open') {
+                      <span class="dispute-chip">
+                        <span class="material-symbols-rounded">report_problem</span> Disputed
+                      </span>
+                    }
+                    <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
+                      <span class="status-dot"></span>{{ order.status | orderStatusLabel }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="order-items-list">
+                  @for (item of order.items; track item.id) {
+                    <div class="order-item-row">
+                      <span class="item-qty">{{ item.quantity }}×</span>
+                      <span class="item-name">{{ item.menuItemName }}</span>
+                      <span class="item-price">{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="delivery-address-row">
+                  <span class="material-symbols-rounded addr-icon">location_on</span>
+                  <span class="addr-text">{{ order.deliveryAddressLine1 }}, {{ order.deliveryCity }}, {{ order.deliveryPostcode }}</span>
+                </div>
+
+                @if (order.specialInstructions) {
+                  <div class="special-instructions-row">
+                    <span class="material-symbols-rounded si-icon">chat_bubble</span>
+                    <span class="si-text">{{ order.specialInstructions }}</span>
+                  </div>
+                }
+
+                <div class="order-card-footer">
+                  <div class="order-total-amount">{{ order.totalAmount | currency:'GBP' }}</div>
+                  <div class="order-date-text">{{ order.createdAt | date:'shortDate' }}</div>
+                </div>
+
+                @if (order.status === 'Pending') {
+                  <div class="order-actions">
+                    <mat-form-field appearance="outline" class="eta-field">
+                      <mat-label>ETA (min)</mat-label>
+                      <input matInput type="number" [ngModel]="getEta(order.id)"
+                        (ngModelChange)="setEta(order.id, $event)" min="5" max="120">
+                    </mat-form-field>
+                    @if (rejectingOrderId() === order.id) {
+                      <div class="reject-form">
+                        <mat-form-field appearance="outline" class="reason-field">
+                          <mat-label>Rejection reason</mat-label>
+                          <textarea matInput rows="2" [ngModel]="rejectReason()"
+                            (ngModelChange)="rejectReason.set($event)"
+                            placeholder="e.g. Out of key ingredients"></textarea>
+                        </mat-form-field>
+                        <div class="action-btns">
+                          <button mat-flat-button class="reject-btn" appMagnetic
+                            [disabled]="!rejectReason().trim() || isActionInProgress(order.id)"
+                            (click)="confirmReject(order)">
+                            <span class="material-symbols-rounded">cancel</span>
+                            {{ isActionInProgress(order.id) ? 'Rejecting…' : 'Confirm Reject' }}
+                          </button>
+                          <button mat-stroked-button appMagnetic (click)="cancelReject()">
+                            <span class="material-symbols-rounded">close</span> Cancel
+                          </button>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="action-btns">
+                        <button mat-flat-button class="accept-btn"
+                          [disabled]="isActionInProgress(order.id)"
+                          (click)="accept(order)" appMagnetic matTooltip="Accept order">
+                          <span class="material-symbols-rounded">check_circle</span>
+                          {{ isActionInProgress(order.id) ? 'Accepting…' : 'Accept' }}
+                        </button>
+                        <button mat-stroked-button class="reject-btn"
+                          [disabled]="isActionInProgress(order.id)"
+                          (click)="reject(order)" appMagnetic matTooltip="Reject order">
+                          <span class="material-symbols-rounded">cancel</span> Reject
+                        </button>
+                      </div>
+                    }
+                  </div>
+                } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
+                  <div class="order-actions single">
+                    <button mat-flat-button class="advance-btn"
                       [disabled]="isActionInProgress(order.id)"
-                      (click)="accept(order)" appMagnetic matTooltip="Accept order">
-                      <span class="material-symbols-rounded">check_circle</span>
-                      {{ isActionInProgress(order.id) ? 'Accepting…' : 'Accept' }}
-                    </button>
-                    <button mat-stroked-button class="reject-btn"
-                      [disabled]="isActionInProgress(order.id)"
-                      (click)="reject(order)" appMagnetic matTooltip="Reject order">
-                      <span class="material-symbols-rounded">cancel</span> Reject
+                      (click)="advanceStatus(order)" appMagnetic [matTooltip]="nextStatusLabel(order)">
+                      <span class="material-symbols-rounded">arrow_forward</span>
+                      {{ isActionInProgress(order.id) ? 'Updating…' : nextStatusLabel(order) }}
                     </button>
                   </div>
                 }
-              </div>
-            } @else if (order.status !== 'Delivered' && order.status !== 'Rejected' && order.status !== 'Cancelled') {
-              <div class="order-actions single">
-                <button mat-flat-button class="advance-btn"
-                  [disabled]="isActionInProgress(order.id)"
-                  (click)="advanceStatus(order)" appMagnetic
-                  [matTooltip]="nextStatusLabel(order)">
-                  <span class="material-symbols-rounded">arrow_forward</span>
-                  {{ isActionInProgress(order.id) ? 'Updating…' : nextStatusLabel(order) }}
-                </button>
+
               </div>
             }
-
           </div>
         }
-      </div>
-    }
-  </div>
+
+      }
+
+    </div>
+  </main>
 </div>

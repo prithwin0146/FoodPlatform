@@ -17,6 +17,24 @@ public class MenuService : IMenuService
 
     public MenuService(FoodPlatformDbContext db) => _db = db;
 
+    public async Task<bool> DeleteCategoryAsync(int restaurantId, int categoryId)
+    {
+        var category = await _db.MenuCategories
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.Id == categoryId && c.RestaurantId == restaurantId);
+        if (category is null) return false;
+
+        // Soft-delete all items first so order history is preserved
+        foreach (var item in category.Items)
+        {
+            item.IsDeleted = true;
+            item.IsAvailable = false;
+        }
+        _db.MenuCategories.Remove(category);
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<MenuCategoryDto> CreateCategoryAsync(int restaurantId, CreateCategoryRequest request)
     {
         var category = new MenuCategory

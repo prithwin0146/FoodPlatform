@@ -21,6 +21,13 @@ public class MenuController : RestaurantScopedController
     public async Task<IActionResult> CreateCategory(CreateCategoryRequest request) =>
         Ok(await _menu.CreateCategoryAsync(CurrentRestaurantId, request));
 
+    [HttpDelete("categories/{id:int}")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        var deleted = await _menu.DeleteCategoryAsync(CurrentRestaurantId, id);
+        return deleted ? NoContent() : NotFound();
+    }
+
     [HttpPost("items")]
     public async Task<IActionResult> CreateItem(CreateMenuItemRequest request)
     {

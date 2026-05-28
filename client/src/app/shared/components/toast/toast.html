@@ -1,14 +1,18 @@
 <div class="toast-container">
   @for (toast of toastService.toasts(); track toast.id) {
-    <div class="toast toast-{{ toast.type }}" (click)="toastService.dismiss(toast.id)">
-      <span class="toast-icon">
+    <div class="toast toast--{{ toast.type }}">
+      <div class="toast-icon-wrap">
         @switch (toast.type) {
-          @case ('success') { ✅ }
-          @case ('error') { ❌ }
-          @case ('info') { ℹ️ }
+          @case ('success') { <span class="material-symbols-rounded">check_circle</span> }
+          @case ('error')   { <span class="material-symbols-rounded">error</span> }
+          @case ('info')    { <span class="material-symbols-rounded">info</span> }
         }
-      </span>
+      </div>
       <span class="toast-message">{{ toast.message }}</span>
+      <button class="toast-close" (click)="toastService.dismiss(toast.id)" aria-label="Dismiss">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+      <div class="toast-progress"></div>
     </div>
   }
 </div>
