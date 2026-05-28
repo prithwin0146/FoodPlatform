@@ -26,6 +26,13 @@ public class FoodPlatformDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<ProcessedStripeEvent> ProcessedStripeEvents => Set<ProcessedStripeEvent>();
     public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
     public DbSet<FavouriteRestaurant> FavouriteRestaurants => Set<FavouriteRestaurant>();
+    // Phase 2
+    public DbSet<PromoCode> PromoCodes => Set<PromoCode>();
+    public DbSet<PromoCodeUsage> PromoCodeUsages => Set<PromoCodeUsage>();
+    public DbSet<RestaurantPromotion> RestaurantPromotions => Set<RestaurantPromotion>();
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+    public DbSet<GiftCard> GiftCards => Set<GiftCard>();
+    public DbSet<GiftCardUsage> GiftCardUsages => Set<GiftCardUsage>();
     // Required by IDataProtectionKeyContext — keys stored in "DataProtectionKeys" table
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 

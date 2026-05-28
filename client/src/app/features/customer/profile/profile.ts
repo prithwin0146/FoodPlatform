@@ -1,5 +1,6 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -7,7 +8,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
+import { SubscriptionService } from '../../../core/services/subscription.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { SubscriptionStatus } from '../../../core/models';
 
 /**
  * Customer profile page.
@@ -17,7 +21,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
 @Component({
   selector: 'app-profile',
   imports: [
-    FormsModule,
+    FormsModule, DatePipe,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
@@ -28,8 +32,10 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
-export class Profile {
+export class Profile implements OnInit {
   private readonly apiAuth = inject(ApiAuthService);
+  private readonly subscriptionService = inject(SubscriptionService);
+  private readonly toast = inject(ToastService);
   readonly auth = inject(AuthService);
 
   readonly currentPassword = signal('');
@@ -41,6 +47,11 @@ export class Profile {
   readonly showCurrent = signal(false);
   readonly showNew = signal(false);
   readonly showConfirm = signal(false);
+
+  // ── SeeThePrep Plus ──
+  readonly subscriptionStatus = signal<SubscriptionStatus | null>(null);
+  readonly subscriptionLoading = signal(false);
+  readonly cancellingSubscription = signal(false);
 
   readonly userInitial = computed(() => {
     const name = this.auth.username() ?? '?';
@@ -57,6 +68,38 @@ export class Profile {
     this.newPassword() === this.confirmPassword() &&
     !this.saving()
   );
+
+  ngOnInit(): void {
+    if (this.auth.isLoggedIn()) {
+      this.subscriptionLoading.set(true);
+      this.subscriptionService.getStatus().subscribe({
+        next: (s) => { this.subscriptionStatus.set(s); this.subscriptionLoading.set(false); },
+        error: () => this.subscriptionLoading.set(false),
+      });
+    }
+  }
+
+  subscribePlus(): void {
+    const successUrl = window.location.href + '?plus=success';
+    const cancelUrl = window.location.href;
+    this.subscriptionService.createCheckout(successUrl, cancelUrl).subscribe({
+      next: (res) => { window.location.href = res.checkoutUrl; },
+      error: () => this.toast.error('Could not start subscription checkout'),
+    });
+  }
+
+  cancelPlus(): void {
+    if (!confirm('Cancel your SeeThePrep Plus subscription? You will keep access until the end of the billing period.')) return;
+    this.cancellingSubscription.set(true);
+    this.subscriptionService.cancel().subscribe({
+      next: () => {
+        this.cancellingSubscription.set(false);
+        this.subscriptionStatus.update(s => s ? { ...s, status: 'Cancelled' } : s);
+        this.toast.success('Subscription cancelled');
+      },
+      error: () => { this.cancellingSubscription.set(false); this.toast.error('Failed to cancel'); },
+    });
+  }
 
   changePassword(): void {
     if (!this.canSubmit()) return;

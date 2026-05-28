@@ -110,6 +110,12 @@ public static class ServiceCollectionExtensions
         // Favourites
         services.AddScoped<IFavouritesService, FavouritesService>();
 
+        // Phase 2: Promo codes, promotions, subscriptions, gift cards
+        services.AddScoped<IPromoCodeService, PromoCodeService>();
+        services.AddScoped<IRestaurantPromotionService, RestaurantPromotionService>();
+        services.AddScoped<ISubscriptionService, SubscriptionService>();
+        services.AddScoped<IGiftCardService, GiftCardService>();
+
         // Platform settings (homepage video, etc.)
         services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
 

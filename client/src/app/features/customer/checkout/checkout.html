@@ -200,6 +200,62 @@
               </div>
             </div>
 
+            <!-- SeeThePrep Plus badge -->
+            @if (isPlus()) {
+              <div class="plus-badge">
+                <span class="material-symbols-rounded">workspace_premium</span>
+                SeeThePrep Plus — Free delivery
+              </div>
+            }
+
+            <!-- Promo Code -->
+            @if (!promoResult()?.isValid) {
+              <div class="discount-row">
+                <mat-form-field appearance="outline" class="dark-field promo-field">
+                  <mat-label>Promo code</mat-label>
+                  <input matInput [(ngModel)]="promoCodeInput" placeholder="e.g. WELCOME10" (keyup.enter)="applyPromo()">
+                </mat-form-field>
+                <button mat-stroked-button class="apply-btn" (click)="applyPromo()" [disabled]="promoLoading() || !promoCodeInput.trim()">
+                  @if (promoLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { Apply }
+                </button>
+              </div>
+              @if (promoError()) {
+                <p class="discount-error"><span class="material-symbols-rounded">error</span> {{ promoError() }}</p>
+              }
+            } @else {
+              <div class="discount-applied">
+                <span class="material-symbols-rounded">confirmation_number</span>
+                <span>{{ promoCodeInput.toUpperCase() }} — {{ promoResult()!.message }}</span>
+                <button mat-icon-button class="remove-discount-btn" (click)="removePromo()">
+                  <span class="material-symbols-rounded">close</span>
+                </button>
+              </div>
+            }
+
+            <!-- Gift Card -->
+            @if (!giftCardResult()?.isValid) {
+              <div class="discount-row">
+                <mat-form-field appearance="outline" class="dark-field promo-field">
+                  <mat-label>Gift card code</mat-label>
+                  <input matInput [(ngModel)]="giftCardInput" placeholder="STP-XXXX-XXXX" (keyup.enter)="applyGiftCard()">
+                </mat-form-field>
+                <button mat-stroked-button class="apply-btn" (click)="applyGiftCard()" [disabled]="giftCardLoading() || !giftCardInput.trim()">
+                  @if (giftCardLoading()) { <mat-spinner diameter="16"></mat-spinner> } @else { Apply }
+                </button>
+              </div>
+              @if (giftCardError()) {
+                <p class="discount-error"><span class="material-symbols-rounded">error</span> {{ giftCardError() }}</p>
+              }
+            } @else {
+              <div class="discount-applied">
+                <span class="material-symbols-rounded">card_giftcard</span>
+                <span>Gift card — {{ giftCardResult()!.remainingBalance | currency:'GBP' }} available</span>
+                <button mat-icon-button class="remove-discount-btn" (click)="removeGiftCard()">
+                  <span class="material-symbols-rounded">close</span>
+                </button>
+              </div>
+            }
+
             <!-- Price Rows -->
             <div class="price-rows">
               <div class="price-row">
@@ -208,12 +264,28 @@
               </div>
               <div class="price-row">
                 <span>Delivery Fee</span>
-                <span>{{ DELIVERY_FEE | currency:'GBP' }}</span>
+                @if (isPlus() || orderType() === 'Collection') {
+                  <span class="free-delivery">FREE</span>
+                } @else {
+                  <span>{{ DELIVERY_FEE | currency:'GBP' }}</span>
+                }
               </div>
+              @if (promoDiscount > 0) {
+                <div class="price-row discount-price-row">
+                  <span>Promo discount</span>
+                  <span>−{{ promoDiscount | currency:'GBP' }}</span>
+                </div>
+              }
+              @if (giftCardDiscount > 0) {
+                <div class="price-row discount-price-row">
+                  <span>Gift card</span>
+                  <span>−{{ giftCardDiscount | currency:'GBP' }}</span>
+                </div>
+              }
               <mat-divider class="summary-divider"></mat-divider>
               <div class="price-row total-row">
                 <span>Total</span>
-                <span class="total-val">{{ cart.total() + DELIVERY_FEE | currency:'GBP' }}</span>
+                <span class="total-val">{{ grandTotal | currency:'GBP' }}</span>
               </div>
             </div>
 

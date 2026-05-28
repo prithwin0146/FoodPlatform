@@ -49,6 +49,10 @@
         <span class="material-symbols-rounded">menu_book</span>
         <span>Menu</span>
       </button>
+      <button class="nav-item" [class.active]="promotionsSectionOpen()" (click)="togglePromotionsSection()">
+        <span class="material-symbols-rounded">local_offer</span>
+        <span>Promotions</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -83,6 +87,10 @@
         @if (menuSectionOpen()) {
           <span class="material-symbols-rounded">menu_book</span>
           <h2>Menu Management</h2>
+        }
+        @if (promotionsSectionOpen()) {
+          <span class="material-symbols-rounded">local_offer</span>
+          <h2>Promotions</h2>
         }
       </div>
       <div class="topbar-meta">
@@ -599,6 +607,90 @@
           </div>
         }
 
+      }
+
+      <!-- ── Promotions Panel ── -->
+      @if (promotionsSectionOpen()) {
+        <section class="dash-section promo-section">
+
+          <!-- Create form -->
+          <div class="glass-card" appScrollReveal>
+            <h3 class="section-heading">
+              <span class="material-symbols-rounded">add_circle</span> New Promotion
+            </h3>
+            <div class="promo-create-form">
+              <mat-form-field appearance="outline" class="dark-field">
+                <mat-label>Title</mat-label>
+                <input matInput [(ngModel)]="promoForm.title" placeholder="e.g. Happy Hour 20% Off">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="dark-field">
+                <mat-label>Description</mat-label>
+                <input matInput [(ngModel)]="promoForm.description" placeholder="Short description for customers">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="dark-field">
+                <mat-label>Discount Type</mat-label>
+                <mat-select [(ngModel)]="promoForm.discountType">
+                  <mat-option value="PercentageOff">Percentage Off (%)</mat-option>
+                  <mat-option value="FixedOff">Fixed Off (£)</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="dark-field">
+                <mat-label>Value</mat-label>
+                <input matInput type="number" [(ngModel)]="promoForm.discountValue" min="0">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="dark-field">
+                <mat-label>Starts At</mat-label>
+                <input matInput type="datetime-local" [(ngModel)]="promoForm.startsAtStr">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="dark-field">
+                <mat-label>Ends At</mat-label>
+                <input matInput type="datetime-local" [(ngModel)]="promoForm.endsAtStr">
+              </mat-form-field>
+              <button mat-flat-button color="primary" (click)="createPromotion()" [disabled]="promotionSaving() || !promoForm.title.trim()">
+                <span class="material-symbols-rounded">save</span> Create Promotion
+              </button>
+            </div>
+          </div>
+
+          <!-- Promotions list -->
+          @if (promotionsLoading()) {
+            <p class="loading-hint">Loading…</p>
+          } @else if (promotions().length === 0) {
+            <div class="empty-state-sm">
+              <span class="material-symbols-rounded">local_offer</span>
+              <p>No promotions yet. Create one above.</p>
+            </div>
+          } @else {
+            <div class="promotions-list">
+              @for (p of promotions(); track p.id) {
+                <div class="glass-card promo-item-card" appScrollReveal>
+                  <div class="promo-item-header">
+                    <h4>{{ p.title }}</h4>
+                    <div class="promo-item-actions">
+                      <button mat-icon-button [matTooltip]="p.isActive ? 'Deactivate' : 'Activate'" (click)="togglePromoActive(p)">
+                        <span class="material-symbols-rounded">{{ p.isActive ? 'toggle_on' : 'toggle_off' }}</span>
+                      </button>
+                      <button mat-icon-button matTooltip="Delete" (click)="deletePromotion(p.id)">
+                        <span class="material-symbols-rounded" style="color:#ef4444">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="promo-item-desc">{{ p.description }}</p>
+                  <div class="promo-item-meta">
+                    <span class="promo-discount-chip">
+                      @if (p.discountType === 'PercentageOff') { {{ p.discountValue }}% off }
+                      @else { £{{ p.discountValue }} off }
+                    </span>
+                    <span class="promo-dates">{{ p.startsAt | date:'dd MMM' }} – {{ p.endsAt | date:'dd MMM yyyy' }}</span>
+                    <span [class]="p.isActive ? 'status-chip status-active' : 'status-chip status-inactive'">
+                      {{ p.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
       }
 
     </div>

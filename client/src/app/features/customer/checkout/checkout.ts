@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, signal, computed, ViewChild, ElementRef, OnDestroy, AfterViewInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
@@ -17,6 +17,9 @@ import { IdempotencyKeyService } from '../../../core/services/idempotency-key.se
 import { ConfettiService } from '../../../core/services/confetti.service';
 import { StripeService } from '../../../core/services/stripe.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { PromoCodeService } from '../../../core/services/promo-code.service';
+import { GiftCardService } from '../../../core/services/gift-card.service';
+import { SubscriptionService } from '../../../core/services/subscription.service';
 import { ukPostcodeValidator } from '../../../shared/validators/uk-postcode.validator';
 import { environment } from '../../../../environments/environment';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -24,6 +27,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { MenuItemEmojiPipe } from '../../../shared/pipes/restaurant-emoji.pipe';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
+import { ValidatePromoCodeResponse, ValidateGiftCardResponse } from '../../../core/models';
 
 /**
  * (SRP: postcode → ukPostcodeValidator; idempotency → IdempotencyKeyService;
@@ -54,6 +58,20 @@ export class Checkout implements AfterViewInit, OnDestroy {
   readonly scheduledFor = signal<string | null>(null);
   readonly scheduleEnabled = signal(false);
 
+  // ── Promo / gift card ──
+  promoCodeInput = '';
+  readonly promoLoading = signal(false);
+  readonly promoResult = signal<ValidatePromoCodeResponse | null>(null);
+  readonly promoError = signal<string | null>(null);
+
+  giftCardInput = '';
+  readonly giftCardLoading = signal(false);
+  readonly giftCardResult = signal<ValidateGiftCardResponse | null>(null);
+  readonly giftCardError = signal<string | null>(null);
+
+  // ── SeeThePrep Plus ──
+  readonly isPlus = signal(false);
+
   addressLine1 = '';
   city = '';
   specialInstructions = '';
@@ -73,8 +91,18 @@ export class Checkout implements AfterViewInit, OnDestroy {
     private readonly idempotencyKey: IdempotencyKeyService,
     private readonly confetti: ConfettiService,
     readonly stripeService: StripeService,
-    private readonly paymentService: PaymentService
-  ) {}
+    private readonly paymentService: PaymentService,
+    private readonly promoCodeService: PromoCodeService,
+    private readonly giftCardService: GiftCardService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {
+    if (this.auth.isLoggedIn()) {
+      this.subscriptionService.getStatus().subscribe({
+        next: (s) => this.isPlus.set(s.isActive),
+        error: () => {},
+      });
+    }
+  }
 
   async ngAfterViewInit(): Promise<void> {
     if (this.cart.isEmpty() || !this.isStripeConfigured) return;
@@ -98,6 +126,80 @@ export class Checkout implements AfterViewInit, OnDestroy {
       this.city.trim().length > 0 &&
       this.postcodeValid
     );
+  }
+
+  get effectiveDeliveryFee(): number {
+    return this.isPlus() || this.orderType() === 'Collection' ? 0 : this.DELIVERY_FEE;
+  }
+
+  get promoDiscount(): number {
+    return this.promoResult()?.discountAmount ?? 0;
+  }
+
+  get giftCardDiscount(): number {
+    const r = this.giftCardResult();
+    if (!r?.isValid) return 0;
+    return Math.min(r.remainingBalance ?? 0, this.cart.total() + this.effectiveDeliveryFee - this.promoDiscount);
+  }
+
+  get grandTotal(): number {
+    return Math.max(0, this.cart.total() + this.effectiveDeliveryFee - this.promoDiscount - this.giftCardDiscount);
+  }
+
+  applyPromo(): void {
+    const code = this.promoCodeInput.trim().toUpperCase();
+    if (!code) return;
+    this.promoLoading.set(true);
+    this.promoError.set(null);
+    this.promoResult.set(null);
+    this.promoCodeService.validate(code, this.cart.total()).subscribe({
+      next: (r) => {
+        this.promoLoading.set(false);
+        if (r.isValid) {
+          this.promoResult.set(r);
+        } else {
+          this.promoError.set(r.message);
+        }
+      },
+      error: () => {
+        this.promoLoading.set(false);
+        this.promoError.set('Could not validate promo code');
+      },
+    });
+  }
+
+  removePromo(): void {
+    this.promoResult.set(null);
+    this.promoError.set(null);
+    this.promoCodeInput = '';
+  }
+
+  applyGiftCard(): void {
+    const code = this.giftCardInput.trim().toUpperCase();
+    if (!code) return;
+    this.giftCardLoading.set(true);
+    this.giftCardError.set(null);
+    this.giftCardResult.set(null);
+    this.giftCardService.validate(code).subscribe({
+      next: (r) => {
+        this.giftCardLoading.set(false);
+        if (r.isValid) {
+          this.giftCardResult.set(r);
+        } else {
+          this.giftCardError.set(r.message);
+        }
+      },
+      error: () => {
+        this.giftCardLoading.set(false);
+        this.giftCardError.set('Could not validate gift card');
+      },
+    });
+  }
+
+  removeGiftCard(): void {
+    this.giftCardResult.set(null);
+    this.giftCardError.set(null);
+    this.giftCardInput = '';
   }
 
   get stepLabel(): string {
@@ -150,6 +252,8 @@ export class Checkout implements AfterViewInit, OnDestroy {
         specialInstructions: this.specialInstructions.trim() || null,
         orderType: this.orderType(),
         scheduledFor: this.scheduledForIso,
+        promoCode: this.promoResult()?.isValid ? this.promoCodeInput.trim().toUpperCase() : null,
+        giftCardCode: this.giftCardResult()?.isValid ? this.giftCardInput.trim().toUpperCase() : null,
       }).subscribe({
         next: (order) => {
           this.cart.clear();
@@ -197,6 +301,8 @@ export class Checkout implements AfterViewInit, OnDestroy {
           specialInstructions: this.specialInstructions.trim() || null,
           orderType: this.orderType(),
           scheduledFor: this.scheduledForIso,
+          promoCode: this.promoResult()?.isValid ? this.promoCodeInput.trim().toUpperCase() : null,
+          giftCardCode: this.giftCardResult()?.isValid ? this.giftCardInput.trim().toUpperCase() : null,
         }).subscribe({
           next: (order) => {
             this.cart.clear();

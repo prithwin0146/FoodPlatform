@@ -25,14 +25,19 @@ public class OrderService : IOrderService
     private readonly IStripeService _stripe;
     private readonly IBackgroundJobClient _jobs;
     private readonly ILogger<OrderService> _logger;
+    private readonly IPromoCodeService _promoCodes;
+    private readonly IGiftCardService _giftCards;
 
     public OrderService(FoodPlatformDbContext db, IStripeService stripe,
-        IBackgroundJobClient jobs, ILogger<OrderService> logger)
+        IBackgroundJobClient jobs, ILogger<OrderService> logger,
+        IPromoCodeService promoCodes, IGiftCardService giftCards)
     {
         _db = db;
         _stripe = stripe;
         _jobs = jobs;
         _logger = logger;
+        _promoCodes = promoCodes;
+        _giftCards = giftCards;
     }
 
     public async Task<ServiceResult<OrderDto>> PlaceOrderAsync(PlaceOrderRequest request, int userId)
@@ -110,12 +115,45 @@ public class OrderService : IOrderService
                     "Payment has not been confirmed. Please complete payment first.");
         }
 
+        // ── Apply promo code discount (server-side re-validation) ──────────────
+        decimal discountAmount = 0m;
+        int? promoCodeId = null;
+        string? promoCodeText = null;
+        if (!string.IsNullOrWhiteSpace(request.PromoCode))
+        {
+            var promoResult = await _promoCodes.ValidateAsync(request.PromoCode, total, userId);
+            if (promoResult.IsValid && promoResult.DiscountAmount.HasValue)
+            {
+                discountAmount = promoResult.DiscountAmount.Value;
+                promoCodeText = request.PromoCode.ToUpperInvariant().Trim();
+                var promoEntity = await _db.PromoCodes
+                    .FirstOrDefaultAsync(p => p.Code.ToLower() == request.PromoCode.ToLower() && p.IsActive);
+                promoCodeId = promoEntity?.Id;
+            }
+        }
+
+        // ── Apply gift card balance ────────────────────────────────────────────
+        decimal giftCardDiscount = 0m;
+        string? giftCardCodeText = null;
+        if (!string.IsNullOrWhiteSpace(request.GiftCardCode))
+        {
+            var gcResult = await _giftCards.ValidateAsync(request.GiftCardCode);
+            if (gcResult.IsValid && gcResult.RemainingBalance.HasValue)
+            {
+                // Reserve up to the post-promo total; actual redemption happens after order is saved
+                giftCardDiscount = Math.Min(gcResult.RemainingBalance.Value, Math.Max(0, total - discountAmount));
+                giftCardCodeText = request.GiftCardCode.ToUpperInvariant().Trim();
+            }
+        }
+
+        var finalTotal = Math.Max(0, total - discountAmount - giftCardDiscount);
+
         var order = new Order
         {
             RestaurantId = request.RestaurantId,
             UserId = userId,
             Status = "Pending",
-            TotalAmount = total,
+            TotalAmount = finalTotal,
             IdempotencyKey = request.IdempotencyKey,
             DeliveryAddressLine1 = request.DeliveryAddressLine1 ?? string.Empty,
             DeliveryCity = request.DeliveryCity ?? string.Empty,
@@ -127,6 +165,10 @@ public class OrderService : IOrderService
             SpecialInstructions = string.IsNullOrWhiteSpace(request.SpecialInstructions) ? null : request.SpecialInstructions.Trim(),
             OrderType = isCollection ? "Collection" : "Delivery",
             ScheduledFor = request.ScheduledFor,
+            PromoCode = promoCodeText,
+            DiscountAmount = discountAmount,
+            GiftCardCode = giftCardCodeText,
+            GiftCardDiscount = giftCardDiscount,
             Items = orderItems
         };
 
@@ -155,8 +197,16 @@ public class OrderService : IOrderService
             var address = $"{request.DeliveryAddressLine1}, {request.DeliveryCity}, {request.DeliveryPostcode.ToUpperInvariant()}";
             _jobs.Enqueue<IEmailService>(s =>
                 s.SendOrderPlacedAsync(user.Email, user.Username, order.Id,
-                    restaurant.Name, total, address));
+                    restaurant.Name, finalTotal, address));
         }
+
+        // Record promo code usage after successful order save
+        if (promoCodeId.HasValue && discountAmount > 0)
+            await _promoCodes.RecordUsageAsync(promoCodeId.Value, userId, order.Id, discountAmount);
+
+        // Redeem gift card balance after successful order save
+        if (!string.IsNullOrEmpty(giftCardCodeText) && giftCardDiscount > 0)
+            await _giftCards.RedeemAsync(giftCardCodeText, giftCardDiscount, order.Id);
 
         return ServiceResult<OrderDto>.Ok(MapToDto(order));
     }
@@ -438,5 +488,7 @@ public class OrderService : IOrderService
         o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId ?? 0,
             i.MenuItem?.Name ?? "(removed)", i.Quantity, i.UnitPrice)).ToList(),
         o.OrderType,
-        o.ScheduledFor);
+        o.ScheduledFor,
+        o.PromoCode, o.DiscountAmount,
+        o.GiftCardCode, o.GiftCardDiscount);
 }

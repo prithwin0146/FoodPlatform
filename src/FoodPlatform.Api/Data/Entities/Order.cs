@@ -27,6 +27,14 @@ public class Order
     public string OrderType { get; set; } = "Delivery";
     /// <summary>When set, the order is pre-scheduled for a future time. Null = ASAP.</summary>
     public DateTime? ScheduledFor { get; set; }
+    /// <summary>Platform promo code applied at checkout (denormalised for display).</summary>
+    public string? PromoCode { get; set; }
+    /// <summary>Discount amount applied via promo code (£).</summary>
+    public decimal DiscountAmount { get; set; }
+    /// <summary>Gift card code applied at checkout (denormalised for display).</summary>
+    public string? GiftCardCode { get; set; }
+    /// <summary>Amount redeemed from a gift card at checkout (£).</summary>
+    public decimal GiftCardDiscount { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation

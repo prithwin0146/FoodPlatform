@@ -19,15 +19,18 @@ public class StripeWebhooksController : ControllerBase
     private readonly FoodPlatformDbContext _db;
     private readonly IConfiguration _config;
     private readonly ILogger<StripeWebhooksController> _logger;
+    private readonly ISubscriptionService _subscriptions;
 
     public StripeWebhooksController(
         FoodPlatformDbContext db,
         IConfiguration config,
-        ILogger<StripeWebhooksController> logger)
+        ILogger<StripeWebhooksController> logger,
+        ISubscriptionService subscriptions)
     {
         _db = db;
         _config = config;
         _logger = logger;
+        _subscriptions = subscriptions;
     }
 
     [HttpPost]
@@ -66,6 +69,17 @@ public class StripeWebhooksController : ControllerBase
             case "payment_intent.payment_failed":
                 if (!await MarkProcessedAsync(stripeEvent.Id)) return Ok(new { received = true, duplicate = true });
                 await HandlePaymentFailedAsync(stripeEvent.Data.Object as PaymentIntent);
+                break;
+
+            case "customer.subscription.created":
+                if (!await MarkProcessedAsync(stripeEvent.Id)) return Ok(new { received = true, duplicate = true });
+                await HandleSubscriptionCreatedAsync(stripeEvent.Data.Object as Stripe.Subscription);
+                break;
+
+            case "customer.subscription.updated":
+            case "customer.subscription.deleted":
+                if (!await MarkProcessedAsync(stripeEvent.Id)) return Ok(new { received = true, duplicate = true });
+                await HandleSubscriptionUpdatedAsync(stripeEvent.Data.Object as Stripe.Subscription);
                 break;
         }
 
@@ -136,5 +150,21 @@ public class StripeWebhooksController : ControllerBase
             _logger.LogWarning(
                 "Webhook: payment failed — order {OrderId} cancelled", order.Id);
         }
+    }
+
+    private async Task HandleSubscriptionCreatedAsync(Stripe.Subscription? sub)
+    {
+        if (sub is null) return;
+        var userEmail = sub.Customer?.Email ?? string.Empty;
+        var periodEnd = sub.Items?.Data?.FirstOrDefault()?.CurrentPeriodEnd ?? DateTime.UtcNow.AddMonths(1);
+        await _subscriptions.HandleSubscriptionCreatedAsync(
+            sub.Id, sub.CustomerId, userEmail, sub.Status, periodEnd);
+    }
+
+    private async Task HandleSubscriptionUpdatedAsync(Stripe.Subscription? sub)
+    {
+        if (sub is null) return;
+        var periodEnd = sub.Items?.Data?.FirstOrDefault()?.CurrentPeriodEnd ?? DateTime.UtcNow.AddMonths(1);
+        await _subscriptions.HandleSubscriptionUpdatedAsync(sub.Id, sub.Status, periodEnd);
     }
 }

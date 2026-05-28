@@ -27,7 +27,11 @@ public record PlaceOrderRequest(
     /// <summary>"Delivery" (default) or "Collection".</summary>
     string OrderType = "Delivery",
     /// <summary>UTC time the customer wants the order ready. Null = ASAP.</summary>
-    DateTime? ScheduledFor = null);
+    DateTime? ScheduledFor = null,
+    /// <summary>Optional platform-wide promo code to apply at checkout.</summary>
+    [MaxLength(50)] string? PromoCode = null,
+    /// <summary>Optional gift card code to redeem at checkout.</summary>
+    [MaxLength(20)] string? GiftCardCode = null);
 
 public record OrderItemRequest(
     int MenuItemId,
@@ -39,7 +43,9 @@ public record OrderItemRequest(
 /// </summary>
 public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Status,
     decimal TotalAmount, DateTime CreatedAt, List<OrderItemDto> Items,
-    string OrderType = "Delivery", DateTime? ScheduledFor = null)
+    string OrderType = "Delivery", DateTime? ScheduledFor = null,
+    string? PromoCode = null, decimal DiscountAmount = 0m,
+    string? GiftCardCode = null, decimal GiftCardDiscount = 0m)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;
@@ -57,7 +63,9 @@ public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string? SpecialInstructions,
     List<OrderItemDto> Items,
     string OrderType = "Delivery",
-    DateTime? ScheduledFor = null)
+    DateTime? ScheduledFor = null,
+    string? PromoCode = null, decimal DiscountAmount = 0m,
+    string? GiftCardCode = null, decimal GiftCardDiscount = 0m)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;

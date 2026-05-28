@@ -76,6 +76,19 @@
   }
 
   <div class="container menu-layout">
+
+    <!-- Active Promotions Banner -->
+    @if (restaurant()?.activePromotions?.length) {
+      <div class="promotions-banner" appScrollReveal [revealDelay]="40">
+        @for (promo of restaurant()!.activePromotions!; track promo.id) {
+          <div class="promo-pill">
+            <span class="material-symbols-rounded">local_offer</span>
+            <span><strong>{{ promo.title }}</strong> — {{ promo.description }}</span>
+          </div>
+        }
+      </div>
+    }
+
     <!-- Category Nav -->
     <aside class="category-nav" appScrollReveal [revealDelay]="100">
       <h3 class="nav-title">

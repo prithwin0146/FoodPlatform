@@ -18,7 +18,8 @@ import { RestaurantStaffService, StaffCreateCategoryPayload, StaffCreateItemPayl
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { AudioService } from '../../../core/services/audio.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours } from '../../../core/models';
+import { RestaurantPromotionService } from '../../../core/services/restaurant-promotion.service';
+import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours, RestaurantPromotion, CreateRestaurantPromotionRequest } from '../../../core/models';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -130,6 +131,17 @@ export class Dashboard implements OnInit, OnDestroy {
       .reduce((sum, o) => sum + o.totalAmount, 0);
   });
 
+  // ── Promotions state
+  readonly promotionsSectionOpen = signal(false);
+  readonly promotions = signal<RestaurantPromotion[]>([]);
+  readonly promotionsLoading = signal(false);
+  readonly promotionSaving = signal(false);
+  promoForm: CreateRestaurantPromotionRequest & { startsAtStr: string; endsAtStr: string } = {
+    title: '', description: '', discountType: 'PercentageOff', discountValue: 10,
+    appliesToCategoryId: null, isActive: true, startsAtStr: '', endsAtStr: '',
+    startsAt: new Date().toISOString(), endsAt: new Date(Date.now() + 7 * 86400_000).toISOString(),
+  };
+
   readonly filters = ['all', 'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered'];
 
   private _pollSub?: Subscription;
@@ -141,6 +153,7 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly audio: AudioService,
     private readonly toast: ToastService,
     private readonly titleService: Title,
+    private readonly promotionService: RestaurantPromotionService,
   ) {}
 
   ngOnInit(): void {
@@ -614,6 +627,54 @@ export class Dashboard implements OnInit, OnDestroy {
     if (!next) return '';
     const spaced = next.replace(/([A-Z])/g, ' $1').trim();
     return `Mark as ${spaced}`;
+  }
+
+  // ── Promotions
+
+  togglePromotionsSection(): void {
+    this.promotionsSectionOpen.update(v => !v);
+    if (this.promotionsSectionOpen()) this.loadPromotions();
+  }
+
+  loadPromotions(): void {
+    this.promotionsLoading.set(true);
+    this.promotionService.getAll().subscribe({
+      next: (data) => { this.promotions.set(data); this.promotionsLoading.set(false); },
+      error: () => { this.promotionsLoading.set(false); this.toast.error('Failed to load promotions'); },
+    });
+  }
+
+  createPromotion(): void {
+    this.promotionSaving.set(true);
+    const payload: CreateRestaurantPromotionRequest = {
+      ...this.promoForm,
+      startsAt: this.promoForm.startsAtStr ? new Date(this.promoForm.startsAtStr).toISOString() : new Date().toISOString(),
+      endsAt: this.promoForm.endsAtStr ? new Date(this.promoForm.endsAtStr).toISOString() : new Date(Date.now() + 7 * 86400_000).toISOString(),
+    };
+    this.promotionService.create(payload).subscribe({
+      next: (created) => {
+        this.promotions.update(p => [created, ...p]);
+        this.promotionSaving.set(false);
+        this.toast.success('Promotion created');
+        this.promoForm = { title: '', description: '', discountType: 'PercentageOff', discountValue: 10, appliesToCategoryId: null, isActive: true, startsAtStr: '', endsAtStr: '', startsAt: new Date().toISOString(), endsAt: new Date(Date.now() + 7 * 86400_000).toISOString() };
+      },
+      error: () => { this.promotionSaving.set(false); this.toast.error('Failed to create promotion'); },
+    });
+  }
+
+  togglePromoActive(p: RestaurantPromotion): void {
+    this.promotionService.update(p.id, { isActive: !p.isActive }).subscribe({
+      next: (updated) => this.promotions.update(list => list.map(x => x.id === updated.id ? updated : x)),
+      error: () => this.toast.error('Failed to update promotion'),
+    });
+  }
+
+  deletePromotion(id: number): void {
+    if (!confirm('Delete this promotion?')) return;
+    this.promotionService.delete(id).subscribe({
+      next: () => this.promotions.update(list => list.filter(p => p.id !== id)),
+      error: () => this.toast.error('Failed to delete promotion'),
+    });
   }
 }
 

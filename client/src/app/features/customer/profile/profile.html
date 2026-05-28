@@ -108,5 +108,49 @@
       </form>
     </div>
 
+    <!-- SeeThePrep Plus card -->
+    <div class="profile-section glass-card" appScrollReveal [revealDelay]="160">
+      <h2 class="section-title">
+        <span class="material-symbols-rounded">workspace_premium</span>
+        SeeThePrep Plus
+      </h2>
+
+      @if (subscriptionLoading()) {
+        <p class="plus-hint">Loading subscription status…</p>
+      } @else if (subscriptionStatus()?.isActive) {
+        <div class="plus-active-card">
+          <div class="plus-badge-row">
+            <span class="plus-badge"><span class="material-symbols-rounded">workspace_premium</span> Active</span>
+            @if (subscriptionStatus()!.periodEnd) {
+              <span class="plus-renews">Renews {{ subscriptionStatus()!.periodEnd | date:'dd MMM yyyy' }}</span>
+            }
+          </div>
+          <p class="plus-perks">✓ Free delivery on every order &nbsp;·&nbsp; ✓ Priority support &nbsp;·&nbsp; ✓ Exclusive subscriber offers</p>
+          <button mat-stroked-button color="warn" class="cancel-plus-btn"
+            (click)="cancelPlus()" [disabled]="cancellingSubscription()">
+            @if (cancellingSubscription()) { <mat-spinner diameter="16" /> Cancelling… }
+            @else { Cancel subscription }
+          </button>
+        </div>
+      } @else {
+        <div class="plus-upsell-card">
+          <div class="plus-upsell-icon">
+            <span class="material-symbols-rounded">workspace_premium</span>
+          </div>
+          <h3 class="plus-upsell-title">Upgrade to Plus</h3>
+          <p class="plus-upsell-desc">Free delivery on every order, priority support, and exclusive subscriber offers — all for one flat monthly fee.</p>
+          <ul class="plus-features-list">
+            <li><span class="material-symbols-rounded">check_circle</span> Free delivery on all orders</li>
+            <li><span class="material-symbols-rounded">check_circle</span> Priority customer support</li>
+            <li><span class="material-symbols-rounded">check_circle</span> Exclusive subscriber discounts</li>
+          </ul>
+          <button mat-flat-button class="subscribe-btn" (click)="subscribePlus()">
+            <span class="material-symbols-rounded">workspace_premium</span>
+            Subscribe to Plus
+          </button>
+        </div>
+      }
+    </div>
+
   </div>
 </div>

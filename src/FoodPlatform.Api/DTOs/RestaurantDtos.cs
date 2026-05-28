@@ -15,7 +15,8 @@ public record RestaurantDto(int Id, string Name, string Address, string BasePost
 public record RestaurantDetailDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
     string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours,
-    string? AngelcamCameraId = null, string? Phone = null, bool SupportsCollection = false)
+    string? AngelcamCameraId = null, string? Phone = null, bool SupportsCollection = false,
+    List<RestaurantPromotionDto>? ActivePromotions = null)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;

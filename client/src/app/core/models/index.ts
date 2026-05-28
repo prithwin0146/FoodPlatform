@@ -26,6 +26,8 @@ export interface Restaurant {
 
 export interface RestaurantDetail extends Restaurant {
   hours: RestaurantHours[];
+  /** Currently active promotions for this restaurant. */
+  activePromotions?: RestaurantPromotion[];
 }
 
 export interface RestaurantHours {
@@ -86,6 +88,14 @@ export interface Order {
   orderType: string;
   /** ISO timestamp of the scheduled time, or null for ASAP. */
   scheduledFor: string | null;
+  /** Platform-wide promo code applied (if any). */
+  promoCode: string | null;
+  /** Amount discounted via promo code (£). */
+  discountAmount: number;
+  /** Gift card code applied (if any). */
+  giftCardCode: string | null;
+  /** Amount redeemed from a gift card (£). */
+  giftCardDiscount: number;
 }
 
 export interface OrderItem {
@@ -170,6 +180,10 @@ export interface PlaceOrderRequest {
   specialInstructions?: string | null;
   orderType?: string;
   scheduledFor?: string | null;
+  /** Platform-wide promo code to apply at checkout. */
+  promoCode?: string | null;
+  /** Gift card code to redeem at checkout. */
+  giftCardCode?: string | null;
 }
 
 export interface AcceptOrderRequest {
@@ -229,4 +243,88 @@ export interface Review {
 export interface SubmitReviewRequest {
   stars: number;
   comment?: string | null;
+}
+
+// === Phase 2: Promo Codes ===
+export interface PromoCode {
+  id: number;
+  code: string;
+  description: string;
+  discountType: string; // 'Percentage' | 'Fixed'
+  discountValue: number;
+  minOrderAmount: number | null;
+  maxUses: number | null;
+  usedCount: number;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ValidatePromoCodeResponse {
+  isValid: boolean;
+  message: string;
+  discountType: string | null;
+  discountValue: number | null;
+  discountAmount: number | null;
+}
+
+export interface CreatePromoCodeRequest {
+  code: string;
+  description: string;
+  discountType: string;
+  discountValue: number;
+  minOrderAmount?: number | null;
+  maxUses?: number | null;
+  expiresAt?: string | null;
+}
+
+// === Phase 2: Restaurant Promotions ===
+export interface RestaurantPromotion {
+  id: number;
+  restaurantId: number;
+  title: string;
+  description: string | null;
+  discountType: string; // 'PercentageOff' | 'FixedOff'
+  discountValue: number;
+  appliesToCategoryId: number | null;
+  appliesToCategoryName: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CreateRestaurantPromotionRequest {
+  title: string;
+  description?: string | null;
+  discountType: string;
+  discountValue: number;
+  appliesToCategoryId?: number | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  isActive?: boolean;
+}
+
+// === Phase 2: Subscriptions ===
+export interface SubscriptionStatus {
+  isActive: boolean;
+  status: string | null;
+  periodEnd: string | null;
+  createdAt: string | null;
+}
+
+// === Phase 2: Gift Cards ===
+export interface GiftCard {
+  id: number;
+  code: string;
+  initialAmount: number;
+  remainingBalance: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ValidateGiftCardResponse {
+  isValid: boolean;
+  message: string;
+  remainingBalance: number | null;
 }

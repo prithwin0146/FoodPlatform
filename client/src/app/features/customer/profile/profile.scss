@@ -173,3 +173,47 @@
     }
   }
 }
+
+/* ─── SeeThePrep Plus ─── */
+.plus-hint { color: var(--text-secondary); font-size: .875rem; }
+
+.plus-active-card {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.plus-badge-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.plus-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.2), rgba(var(--brand-primary-rgb), 0.05));
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.4);
+  border-radius: 999px; padding: 6px 14px;
+  font-weight: 700; color: var(--brand-primary); font-size: .875rem;
+  .material-symbols-rounded { font-size: 1rem; }
+}
+.plus-renews { color: var(--text-secondary); font-size: .8rem; }
+.plus-perks { color: var(--text-secondary); font-size: .875rem; margin: 0; }
+.cancel-plus-btn { align-self: flex-start; margin-top: 4px; }
+
+.plus-upsell-card {
+  display: flex; flex-direction: column; gap: 14px; align-items: flex-start;
+}
+.plus-upsell-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.2), rgba(var(--brand-primary-rgb), 0.05));
+  display: flex; align-items: center; justify-content: center;
+  .material-symbols-rounded { font-size: 2rem; color: var(--brand-primary); }
+}
+.plus-upsell-title { font-size: 1.15rem; font-weight: 700; margin: 0; }
+.plus-upsell-desc { color: var(--text-secondary); font-size: .875rem; margin: 0; line-height: 1.5; }
+.plus-features-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 8px;
+  li { display: flex; align-items: center; gap: 8px; font-size: .875rem; }
+  .material-symbols-rounded { font-size: 1rem; color: #22c55e; }
+}
+.subscribe-btn {
+  background: var(--brand-primary) !important; color: #fff !important;
+  border-radius: 12px !important; padding: 0 24px !important; height: 44px;
+  .material-symbols-rounded { font-size: 1.1rem; margin-right: 6px; }
+}

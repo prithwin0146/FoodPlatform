@@ -34,11 +34,23 @@ public class RestaurantQueryService : IRestaurantQueryService
 
         if (r is null) return null;
 
+        var now = DateTime.UtcNow;
+        var activePromotions = await _db.RestaurantPromotions
+            .Include(p => p.AppliesToCategory)
+            .Where(p => p.RestaurantId == id && p.IsActive
+                && (p.StartsAt == null || p.StartsAt <= now)
+                && (p.EndsAt == null || p.EndsAt >= now))
+            .Select(p => new RestaurantPromotionDto(p.Id, p.RestaurantId, p.Title, p.Description,
+                p.DiscountType, p.DiscountValue, p.AppliesToCategoryId,
+                p.AppliesToCategory != null ? p.AppliesToCategory.Name : null,
+                p.StartsAt, p.EndsAt, p.IsActive, p.CreatedAt))
+            .ToListAsync();
+
         return new RestaurantDetailDto(r.Id, r.Name, r.Address, r.BasePostcode,
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
             r.CuisineType, r.EstimatedDeliveryMinutes,
             r.Hours.Select(h => new RestaurantHoursDto(h.DayOfWeek, h.OpenTime, h.CloseTime, h.IsClosed)).ToList(),
-            r.AngelcamCameraId, r.Phone, r.SupportsCollection);
+            r.AngelcamCameraId, r.Phone, r.SupportsCollection, activePromotions);
     }
 
     public async Task<IEnumerable<RestaurantHoursDto>> GetHoursAsync(int id)
