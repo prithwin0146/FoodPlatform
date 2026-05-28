@@ -18,6 +18,7 @@ import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ReviewWidget } from '../../../shared/components/review-widget/review-widget';
 import { CancelCountdownPipe } from '../../../shared/pipes/cancel-countdown.pipe';
 import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/live-stream-player';
@@ -34,7 +35,7 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
     FormsModule, MatFormFieldModule, MatInputModule,
     OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
-    ScrollRevealDirective, MagneticDirective,
+    ScrollRevealDirective, MagneticDirective, TiltDirective,
     ReviewWidget,
     CancelCountdownPipe,
     LiveStreamPlayer,
@@ -51,6 +52,35 @@ export class OrderTracking implements OnInit, OnDestroy {
   readonly existingReview = signal<Review | null>(null);
   /** Fresh Angelcam HLS URL fetched from the backend. Null = no stream / not yet loaded. */
   readonly liveStreamUrl = signal<string | null>(null);
+
+  /**
+   * 0→100 progress along the prep window (createdAt → estimatedDeliveryTime).
+   * Drives the gradient progress bar overlaid on the camera feed.
+   * (SRP: pure time calculation — no side effects)
+   */
+  readonly prepProgress = computed(() => {
+    this._tick();
+    const o = this.order();
+    if (!o?.estimatedDeliveryTime || !o.createdAt) return 0;
+    const start = new Date(o.createdAt).getTime();
+    const end   = new Date(o.estimatedDeliveryTime).getTime();
+    if (end <= start) return 0;
+    return Math.min(100, Math.max(0, ((Date.now() - start) / (end - start)) * 100));
+  });
+
+  /** Emoji representing each order status step in the stepper. */
+  stepEmoji(step: OrderStatus): string {
+    const map: Partial<Record<OrderStatus, string>> = {
+      Pending:        '⏳',
+      Accepted:       '✅',
+      Preparing:      '🔪',
+      Cooking:        '🍳',
+      Packed:         '📦',
+      OutForDelivery: '🛵',
+      Delivered:      '🎉',
+    };
+    return map[step] ?? '•';
+  }
 
   private _pollSub?: Subscription;
   private _tickSub?: Subscription;

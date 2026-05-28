@@ -1,5 +1,10 @@
 <div class="tracking-page">
-  <div class="page-bg"></div>
+  <!-- Atmospheric dark background -->
+  <div class="page-bg" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
   <div class="container">
     <a routerLink="/orders" mat-button class="back-btn" appScrollReveal>
       <span class="material-symbols-rounded">arrow_back</span> My Orders
@@ -8,182 +13,217 @@
     @if (loading()) {
       <div class="loading-state">
         <div class="orbit-loader">
-          <div class="orbit-ring"></div>
+          <div class="orbit-ring orbit-ring-1"></div>
+          <div class="orbit-ring orbit-ring-2"></div>
           <div class="orbit-core"><span class="material-symbols-rounded">restaurant</span></div>
         </div>
         <p>Loading your order…</p>
       </div>
     } @else if (order(); as o) {
 
-      <!-- ── Order Header Card ── -->
-      <div class="order-header-card glass-card" appScrollReveal>
-        <div class="hc-left">
-          <h1 class="order-title">Order <span class="order-id">#{{ o.id }}</span></h1>
-          <p class="order-restaurant">{{ o.restaurantName }}</p>
-          <p class="order-date">
-            <span class="material-symbols-rounded">schedule</span>
-            Placed {{ o.createdAt | date:'mediumDate' }} at {{ o.createdAt | date:'shortTime' }}
-          </p>
-        </div>
-        <div class="hc-right">
-          <span class="hc-amount">{{ o.totalAmount | currency:'GBP' }}</span>
-          <span class="payment-badge">
-            <span class="material-symbols-rounded">check_circle</span>
-            CONFIRMED PAYMENT
-          </span>
+      <!-- ══════════════════════════════════════════ HERO HEADER ══ -->
+      <div class="hero-card" appScrollReveal appTilt [tiltMax]="4">
+        <div class="card-glare"></div>
+        <div class="hero-card__aurora"></div>
+        <div class="hero-card__content">
+          <div class="hero-left">
+            <p class="hero-restaurant">
+              <span class="material-symbols-rounded">storefront</span>
+              {{ o.restaurantName }}
+            </p>
+            <h1 class="hero-order-title">
+              Order <span class="hero-order-id">#{{ o.id }}</span>
+            </h1>
+            <p class="hero-date">
+              <span class="material-symbols-rounded">schedule</span>
+              Placed {{ o.createdAt | date:'d MMM y' }} at {{ o.createdAt | date:'shortTime' }}
+            </p>
+          </div>
+          <div class="hero-right">
+            <div class="hero-amount">{{ o.totalAmount | currency:'GBP' }}</div>
+            <div class="payment-confirmed">
+              <span class="material-symbols-rounded">verified</span>
+              Payment Confirmed
+            </div>
+          </div>
         </div>
       </div>
 
       @if (o.status !== 'Rejected' && o.status !== 'Cancelled') {
 
-        <!-- ── Status Stepper ── -->
-        <div class="stepper-card glass-card" appScrollReveal [revealDelay]="80">
+        <!-- ══════════════════════════════════════════ STEPPER ══ -->
+        <div class="stepper-card" appScrollReveal [revealDelay]="80">
           <div class="stepper-track">
             @for (step of statusSteps; track step; let idx = $index; let last = $last) {
-              <div class="step-wrapper">
-                <div
-                  class="step"
-                  [class.complete]="isStepComplete(step) && !isActive(step)"
-                  [class.active]="isActive(step)"
-                >
-                  <div class="step-dot">
+              <div class="step-item"
+                [class.is-complete]="isStepComplete(step) && !isActive(step)"
+                [class.is-active]="isActive(step)">
+                <div class="step-node">
+                  <div class="step-node__ring" [class.step-node__ring--glow]="isActive(step)"></div>
+                  <div class="step-node__circle">
                     @if (isStepComplete(step) && !isActive(step)) {
-                      <span class="material-symbols-rounded check">check</span>
+                      <span class="material-symbols-rounded step-check">check</span>
                     } @else {
-                      <span class="step-dot-inner"></span>
-                    }
-                    @if (isActive(step)) {
-                      <div class="active-ring"></div>
+                      <span class="step-emoji">{{ stepEmoji(step) }}</span>
                     }
                   </div>
-                  <span class="step-label">{{ step | orderStatusLabel }}</span>
                 </div>
+                <span class="step-label">{{ step | orderStatusLabel }}</span>
                 @if (!last) {
-                  <div class="step-connector" [class.filled]="isStepComplete(statusSteps[idx + 1])"></div>
+                  <div class="step-connector" [class.step-connector--filled]="isStepComplete(statusSteps[idx + 1])"></div>
                 }
               </div>
             }
           </div>
         </div>
 
-        <!-- ── Live Kitchen Panel ── -->
-        <div class="live-kitchen-card glass-card" appScrollReveal [revealDelay]="160">
-          <div class="lk-video">
+        <!-- ══════════════════════════════════════════ CAMERA CARD ══ -->
+        <div class="camera-card" appScrollReveal [revealDelay]="160" appTilt [tiltMax]="2">
+          <div class="card-glare"></div>
+
+          <!-- Full-width 16:9 video area -->
+          <div class="camera-feed">
             @if (shouldShowStream() && liveStreamUrl()) {
-              <!-- Live Angelcam HLS stream — active only during Accepted → Packed window.
-                   (streamOffline) resets the URL so the next poll re-fetches if the token expired. -->
               <app-live-stream-player [hlsUrl]="liveStreamUrl()!" (streamOffline)="onStreamOffline()" />
+              <div class="live-badge">
+                <span class="live-badge__dot"></span>
+                LIVE
+              </div>
             } @else if (o.kitchenVideoUrl) {
               @if (o.kitchenVideoUrl.includes('youtube') || o.kitchenVideoUrl.includes('youtu.be') || o.kitchenVideoUrl.includes('vimeo')) {
                 <iframe
                   [src]="o.kitchenVideoUrl | safeUrl"
-                  class="kitchen-frame"
+                  class="camera-frame"
                   frameborder="0"
                   allow="autoplay; fullscreen"
                   allowfullscreen>
                 </iframe>
               } @else {
-                <video class="kitchen-video" controls autoplay muted loop [src]="o.kitchenVideoUrl">
+                <video class="camera-frame" controls autoplay muted loop [src]="o.kitchenVideoUrl">
                   Your browser does not support the video element.
                 </video>
               }
             } @else {
-              <div class="video-placeholder">
-                <div class="vp-shimmer"></div>
-                <div class="vp-content">
-                  <span class="vp-status-dot"></span>
-                  <p class="vp-status-label">Awaiting kitchen feed</p>
-                  <p class="vp-status-sub">Your live view will start the moment the chef begins cooking.</p>
+              <div class="feed-placeholder">
+                <div class="feed-shimmer"></div>
+                <div class="feed-content">
+                  <div class="feed-icon-wrap">
+                    <span class="material-symbols-rounded feed-icon">videocam</span>
+                    <div class="feed-icon-pulse"></div>
+                  </div>
+                  <p class="feed-title">Awaiting kitchen feed</p>
+                  <p class="feed-sub">Your live view starts the moment the chef begins cooking</p>
                 </div>
               </div>
             }
-          </div>
-          <div class="lk-notes">
-            <h3 class="notes-title">Kitchen Notes</h3>
-            <div class="note-row">
-              <span class="note-key">Kitchen</span>
-              <span class="note-val">{{ o.restaurantName }}</span>
-            </div>
-            @if (o.estimatedDeliveryTime) {
-              <div class="note-row">
-                <span class="note-key">Est. Ready Time</span>
-                <span class="note-val ready-time">{{ o.estimatedDeliveryTime | date:'shortTime' }}</span>
+
+            <!-- Animated prep progress bar pinned to bottom of video -->
+            @if (o.estimatedDeliveryTime && prepProgress() > 0) {
+              <div class="prep-bar">
+                <div class="prep-bar__fill" [style.width.%]="prepProgress()"></div>
+                <div class="prep-bar__glow" [style.left.%]="prepProgress()"></div>
               </div>
             }
-            <div class="chef-message">
-              <span class="material-symbols-rounded quote-icon">format_quote</span>
-              <p>Your order is currently being prepared with care. We'll notify you as soon as it's packed and out for delivery!</p>
+          </div>
+
+          <!-- Kitchen info strip below video -->
+          <div class="kitchen-strip">
+            <div class="ks-item">
+              <span class="ks-icon material-symbols-rounded">storefront</span>
+              <div>
+                <p class="ks-label">Kitchen</p>
+                <p class="ks-val">{{ o.restaurantName }}</p>
+              </div>
+            </div>
+            @if (o.estimatedDeliveryTime) {
+              <div class="ks-sep"></div>
+              <div class="ks-item">
+                <span class="ks-icon material-symbols-rounded">schedule</span>
+                <div>
+                  <p class="ks-label">Est. Ready</p>
+                  <p class="ks-val ks-val--time">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
+                </div>
+              </div>
+            }
+            <div class="ks-sep"></div>
+            <div class="ks-item ks-item--quote">
+              <span class="ks-icon material-symbols-rounded">format_quote</span>
+              <p class="ks-quote">Your order is being prepared with care — we'll notify you when it's on its way.</p>
             </div>
           </div>
         </div>
 
-        <!-- ── Lower Grid: Items + Delivery ── -->
+        <!-- ══════════════════════════════════════════ LOWER GRID ══ -->
         <div class="lower-grid" appScrollReveal [revealDelay]="240">
 
           <!-- Order Items -->
-          <div class="glass-card items-card">
-            <div class="card-header">
-              <span class="material-symbols-rounded header-icon">restaurant_menu</span>
-              <h2>Order Items</h2>
+          <div class="info-card">
+            <div class="info-card__header">
+              <div class="info-icon-wrap">
+                <span class="material-symbols-rounded">receipt_long</span>
+              </div>
+              <h2 class="info-card__title">Order Items</h2>
             </div>
             @for (item of o.items; track item.id; let idx = $index) {
-              <div class="order-item" [style.animation-delay]="idx * 50 + 'ms'">
-                <span class="item-qty-badge">{{ item.quantity }}×</span>
-                <span class="item-name-text">{{ item.menuItemName }}</span>
-                <span class="item-price-text">{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
+              <div class="order-item" [style.animation-delay]="idx * 60 + 'ms'">
+                <span class="item-qty">{{ item.quantity }}×</span>
+                <span class="item-name">{{ item.menuItemName }}</span>
+                <span class="item-price">{{ item.unitPrice * item.quantity | currency:'GBP' }}</span>
               </div>
             }
             <div class="order-total-row">
-              <span>Total</span>
-              <span class="total-val">{{ o.totalAmount | currency:'GBP' }}</span>
+              <span class="total-label">Total</span>
+              <span class="total-amount">{{ o.totalAmount | currency:'GBP' }}</span>
             </div>
           </div>
 
           <!-- Delivery Details -->
-          <div class="glass-card delivery-card">
-            <div class="card-header">
-              <span class="material-symbols-rounded header-icon">local_shipping</span>
-              <h2>Delivery Details</h2>
+          <div class="info-card">
+            <div class="info-card__header">
+              <div class="info-icon-wrap">
+                <span class="material-symbols-rounded">local_shipping</span>
+              </div>
+              <h2 class="info-card__title">Delivery</h2>
             </div>
-            <div class="delivery-row">
-              <span class="material-symbols-rounded delivery-icon">location_on</span>
+            <div class="detail-row">
+              <span class="detail-icon material-symbols-rounded">location_on</span>
               <div>
-                <p class="delivery-label">Delivery Address</p>
-                <p class="delivery-val">{{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }}, {{ o.deliveryPostcode }}</p>
+                <p class="detail-label">Address</p>
+                <p class="detail-val">{{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }}, {{ o.deliveryPostcode }}</p>
               </div>
             </div>
             @if (o.specialInstructions) {
-              <div class="delivery-row">
-                <span class="material-symbols-rounded delivery-icon">chat_bubble</span>
+              <div class="detail-row">
+                <span class="detail-icon material-symbols-rounded">chat_bubble</span>
                 <div>
-                  <p class="delivery-label">Special Instructions</p>
-                  <p class="delivery-val">{{ o.specialInstructions }}</p>
+                  <p class="detail-label">Special Instructions</p>
+                  <p class="detail-val">{{ o.specialInstructions }}</p>
                 </div>
               </div>
             }
             @if (o.estimatedDeliveryTime) {
-              <div class="delivery-row">
-                <span class="material-symbols-rounded delivery-icon">schedule</span>
+              <div class="detail-row">
+                <span class="detail-icon material-symbols-rounded">schedule</span>
                 <div>
-                  <p class="delivery-label">Estimated Arrival</p>
+                  <p class="detail-label">Estimated Arrival</p>
                   @if (etaCountdown() !== null && etaCountdown()! > 0) {
-                    <p class="delivery-val eta-val">
-                      <span class="eta-countdown">{{ etaCountdown()! | cancelCountdown }}</span>
-                      <span class="eta-static">· {{ o.estimatedDeliveryTime | date:'shortTime' }}</span>
+                    <p class="detail-val">
+                      <span class="eta-timer">{{ etaCountdown()! | cancelCountdown }}</span>
+                      <span class="eta-clock"> · {{ o.estimatedDeliveryTime | date:'shortTime' }}</span>
                     </p>
                   } @else if (etaCountdown() === 0) {
-                    <p class="delivery-val eta-val eta-due">Arriving now</p>
+                    <p class="detail-val eta-arriving">🛵 Arriving now!</p>
                   } @else {
-                    <p class="delivery-val eta-val">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
+                    <p class="detail-val">{{ o.estimatedDeliveryTime | date:'shortTime' }}</p>
                   }
                 </div>
               </div>
             }
-            <div class="delivery-row">
-              <span class="material-symbols-rounded delivery-icon">two_wheeler</span>
+            <div class="detail-row">
+              <span class="detail-icon material-symbols-rounded">two_wheeler</span>
               <div>
-                <p class="delivery-label">Delivery Status</p>
-                <p class="delivery-val">{{ o.status | orderStatusLabel }}</p>
+                <p class="detail-label">Delivery Status</p>
+                <p class="detail-val detail-status">{{ o.status | orderStatusLabel }}</p>
               </div>
             </div>
           </div>
@@ -195,7 +235,7 @@
             <span class="material-symbols-rounded">cancel</span>
             Cancel Order
             @if (cancelCountdown() > 0) {
-              <span class="cancel-countdown">({{ cancelCountdown() | cancelCountdown }})</span>
+              <span class="cancel-timer">({{ cancelCountdown() | cancelCountdown }})</span>
             }
           </button>
         }
@@ -258,7 +298,7 @@
         }
 
         @if (o.disputeStatus === 'Open') {
-          <div class="dispute-open-notice glass-card" appScrollReveal [revealDelay]="320">
+          <div class="dispute-open-notice" appScrollReveal [revealDelay]="320">
             <span class="material-symbols-rounded">pending_actions</span>
             Your dispute is under review. We'll be in touch within 24 hours.
           </div>
@@ -267,8 +307,11 @@
       } @else {
 
         <!-- Rejected / Cancelled -->
-        <div class="status-message glass-card" [class.rejected]="o.status === 'Rejected'" [class.cancelled]="o.status === 'Cancelled'" appScrollReveal [revealDelay]="80">
-          <span class="status-icon-big material-symbols-rounded">{{ o.status === 'Rejected' ? 'block' : 'cancel' }}</span>
+        <div class="status-terminal"
+          [class.is-rejected]="o.status === 'Rejected'"
+          [class.is-cancelled]="o.status === 'Cancelled'"
+          appScrollReveal [revealDelay]="80">
+          <span class="terminal-icon material-symbols-rounded">{{ o.status === 'Rejected' ? 'block' : 'cancel' }}</span>
           <h2>Order {{ o.status }}</h2>
           @if (o.rejectionReason) {
             <p class="rejection-reason">{{ o.rejectionReason }}</p>
@@ -278,8 +321,8 @@
       }
 
     } @else {
-      <div class="empty-state glass-card" appScrollReveal>
-        <span class="empty-icon material-symbols-rounded">search_off</span>
+      <div class="empty-card" appScrollReveal>
+        <span class="material-symbols-rounded">search_off</span>
         <h3>Order not found</h3>
       </div>
     }
