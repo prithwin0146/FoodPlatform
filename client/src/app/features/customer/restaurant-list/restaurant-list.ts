@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, ViewChildren, QueryList, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -55,6 +55,7 @@ interface Promise {
 })
 export class RestaurantList implements OnInit, AfterViewInit {
   @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
+  @ViewChildren('howVideo') private howVideoRefs!: QueryList<ElementRef<HTMLVideoElement>>;
 
   readonly restaurants = signal<Restaurant[]>([]);
   readonly loading = signal(true);
@@ -299,6 +300,42 @@ export class RestaurantList implements OnInit, AfterViewInit {
         { threshold: 0.1 }
       );
       io.observe(video);
+    }
+
+    // ── Force-play how-it-works step videos ──────────────────────
+    this.howVideoRefs.forEach(ref => this.forcePlayVideo(ref.nativeElement));
+    this.howVideoRefs.changes.subscribe((list: QueryList<ElementRef<HTMLVideoElement>>) => {
+      list.forEach(ref => this.forcePlayVideo(ref.nativeElement));
+    });
+  }
+
+  /** Mirrors hero video autoplay logic for any <video> element. */
+  private forcePlayVideo(v: HTMLVideoElement): void {
+    v.muted = true;
+    v.defaultMuted = true;
+    v.volume = 0;
+    v.setAttribute('muted', '');
+    v.playsInline = true;
+
+    const tryPlay = () => v.play().catch(() => undefined);
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: false });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+
+    const userKick = () => { tryPlay(); };
+    window.addEventListener('pointerdown', userKick, { once: true });
+    window.addEventListener('touchstart', userKick, { once: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && v.paused) tryPlay();
+    });
+
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        ([entry]) => entry.isIntersecting ? tryPlay() : v.pause(),
+        { threshold: 0.1 }
+      );
+      io.observe(v);
     }
   }
 
