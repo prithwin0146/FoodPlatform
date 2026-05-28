@@ -32,11 +32,15 @@ public class AdminAnalyticsService : IAdminAnalyticsService
 
         var topRestaurants = await _db.Orders
             .Where(o => o.Status != "Cancelled" && o.Status != "Rejected")
-            .GroupBy(o => new { o.RestaurantId, o.Restaurant!.Name })
+            .Join(_db.Restaurants,
+                o => o.RestaurantId,
+                r => r.Id,
+                (o, r) => new { o.RestaurantId, RestaurantName = r.Name, o.TotalAmount })
+            .GroupBy(x => new { x.RestaurantId, x.RestaurantName })
             .Select(g => new TopRestaurantDto(
                 g.Key.RestaurantId,
-                g.Key.Name,
-                g.Sum(o => (decimal)o.TotalAmount),
+                g.Key.RestaurantName,
+                g.Sum(x => (decimal)x.TotalAmount),
                 g.Count()))
             .OrderByDescending(t => t.Revenue)
             .Take(10)

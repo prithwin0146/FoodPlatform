@@ -56,12 +56,12 @@ import { Order } from '../../../core/models';
               <p class="dispute-notes">{{ o.disputeNotes || 'No additional notes provided.' }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
-              <button mat-stroked-button (click)="resolve(o.id)"
+              <button mat-stroked-button (click)="resolve(o.hashId)"
                 matTooltip="Mark dispute resolved without issuing a refund">
                 <span class="material-symbols-rounded">check_circle</span>
                 Mark Resolved
               </button>
-              <button mat-flat-button color="warn" (click)="refund(o.id)"
+              <button mat-flat-button color="warn" (click)="refund(o.hashId)"
                 matTooltip="Issue a full refund and close the dispute">
                 <span class="material-symbols-rounded">payments</span>
                 Issue Refund
@@ -140,15 +140,15 @@ export class AdminDisputesTab implements OnInit {
     });
   }
 
-  refund(orderId: number): void {
-    this.adminOrderService.refund(orderId).subscribe({
+  refund(hash: string): void {
+    this.adminOrderService.refund(hash).subscribe({
       next: () => { this.toast.success('Refund issued'); this.ngOnInit(); },
       error: (err) => this.toast.error(err.error?.message ?? 'Failed'),
     });
   }
 
-  resolve(orderId: number): void {
-    this.adminOrderService.resolve(orderId).subscribe({
+  resolve(hash: string): void {
+    this.adminOrderService.resolve(hash).subscribe({
       next: () => { this.toast.success('Dispute marked as resolved'); this.ngOnInit(); },
       error: (err) => this.toast.error(err.error?.message ?? 'Failed to resolve'),
     });

@@ -24,11 +24,11 @@ export class AdminOrderService {
     return this.http.get<Order[]>(`${this.url}/disputed`);
   }
 
-  refund(orderId: number): Observable<unknown> {
-    return this.http.post(`${this.url}/${orderId}/refund`, {});
+  refund(hash: string): Observable<unknown> {
+    return this.http.post(`${this.url}/${hash}/refund`, {});
   }
 
-  resolve(orderId: number): Observable<unknown> {
-    return this.http.patch(`${this.url}/${orderId}/resolve`, {});
+  resolve(hash: string): Observable<unknown> {
+    return this.http.patch(`${this.url}/${hash}/resolve`, {});
   }
 }
