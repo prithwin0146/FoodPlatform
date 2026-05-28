@@ -253,35 +253,17 @@
       </svg>
 
       @for (step of howSteps; track step.num; let i = $index) {
-        <div class="how-step" [class.how-step--video]="i === 1 && demoVideoUrl()" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
+        <div class="how-step how-step--video" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
           <div class="card-glare"></div>
           <div class="how-num">{{ step.num }}</div>
-          @if (i === 1 && demoVideoUrl()) {
-            <div class="how-video-wrap">
-              @if (isEmbedVideo(demoVideoUrl())) {
-                <iframe
-                  [src]="safeVideoUrl(demoVideoUrl())"
-                  class="how-video-frame"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                  title="Watch it cook — live kitchen demo"
-                ></iframe>
-              } @else {
-                <video
-                  class="how-video-frame"
-                  [src]="demoVideoUrl()"
-                  autoplay muted loop playsinline
-                  title="Watch it cook — live kitchen demo">
-                </video>
-              }
-            </div>
-          } @else {
-            <div class="how-icon">
-              <span class="material-symbols-rounded">{{ step.icon }}</span>
-              <span class="how-icon-glow"></span>
-            </div>
-          }
+          <div class="how-video-wrap">
+            <video
+              class="how-video-frame"
+              [src]="step.video"
+              autoplay muted loop playsinline
+              [attr.title]="step.title">
+            </video>
+          </div>
           <h3 class="how-title">{{ step.title }}</h3>
           <p class="how-copy">{{ step.copy }}</p>
         </div>

@@ -26,7 +26,7 @@ import { Logo } from '../../../shared/components/logo/logo';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
 interface HowStep {
-  num: string; title: string; copy: string; icon: string;
+  num: string; title: string; copy: string; icon: string; video: string;
 }
 
 /** A single "promise" panel in the WHY section — editorial layout, no animation gimmicks. */
@@ -105,9 +105,9 @@ export class RestaurantList implements OnInit, AfterViewInit {
 
   /** Section: How it works */
   readonly howSteps: HowStep[] = [
-    { num: '01', title: 'Choose a kitchen', copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu' },
-    { num: '02', title: 'Watch it cook',   copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam'         },
-    { num: '03', title: 'Track to the door', copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you’re happy with the food.',                  icon: 'delivery_dining'  },
+    { num: '01', title: 'Choose a kitchen',   copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu', video: '/videos/choose-the-kitchen.mp4'  },
+    { num: '02', title: 'Watch it cook',      copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam',        video: '/videos/watch-it-cook.mp4'         },
+    { num: '03', title: 'Track to the door',  copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you\'re happy with the food.',               icon: 'delivery_dining', video: '/videos/track-to-the-door.mp4'    },
   ];
 
   /** Section: Why · four honest promises (editorial layout) */
