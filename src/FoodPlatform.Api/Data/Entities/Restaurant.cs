@@ -18,6 +18,8 @@ public class Restaurant
     public string CuisineType { get; set; } = "Other";
     /// <summary>Advertised preparation + delivery window in minutes shown on the restaurant card.</summary>
     public int EstimatedDeliveryMinutes { get; set; } = 30;
+    /// <summary>Contact phone number displayed to the customer on the order-tracking page.</summary>
+    public string? Phone { get; set; }
     public string? StripeAccountId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -35,7 +35,8 @@ public class AdminRestaurantService : IAdminRestaurantService
             HygieneRating = request.HygieneRating,
             ImageUrl = request.ImageUrl,
             CuisineType = request.CuisineType ?? "Other",
-            EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes ?? 30
+            EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes ?? 30,
+            Phone = request.Phone
         };
         _db.Restaurants.Add(restaurant);
         await _db.SaveChangesAsync();
@@ -57,6 +58,7 @@ public class AdminRestaurantService : IAdminRestaurantService
         if (request.KitchenVideoUrl != null) restaurant.KitchenVideoUrl = request.KitchenVideoUrl == "" ? null : request.KitchenVideoUrl;
         if (request.CuisineType != null) restaurant.CuisineType = request.CuisineType;
         if (request.EstimatedDeliveryMinutes.HasValue) restaurant.EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes.Value;
+        if (request.Phone != null) restaurant.Phone = request.Phone == "" ? null : request.Phone;
 
         await _db.SaveChangesAsync();
         return ToDto(restaurant);

@@ -206,7 +206,7 @@
                   <p class="detail-label">Estimated Arrival</p>
                   @if (etaCountdown() !== null && etaCountdown()! > 0) {
                     <p class="detail-val">
-                      <span class="eta-timer">{{ etaCountdown()! | cancelCountdown }}</span>
+                      <span class="eta-timer">{{ etaCountdown() | etaCountdown }}</span>
                       <span class="eta-clock"> · {{ o.estimatedDeliveryTime | date:'shortTime' }}</span>
                     </p>
                   } @else if (etaCountdown() === 0) {
@@ -224,6 +224,26 @@
                 <p class="detail-val detail-status">{{ o.status | orderStatusLabel }}</p>
               </div>
             </div>
+
+            @if (o.restaurantPhone) {
+              <div class="detail-row contact-row">
+                <span class="detail-icon material-symbols-rounded">call</span>
+                <div class="contact-actions">
+                  <p class="detail-label">Contact Restaurant</p>
+                  <div class="contact-btns">
+                    <a [href]="'tel:' + o.restaurantPhone" mat-stroked-button class="contact-btn contact-btn--call">
+                      <span class="material-symbols-rounded">call</span>
+                      Call
+                    </a>
+                    <a [href]="'https://wa.me/' + o.restaurantPhone.replace(/\D/g, '')" target="_blank" rel="noopener"
+                      mat-stroked-button class="contact-btn contact-btn--whatsapp">
+                      <span class="material-symbols-rounded">chat</span>
+                      WhatsApp
+                    </a>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
 
         </div>

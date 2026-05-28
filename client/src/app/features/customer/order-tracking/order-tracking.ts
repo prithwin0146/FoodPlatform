@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ToastService } from '../../../core/services/toast.service';
 import { OrderService } from '../../../core/services/order.service';
 import { OrderPollingService } from '../../../core/services/order-polling.service';
+import { OrderNotificationService } from '../../../core/services/order-notification.service';
 import { ReviewService } from '../../../core/services/review.service';
 import { Order, ORDER_STATUS_FLOW, OrderStatus, Review } from '../../../core/models';
 import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
@@ -20,6 +21,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { ReviewWidget } from '../../../shared/components/review-widget/review-widget';
 import { CancelCountdownPipe } from '../../../shared/pipes/cancel-countdown.pipe';
+import { EtaCountdownPipe } from '../../../shared/pipes/eta-countdown.pipe';
 import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/live-stream-player';
 
 /**
@@ -37,6 +39,7 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
     ScrollRevealDirective, MagneticDirective,
     ReviewWidget,
     CancelCountdownPipe,
+    EtaCountdownPipe,
     LiveStreamPlayer,
   ],
   templateUrl: './order-tracking.html',
@@ -108,12 +111,16 @@ export class OrderTracking implements OnInit, OnDestroy {
     return secsLeft > 0 ? secsLeft : 0;
   });
 
+  /** Last-seen status — used to detect transitions and fire notifications. */
+  private _lastStatus: string | null = null;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly orderService: OrderService,
     private readonly polling: OrderPollingService,
     private readonly reviewService: ReviewService,
-    private readonly toast: ToastService
+    private readonly toast: ToastService,
+    private readonly notifications: OrderNotificationService
   ) {}
 
   private static readonly TERMINAL_STATUSES: OrderStatus[] = ['Delivered', 'Rejected', 'Cancelled'];
@@ -128,9 +135,16 @@ export class OrderTracking implements OnInit, OnDestroy {
   ngOnInit(): void {
     const hash = this.route.snapshot.params['id'] as string;
     this._tickSub = interval(1000).subscribe(() => this._tick.update(n => n + 1));
+    this.notifications.requestPermission();
 
     this._pollSub = this.polling.poll(hash).subscribe({
       next: (o) => {
+        // Detect status transition and fire toast + browser notification
+        if (this._lastStatus !== null && this._lastStatus !== o.status) {
+          this._onStatusChange(o.restaurantName, o.status);
+        }
+        this._lastStatus = o.status;
+
         this.order.set(o);
         this.loading.set(false);
         if (OrderTracking.TERMINAL_STATUSES.includes(o.status)) {
@@ -193,6 +207,26 @@ export class OrderTracking implements OnInit, OnDestroy {
    */
   onStreamOffline(): void {
     this.liveStreamUrl.set(null);
+  }
+
+  /**
+   * Fires a toast + browser notification when the order status changes mid-poll.
+   * (SRP: notification message logic delegated to OrderNotificationService)
+   */
+  private _onStatusChange(restaurantName: string, newStatus: string): void {
+    const messages: Partial<Record<string, string>> = {
+      Accepted:       `✅ ${restaurantName} accepted your order!`,
+      Preparing:      `🔪 Prep has started`,
+      Cooking:        `🍳 It's cooking — live feed is active!`,
+      Packed:         `📦 Your order is packed and ready`,
+      OutForDelivery: `🛵 On its way to you!`,
+      Delivered:      `🎉 Delivered — enjoy your meal!`,
+      Rejected:       `❌ ${restaurantName} couldn't accept your order`,
+      Cancelled:      `🚫 Your order has been cancelled`,
+    };
+    const msg = messages[newStatus];
+    if (msg) this.toast.info(msg);
+    this.notifications.notify(restaurantName, newStatus as OrderStatus);
   }
 
   cancelOrder(): void {

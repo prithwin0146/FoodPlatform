@@ -32,7 +32,8 @@ public record CreateRestaurantRequest(
     [MaxLength(500)] string? ImageUrl,
     [MaxLength(1000)] string? KitchenVideoUrl,
     [MaxLength(100)] string? CuisineType,
-    int? EstimatedDeliveryMinutes);
+    int? EstimatedDeliveryMinutes,
+    [MaxLength(30)] string? Phone = null);
 
 public record UpdateHoursRequest(List<RestaurantHoursDto> Hours);
 
@@ -47,7 +48,8 @@ public record UpdateRestaurantRequest(
     [MaxLength(500)] string? ImageUrl,
     [MaxLength(1000)] string? KitchenVideoUrl,
     [MaxLength(100)] string? CuisineType,
-    int? EstimatedDeliveryMinutes);
+    int? EstimatedDeliveryMinutes,
+    [MaxLength(30)] string? Phone = null);
 
 /// <summary>Staff-only request to update the kitchen video URL for their restaurant.</summary>
 public record UpdateKitchenVideoRequest([MaxLength(1000)] string? KitchenVideoUrl);

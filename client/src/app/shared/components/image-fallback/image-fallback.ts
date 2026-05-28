@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+    import { Component, Input, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 
 /**
  * Branded gradient + initial letter fallback for restaurant/menu thumbnails.

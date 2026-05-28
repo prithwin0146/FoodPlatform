@@ -70,6 +70,8 @@ export interface Order {
   kitchenVideoUrl: string | null;
   /** Angelcam Camera ID from the restaurant. Non-null = live kitchen stream is active. */
   angelcamCameraId: string | null;
+  /** Restaurant contact phone number. Shown on the order-tracking page for customer queries. */
+  restaurantPhone: string | null;
   estimatedDeliveryTime: string | null;
   cancellableUntil: string;
   createdAt: string;
