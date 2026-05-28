@@ -4,11 +4,15 @@
   <aside class="staff-sidebar">
     <div class="sidebar-restaurant">
       <div class="sidebar-brand-mark">
-        <span class="material-symbols-rounded">storefront</span>
+        {{ (myRestaurant()?.name ?? 'R').charAt(0).toUpperCase() }}
       </div>
       <div class="sidebar-brand-text">
-        <span class="sidebar-brand-title">{{ myRestaurant()?.name ?? 'My Restaurant' }}</span>
-        <span class="sidebar-brand-sub">Restaurant Staff</span>
+        <div class="sidebar-brand-title-row">
+          <span class="sidebar-brand-title">{{ myRestaurant()?.name ?? 'My Restaurant' }}</span>
+          <span class="sidebar-status-dot"
+            [class.sidebar-status-dot--open]="myRestaurant()?.isActive"
+            [matTooltip]="myRestaurant()?.isActive ? 'Open' : 'Closed'"></span>
+        </div>
       </div>
     </div>
 

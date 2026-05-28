@@ -8,7 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
-import { AdminRestaurantService, CreateRestaurantPayload } from '../../../core/services/admin-restaurant.service';
+import { AdminRestaurantService, CreateRestaurantPayload, CreateRestaurantResponse } from '../../../core/services/admin-restaurant.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Restaurant } from '../../../core/models';
 import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
@@ -23,6 +23,9 @@ interface RestaurantForm {
   kitchenVideoUrl: string;
   cuisineType: string;
   estimatedDeliveryMinutes: number;
+  staffName: string;
+  staffEmail: string;
+  staffPassword: string;
 }
 
 /**
@@ -96,6 +99,29 @@ interface RestaurantForm {
             <mat-label>Est. Delivery Time (minutes)</mat-label>
             <input matInput type="number" min="5" max="180" [(ngModel)]="form.estimatedDeliveryMinutes" />
           </mat-form-field>
+          @if (!editingId()) {
+            <div style="grid-column: span 2; margin: 4px 0 0; padding: 14px 16px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px;">
+              <div style="font-size:.8rem;font-weight:700;color:#0369a1;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-rounded" style="font-size:1rem">manage_accounts</span>
+                Staff Account Credentials
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                <mat-form-field appearance="outline">
+                  <mat-label>Staff Display Name</mat-label>
+                  <input matInput [(ngModel)]="form.staffName" placeholder="e.g. Spice Garden Staff" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Staff Email</mat-label>
+                  <input matInput type="email" [(ngModel)]="form.staffEmail" placeholder="staff@restaurant.com" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Staff Password</mat-label>
+                  <input matInput type="password" [(ngModel)]="form.staffPassword" placeholder="Min. 8 characters" />
+                  <mat-hint>Staff uses this to log in at seetheprep.com/login</mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+          }
         </div>
         <div class="form-actions">
           <button mat-stroked-button (click)="closeForm()">Cancel</button>
@@ -164,6 +190,32 @@ interface RestaurantForm {
       }
     </div>
 
+    <!-- ── Credentials Modal ── -->
+    @if (createdCredentials()) {
+      <div class="confirm-backdrop">
+        <div class="confirm-dialog credentials-dialog">
+          <span class="material-symbols-rounded credentials-icon">check_circle</span>
+          <h3>Restaurant Created!</h3>
+          <p>Share these login credentials with the restaurant staff. <strong>You won't see the password again.</strong></p>
+          <div class="cred-row">
+            <span class="cred-label">Staff Name</span>
+            <span class="cred-value">{{ createdCredentials()!.staffName }}</span>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label">Email</span>
+            <span class="cred-value">{{ createdCredentials()!.staffEmail }}</span>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label">Password</span>
+            <span class="cred-value cred-value--password">{{ createdCredentials()!.staffPassword }}</span>
+          </div>
+          <p class="cred-url"><span class="material-symbols-rounded">login</span> Login at <strong>seetheprep.com/login</strong></p>
+          <div class="confirm-actions">
+            <button mat-flat-button color="primary" (click)="createdCredentials.set(null)">Done</button>
+          </div>
+        </div>
+      </div>
+    }
     <!-- ── Delete Confirm Dialog ── -->
     @if (deleteTarget()) {
       <div class="confirm-backdrop" (click)="deleteTarget.set(null)">
@@ -249,6 +301,23 @@ interface RestaurantForm {
     .confirm-dialog h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; }
     .confirm-dialog p  { color: #6b7280; font-size: .9rem; margin: 0 0 24px; }
     .confirm-actions   { display: flex; gap: 10px; justify-content: center; }
+    .credentials-dialog { max-width: 460px; text-align: left; }
+    .credentials-icon { font-size: 2.5rem; color: #10b981; display: block; text-align: center; margin-bottom: 12px; }
+    .credentials-dialog h3 { text-align: center; }
+    .credentials-dialog > p { text-align: center; }
+    .cred-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; background: #f9fafb; border: 1px solid #e5e7eb;
+      border-radius: 8px; margin-bottom: 8px;
+    }
+    .cred-label { font-size: .78rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; }
+    .cred-value { font-size: .9rem; font-weight: 600; color: #111827; }
+    .cred-value--password { font-family: monospace; font-size: .88rem; color: #ff6b1a; }
+    .cred-url {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: .82rem; color: #6b7280; margin: 16px 0 20px;
+      .material-symbols-rounded { font-size: 1rem; }
+    }
   `]
 })
 export class AdminRestaurantsTab implements OnInit {
@@ -258,16 +327,22 @@ export class AdminRestaurantsTab implements OnInit {
   readonly formOpen = signal(false);
   readonly editingId = signal<string | null>(null);
   readonly deleteTarget = signal<Restaurant | null>(null);
+  readonly createdCredentials = signal<{ staffName: string; staffEmail: string; staffPassword: string } | null>(null);
 
   form: RestaurantForm = this.emptyForm();
 
-  readonly formValid = computed(() =>
-    this.form.name.trim().length > 0 &&
-    this.form.address.trim().length > 0 &&
-    this.form.basePostcode.trim().length > 0 &&
-    this.form.deliveryRadiusMiles > 0 &&
-    this.form.hygieneRating >= 1 && this.form.hygieneRating <= 5
-  );
+  readonly formValid = computed(() => {
+    const base = this.form.name.trim().length > 0 &&
+      this.form.address.trim().length > 0 &&
+      this.form.basePostcode.trim().length > 0 &&
+      this.form.deliveryRadiusMiles > 0 &&
+      this.form.hygieneRating >= 1 && this.form.hygieneRating <= 5;
+    if (this.editingId()) return base;
+    return base &&
+      this.form.staffName.trim().length > 0 &&
+      this.form.staffEmail.trim().length > 0 &&
+      this.form.staffPassword.length >= 8;
+  });
 
   constructor(
     private readonly adminRestaurantService: AdminRestaurantService,
@@ -290,7 +365,7 @@ export class AdminRestaurantsTab implements OnInit {
 
   openEdit(r: Restaurant): void {
     this.editingId.set(r.hashId);
-    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '', cuisineType: r.cuisineType ?? '', estimatedDeliveryMinutes: r.estimatedDeliveryMinutes ?? 30 };
+    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '', cuisineType: r.cuisineType ?? '', estimatedDeliveryMinutes: r.estimatedDeliveryMinutes ?? 30, staffName: '', staffEmail: '', staffPassword: '' };
     this.formOpen.set(true);
   }
 
@@ -299,24 +374,26 @@ export class AdminRestaurantsTab implements OnInit {
   save(): void {
     if (!this.formValid()) return;
     this.saving.set(true);
-    const payload: CreateRestaurantPayload = { ...this.form };
     const id = this.editingId();
-    const req = id
-      ? this.adminRestaurantService.update(id, payload)
-      : this.adminRestaurantService.create(payload);
 
-    req.subscribe({
-      next: () => {
-        this.toast.success(id ? 'Restaurant updated' : 'Restaurant created');
-        this.closeForm();
-        this.saving.set(false);
-        this.ngOnInit();
-      },
-      error: (err) => {
-        this.toast.error(err.error?.message ?? 'Failed to save');
-        this.saving.set(false);
-      },
-    });
+    if (id) {
+      const payload = { name: this.form.name, address: this.form.address, basePostcode: this.form.basePostcode, deliveryRadiusMiles: this.form.deliveryRadiusMiles, hygieneRating: this.form.hygieneRating, imageUrl: this.form.imageUrl || null, kitchenVideoUrl: this.form.kitchenVideoUrl || null, cuisineType: this.form.cuisineType, estimatedDeliveryMinutes: this.form.estimatedDeliveryMinutes };
+      this.adminRestaurantService.update(id, payload).subscribe({
+        next: () => { this.toast.success('Restaurant updated'); this.closeForm(); this.saving.set(false); this.ngOnInit(); },
+        error: (err: { error?: { message?: string; error?: string } }) => { this.toast.error(err.error?.message ?? err.error?.error ?? 'Failed to save'); this.saving.set(false); },
+      });
+    } else {
+      const payload: CreateRestaurantPayload = { ...this.form };
+      this.adminRestaurantService.create(payload).subscribe({
+        next: (res) => {
+          this.closeForm();
+          this.saving.set(false);
+          this.ngOnInit();
+          this.createdCredentials.set({ staffName: res.staffName, staffEmail: res.staffEmail, staffPassword: this.form.staffPassword });
+        },
+        error: (err: { error?: { message?: string; error?: string } }) => { this.toast.error(err.error?.error ?? err.error?.message ?? 'Failed to save'); this.saving.set(false); },
+      });
+    }
   }
 
   toggle(hash: string): void {
@@ -347,7 +424,7 @@ export class AdminRestaurantsTab implements OnInit {
   }
 
   private emptyForm(): RestaurantForm {
-    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '', cuisineType: 'Other', estimatedDeliveryMinutes: 30 };
+    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '', cuisineType: 'Other', estimatedDeliveryMinutes: 30, staffName: '', staffEmail: '', staffPassword: '' };
   }
 }
 

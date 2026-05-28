@@ -16,6 +16,16 @@ export interface CreateRestaurantPayload {
   kitchenVideoUrl?: string | null;
   cuisineType?: string;
   estimatedDeliveryMinutes?: number;
+  staffName: string;
+  staffEmail: string;
+  staffPassword: string;
+}
+
+export interface CreateRestaurantResponse {
+  restaurant: Restaurant;
+  staffUserId: number;
+  staffEmail: string;
+  staffName: string;
 }
 
 export interface UpdateRestaurantPayload {
@@ -46,8 +56,8 @@ export class AdminRestaurantService {
     return this.http.get<Restaurant[]>(this.url);
   }
 
-  create(payload: CreateRestaurantPayload): Observable<Restaurant> {
-    return this.http.post<Restaurant>(this.url, payload).pipe(
+  create(payload: CreateRestaurantPayload): Observable<CreateRestaurantResponse> {
+    return this.http.post<CreateRestaurantResponse>(this.url, payload).pipe(
       tap(() => this.restaurantService.invalidateListCache())
     );
   }

@@ -161,6 +161,8 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"></noscript>
 </head>
 <body>
+  <!-- Mark fonts loaded so Material Symbols icons only appear once the font is ready (prevents raw text flash) -->
+  <script>document.fonts.ready.then(function(){document.documentElement.classList.add('fonts-loaded');});</script>
   <app-root></app-root>
 </body>
 </html>

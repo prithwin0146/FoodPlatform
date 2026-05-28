@@ -33,7 +33,20 @@ public record CreateRestaurantRequest(
     [MaxLength(1000)] string? KitchenVideoUrl,
     [MaxLength(100)] string? CuisineType,
     int? EstimatedDeliveryMinutes,
-    [MaxLength(30)] string? Phone = null);
+    [MaxLength(30)] string? Phone,
+    /// <summary>Display name for the staff account (e.g. "Spice Garden Staff").</summary>
+    [Required, MaxLength(100)] string StaffName,
+    /// <summary>Login email for the staff account.</summary>
+    [Required, EmailAddress, MaxLength(200)] string StaffEmail,
+    /// <summary>Initial password for the staff account (min 8 chars).</summary>
+    [Required, MinLength(8, ErrorMessage = "Password must be at least 8 characters."), MaxLength(100)] string StaffPassword);
+
+/// <summary>Returned after creating a restaurant — includes the staff credentials for the admin to note down.</summary>
+public record CreateRestaurantResponse(
+    RestaurantDto Restaurant,
+    int StaffUserId,
+    string StaffEmail,
+    string StaffName);
 
 public record UpdateHoursRequest(List<RestaurantHoursDto> Hours);
 

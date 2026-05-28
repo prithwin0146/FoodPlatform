@@ -33,8 +33,16 @@ public class AdminRestaurantsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateRestaurantRequest request)
     {
-        var result = await _restaurants.CreateAsync(request);
-        return Ok(result with { HashId = _urlEncryption.Encrypt(result.Id) });
+        try
+        {
+            var result = await _restaurants.CreateAsync(request);
+            var dto = result.Restaurant with { HashId = _urlEncryption.Encrypt(result.Restaurant.Id) };
+            return Ok(new { restaurant = dto, staffUserId = result.StaffUserId, staffEmail = result.StaffEmail, staffName = result.StaffName });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
     }
 
     [HttpPatch("{hash}")]

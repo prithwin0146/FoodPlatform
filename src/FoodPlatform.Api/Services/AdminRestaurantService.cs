@@ -8,12 +8,18 @@ namespace FoodPlatform.Api.Services;
 
 /// <summary>
 /// Admin-only restaurant operations. (SRP: split from order admin concerns)
+/// (DIP: depends on IPasswordHasher abstraction for staff account creation)
 /// </summary>
 public class AdminRestaurantService : IAdminRestaurantService
 {
     private readonly FoodPlatformDbContext _db;
+    private readonly IPasswordHasher _hasher;
 
-    public AdminRestaurantService(FoodPlatformDbContext db) => _db = db;
+    public AdminRestaurantService(FoodPlatformDbContext db, IPasswordHasher hasher)
+    {
+        _db = db;
+        _hasher = hasher;
+    }
 
     public async Task<IEnumerable<RestaurantDto>> GetAllAsync()
     {
@@ -24,8 +30,14 @@ public class AdminRestaurantService : IAdminRestaurantService
             .ToListAsync();
     }
 
-    public async Task<RestaurantDto> CreateAsync(CreateRestaurantRequest request)
+    public async Task<CreateRestaurantResponse> CreateAsync(CreateRestaurantRequest request)
     {
+        // Check email uniqueness before starting the transaction
+        if (await _db.Users.AnyAsync(u => u.Email == request.StaffEmail))
+            throw new InvalidOperationException($"A user with email '{request.StaffEmail}' already exists.");
+
+        await using var tx = await _db.Database.BeginTransactionAsync();
+
         var restaurant = new Restaurant
         {
             Name = request.Name,
@@ -39,8 +51,27 @@ public class AdminRestaurantService : IAdminRestaurantService
             Phone = request.Phone
         };
         _db.Restaurants.Add(restaurant);
+        await _db.SaveChangesAsync(); // get restaurant.Id
+
+        var staffUser = new User
+        {
+            RestaurantId = restaurant.Id,
+            Role = "Staff",
+            Username = request.StaffName,
+            Email = request.StaffEmail,
+            PasswordHash = _hasher.Hash(request.StaffPassword),
+            IsEmailVerified = true, // Admin-created accounts skip email verification
+        };
+        _db.Users.Add(staffUser);
         await _db.SaveChangesAsync();
-        return ToDto(restaurant);
+
+        await tx.CommitAsync();
+
+        return new CreateRestaurantResponse(
+            ToDto(restaurant),
+            staffUser.Id,
+            staffUser.Email,
+            staffUser.Username);
     }
 
     public async Task<RestaurantDto?> UpdateAsync(int id, UpdateRestaurantRequest request)

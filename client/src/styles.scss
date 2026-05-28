@@ -1,5 +1,16 @@
 @use '@angular/material' as mat;
 
+/* ── Material Symbols FOUT guard ────────────────────────────────
+   Icons are ligature-based — hide them until the font is ready
+   so raw text ("login", "arrow_forward") never flashes. ────── */
+.material-symbols-rounded {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.fonts-loaded .material-symbols-rounded {
+  opacity: 1;
+}
+
 // === Angular Material M3 Theme ===
 $food-theme: mat.define-theme((
   color: (

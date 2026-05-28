@@ -8,7 +8,7 @@ namespace FoodPlatform.Api.Services.Interfaces;
 public interface IAdminRestaurantService
 {
     Task<IEnumerable<RestaurantDto>> GetAllAsync();
-    Task<RestaurantDto> CreateAsync(CreateRestaurantRequest request);
+    Task<CreateRestaurantResponse> CreateAsync(CreateRestaurantRequest request);
     Task<RestaurantDto?> UpdateAsync(int id, UpdateRestaurantRequest request);
     Task<object?> ToggleActiveAsync(int id);
     /// <summary>Returns false if the restaurant was not found.</summary>
