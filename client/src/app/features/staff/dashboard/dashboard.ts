@@ -19,7 +19,10 @@ import { RestaurantService } from '../../../core/services/restaurant.service';
 import { AudioService } from '../../../core/services/audio.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { RestaurantPromotionService } from '../../../core/services/restaurant-promotion.service';
-import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours, RestaurantPromotion, CreateRestaurantPromotionRequest } from '../../../core/models';
+import { OrderHubService } from '../../../core/services/order-hub.service';
+import { InventoryService } from '../../../core/services/inventory.service';
+import { MenuImportService } from '../../../core/services/menu-import.service';
+import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours, RestaurantPromotion, CreateRestaurantPromotionRequest, InventoryItem, MenuImportResult } from '../../../core/models';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -144,7 +147,21 @@ export class Dashboard implements OnInit, OnDestroy {
 
   readonly filters = ['all', 'Pending', 'Accepted', 'Preparing', 'Cooking', 'Packed', 'OutForDelivery', 'Delivered'];
 
+  // ── Inventory state (Phase 3)
+  readonly inventorySectionOpen = signal(false);
+  readonly inventoryItems = signal<InventoryItem[]>([]);
+  readonly inventoryLoading = signal(false);
+  readonly inventorySaving = signal<Record<number, boolean>>({});
+  /** Inline edit values per itemId: { trackStock, stockCount } */
+  inventoryEdits: Record<number, { trackStock: boolean; stockCount: number | null }> = {};
+
+  // ── CSV import state (Phase 3)
+  readonly importSectionOpen = signal(false);
+  readonly importLoading = signal(false);
+  readonly importResult = signal<MenuImportResult | null>(null);
+
   private _pollSub?: Subscription;
+  private _hubSubs: Subscription[] = [];
 
   constructor(
     private readonly orderService: OrderService,
@@ -154,15 +171,39 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly toast: ToastService,
     private readonly titleService: Title,
     private readonly promotionService: RestaurantPromotionService,
+    private readonly hub: OrderHubService,
+    private readonly inventoryService: InventoryService,
+    private readonly menuImportService: MenuImportService,
   ) {}
 
   ngOnInit(): void {
     this.loadRestaurant();
     this.startPolling();
+    // Phase 4: connect SignalR; restaurant group join deferred until restaurant is loaded
+    void this.hub.connect();
+    this._hubSubs.push(
+      this.hub.newOrder$.subscribe((order) => {
+        const o = order as Order;
+        if (!this._seenOrderIds.has(o.id)) {
+          this.orders.update(list => [o, ...list]);
+          this.detectNewOrders([o]);
+        }
+      }),
+      this.hub.orderStatusChanged$.subscribe((payload) => {
+        this.orders.update(list =>
+          list.map(o => o.id === payload.id ? { ...o, status: payload.status as any,
+            estimatedDeliveryTime: payload.estimatedDeliveryTime ?? o.estimatedDeliveryTime,
+            rejectionReason: payload.rejectionReason ?? o.rejectionReason } : o)
+        );
+      }),
+    );
   }
 
   ngOnDestroy(): void {
     this._pollSub?.unsubscribe();
+    this._hubSubs.forEach(s => s.unsubscribe());
+    const r = this.myRestaurant();
+    if (r) void this.hub.leaveRestaurantGroup(r.id);
   }
 
   // ── Restaurant / video
@@ -174,6 +215,8 @@ export class Dashboard implements OnInit, OnDestroy {
         this.videoUrl.set(r.kitchenVideoUrl ?? '');
         this.angelcamCameraId.set(r.angelcamCameraId ?? '');
         this.initHoursForm(r);
+        // Phase 4: join restaurant SignalR group now that we know the restaurantId
+        void this.hub.joinRestaurantGroup(r.id);
       },
     });
   }
@@ -271,12 +314,16 @@ export class Dashboard implements OnInit, OnDestroy {
     this.liveStreamSectionOpen.set(false);
     this.hoursSectionOpen.set(false);
     this.menuSectionOpen.set(false);
+    this.promotionsSectionOpen.set(false);
+    this.inventorySectionOpen.set(false);
+    this.importSectionOpen.set(false);
   }
 
   /** Returns true when no management panel is open (i.e. "Orders" view is active). */
   readonly isOrdersActive = computed(() =>
     !this.videoSectionOpen() && !this.liveStreamSectionOpen()
-    && !this.hoursSectionOpen() && !this.menuSectionOpen());
+    && !this.hoursSectionOpen() && !this.menuSectionOpen()
+    && !this.promotionsSectionOpen() && !this.inventorySectionOpen() && !this.importSectionOpen());
 
   // ── Hours panel
 
@@ -675,6 +722,80 @@ export class Dashboard implements OnInit, OnDestroy {
       next: () => this.promotions.update(list => list.filter(p => p.id !== id)),
       error: () => this.toast.error('Failed to delete promotion'),
     });
+  }
+
+  // ── Inventory (Phase 3)
+
+  toggleInventorySection(): void {
+    const open = !this.inventorySectionOpen();
+    this.inventorySectionOpen.set(open);
+    if (open && this.inventoryItems().length === 0) this.loadInventory();
+  }
+
+  loadInventory(): void {
+    this.inventoryLoading.set(true);
+    this.inventoryService.getAll().subscribe({
+      next: (items) => {
+        this.inventoryItems.set(items);
+        // Seed inline-edit map with current values
+        items.forEach(i => {
+          this.inventoryEdits[i.id] = { trackStock: i.trackStock, stockCount: i.stockCount };
+        });
+        this.inventoryLoading.set(false);
+      },
+      error: () => { this.inventoryLoading.set(false); this.toast.error('Failed to load inventory'); },
+    });
+  }
+
+  saveStock(itemId: number): void {
+    const edit = this.inventoryEdits[itemId];
+    if (!edit) return;
+    this.inventorySaving.update(m => ({ ...m, [itemId]: true }));
+    this.inventoryService.setStock(itemId, edit.trackStock, edit.stockCount).subscribe({
+      next: (updated) => {
+        this.inventoryItems.update(list => list.map(i => i.id === updated.id ? updated : i));
+        this.inventorySaving.update(m => ({ ...m, [itemId]: false }));
+        this.toast.success('Stock updated');
+      },
+      error: () => {
+        this.inventorySaving.update(m => ({ ...m, [itemId]: false }));
+        this.toast.error('Failed to update stock');
+      },
+    });
+  }
+
+  // ── CSV Import (Phase 3)
+
+  toggleImportSection(): void {
+    this.importSectionOpen.set(!this.importSectionOpen());
+    this.importResult.set(null);
+  }
+
+  onImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.importLoading.set(true);
+    this.importResult.set(null);
+    this.menuImportService.importForCurrentRestaurant(file).subscribe({
+      next: (result) => {
+        this.importLoading.set(false);
+        this.importResult.set(result);
+        if (result.created > 0) {
+          this.toast.success(`Imported ${result.created} item(s) ✅`);
+          // Reload menu if open
+          if (this.menuSectionOpen()) this.loadMenuItems();
+        } else {
+          this.toast.info('No items imported — check errors below');
+        }
+      },
+      error: () => {
+        this.importLoading.set(false);
+        this.toast.error('Import failed');
+      },
+    });
+    // Reset input so re-uploading the same file triggers change
+    input.value = '';
   }
 }
 

@@ -55,6 +55,25 @@ export interface MenuItem {
   dietaryTags: string[];
   isAvailable: boolean;
   imageUrl?: string | null;
+  trackStock: boolean;
+  stockCount: number | null;
+}
+
+// === Inventory ===
+export interface InventoryItem {
+  id: number;
+  name: string;
+  categoryName: string;
+  isAvailable: boolean;
+  trackStock: boolean;
+  stockCount: number | null;
+}
+
+export interface MenuImportResult {
+  created: number;
+  categoriesCreated: number;
+  skipped: number;
+  errors: string[];
 }
 
 // === Order ===

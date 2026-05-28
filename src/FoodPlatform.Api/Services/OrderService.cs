@@ -3,8 +3,10 @@ using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.Domain;
 using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Hubs;
 using FoodPlatform.Api.Services.Interfaces;
 using Hangfire;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodPlatform.Api.Services;
@@ -27,10 +29,15 @@ public class OrderService : IOrderService
     private readonly ILogger<OrderService> _logger;
     private readonly IPromoCodeService _promoCodes;
     private readonly IGiftCardService _giftCards;
+    private readonly IInventoryService _inventory;
+    private readonly IHubContext<OrderHub> _hub;
+    private readonly IUrlEncryptionService _urlEncryption;
 
     public OrderService(FoodPlatformDbContext db, IStripeService stripe,
         IBackgroundJobClient jobs, ILogger<OrderService> logger,
-        IPromoCodeService promoCodes, IGiftCardService giftCards)
+        IPromoCodeService promoCodes, IGiftCardService giftCards,
+        IInventoryService inventory, IHubContext<OrderHub> hub,
+        IUrlEncryptionService urlEncryption)
     {
         _db = db;
         _stripe = stripe;
@@ -38,6 +45,9 @@ public class OrderService : IOrderService
         _logger = logger;
         _promoCodes = promoCodes;
         _giftCards = giftCards;
+        _inventory = inventory;
+        _hub = hub;
+        _urlEncryption = urlEncryption;
     }
 
     public async Task<ServiceResult<OrderDto>> PlaceOrderAsync(PlaceOrderRequest request, int userId)
@@ -208,7 +218,16 @@ public class OrderService : IOrderService
         if (!string.IsNullOrEmpty(giftCardCodeText) && giftCardDiscount > 0)
             await _giftCards.RedeemAsync(giftCardCodeText, giftCardDiscount, order.Id);
 
-        return ServiceResult<OrderDto>.Ok(MapToDto(order));
+        // Phase 3: decrement stock for tracked items
+        foreach (var item in deduplicatedItems)
+            await _inventory.DecrementStockAsync(item.MenuItemId, item.Quantity);
+
+        // Phase 4: notify restaurant staff of new order via SignalR
+        var orderDto = MapToDto(order) with { HashId = _urlEncryption.Encrypt(order.Id) };
+        await _hub.Clients.Group($"restaurant.{order.RestaurantId}")
+            .SendAsync("NewOrder", orderDto);
+
+        return ServiceResult<OrderDto>.Ok(orderDto);
     }
 
     public async Task<OrderDto?> GetAsync(int id)
@@ -296,6 +315,12 @@ public class OrderService : IOrderService
                 s.SendOrderAcceptedAsync(user.Email, user.Username, order.Id,
                     restaurant.Name, order.EstimatedDeliveryTime!.Value));
 
+        // Phase 4: push accepted event to customer + staff
+        var hashId = _urlEncryption.Encrypt(order.Id);
+        var payload = new { order.Id, order.Status, order.EstimatedDeliveryTime, HashId = hashId };
+        await _hub.Clients.Group($"order.{hashId}").SendAsync("OrderStatusChanged", payload);
+        await _hub.Clients.Group($"restaurant.{order.RestaurantId}").SendAsync("OrderStatusChanged", payload);
+
         return ServiceResult<object>.Ok(new { order.Id, order.Status, order.EstimatedDeliveryTime });
     }
 
@@ -343,6 +368,12 @@ public class OrderService : IOrderService
                 s.SendOrderRejectedAsync(user.Email, user.Username, order.Id,
                     restaurant.Name, request.Reason));
 
+        // Phase 4: push rejected event
+        var hashId2 = _urlEncryption.Encrypt(order.Id);
+        var payload2 = new { order.Id, order.Status, order.RejectionReason, HashId = hashId2 };
+        await _hub.Clients.Group($"order.{hashId2}").SendAsync("OrderStatusChanged", payload2);
+        await _hub.Clients.Group($"restaurant.{order.RestaurantId}").SendAsync("OrderStatusChanged", payload2);
+
         return ServiceResult<object>.Ok(new { order.Id, order.Status, order.RejectionReason });
     }
 
@@ -370,6 +401,12 @@ public class OrderService : IOrderService
                 _jobs.Enqueue<IEmailService>(s =>
                     s.SendOrderDeliveredAsync(user.Email, user.Username, order.Id, restaurant.Name));
         }
+
+        // Phase 4: push status update to customer + staff
+        var hashId3 = _urlEncryption.Encrypt(order.Id);
+        var payload3 = new { order.Id, order.Status, HashId = hashId3 };
+        await _hub.Clients.Group($"order.{hashId3}").SendAsync("OrderStatusChanged", payload3);
+        await _hub.Clients.Group($"restaurant.{order.RestaurantId}").SendAsync("OrderStatusChanged", payload3);
 
         return ServiceResult<object>.Ok(new { order.Id, order.Status });
     }
@@ -408,11 +445,17 @@ public class OrderService : IOrderService
         order.Status = "Cancelled";
         await _db.SaveChangesAsync();
 
-        var user = await _db.Users.FindAsync(order.UserId);
-        var restaurant = await _db.Restaurants.FindAsync(order.RestaurantId);
-        if (user != null && restaurant != null)
+        var user2 = await _db.Users.FindAsync(order.UserId);
+        var restaurant2 = await _db.Restaurants.FindAsync(order.RestaurantId);
+        if (user2 != null && restaurant2 != null)
             _jobs.Enqueue<IEmailService>(s =>
-                s.SendOrderCancelledAsync(user.Email, user.Username, order.Id, restaurant.Name));
+                s.SendOrderCancelledAsync(user2.Email, user2.Username, order.Id, restaurant2.Name));
+
+        // Phase 4: push cancelled event
+        var hashId4 = _urlEncryption.Encrypt(order.Id);
+        var payload4 = new { order.Id, order.Status, HashId = hashId4 };
+        await _hub.Clients.Group($"order.{hashId4}").SendAsync("OrderStatusChanged", payload4);
+        await _hub.Clients.Group($"restaurant.{order.RestaurantId}").SendAsync("OrderStatusChanged", payload4);
 
         return ServiceResult<object>.Ok(new { order.Id, order.Status });
     }

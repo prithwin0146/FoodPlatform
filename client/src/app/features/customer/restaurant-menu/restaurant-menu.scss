@@ -261,6 +261,12 @@
   font-size: 1.05rem; font-weight: 700; color: var(--text);
   margin: 14px 0 6px; letter-spacing: -.01em;
 }
+.stock-badge {
+  display: inline-block; font-size: .72rem; font-weight: 600;
+  padding: 2px 9px; border-radius: 999px; margin-bottom: 6px;
+  &--out  { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+  &--low  { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+}
 .item-desc { font-size: .85rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.5; }
 .dietary-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
 .dietary-tag {

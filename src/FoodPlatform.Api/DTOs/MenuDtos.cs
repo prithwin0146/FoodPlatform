@@ -6,7 +6,8 @@ namespace FoodPlatform.Api.DTOs;
 public record MenuCategoryDto(int Id, string Name, int SortOrder, List<MenuItemDto> Items);
 
 public record MenuItemDto(int Id, int CategoryId, string Name, string? Description,
-    decimal Price, List<string> Allergens, List<string> DietaryTags, bool IsAvailable, string? ImageUrl);
+    decimal Price, List<string> Allergens, List<string> DietaryTags, bool IsAvailable, string? ImageUrl,
+    bool TrackStock = false, int? StockCount = null);
 
 public record CreateMenuItemRequest(
     [Required] int CategoryId,
@@ -27,7 +28,9 @@ public record UpdateMenuItemRequest(
     List<string>? Allergens,
     List<string>? DietaryTags,
     [MaxLength(500)] string? ImageUrl,
-    bool? IsAvailable);
+    bool? IsAvailable,
+    bool? TrackStock = null,
+    int? StockCount = null);
 
 public record CreateCategoryRequest([Required, MaxLength(100)] string Name, int SortOrder);
 
@@ -59,3 +62,23 @@ public record AdminCreateCategoryRequest(
     [Required] int RestaurantId,
     [Required, MaxLength(100)] string Name,
     int SortOrder);
+
+// ── Inventory ──────────────────────────────────────────────────────────────
+public record SetStockRequest(
+    bool TrackStock,
+    int? StockCount);
+
+public record InventoryItemDto(
+    int Id,
+    string Name,
+    string CategoryName,
+    bool IsAvailable,
+    bool TrackStock,
+    int? StockCount);
+
+// ── CSV Bulk Import ─────────────────────────────────────────────────────────
+public record MenuImportResult(
+    int Created,
+    int CategoriesCreated,
+    int Skipped,
+    List<string> Errors);

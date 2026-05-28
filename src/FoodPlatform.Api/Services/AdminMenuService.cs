@@ -32,7 +32,7 @@ public class AdminMenuService : IAdminMenuService
                  i.Price,
                  Infrastructure.JsonStringList.Parse(i.Allergens),
                  Infrastructure.JsonStringList.Parse(i.DietaryTags),
-                 i.IsAvailable, i.ImageUrl))
+                 i.IsAvailable, i.ImageUrl, i.TrackStock, i.StockCount))
              .ToList()));
     }
 
@@ -108,5 +108,5 @@ public class AdminMenuService : IAdminMenuService
             i.Price,
             Infrastructure.JsonStringList.Parse(i.Allergens),
             Infrastructure.JsonStringList.Parse(i.DietaryTags),
-            i.IsAvailable, i.ImageUrl);
+            i.IsAvailable, i.ImageUrl, i.TrackStock, i.StockCount);
 }

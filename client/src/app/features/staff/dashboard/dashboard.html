@@ -53,6 +53,14 @@
         <span class="material-symbols-rounded">local_offer</span>
         <span>Promotions</span>
       </button>
+      <button class="nav-item" [class.active]="inventorySectionOpen()" (click)="toggleInventorySection()">
+        <span class="material-symbols-rounded">inventory_2</span>
+        <span>Inventory</span>
+      </button>
+      <button class="nav-item" [class.active]="importSectionOpen()" (click)="toggleImportSection()">
+        <span class="material-symbols-rounded">upload_file</span>
+        <span>CSV Import</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -91,6 +99,14 @@
         @if (promotionsSectionOpen()) {
           <span class="material-symbols-rounded">local_offer</span>
           <h2>Promotions</h2>
+        }
+        @if (inventorySectionOpen()) {
+          <span class="material-symbols-rounded">inventory_2</span>
+          <h2>Inventory</h2>
+        }
+        @if (importSectionOpen()) {
+          <span class="material-symbols-rounded">upload_file</span>
+          <h2>CSV Menu Import</h2>
         }
       </div>
       <div class="topbar-meta">
@@ -690,6 +706,124 @@
               }
             </div>
           }
+        </section>
+      }
+
+      <!-- ── Inventory Panel ── -->
+      @if (inventorySectionOpen()) {
+        <section class="dash-section">
+          @if (inventoryLoading()) {
+            <p class="loading-hint">Loading inventory…</p>
+          } @else if (inventoryItems().length === 0) {
+            <div class="empty-state-sm">
+              <span class="material-symbols-rounded">inventory_2</span>
+              <p>No menu items found.</p>
+            </div>
+          } @else {
+            <div class="glass-card" appScrollReveal>
+              <h3 class="section-heading">
+                <span class="material-symbols-rounded">inventory_2</span> Stock Management
+              </h3>
+              <p class="section-hint">Enable tracking on an item to auto-disable it when stock reaches zero.</p>
+              <div class="inventory-table">
+                <div class="inventory-header-row">
+                  <span>Item</span>
+                  <span>Category</span>
+                  <span>Available</span>
+                  <span>Track Stock</span>
+                  <span>Stock Count</span>
+                  <span></span>
+                </div>
+                @for (item of inventoryItems(); track item.id) {
+                  <div class="inventory-row" [class.out-of-stock]="item.trackStock && item.stockCount === 0">
+                    <span class="inv-name">{{ item.name }}</span>
+                    <span class="inv-cat">{{ item.categoryName }}</span>
+                    <span class="inv-avail">
+                      <span class="material-symbols-rounded" [style.color]="item.isAvailable ? '#22c55e' : '#ef4444'">
+                        {{ item.isAvailable ? 'check_circle' : 'cancel' }}
+                      </span>
+                    </span>
+                    <span class="inv-track">
+                      <mat-slide-toggle
+                        [checked]="inventoryEdits[item.id]?.trackStock ?? item.trackStock"
+                        (change)="inventoryEdits[item.id] = { trackStock: $event.checked, stockCount: inventoryEdits[item.id]?.stockCount ?? item.stockCount }">
+                      </mat-slide-toggle>
+                    </span>
+                    <span class="inv-count">
+                      @if (inventoryEdits[item.id]?.trackStock ?? item.trackStock) {
+                        <input type="number" min="0"
+                          [value]="inventoryEdits[item.id]?.stockCount ?? item.stockCount ?? 0"
+                          (change)="inventoryEdits[item.id] = { trackStock: inventoryEdits[item.id]?.trackStock ?? item.trackStock, stockCount: +$any($event.target).value }"
+                          class="stock-input">
+                      } @else {
+                        <span class="text-muted">–</span>
+                      }
+                    </span>
+                    <span class="inv-action">
+                      <button mat-stroked-button color="primary" (click)="saveStock(item.id)"
+                        [disabled]="inventorySaving()[item.id]">
+                        <span class="material-symbols-rounded">save</span>
+                        {{ inventorySaving()[item.id] ? 'Saving…' : 'Save' }}
+                      </button>
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ── CSV Import Panel ── -->
+      @if (importSectionOpen()) {
+        <section class="dash-section">
+          <div class="glass-card" appScrollReveal>
+            <h3 class="section-heading">
+              <span class="material-symbols-rounded">upload_file</span> Bulk Menu Import (CSV)
+            </h3>
+            <p class="section-hint">
+              Upload a CSV with columns: <code>CategoryName, Name, Description, Price, Allergens, DietaryTags, ImageUrl</code>.<br>
+              Allergens and DietaryTags should be pipe-separated (e.g. <code>gluten|milk</code>).
+            </p>
+            <div class="import-upload-row">
+              <label class="import-file-label" [class.loading]="importLoading()">
+                <span class="material-symbols-rounded">attach_file</span>
+                {{ importLoading() ? 'Uploading…' : 'Choose CSV file' }}
+                <input type="file" accept=".csv" (change)="onImportFileSelected($event)" [disabled]="importLoading()" hidden>
+              </label>
+            </div>
+
+            @if (importResult(); as result) {
+              <div class="import-result glass-card">
+                <div class="import-result-stats">
+                  <div class="stat-badge stat-created">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    <strong>{{ result.created }}</strong> items created
+                  </div>
+                  <div class="stat-badge stat-cats">
+                    <span class="material-symbols-rounded">category</span>
+                    <strong>{{ result.categoriesCreated }}</strong> categories created
+                  </div>
+                  @if (result.skipped > 0) {
+                    <div class="stat-badge stat-skipped">
+                      <span class="material-symbols-rounded">skip_next</span>
+                      <strong>{{ result.skipped }}</strong> rows skipped
+                    </div>
+                  }
+                </div>
+                @if (result.errors.length > 0) {
+                  <details class="import-errors">
+                    <summary>{{ result.errors.length }} error(s) &mdash; click to expand</summary>
+                    <ul>
+                      @for (err of result.errors; track $index) {
+                        <li>{{ err }}</li>
+                      }
+                    </ul>
+                  </details>
+                }
+              </div>
+            }
+          </div>
         </section>
       }
 

@@ -1,4 +1,5 @@
 using FoodPlatform.Api.Data;
+using FoodPlatform.Api.Hubs;
 using FoodPlatform.Api.Infrastructure;
 using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
@@ -98,6 +99,8 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+// Phase 4: SignalR hub — JWT read from ?access_token= query string for browser WebSocket clients
+app.MapHub<OrderHub>("/hubs/orders");
 
 // Health check endpoint — returns 200 when SQL Server is reachable, 503 otherwise.
 app.MapHealthChecks("/healthz", new HealthCheckOptions

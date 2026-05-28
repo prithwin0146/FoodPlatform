@@ -14,6 +14,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { OrderPollingService } from '../../../core/services/order-polling.service';
 import { OrderNotificationService } from '../../../core/services/order-notification.service';
 import { ReviewService } from '../../../core/services/review.service';
+import { OrderHubService } from '../../../core/services/order-hub.service';
 import { Order, ORDER_STATUS_FLOW, OrderStatus, Review } from '../../../core/models';
 import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
@@ -86,6 +87,7 @@ export class OrderTracking implements OnInit, OnDestroy {
 
   private _pollSub?: Subscription;
   private _tickSub?: Subscription;
+  private _hubSub?: Subscription;
 
   /** Ticks every second so cancelCountdown recomputes. */
   private readonly _tick = signal(0);
@@ -120,7 +122,8 @@ export class OrderTracking implements OnInit, OnDestroy {
     private readonly polling: OrderPollingService,
     private readonly reviewService: ReviewService,
     private readonly toast: ToastService,
-    private readonly notifications: OrderNotificationService
+    private readonly notifications: OrderNotificationService,
+    private readonly hub: OrderHubService,
   ) {}
 
   private static readonly TERMINAL_STATUSES: OrderStatus[] = ['Delivered', 'Rejected', 'Cancelled'];
@@ -136,6 +139,32 @@ export class OrderTracking implements OnInit, OnDestroy {
     const hash = this.route.snapshot.params['id'] as string;
     this._tickSub = interval(1000).subscribe(() => this._tick.update(n => n + 1));
     this.notifications.requestPermission();
+
+    // Phase 4: connect to SignalR and subscribe to instant status updates.
+    // The polling subscription below acts as a fallback if SignalR is unavailable.
+    void this.hub.connect().then(() => void this.hub.joinOrderGroup(hash));
+    this._hubSub = this.hub.orderStatusChanged$.subscribe((payload) => {
+      if (payload.hashId !== hash) return;
+      // Re-fetch full order from API to get latest state (avoids partial DTO reconstruction)
+      this.orderService.get(hash).subscribe({
+        next: (o) => {
+          if (this._lastStatus !== null && this._lastStatus !== o.status)
+            this._onStatusChange(o.restaurantName, o.status);
+          this._lastStatus = o.status;
+          this.order.set(o);
+          if (OrderTracking.TERMINAL_STATUSES.includes(o.status)) {
+            this._pollSub?.unsubscribe();
+            this._tickSub?.unsubscribe();
+          }
+          if (o.status === 'Delivered') {
+            this.reviewService.getMyReview(o.hashId).subscribe({
+              next: (r) => this.existingReview.set(r),
+              error: () => {},
+            });
+          }
+        },
+      });
+    });
 
     this._pollSub = this.polling.poll(hash).subscribe({
       next: (o) => {
@@ -176,6 +205,9 @@ export class OrderTracking implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._pollSub?.unsubscribe();
     this._tickSub?.unsubscribe();
+    this._hubSub?.unsubscribe();
+    const hash = this.route.snapshot.params['id'] as string;
+    void this.hub.leaveOrderGroup(hash);
   }
 
   getStepIndex(status: OrderStatus): number {

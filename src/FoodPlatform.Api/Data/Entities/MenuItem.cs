@@ -15,6 +15,10 @@ public class MenuItem
     public bool IsDeleted { get; set; } = false;
     public string? ImageUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    /// <summary>When true, stock is tracked and item is auto-disabled when StockCount reaches 0.</summary>
+    public bool TrackStock { get; set; } = false;
+    /// <summary>Current stock count. Null when TrackStock is false.</summary>
+    public int? StockCount { get; set; }
 
     // Navigation
     public Restaurant Restaurant { get; set; } = null!;

@@ -73,7 +73,7 @@ public class MenuService : IMenuService
             item.Price,
             Infrastructure.JsonStringList.Parse(item.Allergens),
             Infrastructure.JsonStringList.Parse(item.DietaryTags),
-            item.IsAvailable, item.ImageUrl);
+            item.IsAvailable, item.ImageUrl, item.TrackStock, item.StockCount);
     }
 
     public async Task<MenuItemDto?> UpdateItemAsync(int restaurantId, int itemId, UpdateMenuItemRequest request)
@@ -98,13 +98,15 @@ public class MenuService : IMenuService
         }
         if (request.ImageUrl != null) item.ImageUrl = request.ImageUrl;
         if (request.IsAvailable.HasValue) item.IsAvailable = request.IsAvailable.Value;
+        if (request.TrackStock.HasValue) item.TrackStock = request.TrackStock.Value;
+        if (request.StockCount.HasValue) item.StockCount = request.StockCount.Value;
 
         await _db.SaveChangesAsync();
         return new MenuItemDto(item.Id, item.CategoryId, item.Name, item.Description,
             item.Price,
             Infrastructure.JsonStringList.Parse(item.Allergens),
             Infrastructure.JsonStringList.Parse(item.DietaryTags),
-            item.IsAvailable, item.ImageUrl);
+            item.IsAvailable, item.ImageUrl, item.TrackStock, item.StockCount);
     }
 
     public async Task<object?> ToggleAvailabilityAsync(int restaurantId, int itemId)

@@ -58,8 +58,23 @@ public static class ServiceCollectionExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                     ClockSkew = TimeSpan.FromSeconds(30)
                 };
+                // SignalR browsers cannot set the Authorization header during WebSocket/SSE upgrade.
+                // Read the bearer token from the ?access_token= query string for /hubs/* paths.
+                options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+                {
+                    OnMessageReceived = ctx =>
+                    {
+                        var token = ctx.Request.Query["access_token"].ToString();
+                        var path = ctx.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(token) && path.StartsWithSegments("/hubs"))
+                            ctx.Token = token;
+                        return Task.CompletedTask;
+                    }
+                };
             });
         services.AddAuthorization();
+        // SignalR in-process — no extra packages required for .NET 8
+        services.AddSignalR();
         return services;
     }
 
@@ -115,6 +130,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRestaurantPromotionService, RestaurantPromotionService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IGiftCardService, GiftCardService>();
+
+        // Phase 3: Inventory management + CSV bulk import
+        services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IMenuImportService, MenuImportService>();
 
         // Platform settings (homepage video, etc.)
         services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
@@ -179,8 +198,10 @@ public static class ServiceCollectionExtensions
             options.AddPolicy("AllowAngular", policy =>
                 policy.WithOrigins(origins)
                     .AllowAnyHeader()
-                    .AllowAnyMethod());
-                    // No AllowCredentials() \u2014 we authenticate via Bearer header, not cookies.
+                    .AllowAnyMethod()
+                    // SignalR requires AllowCredentials for the WebSocket upgrade handshake.
+                    // Safe because we use an explicit allowlist (no wildcards) above.
+                    .AllowCredentials());
         });
         return services;
     }
