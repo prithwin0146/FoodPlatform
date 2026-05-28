@@ -18,7 +18,6 @@ import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
-import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ReviewWidget } from '../../../shared/components/review-widget/review-widget';
 import { CancelCountdownPipe } from '../../../shared/pipes/cancel-countdown.pipe';
 import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/live-stream-player';
@@ -35,7 +34,7 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
     FormsModule, MatFormFieldModule, MatInputModule,
     OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
-    ScrollRevealDirective, MagneticDirective, TiltDirective,
+    ScrollRevealDirective, MagneticDirective,
     ReviewWidget,
     CancelCountdownPipe,
     LiveStreamPlayer,
