@@ -45,8 +45,14 @@ public class OrderService : IOrderService
         if (existing != null)
             return ServiceResult<OrderDto>.Ok(MapToDto(existing));
 
-        if (!PostcodeRegex.IsMatch(request.DeliveryPostcode))
-            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Invalid UK postcode");
+        var isCollection = string.Equals(request.OrderType, "Collection", StringComparison.OrdinalIgnoreCase);
+
+        // Delivery requires a valid UK postcode; collection does not
+        if (!isCollection)
+        {
+            if (string.IsNullOrWhiteSpace(request.DeliveryPostcode) || !PostcodeRegex.IsMatch(request.DeliveryPostcode))
+                return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Invalid UK postcode");
+        }
 
         var restaurant = await _db.Restaurants
             .Include(r => r.Hours)
@@ -55,11 +61,18 @@ public class OrderService : IOrderService
         if (restaurant == null)
             return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Restaurant not found or inactive");
 
+        if (isCollection && !restaurant.SupportsCollection)
+            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "This restaurant does not support collection");
+
+        // Skip the hours check only for future-scheduled orders; ASAP orders still require the restaurant to be open now.
         var now = DateTime.UtcNow;
-        var todayHours = restaurant.Hours.FirstOrDefault(h => h.DayOfWeek == (int)now.DayOfWeek);
-        if (todayHours == null || todayHours.IsClosed ||
-            now.TimeOfDay < todayHours.OpenTime || now.TimeOfDay > todayHours.CloseTime)
-            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Restaurant is currently closed");
+        if (request.ScheduledFor is null || request.ScheduledFor <= now.AddMinutes(30))
+        {
+            var todayHours = restaurant.Hours.FirstOrDefault(h => h.DayOfWeek == (int)now.DayOfWeek);
+            if (todayHours == null || todayHours.IsClosed ||
+                now.TimeOfDay < todayHours.OpenTime || now.TimeOfDay > todayHours.CloseTime)
+                return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "Restaurant is currently closed");
+        }
 
         // Deduplicate: merge identical MenuItemIds so we never create two rows for the same item.
         var deduplicatedItems = request.Items
@@ -104,12 +117,16 @@ public class OrderService : IOrderService
             Status = "Pending",
             TotalAmount = total,
             IdempotencyKey = request.IdempotencyKey,
-            DeliveryAddressLine1 = request.DeliveryAddressLine1,
-            DeliveryCity = request.DeliveryCity,
-            DeliveryPostcode = request.DeliveryPostcode.ToUpperInvariant(),
+            DeliveryAddressLine1 = request.DeliveryAddressLine1 ?? string.Empty,
+            DeliveryCity = request.DeliveryCity ?? string.Empty,
+            DeliveryPostcode = string.IsNullOrWhiteSpace(request.DeliveryPostcode)
+                ? string.Empty
+                : request.DeliveryPostcode.ToUpperInvariant(),
             CancellableUntil = DateTime.UtcNow.AddMinutes(5),
             StripePaymentIntentId = request.PaymentIntentId ?? "mock_pi_" + Guid.NewGuid().ToString("N")[..16],
             SpecialInstructions = string.IsNullOrWhiteSpace(request.SpecialInstructions) ? null : request.SpecialInstructions.Trim(),
+            OrderType = isCollection ? "Collection" : "Delivery",
+            ScheduledFor = request.ScheduledFor,
             Items = orderItems
         };
 
@@ -419,5 +436,7 @@ public class OrderService : IOrderService
         o.CancellableUntil, o.CreatedAt, o.DeliveredAt,
         o.SpecialInstructions,
         o.Items.Select(i => new OrderItemDto(i.Id, i.MenuItemId ?? 0,
-            i.MenuItem?.Name ?? "(removed)", i.Quantity, i.UnitPrice)).ToList());
+            i.MenuItem?.Name ?? "(removed)", i.Quantity, i.UnitPrice)).ToList(),
+        o.OrderType,
+        o.ScheduledFor);
 }

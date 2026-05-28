@@ -16,6 +16,8 @@ export interface CreateRestaurantPayload {
   kitchenVideoUrl?: string | null;
   cuisineType?: string;
   estimatedDeliveryMinutes?: number;
+  phone?: string | null;
+  supportsCollection?: boolean;
   staffName: string;
   staffEmail: string;
   staffPassword: string;
@@ -38,6 +40,8 @@ export interface UpdateRestaurantPayload {
   kitchenVideoUrl?: string | null;
   cuisineType?: string;
   estimatedDeliveryMinutes?: number;
+  phone?: string | null;
+  supportsCollection?: boolean;
 }
 
 /**

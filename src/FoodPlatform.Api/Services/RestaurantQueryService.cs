@@ -22,7 +22,7 @@ public class RestaurantQueryService : IRestaurantQueryService
             .Where(r => r.IsActive)
             .Select(r => new RestaurantDto(r.Id, r.Name, r.Address, r.BasePostcode,
                             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
-                            r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId))
+                            r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId, r.Phone, r.SupportsCollection))
             .ToListAsync();
     }
 
@@ -38,7 +38,7 @@ public class RestaurantQueryService : IRestaurantQueryService
             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
             r.CuisineType, r.EstimatedDeliveryMinutes,
             r.Hours.Select(h => new RestaurantHoursDto(h.DayOfWeek, h.OpenTime, h.CloseTime, h.IsClosed)).ToList(),
-            r.AngelcamCameraId);
+            r.AngelcamCameraId, r.Phone, r.SupportsCollection);
     }
 
     public async Task<IEnumerable<RestaurantHoursDto>> GetHoursAsync(int id)

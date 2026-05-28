@@ -18,6 +18,10 @@ export interface Restaurant {
   cuisineType: string;
   /** Advertised prep + delivery window in minutes. */
   estimatedDeliveryMinutes: number;
+  /** Restaurant contact phone number. */
+  phone?: string | null;
+  /** When true, customers can choose collection (pickup) instead of delivery. */
+  supportsCollection: boolean;
 }
 
 export interface RestaurantDetail extends Restaurant {
@@ -78,6 +82,10 @@ export interface Order {
   deliveredAt: string | null;
   specialInstructions: string | null;
   items: OrderItem[];
+  /** 'Delivery' or 'Collection'. */
+  orderType: string;
+  /** ISO timestamp of the scheduled time, or null for ASAP. */
+  scheduledFor: string | null;
 }
 
 export interface OrderItem {
@@ -154,12 +162,14 @@ export interface CartItem {
 export interface PlaceOrderRequest {
   restaurantId: number;
   items: { menuItemId: number; quantity: number }[];
-  deliveryAddressLine1: string;
-  deliveryCity: string;
-  deliveryPostcode: string;
+  deliveryAddressLine1?: string | null;
+  deliveryCity?: string | null;
+  deliveryPostcode?: string | null;
   idempotencyKey: string;
   paymentIntentId?: string;
   specialInstructions?: string | null;
+  orderType?: string;
+  scheduledFor?: string | null;
 }
 
 export interface AcceptOrderRequest {

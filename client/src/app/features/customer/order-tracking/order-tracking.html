@@ -181,15 +181,34 @@
               <div class="info-icon-wrap">
                 <span class="material-symbols-rounded">local_shipping</span>
               </div>
-              <h2 class="info-card__title">Delivery</h2>
+              <h2 class="info-card__title">{{ o.orderType === 'Collection' ? 'Collection' : 'Delivery' }}</h2>
             </div>
-            <div class="detail-row">
-              <span class="detail-icon material-symbols-rounded">location_on</span>
-              <div>
-                <p class="detail-label">Address</p>
-                <p class="detail-val">{{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }}, {{ o.deliveryPostcode }}</p>
+            @if (o.orderType === 'Collection') {
+              <div class="detail-row">
+                <span class="detail-icon material-symbols-rounded" style="color:#3b82f6">store</span>
+                <div>
+                  <p class="detail-label">Order Type</p>
+                  <p class="detail-val" style="color:#1d4ed8; font-weight:600">Collection / Pickup — please collect from the restaurant</p>
+                </div>
               </div>
-            </div>
+            } @else {
+              <div class="detail-row">
+                <span class="detail-icon material-symbols-rounded">location_on</span>
+                <div>
+                  <p class="detail-label">Address</p>
+                  <p class="detail-val">{{ o.deliveryAddressLine1 }}, {{ o.deliveryCity }}, {{ o.deliveryPostcode }}</p>
+                </div>
+              </div>
+            }
+            @if (o.scheduledFor) {
+              <div class="detail-row">
+                <span class="detail-icon material-symbols-rounded" style="color:#3b82f6">schedule</span>
+                <div>
+                  <p class="detail-label">Scheduled For</p>
+                  <p class="detail-val" style="color:#1d4ed8; font-weight:600">{{ o.scheduledFor | date:'EEEE d MMM y, HH:mm' }}</p>
+                </div>
+              </div>
+            }
             @if (o.specialInstructions) {
               <div class="detail-row">
                 <span class="detail-icon material-symbols-rounded">chat_bubble</span>

@@ -5,7 +5,8 @@ namespace FoodPlatform.Api.DTOs;
 // (SRP: restaurant DTOs isolated — changes don't force recompilation of order/menu DTOs)
 public record RestaurantDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
-    string CuisineType, int EstimatedDeliveryMinutes, string? AngelcamCameraId = null)
+    string CuisineType, int EstimatedDeliveryMinutes, string? AngelcamCameraId = null,
+    string? Phone = null, bool SupportsCollection = false)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;
@@ -13,7 +14,8 @@ public record RestaurantDto(int Id, string Name, string Address, string BasePost
 
 public record RestaurantDetailDto(int Id, string Name, string Address, string BasePostcode,
     double DeliveryRadiusMiles, int HygieneRating, bool IsActive, string? ImageUrl, string? KitchenVideoUrl,
-    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours, string? AngelcamCameraId = null)
+    string CuisineType, int EstimatedDeliveryMinutes, List<RestaurantHoursDto> Hours,
+    string? AngelcamCameraId = null, string? Phone = null, bool SupportsCollection = false)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;
@@ -34,6 +36,7 @@ public record CreateRestaurantRequest(
     [MaxLength(100)] string? CuisineType,
     int? EstimatedDeliveryMinutes,
     [MaxLength(30)] string? Phone,
+    bool SupportsCollection,
     /// <summary>Display name for the staff account (e.g. "Spice Garden Staff").</summary>
     [Required, MaxLength(100)] string StaffName,
     /// <summary>Login email for the staff account.</summary>
@@ -62,7 +65,8 @@ public record UpdateRestaurantRequest(
     [MaxLength(1000)] string? KitchenVideoUrl,
     [MaxLength(100)] string? CuisineType,
     int? EstimatedDeliveryMinutes,
-    [MaxLength(30)] string? Phone = null);
+    [MaxLength(30)] string? Phone = null,
+    bool? SupportsCollection = null);
 
 /// <summary>Staff-only request to update the kitchen video URL for their restaurant.</summary>
 public record UpdateKitchenVideoRequest([MaxLength(1000)] string? KitchenVideoUrl);

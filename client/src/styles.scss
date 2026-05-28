@@ -103,6 +103,38 @@ $food-theme: mat.define-theme((
   --shadow-card:       0 12px 32px -10px rgba(255, 107, 26, 0.12), 0 4px 12px -4px rgba(26, 20, 16, 0.06);
 }
 
+// === Dark Mode Overrides ===
+[data-theme="dark"] {
+  --bg:               #0e0b08;
+  --bg-soft:          #16120d;
+  --bg-card:          #1c1712;
+  --bg-elevated:      #231e17;
+  --text:             #f5ede0;
+  --text-secondary:   #b8a898;
+  --text-muted:       #7a6e65;
+  --border:           rgba(255,255,255,0.08);
+  --border-strong:    rgba(255,255,255,0.14);
+  --border-light:     rgba(255,255,255,0.05);
+  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow:           0 4px 12px -4px rgba(0, 0, 0, 0.5);
+  --shadow-md:        0 12px 28px -10px rgba(0, 0, 0, 0.6);
+  --shadow-lg:        0 24px 48px -16px rgba(0, 0, 0, 0.7);
+  --shadow-glow:      0 20px 50px -16px rgba(255, 107, 26, 0.25);
+  --surface-primary:  #0e0b08;
+  --surface-secondary:#16120d;
+  --surface-card:     rgba(255, 255, 255, 0.04);
+  --text-primary:     #f5ede0;
+  --border-color:     rgba(255, 255, 255, 0.08);
+  --shadow-card:      0 12px 32px -10px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+
+  // Material inputs dark override
+  .mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: rgba(255,255,255,0.06);
+    --mdc-outlined-text-field-label-text-color: #b8a898;
+    --mdc-outlined-text-field-input-text-color: #f5ede0;
+  }
+}
+
 // === Reset ===
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

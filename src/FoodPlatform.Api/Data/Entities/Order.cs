@@ -23,6 +23,10 @@ public class Order
     /// <summary>Stamped when status transitions to Delivered. Used to enforce the dispute window.</summary>
     public DateTime? DeliveredAt { get; set; }
     public DateTime CancellableUntil { get; set; }
+    /// <summary>"Delivery" (default) or "Collection" — set at order placement time.</summary>
+    public string OrderType { get; set; } = "Delivery";
+    /// <summary>When set, the order is pre-scheduled for a future time. Null = ASAP.</summary>
+    public DateTime? ScheduledFor { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation

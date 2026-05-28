@@ -28,25 +28,78 @@
               <span class="material-symbols-rounded section-icon">location_on</span>
               Delivery Details
             </div>
-            <div class="form-fields">
-              <mat-form-field appearance="outline" class="dark-field full-width">
-                <mat-label>Address Line 1</mat-label>
-                <input matInput [(ngModel)]="addressLine1" placeholder="e.g. 42 Baker Street">
-              </mat-form-field>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="dark-field">
-                  <mat-label>City</mat-label>
-                  <input matInput [(ngModel)]="city" placeholder="London">
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="dark-field"
-                  [class.mat-form-field-invalid]="(postcodeControl.value?.length ?? 0) > 3 && !postcodeValid">
-                  <mat-label>Postcode</mat-label>
-                  <input matInput [formControl]="postcodeControl" placeholder="NW1 6XE">
-                  @if ((postcodeControl.value?.length ?? 0) > 3 && !postcodeValid) {
-                    <mat-error>Enter a valid UK postcode</mat-error>
-                  }
-                </mat-form-field>
+
+            <!-- Delivery / Collection toggle (only shown when restaurant supports collection) -->
+            @if (restaurantSupportsCollection) {
+              <div class="order-type-toggle">
+                <button class="type-btn" [class.type-btn--active]="orderType() === 'Delivery'"
+                  (click)="orderType.set('Delivery')">
+                  <span class="material-symbols-rounded">delivery_dining</span>
+                  Delivery
+                </button>
+                <button class="type-btn" [class.type-btn--active]="orderType() === 'Collection'"
+                  (click)="orderType.set('Collection')">
+                  <span class="material-symbols-rounded">store</span>
+                  Collection / Pickup
+                </button>
               </div>
+            }
+
+            @if (orderType() === 'Delivery') {
+              <div class="form-fields">
+                <mat-form-field appearance="outline" class="dark-field full-width">
+                  <mat-label>Address Line 1</mat-label>
+                  <input matInput [(ngModel)]="addressLine1" placeholder="e.g. 42 Baker Street">
+                </mat-form-field>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="dark-field">
+                    <mat-label>City</mat-label>
+                    <input matInput [(ngModel)]="city" placeholder="London">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="dark-field"
+                    [class.mat-form-field-invalid]="(postcodeControl.value?.length ?? 0) > 3 && !postcodeValid">
+                    <mat-label>Postcode</mat-label>
+                    <input matInput [formControl]="postcodeControl" placeholder="NW1 6XE">
+                    @if ((postcodeControl.value?.length ?? 0) > 3 && !postcodeValid) {
+                      <mat-error>Enter a valid UK postcode</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+              </div>
+            } @else {
+              <div class="collection-info">
+                <span class="material-symbols-rounded">info</span>
+                <span>Your order will be ready for collection at the restaurant. No delivery address needed.</span>
+              </div>
+            }
+
+            <!-- Scheduled order toggle -->
+            <div class="schedule-toggle-row">
+              <button class="schedule-toggle-btn" [class.active]="scheduleEnabled()"
+                (click)="scheduleEnabled.update(v => !v)">
+                <span class="material-symbols-rounded">schedule</span>
+                {{ scheduleEnabled() ? 'Scheduled for later' : 'Schedule for later (optional)' }}
+                <span class="material-symbols-rounded toggle-arrow">
+                  {{ scheduleEnabled() ? 'expand_less' : 'expand_more' }}
+                </span>
+              </button>
+            </div>
+            @if (scheduleEnabled()) {
+              <div class="schedule-fields">
+                <mat-form-field appearance="outline" class="dark-field full-width">
+                  <mat-label>Scheduled Date & Time</mat-label>
+                  <input matInput type="datetime-local"
+                    [(ngModel)]="scheduledDateTime"
+                    [min]="minScheduleTime">
+                </mat-form-field>
+                <p class="schedule-hint">
+                  <span class="material-symbols-rounded">info</span>
+                  We'll confirm your order and start preparing at the scheduled time.
+                </p>
+              </div>
+            }
+
+            <div class="form-fields">
               <mat-form-field appearance="outline" class="dark-field full-width">
                 <mat-label>Special Instructions <span class="optional-label">(optional)</span></mat-label>
                 <textarea matInput [(ngModel)]="specialInstructions" rows="2"

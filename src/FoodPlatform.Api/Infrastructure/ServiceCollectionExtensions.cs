@@ -107,6 +107,9 @@ public static class ServiceCollectionExtensions
         // Reviews
         services.AddScoped<IReviewService, ReviewService>();
 
+        // Favourites
+        services.AddScoped<IFavouritesService, FavouritesService>();
+
         // Platform settings (homepage video, etc.)
         services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
 

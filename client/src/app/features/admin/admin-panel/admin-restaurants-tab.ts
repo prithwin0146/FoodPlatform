@@ -23,6 +23,8 @@ interface RestaurantForm {
   kitchenVideoUrl: string;
   cuisineType: string;
   estimatedDeliveryMinutes: number;
+  phone: string;
+  supportsCollection: boolean;
   staffName: string;
   staffEmail: string;
   staffPassword: string;
@@ -91,6 +93,18 @@ interface RestaurantForm {
             <input matInput [(ngModel)]="form.kitchenVideoUrl" placeholder="https://youtube.com/embed/… or direct MP4 link" />
             <mat-hint>YouTube embed, Vimeo, or direct video file link shown on order-tracking page.</mat-hint>
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone (optional)</mat-label>
+            <input matInput [(ngModel)]="form.phone" placeholder="+44 20 7123 4567" />
+            <mat-hint>Shown to customers on the restaurant page</mat-hint>
+          </mat-form-field>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;">
+            <input type="checkbox" id="supportsCollection" [(ngModel)]="form.supportsCollection" style="width:18px;height:18px;accent-color:#f97316;cursor:pointer;" />
+            <label for="supportsCollection" style="font-size:.9rem;color:#374151;cursor:pointer;user-select:none;">
+              <strong>Allow Collection / Pickup</strong>
+              <span style="display:block;font-size:.78rem;color:#6b7280;margin-top:1px;">Customers can choose to collect their order instead of delivery</span>
+            </label>
+          </div>
           <mat-form-field appearance="outline">
             <mat-label>Cuisine Type</mat-label>
             <input matInput [(ngModel)]="form.cuisineType" placeholder="e.g. Indian, Italian, Burgers" />
@@ -365,7 +379,7 @@ export class AdminRestaurantsTab implements OnInit {
 
   openEdit(r: Restaurant): void {
     this.editingId.set(r.hashId);
-    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '', cuisineType: r.cuisineType ?? '', estimatedDeliveryMinutes: r.estimatedDeliveryMinutes ?? 30, staffName: '', staffEmail: '', staffPassword: '' };
+    this.form = { name: r.name, address: r.address, basePostcode: r.basePostcode, deliveryRadiusMiles: r.deliveryRadiusMiles, hygieneRating: r.hygieneRating, imageUrl: r.imageUrl ?? '', kitchenVideoUrl: r.kitchenVideoUrl ?? '', cuisineType: r.cuisineType ?? '', estimatedDeliveryMinutes: r.estimatedDeliveryMinutes ?? 30, phone: r.phone ?? '', supportsCollection: r.supportsCollection ?? false, staffName: '', staffEmail: '', staffPassword: '' };
     this.formOpen.set(true);
   }
 
@@ -377,7 +391,7 @@ export class AdminRestaurantsTab implements OnInit {
     const id = this.editingId();
 
     if (id) {
-      const payload = { name: this.form.name, address: this.form.address, basePostcode: this.form.basePostcode, deliveryRadiusMiles: this.form.deliveryRadiusMiles, hygieneRating: this.form.hygieneRating, imageUrl: this.form.imageUrl || null, kitchenVideoUrl: this.form.kitchenVideoUrl || null, cuisineType: this.form.cuisineType, estimatedDeliveryMinutes: this.form.estimatedDeliveryMinutes };
+      const payload = { name: this.form.name, address: this.form.address, basePostcode: this.form.basePostcode, deliveryRadiusMiles: this.form.deliveryRadiusMiles, hygieneRating: this.form.hygieneRating, imageUrl: this.form.imageUrl || null, kitchenVideoUrl: this.form.kitchenVideoUrl || null, cuisineType: this.form.cuisineType, estimatedDeliveryMinutes: this.form.estimatedDeliveryMinutes, phone: this.form.phone || null, supportsCollection: this.form.supportsCollection };
       this.adminRestaurantService.update(id, payload).subscribe({
         next: () => { this.toast.success('Restaurant updated'); this.closeForm(); this.saving.set(false); this.ngOnInit(); },
         error: (err: { error?: { message?: string; error?: string } }) => { this.toast.error(err.error?.message ?? err.error?.error ?? 'Failed to save'); this.saving.set(false); },
@@ -424,7 +438,7 @@ export class AdminRestaurantsTab implements OnInit {
   }
 
   private emptyForm(): RestaurantForm {
-    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '', cuisineType: 'Other', estimatedDeliveryMinutes: 30, staffName: '', staffEmail: '', staffPassword: '' };
+    return { name: '', address: '', basePostcode: '', deliveryRadiusMiles: 3, hygieneRating: 5, imageUrl: '', kitchenVideoUrl: '', cuisineType: 'Other', estimatedDeliveryMinutes: 30, phone: '', supportsCollection: false, staffName: '', staffEmail: '', staffPassword: '' };
   }
 }
 

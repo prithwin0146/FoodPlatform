@@ -10,6 +10,8 @@ export class CartService {
   private readonly _items = signal<CartItem[]>([]);
   private readonly _restaurantId = signal<number | null>(null);
   private readonly _restaurantName = signal<string>('');
+  private readonly _restaurantHashId = signal<string>('');
+  private readonly _supportsCollection = signal(false);
   /** Increments on every addItem — header subscribes to trigger bounce animation. */
   private readonly _lastAdded = signal(0);
 
@@ -20,6 +22,8 @@ export class CartService {
   readonly items = this._items.asReadonly();
   readonly restaurantId = this._restaurantId.asReadonly();
   readonly restaurantName = this._restaurantName.asReadonly();
+  readonly restaurantHashId = this._restaurantHashId.asReadonly();
+  readonly supportsCollection = this._supportsCollection.asReadonly();
   readonly lastAdded = this._lastAdded.asReadonly();
   readonly count = computed(() =>
     this._items().reduce((sum, i) => sum + i.quantity, 0)
@@ -29,13 +33,15 @@ export class CartService {
   );
   readonly isEmpty = computed(() => this._items().length === 0);
 
-  addItem(item: MenuItem, restaurantId: number, restaurantName: string): void {
+  addItem(item: MenuItem, restaurantId: number, restaurantName: string, restaurantHashId = '', supportsCollection = false): void {
     // If switching restaurant, clear cart
     if (this._restaurantId() !== null && this._restaurantId() !== restaurantId) {
       this.clear();
     }
     this._restaurantId.set(restaurantId);
     this._restaurantName.set(restaurantName);
+    this._restaurantHashId.set(restaurantHashId);
+    this._supportsCollection.set(supportsCollection);
     this._lastAdded.update(n => n + 1);
 
     const current = this._items();

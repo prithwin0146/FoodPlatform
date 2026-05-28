@@ -48,10 +48,16 @@ export class Checkout implements AfterViewInit, OnDestroy {
   /** 'idle' | 'confirming' | 'placing' */
   readonly paymentStep = signal<'idle' | 'confirming' | 'placing'>('idle');
   readonly cardError = signal<string | null>(null);
+  /** 'Delivery' or 'Collection'. Collection hides address fields and skips postcode validation. */
+  readonly orderType = signal<'Delivery' | 'Collection'>('Delivery');
+  /** ISO string of the selected scheduled time, or null for ASAP. */
+  readonly scheduledFor = signal<string | null>(null);
+  readonly scheduleEnabled = signal(false);
 
   addressLine1 = '';
   city = '';
   specialInstructions = '';
+  scheduledDateTime = '';  // bound to datetime-local input
 
   readonly postcodeControl = new FormControl('', [
     Validators.required,
@@ -86,6 +92,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
   }
 
   get formValid(): boolean {
+    if (this.orderType() === 'Collection') return true;
     return (
       this.addressLine1.trim().length > 0 &&
       this.city.trim().length > 0 &&
@@ -97,8 +104,24 @@ export class Checkout implements AfterViewInit, OnDestroy {
     switch (this.paymentStep()) {
       case 'confirming': return 'Confirming payment…';
       case 'placing':    return 'Placing order…';
-      default:           return 'Pay & Place Order';
+      default:           return this.orderType() === 'Collection' ? 'Place Collection Order' : 'Pay & Place Order';
     }
+  }
+
+  get scheduledForIso(): string | null {
+    if (!this.scheduleEnabled() || !this.scheduledDateTime) return null;
+    return new Date(this.scheduledDateTime).toISOString();
+  }
+
+  get restaurantSupportsCollection(): boolean {
+    return this.cart.supportsCollection();
+  }
+
+  /** Minimum datetime value for the schedule picker (30 min from now). */
+  get minScheduleTime(): string {
+    const d = new Date(Date.now() + 30 * 60_000);
+    // datetime-local format: YYYY-MM-DDTHH:mm
+    return d.toISOString().slice(0, 16);
   }
 
   async placeOrder(): Promise<void> {
@@ -119,12 +142,14 @@ export class Checkout implements AfterViewInit, OnDestroy {
       this.orderService.place({
         restaurantId: this.cart.restaurantId()!,
         items: this.cart.items().map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
-        deliveryAddressLine1: this.addressLine1,
-        deliveryCity: this.city,
-        deliveryPostcode: this.postcodeControl.value!.toUpperCase(),
+        deliveryAddressLine1: this.orderType() === 'Collection' ? undefined : this.addressLine1,
+        deliveryCity: this.orderType() === 'Collection' ? undefined : this.city,
+        deliveryPostcode: this.orderType() === 'Collection' ? undefined : this.postcodeControl.value?.toUpperCase(),
         idempotencyKey: key,
         paymentIntentId: 'pi_mock_demo_' + key.slice(0, 16),
         specialInstructions: this.specialInstructions.trim() || null,
+        orderType: this.orderType(),
+        scheduledFor: this.scheduledForIso,
       }).subscribe({
         next: (order) => {
           this.cart.clear();
@@ -164,12 +189,14 @@ export class Checkout implements AfterViewInit, OnDestroy {
         this.orderService.place({
           restaurantId: this.cart.restaurantId()!,
           items: this.cart.items().map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
-          deliveryAddressLine1: this.addressLine1,
-          deliveryCity: this.city,
-          deliveryPostcode: this.postcodeControl.value!.toUpperCase(),
+          deliveryAddressLine1: this.orderType() === 'Collection' ? undefined : this.addressLine1,
+          deliveryCity: this.orderType() === 'Collection' ? undefined : this.city,
+          deliveryPostcode: this.orderType() === 'Collection' ? undefined : this.postcodeControl.value?.toUpperCase(),
           idempotencyKey: key,
           paymentIntentId: result.paymentIntentId,
           specialInstructions: this.specialInstructions.trim() || null,
+          orderType: this.orderType(),
+          scheduledFor: this.scheduledForIso,
         }).subscribe({
           next: (order) => {
             this.cart.clear();

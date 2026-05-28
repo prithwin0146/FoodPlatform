@@ -512,9 +512,21 @@
                 </div>
 
                 <div class="delivery-address-row">
-                  <span class="material-symbols-rounded addr-icon">location_on</span>
-                  <span class="addr-text">{{ order.deliveryAddressLine1 }}, {{ order.deliveryCity }}, {{ order.deliveryPostcode }}</span>
+                  @if (order.orderType === 'Collection') {
+                    <span class="material-symbols-rounded addr-icon" style="color: #3b82f6">store</span>
+                    <span class="addr-text" style="color:#1d4ed8; font-weight: 600">Collection / Pickup</span>
+                  } @else {
+                    <span class="material-symbols-rounded addr-icon">location_on</span>
+                    <span class="addr-text">{{ order.deliveryAddressLine1 }}, {{ order.deliveryCity }}, {{ order.deliveryPostcode }}</span>
+                  }
                 </div>
+
+                @if (order.scheduledFor) {
+                  <div class="special-instructions-row" style="background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2);">
+                    <span class="material-symbols-rounded si-icon" style="color:#3b82f6">schedule</span>
+                    <span class="si-text" style="color:#1d4ed8">Scheduled for {{ order.scheduledFor | date:'d MMM y, HH:mm' }}</span>
+                  </div>
+                }
 
                 @if (order.specialInstructions) {
                   <div class="special-instructions-row">

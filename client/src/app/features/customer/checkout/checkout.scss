@@ -58,6 +58,60 @@
 .full-width { width: 100%; }
 .optional-label { font-size: .75rem; color: var(--text-secondary); font-weight: 400; }
 
+/* ── Delivery / Collection toggle ── */
+.order-type-toggle {
+  display: flex; gap: 10px;
+  margin-bottom: 20px;
+}
+.type-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 16px; border-radius: 12px;
+  border: 1.5px solid var(--border, #f0e8dd);
+  background: transparent;
+  color: var(--text-secondary, #6b6359);
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  .material-symbols-rounded { font-size: 1rem; }
+  &:hover { border-color: var(--primary, #ff6b1a); color: var(--primary, #ff6b1a); }
+  &--active {
+    background: rgba(255,107,26,0.10);
+    border-color: rgba(255,107,26,0.5);
+    color: var(--primary, #ff6b1a);
+  }
+}
+
+/* ── Collection info banner ── */
+.collection-info {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: 10px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  color: #1d4ed8; font-size: 0.85rem; margin-bottom: 16px;
+  .material-symbols-rounded { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+}
+
+/* ── Schedule for later ── */
+.schedule-toggle-row { margin: 8px 0 4px; }
+.schedule-toggle-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 10px;
+  border: 1.5px dashed var(--border-strong, #e8ddc9);
+  background: transparent; color: var(--text-secondary, #6b6359);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s ease;
+  .material-symbols-rounded { font-size: 1rem; color: var(--primary, #ff6b1a); }
+  .toggle-arrow { margin-left: auto; font-size: 1rem; color: var(--text-muted, #9a9088); }
+  &:hover { border-color: var(--primary, #ff6b1a); color: var(--text); }
+  &.active { border-style: solid; border-color: var(--primary, #ff6b1a); color: var(--text); background: rgba(255,107,26,0.06); }
+}
+.schedule-fields { margin: 10px 0 16px; }
+.schedule-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.78rem; color: var(--text-muted, #9a9088); margin-top: 6px;
+  .material-symbols-rounded { font-size: 0.9rem; }
+}
+
 ::ng-deep .checkout-page .dark-field {
   width: 100%;
   .mat-mdc-text-field-wrapper {

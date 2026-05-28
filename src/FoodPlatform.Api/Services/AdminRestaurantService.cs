@@ -26,7 +26,7 @@ public class AdminRestaurantService : IAdminRestaurantService
         return await _db.Restaurants
             .Select(r => new RestaurantDto(r.Id, r.Name, r.Address, r.BasePostcode,
                             r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl,
-                            r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId))
+                            r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId, r.Phone, r.SupportsCollection))
             .ToListAsync();
     }
 
@@ -48,7 +48,8 @@ public class AdminRestaurantService : IAdminRestaurantService
             ImageUrl = request.ImageUrl,
             CuisineType = request.CuisineType ?? "Other",
             EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes ?? 30,
-            Phone = request.Phone
+            Phone = request.Phone,
+            SupportsCollection = request.SupportsCollection
         };
         _db.Restaurants.Add(restaurant);
         await _db.SaveChangesAsync(); // get restaurant.Id
@@ -90,6 +91,7 @@ public class AdminRestaurantService : IAdminRestaurantService
         if (request.CuisineType != null) restaurant.CuisineType = request.CuisineType;
         if (request.EstimatedDeliveryMinutes.HasValue) restaurant.EstimatedDeliveryMinutes = request.EstimatedDeliveryMinutes.Value;
         if (request.Phone != null) restaurant.Phone = request.Phone == "" ? null : request.Phone;
+        if (request.SupportsCollection.HasValue) restaurant.SupportsCollection = request.SupportsCollection.Value;
 
         await _db.SaveChangesAsync();
         return ToDto(restaurant);
@@ -115,5 +117,5 @@ public class AdminRestaurantService : IAdminRestaurantService
     }
 
     private static RestaurantDto ToDto(Restaurant r) =>
-        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl, r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId);
+        new(r.Id, r.Name, r.Address, r.BasePostcode, r.DeliveryRadiusMiles, r.HygieneRating, r.IsActive, r.ImageUrl, r.KitchenVideoUrl, r.CuisineType, r.EstimatedDeliveryMinutes, r.AngelcamCameraId, r.Phone, r.SupportsCollection);
 }

@@ -25,6 +25,7 @@ public class FoodPlatformDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<ProcessedStripeEvent> ProcessedStripeEvents => Set<ProcessedStripeEvent>();
     public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
+    public DbSet<FavouriteRestaurant> FavouriteRestaurants => Set<FavouriteRestaurant>();
     // Required by IDataProtectionKeyContext — keys stored in "DataProtectionKeys" table
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 

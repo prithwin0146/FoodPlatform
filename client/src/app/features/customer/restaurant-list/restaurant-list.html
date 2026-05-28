@@ -160,6 +160,67 @@
         }
       </div>
     } @else {
+
+      <!-- ── Favourites section (customers only, if they have saved restaurants) ── -->
+      @if (auth.isCustomer() && favouriteRestaurants().length > 0) {
+        <div class="favourites-section" appScrollReveal>
+          <h2 class="favourites-heading">
+            <span class="material-symbols-rounded">favorite</span>
+            Your Favourites
+          </h2>
+          <div class="grid">
+            @for (restaurant of favouriteRestaurants(); track restaurant.id; let i = $index) {
+              <a [routerLink]="['/restaurant', restaurant.hashId]"
+                 class="tilt-card restaurant-card"
+                 appTilt [tiltMax]="12"
+                 appScrollReveal [revealDelay]="i * 70"
+                 matRipple>
+                <div class="card-glare"></div>
+                <div class="card-image">
+                  <div class="card-image-gradient"></div>
+                  @if (restaurant.imageUrl) {
+                    <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy">
+                  } @else {
+                    <app-image-fallback [name]="restaurant.name" tone="auto" />
+                  }
+                  <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating">
+                    <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
+                    <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
+                  </div>
+                  <button class="fav-btn fav-btn--active"
+                    (click)="toggleFavourite($event, restaurant)"
+                    [disabled]="togglingFavId() === restaurant.id"
+                    aria-label="Remove from favourites"
+                    matTooltip="Remove from favourites">
+                    <span class="material-symbols-rounded">favorite</span>
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="card-title-row">
+                    <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                  </div>
+                  <div class="restaurant-meta">
+                    <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
+                    <span class="meta-item">
+                      <span class="material-symbols-rounded meta-icon">schedule</span>
+                      ~{{ restaurant.estimatedDeliveryMinutes }} min
+                    </span>
+                    @if (restaurant.supportsCollection) {
+                      <span class="collection-badge">
+                        <span class="material-symbols-rounded">store</span> Pickup
+                      </span>
+                    }
+                  </div>
+                </div>
+              </a>
+            }
+          </div>
+        </div>
+        <div class="section-divider" appScrollReveal>
+          <span>All Restaurants</span>
+        </div>
+      }
+
       <div class="grid">
         @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
           <a [routerLink]="['/restaurant', restaurant.hashId]"
@@ -180,6 +241,18 @@
                 <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
               </div>
               <div class="live-pip"><span></span> LIVE</div>
+              @if (auth.isCustomer()) {
+                <button class="fav-btn"
+                  [class.fav-btn--active]="favourites.isFavourite(restaurant.id)"
+                  (click)="toggleFavourite($event, restaurant)"
+                  [disabled]="togglingFavId() === restaurant.id"
+                  [attr.aria-label]="favourites.isFavourite(restaurant.id) ? 'Remove from favourites' : 'Add to favourites'"
+                  matTooltip="{{ favourites.isFavourite(restaurant.id) ? 'Saved' : 'Save restaurant' }}">
+                  <span class="material-symbols-rounded">
+                    {{ favourites.isFavourite(restaurant.id) ? 'favorite' : 'favorite_border' }}
+                  </span>
+                </button>
+              }
             </div>
             <div class="card-body">
               <div class="card-title-row">
@@ -206,6 +279,11 @@
                   <span class="material-symbols-rounded meta-icon">pedal_bike</span>
                   {{ restaurant.deliveryRadiusMiles }} mi
                 </span>
+                @if (restaurant.supportsCollection) {
+                  <span class="collection-badge">
+                    <span class="material-symbols-rounded">store</span> Pickup
+                  </span>
+                }
                 <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
               </div>
             </div>

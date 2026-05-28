@@ -18,12 +18,16 @@ public record PlaceOrderRequest(
     [Required] int RestaurantId,
     [Required, MinLength(1, ErrorMessage = "Order must contain at least one item")]
     List<OrderItemRequest> Items,
-    [Required, MaxLength(200)] string DeliveryAddressLine1,
-    [Required, MaxLength(100)] string DeliveryCity,
-    [Required] string DeliveryPostcode,
+    [MaxLength(200)] string? DeliveryAddressLine1,
+    [MaxLength(100)] string? DeliveryCity,
+    string? DeliveryPostcode,
     [Required, MaxLength(100)] string IdempotencyKey,
     string? PaymentIntentId,
-    [MaxLength(500)] string? SpecialInstructions = null);
+    [MaxLength(500)] string? SpecialInstructions = null,
+    /// <summary>"Delivery" (default) or "Collection".</summary>
+    string OrderType = "Delivery",
+    /// <summary>UTC time the customer wants the order ready. Null = ASAP.</summary>
+    DateTime? ScheduledFor = null);
 
 public record OrderItemRequest(
     int MenuItemId,
@@ -34,7 +38,8 @@ public record OrderItemRequest(
 /// aren't forced to receive dispute/delivery fields they don't use)
 /// </summary>
 public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Status,
-    decimal TotalAmount, DateTime CreatedAt, List<OrderItemDto> Items)
+    decimal TotalAmount, DateTime CreatedAt, List<OrderItemDto> Items,
+    string OrderType = "Delivery", DateTime? ScheduledFor = null)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;
@@ -44,13 +49,15 @@ public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Statu
 public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string? RejectionReason, string DisputeStatus, string? DisputeNotes,
     decimal TotalAmount,
-    string DeliveryAddressLine1, string DeliveryCity, string DeliveryPostcode,
+    string? DeliveryAddressLine1, string? DeliveryCity, string? DeliveryPostcode,
     string RestaurantName, string? KitchenVideoUrl, string? AngelcamCameraId,
     string? RestaurantPhone,
     DateTime? EstimatedDeliveryTime,
     DateTime CancellableUntil, DateTime CreatedAt, DateTime? DeliveredAt,
     string? SpecialInstructions,
-    List<OrderItemDto> Items)
+    List<OrderItemDto> Items,
+    string OrderType = "Delivery",
+    DateTime? ScheduledFor = null)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;

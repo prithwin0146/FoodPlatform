@@ -20,6 +20,8 @@ public class Restaurant
     public int EstimatedDeliveryMinutes { get; set; } = 30;
     /// <summary>Contact phone number displayed to the customer on the order-tracking page.</summary>
     public string? Phone { get; set; }
+    /// <summary>When true, customers can choose collection (pickup) instead of delivery.</summary>
+    public bool SupportsCollection { get; set; } = false;
     public string? StripeAccountId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

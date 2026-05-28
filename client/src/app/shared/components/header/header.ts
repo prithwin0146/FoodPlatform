@@ -6,6 +6,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CartService } from '../../../core/services/cart.service';
 import { OrderService } from '../../../core/services/order.service';
+import { FavouritesService } from '../../../core/services/favourites.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { MagneticDirective } from '../../directives/magnetic.directive';
 import { Logo } from '../logo/logo';
 
@@ -34,6 +36,8 @@ export class Header {
     readonly auth: AuthService,
     readonly cart: CartService,
     readonly orderService: OrderService,
+    readonly theme: ThemeService,
+    private readonly favourites: FavouritesService,
     private readonly router: Router
   ) {
     // Bounce the cart icon every time a new item is added
@@ -53,8 +57,10 @@ export class Header {
     effect(() => {
       if (this.auth.isCustomer()) {
         this.orderService.loadActiveCount();
+        this.favourites.loadFavourites().subscribe();
       } else {
         this.orderService.activeOrderCount.set(0);
+        this.favourites.favouriteIds.set(new Set());
       }
     });
   }

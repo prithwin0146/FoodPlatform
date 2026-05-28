@@ -15,6 +15,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { PlatformSettingsService } from '../../../core/services/platform-settings.service';
+import { FavouritesService } from '../../../core/services/favourites.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { Restaurant } from '../../../core/models';
 import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
 import { HygieneLabelPipe } from '../../../shared/pipes/order-status.pipe';
@@ -63,6 +65,16 @@ export class RestaurantList implements OnInit, AfterViewInit {
   readonly demoVideoUrl = signal<string>('');
   private readonly sanitizer = inject(DomSanitizer);
   private readonly platformSettings = inject(PlatformSettingsService);
+  readonly favourites = inject(FavouritesService);
+  readonly auth = inject(AuthService);
+
+  /** IDs of restaurants the customer is currently toggling (prevents double-click). */
+  readonly togglingFavId = signal<number | null>(null);
+
+  /** Restaurants the customer has favourited — shown in a pinned section. */
+  readonly favouriteRestaurants = computed(() =>
+    this.restaurants().filter(r => this.favourites.isFavourite(r.id))
+  );
 
   readonly CUISINE_OPTIONS = ['All', 'Indian', 'Italian', 'Japanese', 'Burgers', 'Chinese', 'Healthy', 'Pizza', 'Other'];
   readonly DIETARY_OPTIONS = ['Vegan', 'Vegetarian', 'Halal', 'Gluten-free'];
@@ -256,6 +268,9 @@ export class RestaurantList implements OnInit, AfterViewInit {
       const v = s['homepage_demo_video'];
       if (v) this.demoVideoUrl.set(v);
     });
+    if (this.auth.isCustomer()) {
+      this.favourites.loadFavourites().subscribe();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -352,6 +367,18 @@ export class RestaurantList implements OnInit, AfterViewInit {
     this.activeDietary.set(
       current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag]
     );
+  }
+
+  /** Adds or removes a restaurant from the customer's favourites list. */
+  toggleFavourite(event: Event, restaurant: Restaurant): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this.auth.isCustomer() || this.togglingFavId() !== null) return;
+    this.togglingFavId.set(restaurant.id);
+    this.favourites.toggle(restaurant.hashId, restaurant.id).subscribe({
+      next: () => this.togglingFavId.set(null),
+      error: () => this.togglingFavId.set(null),
+    });
   }
 
   @HostListener('window:scroll')

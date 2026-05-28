@@ -1591,6 +1591,65 @@
     animation: recBlink 1.4s ease-in-out infinite;
   }
 }
+
+// ── Favourite heart button ───────────────────────────────────────
+.fav-btn {
+  position: absolute; top: 10px; right: 10px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.6);
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease-spring, ease),
+              background 0.2s ease,
+              box-shadow 0.2s ease;
+  z-index: 10;
+  .material-symbols-rounded { font-size: 1rem; color: #b0b0b0; transition: color 0.2s ease; }
+
+  &:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    .material-symbols-rounded { color: #ef4444; }
+  }
+
+  &--active {
+    background: rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.3);
+    .material-symbols-rounded { color: #ef4444; }
+  }
+
+  &:disabled { opacity: 0.6; pointer-events: none; }
+}
+
+// ── Pickup / Collection badge ────────────────────────────────────
+.collection-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 6px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #1d4ed8; font-size: 0.68rem; font-weight: 700;
+  .material-symbols-rounded { font-size: 0.75rem; }
+}
+
+// ── Favourites section ───────────────────────────────────────────
+.favourites-section {
+  margin-bottom: 2.5rem;
+}
+.favourites-heading {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.1rem; font-weight: 700; color: var(--c-text, #1a1410);
+  margin-bottom: 1.25rem;
+  .material-symbols-rounded { font-size: 1.1rem; color: #ef4444; }
+}
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 2rem 0 1.5rem;
+  color: var(--c-text-muted, #9a9088); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  &::before, &::after { content: ''; flex: 1; height: 1px; background: var(--border, #f0e8dd); }
+}
 .card-body { padding: 1.25rem 1.5rem 1.5rem; position: relative; z-index: 3; }
 .card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.4rem; }
 .restaurant-name { font-size: 1.2rem; font-weight: 700; margin: 0; color: var(--c-text); flex: 1; }
