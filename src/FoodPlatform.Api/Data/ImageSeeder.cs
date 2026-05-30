@@ -71,6 +71,21 @@ public static class ImageSeeder
         [33] = $"{U}photo-1571197119282-7c4a93cc1d83{QSmall}", // Hummus
         [34] = $"{U}photo-1603046891744-76e6300f82ef{QSmall}", // Avocado toast
         [35] = $"{U}photo-1546069901-ba9599a7e63c{QSmall}",    // Buddha bowl
+        [36] = $"{U}photo-1467003909585-2f8a72700288{QSmall}", // Grilled salmon bowl
+        [37] = $"{U}photo-1565299585323-38d6b0865b47{QSmall}", // Falafel wrap
+        [38] = $"{U}photo-1548369937-47519962c11a{QSmall}",    // Sweet potato fries
+        [39] = $"{U}photo-1512621776951-a57141f2eefd{QSmall}", // Side salad
+        [40] = $"{U}photo-1622597467836-f3285f2131b8{QSmall}", // Cold-pressed juice
+
+        // Dragon Wok
+        [41] = $"{U}photo-1562802378-063ec186a863{QSmall}",    // Spring rolls
+        [42] = $"{U}photo-1569050467447-ce54b3bbc37d{QSmall}", // Crispy duck pancakes
+        [43] = $"{U}photo-1603360946369-dc9bb6258143{QSmall}", // Sweet & sour chicken
+        [44] = $"{U}photo-1547592180-85f173990554{QSmall}",    // Kung pao beef
+        [45] = $"{U}photo-1617196034183-421b4040ed20{QSmall}", // Mapo tofu
+        [46] = $"{U}photo-1576577445504-6af96477db52{QSmall}", // Egg fried rice
+        [47] = $"{U}photo-1555126634-323283e090fa{QSmall}",    // Singapore noodles
+        [48] = $"{U}photo-1556679343-c7306c1976bc{QSmall}",    // Jasmine tea
     };
 
     public static async Task BackfillAsync(IServiceProvider services, ILogger logger)
