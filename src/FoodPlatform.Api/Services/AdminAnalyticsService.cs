@@ -32,19 +32,25 @@ public class AdminAnalyticsService : IAdminAnalyticsService
 
         var topRestaurants = await _db.Orders
             .Where(o => o.Status != "Cancelled" && o.Status != "Rejected")
-            .Join(_db.Restaurants,
-                o => o.RestaurantId,
-                r => r.Id,
-                (o, r) => new { o.RestaurantId, RestaurantName = r.Name, o.TotalAmount })
-            .GroupBy(x => new { x.RestaurantId, x.RestaurantName })
+            .GroupBy(o => o.RestaurantId)
+            .Select(g => new { RestaurantId = g.Key, Revenue = g.Sum(o => o.TotalAmount), OrderCount = g.Count() })
+            .ToListAsync();
+
+        var restaurantIds = topRestaurants.Select(g => g.RestaurantId).ToList();
+        var restaurantNames = await _db.Restaurants
+            .Where(r => restaurantIds.Contains(r.Id))
+            .Select(r => new { r.Id, r.Name })
+            .ToDictionaryAsync(r => r.Id, r => r.Name);
+
+        var topRestaurantDtos = topRestaurants
             .Select(g => new TopRestaurantDto(
-                g.Key.RestaurantId,
-                g.Key.RestaurantName,
-                g.Sum(x => (decimal)x.TotalAmount),
-                g.Count()))
+                g.RestaurantId,
+                restaurantNames.GetValueOrDefault(g.RestaurantId, "Unknown"),
+                g.Revenue,
+                g.OrderCount))
             .OrderByDescending(t => t.Revenue)
             .Take(10)
-            .ToListAsync();
+            .ToList();
 
         return new AnalyticsDto(
             totalOrders,
@@ -52,6 +58,6 @@ public class AdminAnalyticsService : IAdminAnalyticsService
             Math.Round(totalRevenue, 2),
             Math.Round(avgOrderValue, 2),
             ordersByStatus,
-            topRestaurants);
+            topRestaurantDtos);
     }
 }
