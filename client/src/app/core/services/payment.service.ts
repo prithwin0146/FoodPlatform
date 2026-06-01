@@ -7,6 +7,9 @@ export interface CreatePaymentIntentRequest {
   restaurantId: number;
   items: { menuItemId: number; quantity: number }[];
   idempotencyKey: string;
+  orderType?: string;
+  promoCode?: string | null;
+  giftCardCode?: string | null;
 }
 
 export interface CreatePaymentIntentResponse {

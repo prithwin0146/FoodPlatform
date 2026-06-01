@@ -45,7 +45,8 @@ public record OrderSummaryDto(int Id, int RestaurantId, int UserId, string Statu
     decimal TotalAmount, DateTime CreatedAt, List<OrderItemDto> Items,
     string OrderType = "Delivery", DateTime? ScheduledFor = null,
     string? PromoCode = null, decimal DiscountAmount = 0m,
-    string? GiftCardCode = null, decimal GiftCardDiscount = 0m)
+    string? GiftCardCode = null, decimal GiftCardDiscount = 0m,
+    decimal DeliveryFee = 0m)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;
@@ -65,7 +66,8 @@ public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string OrderType = "Delivery",
     DateTime? ScheduledFor = null,
     string? PromoCode = null, decimal DiscountAmount = 0m,
-    string? GiftCardCode = null, decimal GiftCardDiscount = 0m)
+    string? GiftCardCode = null, decimal GiftCardDiscount = 0m,
+    decimal DeliveryFee = 0m)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;

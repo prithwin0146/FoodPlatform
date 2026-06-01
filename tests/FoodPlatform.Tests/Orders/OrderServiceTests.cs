@@ -1,10 +1,12 @@
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Hubs;
 using FoodPlatform.Api.Services;
 using FoodPlatform.Api.Services.Interfaces;
 using FoodPlatform.Tests.Helpers;
 using Hangfire;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -28,8 +30,39 @@ public class OrderServiceTests
         stripe.VerifyPaymentSucceededAsync(Arg.Any<string>(), Arg.Any<decimal>())
               .Returns(true);
         var jobs = Substitute.For<IBackgroundJobClient>();
-        return new OrderService(db, stripe, jobs, NullLogger<OrderService>.Instance);
+
+        // Pricing dependencies: by default no promo / no gift card / not a Plus member,
+        // so a delivery order incurs the standard delivery fee.
+        var promoCodes = Substitute.For<IPromoCodeService>();
+        promoCodes.ValidateAsync(Arg.Any<string>(), Arg.Any<decimal>(), Arg.Any<int>())
+                  .Returns(new ValidatePromoCodeResponse(false, "n/a", null, null, null));
+        var giftCards = Substitute.For<IGiftCardService>();
+        giftCards.ValidateAsync(Arg.Any<string>())
+                 .Returns(new ValidateGiftCardResponse(false, "n/a", null));
+        var subscriptions = Substitute.For<ISubscriptionService>();
+        subscriptions.GetStatusAsync(Arg.Any<int>())
+                     .Returns(new SubscriptionStatusDto(false, null, null, null));
+        var inventory = Substitute.For<IInventoryService>();
+        var pricing = new OrderPricingService(db, promoCodes, giftCards, subscriptions);
+
+        // SignalR hub mock — Clients.Group(...).SendCoreAsync(...) must resolve to a completed task.
+        var hub = Substitute.For<IHubContext<OrderHub>>();
+        var clients = Substitute.For<IHubClients>();
+        var clientProxy = Substitute.For<IClientProxy>();
+        hub.Clients.Returns(clients);
+        clients.Group(Arg.Any<string>()).Returns(clientProxy);
+        clientProxy.SendCoreAsync(Arg.Any<string>(), Arg.Any<object?[]>(), Arg.Any<CancellationToken>())
+                   .Returns(Task.CompletedTask);
+
+        var urlEncryption = Substitute.For<IUrlEncryptionService>();
+        urlEncryption.Encrypt(Arg.Any<int>()).Returns(ci => $"hash-{ci.Arg<int>()}");
+
+        return new OrderService(db, stripe, jobs, NullLogger<OrderService>.Instance,
+            promoCodes, giftCards, inventory, pricing, hub, urlEncryption);
     }
+
+    /// <summary>The standard delivery fee applied to non-collection, non-Plus orders.</summary>
+    private const decimal DeliveryFee = 2.50m;
 
     /// <summary>Seeds a restaurant that is open 00:00–23:59 every day.</summary>
     private static async Task<Restaurant> SeedOpenRestaurantAsync(FoodPlatformDbContext db)
@@ -196,7 +229,8 @@ public class OrderServiceTests
         var result = await svc.PlaceOrderAsync(ValidRequest(restaurant.Id, item.Id), userId: 7);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(25.00m, result.Value!.TotalAmount); // 12.50 × 2
+        Assert.Equal(25.00m + DeliveryFee, result.Value!.TotalAmount); // 12.50 × 2 + £2.50 delivery
+        Assert.Equal(DeliveryFee, result.Value.DeliveryFee);
         Assert.Equal("Pending", result.Value.Status);
 
         var order = await db.Orders.Include(o => o.Items).FirstAsync();
@@ -243,7 +277,7 @@ public class OrderServiceTests
         var result = await svc.PlaceOrderAsync(req, userId: 1);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(15m, result.Value!.TotalAmount); // 5 × 3
+        Assert.Equal(15m + DeliveryFee, result.Value!.TotalAmount); // 5 × 3 + £2.50 delivery
 
         var order = await db.Orders.Include(o => o.Items).FirstAsync();
         Assert.Single(order.Items);              // only one OrderItem row

@@ -276,6 +276,9 @@ export class Checkout implements AfterViewInit, OnDestroy {
       restaurantId: this.cart.restaurantId()!,
       items: this.cart.items().map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
       idempotencyKey: key,
+      orderType: this.orderType(),
+      promoCode: this.promoResult()?.isValid ? this.promoCodeInput.trim().toUpperCase() : null,
+      giftCardCode: this.giftCardResult()?.isValid ? this.giftCardInput.trim().toUpperCase() : null,
     }).subscribe({
       next: async ({ clientSecret }) => {
         // ── Step 2: Confirm card payment (Stripe.js handles 3DS automatically) ──

@@ -107,6 +107,7 @@ public static class ServiceCollectionExtensions
         // Domain services
         services.AddScoped<IMenuService, MenuService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IOrderPricingService, OrderPricingService>();
         services.AddScoped<IRestaurantQueryService, RestaurantQueryService>();
         services.AddScoped<IAdminOrderService, AdminOrderService>();
         services.AddScoped<IAdminRestaurantService, AdminRestaurantService>();

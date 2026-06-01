@@ -9,52 +9,56 @@ namespace FoodPlatform.Api.Controllers;
 
 /// <summary>
 /// Exposes a single endpoint to create a Stripe PaymentIntent before an order is placed.
-/// Amount is always computed server-side from live menu prices to prevent tampering.
+/// The amount is the FINAL amount owed (items + delivery − promo − gift card), computed
+/// server-side via IOrderPricingService — the same service OrderService uses when persisting
+/// the order, so the card is charged exactly what the customer is shown.
 /// (SRP: payment intent creation is isolated from the order flow)
-/// (DIP: depends on IStripeService abstraction)
+/// (DIP: depends on IOrderPricingService + IStripeService abstractions)
 /// </summary>
 [Route("api/payment-intent")]
 [Authorize(Roles = "Customer")]
-[ApiController]
-public class PaymentController : ControllerBase
+public class PaymentController : RestaurantScopedController
 {
     private readonly FoodPlatformDbContext _db;
     private readonly IStripeService _stripe;
+    private readonly IOrderPricingService _pricing;
 
-    public PaymentController(FoodPlatformDbContext db, IStripeService stripe)
+    public PaymentController(FoodPlatformDbContext db, IStripeService stripe, IOrderPricingService pricing)
     {
         _db = db;
         _stripe = stripe;
+        _pricing = pricing;
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreatePaymentIntentRequest request)
     {
         // Validate restaurant is active
-        var restaurant = await _db.Restaurants
-            .FirstOrDefaultAsync(r => r.Id == request.RestaurantId && r.IsActive);
+        var restaurantActive = await _db.Restaurants
+            .AnyAsync(r => r.Id == request.RestaurantId && r.IsActive);
 
-        if (restaurant == null)
+        if (!restaurantActive)
             return BadRequest(new { error = "Restaurant not found or inactive" });
 
-        // Compute total server-side to prevent client-side price tampering
-        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
-        var menuItems = await _db.MenuItems
-            .Where(m => menuItemIds.Contains(m.Id)
-                     && m.RestaurantId == request.RestaurantId
-                     && m.IsAvailable)
-            .ToDictionaryAsync(m => m.Id);
+        // Compute the authoritative FINAL amount server-side (prevents price tampering AND
+        // ensures the charge matches the displayed total — including delivery/promo/gift card).
+        var pricing = await _pricing.CalculateAsync(
+            request.RestaurantId,
+            request.Items,
+            request.OrderType,
+            request.PromoCode,
+            request.GiftCardCode,
+            CurrentUserId);
 
-        if (menuItems.Count != menuItemIds.Distinct().Count())
-            return BadRequest(new { error = "One or more items are unavailable" });
+        if (!pricing.IsSuccess)
+            return BadRequest(new { error = pricing.ErrorMessage });
 
-        decimal total = request.Items
-            .Sum(i => menuItems[i.MenuItemId].Price * i.Quantity);
+        var finalTotal = pricing.Value!.FinalTotal;
 
-        // Create the Stripe PaymentIntent — idempotent using the client-supplied key
+        // Create the Stripe PaymentIntent for the final amount — idempotent using the client-supplied key
         var (clientSecret, paymentIntentId) =
-            await _stripe.CreatePaymentIntentAsync(total, request.IdempotencyKey);
+            await _stripe.CreatePaymentIntentAsync(finalTotal, request.IdempotencyKey);
 
-        return Ok(new CreatePaymentIntentResponse(clientSecret, paymentIntentId, total));
+        return Ok(new CreatePaymentIntentResponse(clientSecret, paymentIntentId, finalTotal));
     }
 }

@@ -30,14 +30,15 @@ public class OrderService : IOrderService
     private readonly IPromoCodeService _promoCodes;
     private readonly IGiftCardService _giftCards;
     private readonly IInventoryService _inventory;
+    private readonly IOrderPricingService _pricing;
     private readonly IHubContext<OrderHub> _hub;
     private readonly IUrlEncryptionService _urlEncryption;
 
     public OrderService(FoodPlatformDbContext db, IStripeService stripe,
         IBackgroundJobClient jobs, ILogger<OrderService> logger,
         IPromoCodeService promoCodes, IGiftCardService giftCards,
-        IInventoryService inventory, IHubContext<OrderHub> hub,
-        IUrlEncryptionService urlEncryption)
+        IInventoryService inventory, IOrderPricingService pricing,
+        IHubContext<OrderHub> hub, IUrlEncryptionService urlEncryption)
     {
         _db = db;
         _stripe = stripe;
@@ -46,6 +47,7 @@ public class OrderService : IOrderService
         _promoCodes = promoCodes;
         _giftCards = giftCards;
         _inventory = inventory;
+        _pricing = pricing;
         _hub = hub;
         _urlEncryption = urlEncryption;
     }
@@ -95,68 +97,34 @@ public class OrderService : IOrderService
             .Select(g => new OrderItemRequest(g.Key, g.Sum(x => x.Quantity)))
             .ToList();
 
-        var menuItemIds = deduplicatedItems.Select(i => i.MenuItemId).ToList();
-        var menuItems = await _db.MenuItems
-            .Where(m => menuItemIds.Contains(m.Id) && m.RestaurantId == request.RestaurantId && m.IsAvailable)
-            .ToDictionaryAsync(m => m.Id);
+        // ── Single source of truth for the cost (items + delivery − promo − gift card) ──
+        // The same service computed the Stripe PaymentIntent amount, so the charge,
+        // the order total, and the verified amount can never diverge.
+        var pricingResult = await _pricing.CalculateAsync(
+            request.RestaurantId, deduplicatedItems, request.OrderType,
+            request.PromoCode, request.GiftCardCode, userId);
 
-        if (menuItems.Count != menuItemIds.Distinct().Count())
-            return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed, "One or more items are unavailable");
+        if (!pricingResult.IsSuccess)
+            return ServiceResult<OrderDto>.Fail(pricingResult.Error!.Value, pricingResult.ErrorMessage!);
 
-        decimal total = 0;
-        var orderItems = new List<OrderItem>();
-        foreach (var item in deduplicatedItems)
+        var pricing = pricingResult.Value!;
+        var finalTotal = pricing.FinalTotal;
+
+        var orderItems = pricing.Items.Select(i => new OrderItem
         {
-            var menuItem = menuItems[item.MenuItemId];
-            total += menuItem.Price * item.Quantity;
-            orderItems.Add(new OrderItem
-            {
-                MenuItemId = item.MenuItemId,
-                Quantity = item.Quantity,
-                UnitPrice = menuItem.Price  // snapshot price at time of order
-            });
-        }
+            MenuItemId = i.MenuItemId,
+            Quantity = i.Quantity,
+            UnitPrice = i.UnitPrice  // snapshot price at time of order
+        }).ToList();
 
+        // Verify the customer actually paid the FINAL amount owed (not just the items subtotal).
         if (!string.IsNullOrEmpty(request.PaymentIntentId))
         {
-            var paid = await _stripe.VerifyPaymentSucceededAsync(request.PaymentIntentId, total);
+            var paid = await _stripe.VerifyPaymentSucceededAsync(request.PaymentIntentId, finalTotal);
             if (!paid)
                 return ServiceResult<OrderDto>.Fail(OrderServiceError.ValidationFailed,
                     "Payment has not been confirmed. Please complete payment first.");
         }
-
-        // ── Apply promo code discount (server-side re-validation) ──────────────
-        decimal discountAmount = 0m;
-        int? promoCodeId = null;
-        string? promoCodeText = null;
-        if (!string.IsNullOrWhiteSpace(request.PromoCode))
-        {
-            var promoResult = await _promoCodes.ValidateAsync(request.PromoCode, total, userId);
-            if (promoResult.IsValid && promoResult.DiscountAmount.HasValue)
-            {
-                discountAmount = promoResult.DiscountAmount.Value;
-                promoCodeText = request.PromoCode.ToUpperInvariant().Trim();
-                var promoEntity = await _db.PromoCodes
-                    .FirstOrDefaultAsync(p => p.Code.ToLower() == request.PromoCode.ToLower() && p.IsActive);
-                promoCodeId = promoEntity?.Id;
-            }
-        }
-
-        // ── Apply gift card balance ────────────────────────────────────────────
-        decimal giftCardDiscount = 0m;
-        string? giftCardCodeText = null;
-        if (!string.IsNullOrWhiteSpace(request.GiftCardCode))
-        {
-            var gcResult = await _giftCards.ValidateAsync(request.GiftCardCode);
-            if (gcResult.IsValid && gcResult.RemainingBalance.HasValue)
-            {
-                // Reserve up to the post-promo total; actual redemption happens after order is saved
-                giftCardDiscount = Math.Min(gcResult.RemainingBalance.Value, Math.Max(0, total - discountAmount));
-                giftCardCodeText = request.GiftCardCode.ToUpperInvariant().Trim();
-            }
-        }
-
-        var finalTotal = Math.Max(0, total - discountAmount - giftCardDiscount);
 
         var order = new Order
         {
@@ -175,10 +143,11 @@ public class OrderService : IOrderService
             SpecialInstructions = string.IsNullOrWhiteSpace(request.SpecialInstructions) ? null : request.SpecialInstructions.Trim(),
             OrderType = isCollection ? "Collection" : "Delivery",
             ScheduledFor = request.ScheduledFor,
-            PromoCode = promoCodeText,
-            DiscountAmount = discountAmount,
-            GiftCardCode = giftCardCodeText,
-            GiftCardDiscount = giftCardDiscount,
+            PromoCode = pricing.PromoCodeText,
+            DiscountAmount = pricing.PromoDiscount,
+            GiftCardCode = pricing.GiftCardCodeText,
+            GiftCardDiscount = pricing.GiftCardDiscount,
+            DeliveryFee = pricing.DeliveryFee,
             Items = orderItems
         };
 
@@ -204,19 +173,21 @@ public class OrderService : IOrderService
         var user = await _db.Users.FindAsync(userId);
         if (user != null)
         {
-            var address = $"{request.DeliveryAddressLine1}, {request.DeliveryCity}, {request.DeliveryPostcode.ToUpperInvariant()}";
+            var address = isCollection
+                ? "Collection"
+                : $"{request.DeliveryAddressLine1}, {request.DeliveryCity}, {request.DeliveryPostcode?.ToUpperInvariant()}";
             _jobs.Enqueue<IEmailService>(s =>
                 s.SendOrderPlacedAsync(user.Email, user.Username, order.Id,
                     restaurant.Name, finalTotal, address));
         }
 
         // Record promo code usage after successful order save
-        if (promoCodeId.HasValue && discountAmount > 0)
-            await _promoCodes.RecordUsageAsync(promoCodeId.Value, userId, order.Id, discountAmount);
+        if (pricing.PromoCodeId.HasValue && pricing.PromoDiscount > 0)
+            await _promoCodes.RecordUsageAsync(pricing.PromoCodeId.Value, userId, order.Id, pricing.PromoDiscount);
 
         // Redeem gift card balance after successful order save
-        if (!string.IsNullOrEmpty(giftCardCodeText) && giftCardDiscount > 0)
-            await _giftCards.RedeemAsync(giftCardCodeText, giftCardDiscount, order.Id);
+        if (!string.IsNullOrEmpty(pricing.GiftCardCodeText) && pricing.GiftCardDiscount > 0)
+            await _giftCards.RedeemAsync(pricing.GiftCardCodeText, pricing.GiftCardDiscount, order.Id);
 
         // Phase 3: decrement stock for tracked items
         foreach (var item in deduplicatedItems)
@@ -533,5 +504,6 @@ public class OrderService : IOrderService
         o.OrderType,
         o.ScheduledFor,
         o.PromoCode, o.DiscountAmount,
-        o.GiftCardCode, o.GiftCardDiscount);
+        o.GiftCardCode, o.GiftCardDiscount,
+        o.DeliveryFee);
 }

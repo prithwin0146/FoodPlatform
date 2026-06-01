@@ -115,6 +115,8 @@ export interface Order {
   giftCardCode: string | null;
   /** Amount redeemed from a gift card (£). */
   giftCardDiscount: number;
+  /** Delivery fee charged on this order (£). Zero for collection and Plus members. */
+  deliveryFee: number;
 }
 
 export interface OrderItem {

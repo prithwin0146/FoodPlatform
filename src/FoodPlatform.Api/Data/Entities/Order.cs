@@ -35,6 +35,8 @@ public class Order
     public string? GiftCardCode { get; set; }
     /// <summary>Amount redeemed from a gift card at checkout (£).</summary>
     public decimal GiftCardDiscount { get; set; }
+    /// <summary>Delivery fee charged on this order (£). Zero for collection orders and Plus members.</summary>
+    public decimal DeliveryFee { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation
