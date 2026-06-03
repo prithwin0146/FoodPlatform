@@ -116,11 +116,16 @@ export class RestaurantList implements OnInit, AfterViewInit {
   /** Hero scroll progress (0 → 1) for header colour shift */
   readonly scrollY = signal(0);
 
+  /** Resolves a video filename to a CDN URL (if videoCdnUrl is set) or local public path. */
+  private videoUrl(filename: string): string {
+    return environment.videoCdnUrl ? `${environment.videoCdnUrl}/${filename}` : `/videos/${filename}`;
+  }
+
   /** Section: How it works */
   readonly howSteps: HowStep[] = [
-    { num: '01', title: 'Choose a kitchen',   copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu', video: '/videos/choose-the-kitchen.mp4'  },
-    { num: '02', title: 'Watch it cook',      copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam',        video: '/videos/watch-it-cook.mp4'         },
-    { num: '03', title: 'Track to the door',  copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you\'re happy with the food.',               icon: 'delivery_dining', video: '/videos/track-to-the-door.mp4'    },
+    { num: '01', title: 'Choose a kitchen',   copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu', video: this.videoUrl('choose-the-kitchen.mp4')  },
+    { num: '02', title: 'Watch it cook',      copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam',        video: this.videoUrl('watch-it-cook.mp4')         },
+    { num: '03', title: 'Track to the door',  copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you\'re happy with the food.',               icon: 'delivery_dining', video: this.videoUrl('track-to-the-door.mp4')    },
   ];
 
   /** Section: Why · four honest promises (editorial layout) */
@@ -166,6 +171,7 @@ export class RestaurantList implements OnInit, AfterViewInit {
   readonly heroPosterUrl = environment.videoCdnUrl
     ? `${environment.videoCdnUrl}/hero-kitchen-poster.jpg`
     : '/hero-kitchen-poster.jpg';
+
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly doc = inject(DOCUMENT);
 
