@@ -489,6 +489,7 @@
       <!-- BACK phone — orders list -->
       <div class="app-phone phone-back" appTilt [tiltMax]="6">
         <div class="ap-screen">
+          <div class="ap-notch" aria-hidden="true"><div class="ap-notch-pill"></div></div>
           <div class="ap-statusbar">
             <span>9:41</span>
             <span class="ap-sb-icons">
@@ -536,6 +537,7 @@
       <!-- FRONT phone — live feed -->
       <div class="app-phone phone-front" appTilt [tiltMax]="8">
         <div class="ap-screen dark">
+          <div class="ap-notch" aria-hidden="true"><div class="ap-notch-pill"></div></div>
           <div class="ap-statusbar light">
             <span>9:41</span>
             <span class="ap-sb-icons">
@@ -545,8 +547,13 @@
             </span>
           </div>
           <div class="ap-feed">
-            <div class="ap-feed-glow"></div>
-            <span class="ap-feed-emoji">👨‍🍳</span>
+            <video
+              #howVideo
+              class="ap-feed-video"
+              src="/videos/app-demo.mp4"
+              autoplay muted loop playsinline
+              preload="metadata">
+            </video>
             <span class="ap-feed-rec">● LIVE</span>
             <span class="ap-feed-q">HD · 60fps</span>
           </div>
