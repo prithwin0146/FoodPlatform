@@ -1082,7 +1082,7 @@
 }
 .ap-statusbar {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 4px 18px 6px;
+  padding: 12px 18px 6px;
   font-size: 0.7rem; font-weight: 700;
   color: #1a1410;
   &.light { color: #fff; }
@@ -1150,26 +1150,10 @@
 }
 
 /* Front phone — live feed */
-.ap-notch {
-  display: flex; justify-content: center;
-  padding-top: 10px;
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  z-index: 10;
-  pointer-events: none;
-}
-.ap-notch-pill {
-  width: 72px; height: 22px;
-  background: #1a1410;
-  border-radius: 0 0 16px 16px;
-}
-.ap-screen.dark .ap-notch-pill { background: #14110e; }
-.ap-screen { position: relative; }
-
 .ap-feed {
   position: relative;
   flex: 1;
-  margin: 0 12px 0;
+  margin: 12px;
   border-radius: 16px;
   background: #1a1410;
   overflow: hidden;
