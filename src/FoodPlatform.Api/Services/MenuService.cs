@@ -2,7 +2,9 @@ using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
+using FoodPlatform.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FoodPlatform.Api.Services;
 
@@ -14,8 +16,13 @@ namespace FoodPlatform.Api.Services;
 public class MenuService : IMenuService
 {
     private readonly FoodPlatformDbContext _db;
+    private readonly IMemoryCacheService _cache;
 
-    public MenuService(FoodPlatformDbContext db) => _db = db;
+    public MenuService(FoodPlatformDbContext db, IMemoryCacheService cache)
+{
+    _db = db;
+    _cache = cache;
+}
 
     public async Task<bool> DeleteCategoryAsync(int restaurantId, int categoryId)
     {
@@ -32,6 +39,7 @@ public class MenuService : IMenuService
         }
         _db.MenuCategories.Remove(category);
         await _db.SaveChangesAsync();
+        _cache.Remove($"menu-restaurant-{restaurantId}");
         return true;
     }
 
@@ -45,6 +53,7 @@ public class MenuService : IMenuService
         };
         _db.MenuCategories.Add(category);
         await _db.SaveChangesAsync();
+        _cache.Remove($"menu-restaurant-{restaurantId}");
         return new MenuCategoryDto(category.Id, category.Name, category.SortOrder, []);
     }
 
@@ -68,6 +77,7 @@ public class MenuService : IMenuService
         };
         _db.MenuItems.Add(item);
         await _db.SaveChangesAsync();
+        _cache.Remove($"menu-restaurant-{restaurantId}");
 
         return new MenuItemDto(item.Id, item.CategoryId, item.Name, item.Description,
             item.Price,
@@ -102,6 +112,7 @@ public class MenuService : IMenuService
         if (request.StockCount.HasValue) item.StockCount = request.StockCount.Value;
 
         await _db.SaveChangesAsync();
+        _cache.Remove($"menu-restaurant-{restaurantId}");
         return new MenuItemDto(item.Id, item.CategoryId, item.Name, item.Description,
             item.Price,
             Infrastructure.JsonStringList.Parse(item.Allergens),
@@ -117,6 +128,7 @@ public class MenuService : IMenuService
 
         item.IsAvailable = !item.IsAvailable;
         await _db.SaveChangesAsync();
+        _cache.Remove($"menu-restaurant-{restaurantId}");
         return new { item.Id, item.IsAvailable };
     }
 
@@ -133,5 +145,34 @@ public class MenuService : IMenuService
         item.IsDeleted = true;
         item.IsAvailable = false; // belt-and-suspenders: also mark unavailable
         await _db.SaveChangesAsync();
+        _cache.Remove($"menu-restaurant-{restaurantId}");
         return true;
-    }}
+    }
+
+    public async Task<IEnumerable<MenuCategoryDto>> GetMenuAsync(int restaurantId)
+    {
+        // Cache key for menu data specific to restaurant
+        string cacheKey = $"menu-restaurant-{restaurantId}";
+
+        return await _cache.GetOrCreate(cacheKey, entry =>
+        {
+            // Set cache expiration to 30 minutes for menu data (changes less frequently)
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+
+            return _db.MenuCategories
+                .Include(c => c.Items)
+                .Where(c => c.RestaurantId == restaurantId)
+                .OrderBy(c => c.SortOrder)
+                .Select(c => new MenuCategoryDto(
+                    c.Id, c.Name, c.SortOrder,
+                    c.Items.Where(i => i.IsAvailable)
+                           .Select(i => new MenuItemDto(i.Id, i.CategoryId, i.Name, i.Description,
+                               i.Price,
+                               Infrastructure.JsonStringList.Parse(i.Allergens),
+                               Infrastructure.JsonStringList.Parse(i.DietaryTags),
+                               i.IsAvailable, i.ImageUrl, i.TrackStock, i.StockCount))
+                           .ToList()))
+                .ToListAsync();
+        });
+    }
+}

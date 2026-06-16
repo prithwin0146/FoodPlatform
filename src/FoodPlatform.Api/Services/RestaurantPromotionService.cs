@@ -1,8 +1,10 @@
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Infrastructure;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FoodPlatform.Api.Services;
 
@@ -13,19 +15,30 @@ namespace FoodPlatform.Api.Services;
 public class RestaurantPromotionService : IRestaurantPromotionService
 {
     private readonly FoodPlatformDbContext _db;
-    public RestaurantPromotionService(FoodPlatformDbContext db) => _db = db;
+    private readonly IMemoryCacheService _cache;
+
+    public RestaurantPromotionService(FoodPlatformDbContext db, IMemoryCacheService cache)
+    {
+        _db = db;
+        _cache = cache;
+    }
 
     public async Task<IEnumerable<RestaurantPromotionDto>> GetActiveForRestaurantAsync(int restaurantId)
     {
-        var now = DateTime.UtcNow;
-        return await _db.RestaurantPromotions
-            .Include(p => p.AppliesToCategory)
-            .Where(p => p.RestaurantId == restaurantId && p.IsActive
-                && (p.StartsAt == null || p.StartsAt <= now)
-                && (p.EndsAt == null || p.EndsAt >= now))
-            .OrderBy(p => p.CreatedAt)
-            .Select(p => ToDto(p))
-            .ToListAsync();
+        var key = $"restaurant-promotions-active-{restaurantId}";
+        return await _cache.GetOrCreateAsync(key, async entry =>
+        {
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+            var now = DateTime.UtcNow;
+            return await _db.RestaurantPromotions
+                .Include(p => p.AppliesToCategory)
+                .Where(p => p.RestaurantId == restaurantId && p.IsActive
+                    && (p.StartsAt == null || p.StartsAt <= now)
+                    && (p.EndsAt == null || p.EndsAt >= now))
+                .OrderBy(p => p.CreatedAt)
+                .Select(p => ToDto(p))
+                .ToListAsync();
+        })!;
     }
 
     public async Task<IEnumerable<RestaurantPromotionDto>> GetAllForRestaurantAsync(int restaurantId) =>
@@ -51,6 +64,7 @@ public class RestaurantPromotionService : IRestaurantPromotionService
         };
         _db.RestaurantPromotions.Add(promotion);
         await _db.SaveChangesAsync();
+        _cache.Remove($"restaurant-promotions-active-{restaurantId}");
         return ToDto(promotion);
     }
 
@@ -70,6 +84,7 @@ public class RestaurantPromotionService : IRestaurantPromotionService
         if (request.IsActive.HasValue) promotion.IsActive = request.IsActive.Value;
 
         await _db.SaveChangesAsync();
+        _cache.Remove($"restaurant-promotions-active-{restaurantId}");
         return ToDto(promotion);
     }
 
@@ -80,6 +95,7 @@ public class RestaurantPromotionService : IRestaurantPromotionService
         if (promotion is null) return false;
         _db.RestaurantPromotions.Remove(promotion);
         await _db.SaveChangesAsync();
+        _cache.Remove($"restaurant-promotions-active-{restaurantId}");
         return true;
     }
 

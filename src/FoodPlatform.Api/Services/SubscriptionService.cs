@@ -1,6 +1,7 @@
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Infrastructure;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
@@ -15,13 +16,15 @@ namespace FoodPlatform.Api.Services;
 public class SubscriptionService : ISubscriptionService
 {
     private readonly FoodPlatformDbContext _db;
+    private readonly IMemoryCacheService _cache;
     private readonly IConfiguration _config;
     private readonly ILogger<SubscriptionService> _logger;
     private readonly bool _isConfigured;
 
-    public SubscriptionService(FoodPlatformDbContext db, IConfiguration config, ILogger<SubscriptionService> logger)
+    public SubscriptionService(FoodPlatformDbContext db, IMemoryCacheService cache, IConfiguration config, ILogger<SubscriptionService> logger)
     {
         _db = db;
+        _cache = cache;
         _config = config;
         _logger = logger;
         var key = config["Stripe:SecretKey"] ?? string.Empty;
@@ -32,6 +35,17 @@ public class SubscriptionService : ISubscriptionService
     }
 
     public async Task<SubscriptionStatusDto> GetStatusAsync(int userId)
+    {
+        var key = $"subscription:{userId}";
+        var cached = _cache.GetOrCreate(key, entry =>
+        {
+            return GetStatusUncachedAsync(userId).GetAwaiter().GetResult();
+        }, TimeSpan.FromMinutes(5));
+        await Task.CompletedTask;
+        return cached;
+    }
+
+    private async Task<SubscriptionStatusDto> GetStatusUncachedAsync(int userId)
     {
         var sub = await _db.Subscriptions
             .Where(s => s.UserId == userId)
@@ -63,6 +77,7 @@ public class SubscriptionService : ISubscriptionService
                     PeriodEnd = DateTime.UtcNow.AddMonths(1),
                 });
                 await _db.SaveChangesAsync();
+                _cache.Remove($"subscription:{userId}");
             }
             return new CreateSubscriptionCheckoutResponse(request.SuccessUrl + "?demo=1");
         }
@@ -100,6 +115,7 @@ public class SubscriptionService : ISubscriptionService
 
         sub.Status = "Cancelled";
         await _db.SaveChangesAsync();
+        _cache.Remove($"subscription:{userId}");
         return true;
     }
 
@@ -112,6 +128,7 @@ public class SubscriptionService : ISubscriptionService
         sub.Status = MapStripeStatus(status);
         sub.PeriodEnd = periodEnd;
         await _db.SaveChangesAsync();
+        _cache.Remove($"subscription:{sub.UserId}");
     }
 
     public async Task HandleSubscriptionCreatedAsync(
@@ -138,6 +155,7 @@ public class SubscriptionService : ISubscriptionService
             PeriodEnd = periodEnd,
         });
         await _db.SaveChangesAsync();
+        _cache.Remove($"subscription:{user.Id}");
     }
 
     private static string MapStripeStatus(string stripeStatus) => stripeStatus switch

@@ -1,5 +1,6 @@
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Infrastructure;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +15,13 @@ public class RestaurantStaffService : IRestaurantStaffService
 {
     private readonly FoodPlatformDbContext _db;
     private readonly IAngelcamService _angelcam;
+    private readonly IMemoryCacheService _cache;
 
-    public RestaurantStaffService(FoodPlatformDbContext db, IAngelcamService angelcam)
+    public RestaurantStaffService(FoodPlatformDbContext db, IAngelcamService angelcam, IMemoryCacheService cache)
     {
         _db = db;
         _angelcam = angelcam;
+        _cache = cache;
     }
 
     public async Task<RestaurantDto?> GetMyRestaurantAsync(int restaurantId)
@@ -36,6 +39,8 @@ public class RestaurantStaffService : IRestaurantStaffService
         // Normalise: empty string clears the video
         restaurant.KitchenVideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim();
         await _db.SaveChangesAsync();
+        _cache.Remove($"restaurant-detail-{restaurantId}");
+        _cache.Remove("active-restaurants-list");
 
         return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
     }
@@ -48,6 +53,8 @@ public class RestaurantStaffService : IRestaurantStaffService
 
         restaurant.IsActive = isActive;
         await _db.SaveChangesAsync();
+        _cache.Remove("active-restaurants-list");
+        _cache.Remove($"restaurant-detail-{restaurantId}");
 
         return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
     }
@@ -65,6 +72,7 @@ public class RestaurantStaffService : IRestaurantStaffService
 
         restaurant.AngelcamCameraId = string.IsNullOrWhiteSpace(playbackId) ? null : playbackId.Trim();
         await _db.SaveChangesAsync();
+        _cache.Remove($"restaurant-detail-{restaurantId}");
 
         return ServiceResult<RestaurantDto>.Ok(ToDto(restaurant));
     }
@@ -97,6 +105,8 @@ public class RestaurantStaffService : IRestaurantStaffService
         }
 
         await _db.SaveChangesAsync();
+        _cache.Remove($"restaurant-detail-{restaurantId}");
+        _cache.Remove("active-restaurants-list");
 
         var updated = await _db.RestaurantHours
             .Where(h => h.RestaurantId == restaurantId)

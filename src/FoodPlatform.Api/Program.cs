@@ -33,6 +33,7 @@ builder.Services
     .AddApiCors(builder.Configuration)
     .AddRateLimiting()
     .AddApiHealthChecks(builder.Configuration)
+    .AddMemoryCacheService()
     .AddControllers();
 
 var app = builder.Build();

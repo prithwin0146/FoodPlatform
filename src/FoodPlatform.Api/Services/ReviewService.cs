@@ -1,8 +1,10 @@
 using FoodPlatform.Api.Data;
 using FoodPlatform.Api.Data.Entities;
 using FoodPlatform.Api.DTOs;
+using FoodPlatform.Api.Infrastructure;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FoodPlatform.Api.Services;
 
@@ -14,8 +16,13 @@ namespace FoodPlatform.Api.Services;
 public class ReviewService : IReviewService
 {
     private readonly FoodPlatformDbContext _db;
+    private readonly IMemoryCacheService _cache;
 
-    public ReviewService(FoodPlatformDbContext db) => _db = db;
+    public ReviewService(FoodPlatformDbContext db, IMemoryCacheService cache)
+    {
+        _db = db;
+        _cache = cache;
+    }
 
     public async Task<ServiceResult<ReviewDto>> SubmitAsync(int orderId, int customerId, SubmitReviewRequest request)
     {
@@ -43,6 +50,8 @@ public class ReviewService : IReviewService
         _db.Reviews.Add(review);
         await _db.SaveChangesAsync();
 
+        _cache.Remove($"reviews-restaurant-{review.RestaurantId}");
+
         // Load customer name for response
         var customerName = await _db.Users
             .Where(u => u.Id == customerId)
@@ -54,12 +63,17 @@ public class ReviewService : IReviewService
 
     public async Task<IEnumerable<ReviewDto>> ListForRestaurantAsync(int restaurantId)
     {
-        return await _db.Reviews
-            .Include(r => r.Customer)
-            .Where(r => r.RestaurantId == restaurantId)
-            .OrderByDescending(r => r.CreatedAt)
-            .Select(r => new ReviewDto(r.Id, r.OrderId, r.Stars, r.Comment, r.Customer.Username, r.CreatedAt))
-            .ToListAsync();
+        return await _cache.GetOrCreateAsync($"reviews-restaurant-{restaurantId}",
+            async entry =>
+            {
+                entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+                return await _db.Reviews
+                    .Include(r => r.Customer)
+                    .Where(r => r.RestaurantId == restaurantId)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Select(r => new ReviewDto(r.Id, r.OrderId, r.Stars, r.Comment, r.Customer.Username, r.CreatedAt))
+                    .ToListAsync();
+            });
     }
 
     public async Task<ReviewDto?> GetByOrderAsync(int orderId, int customerId)
@@ -94,6 +108,7 @@ public class ReviewService : IReviewService
         if (review is null) return false;
         _db.Reviews.Remove(review);
         await _db.SaveChangesAsync();
+        _cache.Remove($"reviews-restaurant-{review.RestaurantId}");
         return true;
     }
 

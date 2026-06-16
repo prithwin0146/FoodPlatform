@@ -254,4 +254,16 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Registers the memory cache service for caching semi-static data.
+    /// (SRP: caching concern isolated here; improves performance for read-heavy operations)
+    /// </summary>
+    public static IServiceCollection AddMemoryCacheService(
+        this IServiceCollection services)
+    {
+        services.AddMemoryCache();
+        services.AddScoped<IMemoryCacheService, MemoryCacheService>();
+        return services;
+    }
 }
