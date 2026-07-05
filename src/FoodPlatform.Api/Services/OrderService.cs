@@ -56,6 +56,7 @@ public class OrderService : IOrderService
     {
         // Idempotency: return existing order if the same key was already processed
         var existing = await _db.Orders
+            .AsNoTracking()
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
             .Include(o => o.Restaurant)
             .FirstOrDefaultAsync(o => o.IdempotencyKey == request.IdempotencyKey && o.UserId == userId);
@@ -204,6 +205,7 @@ public class OrderService : IOrderService
     public async Task<OrderDto?> GetAsync(int id)
     {
         var order = await _db.Orders
+            .AsNoTracking()
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
             .Include(o => o.Restaurant)
             .FirstOrDefaultAsync(o => o.Id == id);
@@ -213,6 +215,7 @@ public class OrderService : IOrderService
     public async Task<IEnumerable<OrderDto>> ListForUserAsync(int userId)
     {
         var orders = await _db.Orders
+            .AsNoTracking()
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
             .Include(o => o.Restaurant)
             .Where(o => o.UserId == userId)
@@ -227,6 +230,7 @@ public class OrderService : IOrderService
         page = Math.Max(1, page);
 
         var query = _db.Orders
+            .AsNoTracking()
             .Include(o => o.Items).ThenInclude(i => i.MenuItem)
             .Include(o => o.Restaurant)
             .Where(o => o.UserId == userId)

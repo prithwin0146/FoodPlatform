@@ -24,6 +24,9 @@ import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { CountUpDirective } from '../../../shared/directives/count-up.directive';
+import { StaggerRevealDirective } from '../../../shared/directives/stagger-reveal.directive';
+import { ParallaxHoverDirective } from '../../../shared/directives/parallax-hover.directive';
+import { RadialSelectDirective } from '../../../shared/directives/radial-select.directive';
 import { Logo } from '../../../shared/components/logo/logo';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
@@ -48,6 +51,7 @@ interface Promise {
     RouterLink,
     HygieneStarsPipe, HygieneLabelPipe,
     TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
+    StaggerRevealDirective, ParallaxHoverDirective, RadialSelectDirective,
     Logo, ImageFallback,
     MatFormFieldModule, MatInputModule, MatChipsModule,
     MatProgressSpinnerModule, MatRippleModule, MatTooltipModule, MatButtonModule,
@@ -290,6 +294,11 @@ export class RestaurantList implements OnInit, AfterViewInit {
     video.volume = 0;
     video.setAttribute('muted', '');
     video.playsInline = true;
+
+    // Angular binds [src] on the <source> child AFTER the browser's initial
+    // resource-selection algorithm ran (with no src → gave up). video.load()
+    // forces the browser to re-read the now-populated <source src> attribute.
+    video.load();
 
     const tryPlay = () => video.play().catch(() => undefined);
 

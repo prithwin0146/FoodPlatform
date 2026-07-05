@@ -9,7 +9,7 @@
   width: 100%;
   height: 100%;
   min-height: 280px;
-  background: #0d0d0d;
+  background: #0d0b09;
   border-radius: inherit;
   overflow: hidden;
 }
@@ -32,73 +32,82 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
   padding: 24px;
   text-align: center;
   z-index: 2;
-  background: linear-gradient(135deg, #0d0a07 0%, #1a1108 100%);
+  /* Warm dark — simulates what a dark kitchen monitor looks like while
+     the stream negotiates. Subtle teal radial = "signal incoming". */
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0, 212, 170, 0.07) 0%, transparent 65%),
+    linear-gradient(160deg, #100d09 0%, #1a1208 100%);
 
   &.offline {
-    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0, 212, 170, 0.04) 0%, transparent 65%),
+      linear-gradient(160deg, #0d0d0d 0%, #181818 100%);
   }
 }
 
 .overlay-text {
-  color: rgba(255,255,255,.8);
+  color: rgba(255,255,255,.85);
   font-size: .95rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
 }
 
 .overlay-sub {
-  color: rgba(255,255,255,.45);
+  color: rgba(255,255,255,.42);
   font-size: .8rem;
   margin: 0;
   max-width: 260px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .offline-icon {
-  font-size: 2.2rem;
-  color: rgba(255,255,255,.3);
+  font-size: 2.4rem;
+  color: rgba(0, 212, 170, 0.5);
 }
 
-/* ── Spinner ── */
+/* ── Spinner: teal ring = "connecting / live signal" ── */
 .live-spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(255,255,255,.12);
-  border-top-color: var(--brand-primary, #e63946);
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 212, 170, 0.15);
+  border-top-color: #00d4aa;
   border-radius: 50%;
-  animation: spin .8s linear infinite;
+  animation: spin .85s linear infinite;
+  box-shadow: 0 0 16px rgba(0, 212, 170, 0.25);
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Retry button ── */
 .retry-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
-  padding: 8px 18px;
-  border: 1px solid rgba(255,255,255,.2);
-  border-radius: 20px;
-  background: transparent;
-  color: rgba(255,255,255,.7);
+  margin-top: 6px;
+  padding: 9px 20px;
+  border: 1.5px solid rgba(255, 107, 26, 0.35);
+  border-radius: var(--NEW--radius-full, 9999px);
+  background: rgba(255, 107, 26, 0.08);
+  color: rgba(255, 255, 255, 0.8);
   font-size: .85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color .2s, color .2s;
+  transition: border-color .2s, color .2s, background .2s;
 
   .material-symbols-rounded { font-size: 1rem; }
 
   &:hover {
-    border-color: var(--brand-primary, #e63946);
+    border-color: #ff6b1a;
+    background: rgba(255, 107, 26, 0.18);
     color: #fff;
   }
 }
 
-/* ── LIVE badge ── */
+/* ── LIVE badge: teal pill = broadcast status, not an error ── */
 .live-badge {
   position: absolute;
   top: 12px;
@@ -106,26 +115,29 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: rgba(230, 57, 70, .85);
-  backdrop-filter: blur(6px);
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .06em;
-  color: #fff;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(0, 20, 16, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 212, 170, 0.5);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: #00d4aa;
   z-index: 3;
+  box-shadow: 0 0 16px rgba(0, 212, 170, 0.2);
 }
 
 .live-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #fff;
+  background: #00d4aa;
   animation: pulse-dot 1.2s ease-in-out infinite;
+  box-shadow: 0 0 6px rgba(0, 212, 170, 0.8);
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: .5; transform: scale(.7); }
+  50%       { opacity: .55; transform: scale(.65); }
 }

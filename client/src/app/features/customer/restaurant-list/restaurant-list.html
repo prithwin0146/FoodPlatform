@@ -1,22 +1,29 @@
 <!-- ════════════════════════════════════════════════════════════ HERO ══ -->
-<section class="hero">
-  <!-- Looping kitchen background video -->
+<section class="hero" appParallaxHover [parallaxMax]="14" [parallaxPerspective]="1100">
+  <!-- Looping kitchen background video — NOT a parallax layer.
+       data-parallax-depth intentionally absent: the directive writes
+       translate3d() which overwrites the centering translate(-50%,-50%)
+       causing a visible half-screen glitch. Fullscreen bg videos
+       shouldn't move with the cursor anyway. -->
   <video #heroVideo class="hero-video"
     autoplay muted loop playsinline
     preload="auto"
     [poster]="heroPosterUrl"
     aria-hidden="true">
     <source [src]="heroVideoUrl" type="video/mp4">
-  </video>
+ </video>
   <!-- Dark overlay so text stays legible -->
   <div class="hero-video-overlay" aria-hidden="true"></div>
 
-  <!-- Animated gradient mesh -->
+  <!-- Animated gradient mesh — mid parallax layer (3 blobs) -->
   <div class="mesh-bg" aria-hidden="true">
-    <div class="mesh-blob blob-1"></div>
-    <div class="mesh-blob blob-2"></div>
-    <div class="mesh-blob blob-3"></div>
-  </div>
+    <div class="mesh-blob blob-1" data-parallax-depth="0.7"></div>
+    <div class="mesh-blob blob-2" data-parallax-depth="0.7"></div>
+    <div class="mesh-blob blob-3" data-parallax-depth="0.7"></div>
+ </div>
+
+  <!-- Noise / grain layer — finest parallax (adds depth without motion blur) -->
+  <div class="hero-noise" data-parallax-depth="0.2" aria-hidden="true"></div>
 
   <!-- Animated SVG ribbons (floating decorative) -->
   <svg class="hero-ribbon" viewBox="0 0 800 800" aria-hidden="true">
@@ -24,75 +31,79 @@
       <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%"   stop-color="#ff7a00" stop-opacity="0.5"/>
         <stop offset="100%" stop-color="#ff3d8a" stop-opacity="0.05"/>
-      </linearGradient>
-    </defs>
+     </linearGradient>
+   </defs>
     <path d="M0,400 Q200,200 400,400 T800,400" stroke="url(#ribbonGrad)" stroke-width="2" fill="none" class="ribbon-path"/>
     <path d="M0,500 Q200,700 400,500 T800,500" stroke="url(#ribbonGrad)" stroke-width="1" fill="none" class="ribbon-path delay"/>
-  </svg>
+ </svg>
 
   <div class="container hero-grid">
     <div class="hero-copy">
       <div class="live-badge" appScrollReveal>
         <span class="live-dot"></span>
         Live across <strong>UK kitchens</strong> · FSA-verified
-      </div>
+     </div>
 
-      <h1 class="hero-headline">
+      <h1 class="hero-headline" appStaggerReveal [staggerStep]="80" [staggerDuration]="640">
         <span class="line">
           <span class="word w1">See</span>
           <span class="word w2">the</span>
-          <span class="word w3">prep.</span>
-        </span>
+          <span class="word w3">prep</span>
+       </span>
         <span class="line">
           <span class="word w4">Trust</span>
           <span class="word w5 grad">
-            <span class="grad-text">every</span>
+            <span class="text-gradient-NEW--primary">every</span>
             <svg class="grad-underline" viewBox="0 0 200 12" preserveAspectRatio="none">
               <path d="M2,9 Q50,2 100,7 T198,5" stroke="url(#ribbonGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <span class="word w6">bite.</span>
-        </span>
-      </h1>
+           </svg>
+         </span>
+          <span class="word w6">bite</span>
+       </span>
+     </h1>
 
       <p class="hero-subtitle">
         Order from independent UK kitchens and watch every step on a <strong>live HD camera</strong>.
         Verified hygiene ratings. Allergens on the record. The receipt is the footage.
-      </p>
+     </p>
 
       <div class="hero-ctas">
         <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
+          <span class="cta-micro-ring" aria-hidden="true"></span>
           <span class="material-symbols-rounded">restaurant</span>
-          Order &amp; Watch Live
+          Order & Watch Live
           <span class="cta-shine"></span>
-        </button>
-        <button mat-stroked-button class="cta-secondary" appMagnetic (click)="scrollToHow()">
+       </button>
+        <button mat-stroked-button class="cta-secondary" appMagnetic appRadialSelect (click)="scrollToHow()">
           <span class="material-symbols-rounded">play_circle</span>
           See how it works
-        </button>
-      </div>
+       </button>
+     </div>
 
       <ul class="proof-strip">
         <li class="proof-pill">
           <span class="material-symbols-rounded">verified_user</span>
           FSA 5-star kitchens only
-        </li>
+       </li>
         <li class="proof-pill">
           <span class="material-symbols-rounded">videocam</span>
           Live camera on every order
-        </li>
+       </li>
         <li class="proof-pill">
           <span class="material-symbols-rounded">payments</span>
           Tips paid in full to chefs
-        </li>
-      </ul>
-    </div>
-  </div>
+       </li>
+     </ul>
+   </div>
+ </div>
 
   <!-- Scroll nudge -->
   <div class="hero-scroll-cue" aria-hidden="true" (click)="scrollToRestaurants()">
     <span class="material-symbols-rounded">keyboard_arrow_down</span>
-  </div>
+ </div>
+
+  <!-- Hero scroll progress rail (scroll-driven, no JS) -->
+  <div class="hero-progress-rail" aria-hidden="true"></div>
 
 </section>
 
@@ -100,18 +111,18 @@
 <!-- ════════════════════════════════════ LOGO WALL removed pending real partners ══ -->
 
 
-<!-- ════════════════════════════════════════════ RESTAURANTS GRID ══ -->
+<!-- ════════════════════════════════════════════════════ RESTAURANTS GRID ══ -->
 <section class="restaurants" id="restaurants-section">
   <div class="container">
     <header class="section-eyebrow" appScrollReveal>
       <span class="eyebrow-line live-pulse"></span>
       <span class="eyebrow-text">BROWSE & ORDER</span>
-    </header>
+   </header>
     <div class="section-header" appScrollReveal>
       <div>
-        <h2 class="section-h2">Kitchens <span class="grad-text">currently live</span></h2>
+        <h2 class="section-h2">Kitchens <span class="text-gradient-NEW--primary">currently live</span></h2>
         <p class="section-sub">{{ filteredRestaurants().length }} verified kitchens · search by name, cuisine or postcode</p>
-      </div>
+     </div>
       <div class="search-wrapper">
         <mat-form-field class="hero-search" appearance="outline" color="primary">
           <mat-label>Search by name, cuisine or postcode</mat-label>
@@ -119,15 +130,19 @@
           <input matInput
                  [value]="searchQuery()"
                  (input)="onSearch($event)"
+                 appRadialSelect
                  autocomplete="off" />
-        </mat-form-field>
-      </div>
-    </div>
+       </mat-form-field>
+     </div>
+   </div>
 
     <!-- ── Cuisine filter chips ── -->
-    <div class="filter-bar" appScrollReveal>
+    <div class="filter-bar glass-card" appScrollReveal>
       @for (c of CUISINE_OPTIONS; track c) {
-        <button class="cuisine-chip" [class.active]="cuisineFilter() === c" (click)="cuisineFilter.set(c)">{{ c }}</button>
+        <button class="cuisine-chip chip-pill"
+          [class.chip-active]="cuisineFilter() === c"
+          (click)="cuisineFilter.set(c)"
+          appRadialSelect>{{ c }}</button>
       }
     </div>
 
@@ -135,18 +150,21 @@
     <div class="filter-row" appScrollReveal>
       <div class="sort-wrapper">
         <span class="material-symbols-rounded sort-icon">sort</span>
-        <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
+        <select class="sort-select" [value]="sortOption()" (change)="onSort($event)" appRadialSelect>
           <option value="rating">Top rated</option>
           <option value="time">Fastest delivery</option>
           <option value="name">Name A–Z</option>
-        </select>
-      </div>
+       </select>
+     </div>
       <div class="dietary-chips">
         @for (d of DIETARY_OPTIONS; track d) {
-          <button class="dietary-chip" [class.active]="activeDietary().includes(d)" (click)="toggleDietary(d)">{{ d }}</button>
+          <button class="dietary-chip"
+            [class.active]="activeDietary().includes(d)"
+            (click)="toggleDietary(d)"
+            appRadialSelect>{{ d }}</button>
         }
-      </div>
-    </div>
+     </div>
+   </div>
 
     @if (loading()) {
       <div class="grid">
@@ -158,7 +176,7 @@
             <div class="sk-line w35"></div>
           </div>
         }
-      </div>
+     </div>
     } @else {
 
       <!-- ── Favourites section (customers only, if they have saved restaurants) ── -->
@@ -167,139 +185,156 @@
           <h2 class="favourites-heading">
             <span class="material-symbols-rounded">favorite</span>
             Your Favourites
-          </h2>
+         </h2>
           <div class="grid">
             @for (restaurant of favouriteRestaurants(); track restaurant.id; let i = $index) {
               <a [routerLink]="['/restaurant', restaurant.hashId]"
-                 class="tilt-card restaurant-card"
+                 class="glass-card tilt-card restaurant-card card-ripple elite-card"
                  appTilt [tiltMax]="12"
+                 appParallaxHover [parallaxMax]="10"
                  appScrollReveal [revealDelay]="i * 70"
-                 matRipple>
+                 appRadialSelect>
                 <div class="card-glare"></div>
                 <div class="card-image">
-                  <div class="card-image-gradient"></div>
+                  <div class="card-image-gradient" data-parallax-depth="0.3"></div>
+                  <div class="card-img-overlay" data-parallax-depth="0.5"></div>
+                  <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
+                    <span class="material-symbols-rounded">workspace_premium</span>
+                    Elite
+                 </span>
                   @if (restaurant.imageUrl) {
-                    <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy">
+                    <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
                   } @else {
-                    <app-image-fallback [name]="restaurant.name" tone="auto" />
+                    <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
                   }
-                  <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating">
+                  <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
                     <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
                     <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
-                  </div>
+                 </div>
                   <button class="fav-btn fav-btn--active"
                     (click)="toggleFavourite($event, restaurant)"
                     [disabled]="togglingFavId() === restaurant.id"
                     aria-label="Remove from favourites"
-                    matTooltip="Remove from favourites">
+                    matTooltip="Remove from favourites"
+                    appMagnetic
+                    appRadialSelect
+                    data-parallax-depth="1.3">
                     <span class="material-symbols-rounded">favorite</span>
-                  </button>
-                </div>
-                <div class="card-body">
+                 </button>
+               </div>
+                <div class="card-body" data-parallax-depth="1.0">
                   <div class="card-title-row">
                     <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-                  </div>
+                 </div>
                   <div class="restaurant-meta">
                     <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
                     <span class="meta-item">
                       <span class="material-symbols-rounded meta-icon">schedule</span>
                       ~{{ restaurant.estimatedDeliveryMinutes }} min
-                    </span>
+                   </span>
                     @if (restaurant.supportsCollection) {
                       <span class="collection-badge">
                         <span class="material-symbols-rounded">store</span> Pickup
-                      </span>
+                     </span>
                     }
-                  </div>
-                </div>
-              </a>
+                 </div>
+               </div>
+             </a>
             }
-          </div>
-        </div>
+         </div>
+       </div>
         <div class="section-divider" appScrollReveal>
           <span>All Restaurants</span>
-        </div>
+       </div>
       }
 
       <div class="grid">
         @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
           <a [routerLink]="['/restaurant', restaurant.hashId]"
-             class="tilt-card restaurant-card"
-             appTilt [tiltMax]="12"
-             appScrollReveal [revealDelay]="i * 70"
-             matRipple>
+             class="glass-card tilt-card restaurant-card card-ripple elite-card"
+             appParallaxHover [parallaxMax]="10"
+             appScrollReveal [revealDelay]="i * 70">
             <div class="card-glare"></div>
             <div class="card-image">
-              <div class="card-image-gradient"></div>
-              @if (restaurant.imageUrl) {
-                <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy">
-              } @else {
-                <app-image-fallback [name]="restaurant.name" tone="auto" />
+              <div class="card-image-gradient" data-parallax-depth="0.3"></div>
+              <div class="card-img-overlay" data-parallax-depth="0.5"></div>
+              @if (restaurant.hygieneRating >= 5) {
+                <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
+                  <span class="material-symbols-rounded">workspace_premium</span>
+                  5★
+               </span>
               }
-              <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating">
+              @if (restaurant.imageUrl) {
+                <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
+              } @else {
+                <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
+              }
+              <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
                 <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
                 <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
-              </div>
-              <div class="live-pip"><span></span> LIVE</div>
+             </div>
+              <div class="live-pip live-badge"><span class="live-dot-anim"></span> LIVE</div>
               @if (auth.isCustomer()) {
                 <button class="fav-btn"
                   [class.fav-btn--active]="favourites.isFavourite(restaurant.id)"
                   (click)="toggleFavourite($event, restaurant)"
                   [disabled]="togglingFavId() === restaurant.id"
                   [attr.aria-label]="favourites.isFavourite(restaurant.id) ? 'Remove from favourites' : 'Add to favourites'"
-                  matTooltip="{{ favourites.isFavourite(restaurant.id) ? 'Saved' : 'Save restaurant' }}">
+                  [attr.matTooltip]="favourites.isFavourite(restaurant.id) ? 'Saved' : 'Save restaurant'"
+                  appRadialSelect
+                  data-parallax-depth="1.3">
                   <span class="material-symbols-rounded">
                     {{ favourites.isFavourite(restaurant.id) ? 'favorite' : 'favorite_border' }}
-                  </span>
-                </button>
+                 </span>
+               </button>
               }
-            </div>
-            <div class="card-body">
+           </div>
+            <div class="card-body" data-parallax-depth="1.0">
               <div class="card-title-row">
                 <h3 class="restaurant-name">{{ restaurant.name }}</h3>
                 @if (restaurant.isActive) {
                   <span class="status-pill pill-open">
                     <span class="pulse-dot"></span> Open
-                  </span>
+                 </span>
                 } @else {
                   <span class="status-pill pill-closed">Closed</span>
                 }
-              </div>
+             </div>
               <p class="restaurant-address">
                 <span class="material-symbols-rounded meta-icon">location_on</span>
                 {{ restaurant.address }}
-              </p>
+             </p>
               <div class="restaurant-meta">
                 <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
                 <span class="meta-item">
                   <span class="material-symbols-rounded meta-icon">schedule</span>
                   ~{{ restaurant.estimatedDeliveryMinutes }} min
-                </span>
+               </span>
                 <span class="meta-item">
                   <span class="material-symbols-rounded meta-icon">pedal_bike</span>
                   {{ restaurant.deliveryRadiusMiles }} mi
-                </span>
+               </span>
                 @if (restaurant.supportsCollection) {
                   <span class="collection-badge">
                     <span class="material-symbols-rounded">store</span> Pickup
-                  </span>
+                 </span>
                 }
                 <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
-              </div>
-            </div>
-          </a>
+             </div>
+           </div>
+         </a>
         } @empty {
           <div class="empty-state">
             <div class="empty-icon">
               <span class="material-symbols-rounded">restaurant</span>
-            </div>
-            <h3>No matches for that search</h3>
-            <p>Try a different name, cuisine or postcode.</p>
-          </div>
+           </div>
+            <h3>Nothing's cooking here — yet</h3>
+            <p>Try a different name, cuisine or postcode. New kitchens go live every week.</p>
+         </div>
         }
-      </div>
+     </div>
     }
-  </div>
+ </div>
 </section>
 
 
@@ -308,19 +343,19 @@
   <div class="how-bg" aria-hidden="true">
     <div class="how-orb how-orb-1"></div>
     <div class="how-orb how-orb-2"></div>
-  </div>
+ </div>
 
   <div class="container">
     <header class="section-eyebrow" appScrollReveal>
       <span class="eyebrow-line"></span>
       <span class="eyebrow-text">HOW IT WORKS</span>
-    </header>
+   </header>
     <h2 class="section-h2" appScrollReveal>
-      Three steps. <span class="grad-text">Full visibility.</span>
-    </h2>
+      Three steps. <span class="text-gradient-NEW">Full visibility</span>
+   </h2>
     <p class="section-lead" appScrollReveal>
       From the moment you place the order to the handover at your door — every stage is on camera, on the record.
-    </p>
+   </p>
 
     <div class="how-steps">
       <!-- Connecting SVG path that draws on scroll -->
@@ -328,12 +363,12 @@
         <path d="M80,30 Q400,-10 600,30 T1120,30"
               stroke="url(#ribbonGrad)" stroke-width="2" fill="none"
               stroke-dasharray="6 8" class="connector-path"/>
-      </svg>
+     </svg>
 
       @for (step of howSteps; track step.num; let i = $index) {
-        <div class="how-step how-step--video" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
+        <div class="how-step how-step--video glass-card" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
           <div class="card-glare"></div>
-          <div class="how-num">{{ step.num }}</div>
+          <div class="how-num glass-num">{{ step.num }}</div>
           <div class="how-video-wrap">
             <video
               #howVideo
@@ -342,14 +377,14 @@
               autoplay muted loop playsinline
               preload="metadata"
               [attr.title]="step.title">
-            </video>
-          </div>
+           </video>
+         </div>
           <h3 class="how-title">{{ step.title }}</h3>
           <p class="how-copy">{{ step.copy }}</p>
-        </div>
+       </div>
       }
-    </div>
-  </div>
+   </div>
+ </div>
 </section>
 
 
@@ -358,22 +393,22 @@
   <div class="why-bg" aria-hidden="true">
     <div class="why-orb orb-a"></div>
     <div class="why-orb orb-b"></div>
-  </div>
+ </div>
 
   <div class="container">
     <header class="why-head">
       <div class="why-eyebrow" appScrollReveal>
         <span class="eb-line"></span>
         <span class="eb-text">Why SeeThePrep</span>
-      </div>
+     </div>
       <h2 class="why-title" appScrollReveal>
         Four standards.
-        <span class="why-title-em">Held to the letter.</span>
-      </h2>
+        <span class="why-title-em">Held to the letter</span>
+     </h2>
       <p class="why-lead" appScrollReveal>
         Transparency only counts when it's enforced. These are the operating standards every kitchen on SeeThePrep agrees to before they take a single order — and what we measure them against, in public.
-      </p>
-    </header>
+     </p>
+   </header>
 
     <ol class="promise-grid">
       @for (p of promises; track p.num; let i = $index) {
@@ -388,22 +423,22 @@
               <span class="promise-metric-label">{{ p.metricLabel }}</span>
               <span class="promise-icon" aria-hidden="true">
                 <span class="material-symbols-rounded">{{ p.icon }}</span>
-              </span>
-            </div>
-          </div>
-        </li>
+             </span>
+           </div>
+         </div>
+       </li>
       }
-    </ol>
+   </ol>
 
     <aside class="why-pullquote" appScrollReveal>
       <span class="pq-quote">“</span>
       <p>
         If the camera isn't on, the order doesn't leave the kitchen.
         That's the standard — every kitchen, every order, no exceptions.
-      </p>
-      <span class="pq-attr">— SeeThePrep kitchen onboarding agreement, clause 1.</span>
-    </aside>
-  </div>
+     </p>
+      <span class="pq-attr">— SeeThePrep kitchen onboarding agreement, clause 1</span>
+   </aside>
+ </div>
 </section>
 
 
@@ -413,7 +448,7 @@
     <div class="as-orb as-orb-1"></div>
     <div class="as-orb as-orb-2"></div>
     <div class="as-grid"></div>
-  </div>
+ </div>
 
   <div class="container app-soon-grid">
     <!-- LEFT: copy + waitlist -->
@@ -421,72 +456,73 @@
       <div class="app-eyebrow" appScrollReveal>
         <span class="eb-dot"></span>
         <span class="eb-text">Mobile · Coming Q3 2026</span>
-      </div>
+     </div>
 
       <h2 class="app-headline" appScrollReveal>
         SeeThePrep,
-        <span class="app-headline-em">in your pocket.</span>
-      </h2>
+        <span class="app-headline-em">in your pocket</span>
+     </h2>
 
       <p class="app-lead" appScrollReveal>
         The full platform on iOS and Android. Persistent live feed, prep-stage notifications, allergen flags and one-tap tipping — built native, no web wrappers.
-      </p>
+     </p>
 
       <ul class="app-features" appScrollReveal>
         <li>
           <span class="material-symbols-rounded">notifications_active</span>
-          <span><strong>Stage notifications.</strong> Pinged at prep start, plating and rider handover.</span>
-        </li>
+          <span><strong>Stage notifications</strong> Pinged at prep start, plating and rider handover</span>
+       </li>
         <li>
           <span class="material-symbols-rounded">picture_in_picture</span>
-          <span><strong>Picture-in-picture feed.</strong> Keep the kitchen visible while you use other apps.</span>
-        </li>
+          <span><strong>Picture-in-picture feed</strong> Keep the kitchen visible while you use other apps</span>
+       </li>
         <li>
           <span class="material-symbols-rounded">watch</span>
-          <span><strong>Apple Watch &amp; Wear OS.</strong> Live ETA and stage updates on your wrist.</span>
-        </li>
-      </ul>
+          <span><strong>Apple Watch & Wear OS</strong> Live ETA and stage updates on your wrist</span>
+       </li>
+     </ul>
 
       <form class="app-waitlist" (submit)="$event.preventDefault()" appScrollReveal>
         <label class="app-waitlist-label">
           <span class="wl-pulse"></span>
           Get notified when the apps launch
-        </label>
+       </label>
         <div class="app-waitlist-row">
           <input
             type="email"
             inputmode="email"
             autocomplete="email"
             placeholder="your@email.com"
-            class="app-waitlist-input" />
+            class="app-waitlist-input"
+            appRadialSelect />
           <button type="submit" class="app-waitlist-btn" appMagnetic>
             Notify me
             <span class="material-symbols-rounded">arrow_forward</span>
-          </button>
-        </div>
+         </button>
+       </div>
 
         <div class="app-stores">
           <a class="store-btn" aria-label="Coming soon to the App Store">
             <svg class="store-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.3.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/>
-            </svg>
+           </svg>
             <span class="store-text">
               <span class="store-small">Coming soon to</span>
               <span class="store-big">App Store</span>
-            </span>
-          </a>
+           </span>
+         </a>
           <a class="store-btn" aria-label="Coming soon to Google Play">
             <svg class="store-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M3.18 23.18c.26.14.56.18.85.1l12.9-12.9-3.4-3.4L3.18 23.18zM21.8 11.06l-2.9-1.67-3.56 3.56 3.56 3.56 2.93-1.69c.84-.48.84-1.77-.03-2.26zM3.18.82C2.88.74 2.58.78 2.32.92l10.3 10.3-3.4-3.4L3.18.82zM2.32.92C1.73 1.25 1.73 2.73 2.32 3.06v-.01l9.3 9.3-9.3 9.81"/>
-            </svg>
+           </svg>
             <span class="store-text">
               <span class="store-small">Coming soon to</span>
               <span class="store-big">Google Play</span>
-            </span>
-          </a>
-        </div>
-      </form>
-    </div>
+           </span>
+         </a>
+       </div>
+     </form>
+   </div>
 
     <!-- RIGHT: floating phone mockups -->
     <div class="app-soon-stage" appScrollReveal>
@@ -499,43 +535,43 @@
               <span class="material-symbols-rounded">signal_cellular_alt</span>
               <span class="material-symbols-rounded">wifi</span>
               <span class="material-symbols-rounded">battery_full</span>
-            </span>
-          </div>
+           </span>
+         </div>
           <div class="ap-header">
             <div>
               <div class="ap-greeting">Tonight's prep</div>
               <div class="ap-sub">3 kitchens cooking nearby</div>
-            </div>
+           </div>
             <div class="ap-avatar">P</div>
-          </div>
+         </div>
           <div class="ap-list">
             <div class="ap-row">
               <div class="ap-row-emoji">🍕</div>
               <div class="ap-row-body">
                 <div class="ap-row-name">Pizzeria Roma</div>
                 <div class="ap-row-meta"><span class="live-pip-mini"></span> Plating · 88%</div>
-              </div>
+             </div>
               <div class="ap-row-eta">12 min</div>
-            </div>
+           </div>
             <div class="ap-row">
               <div class="ap-row-emoji">🍣</div>
               <div class="ap-row-body">
                 <div class="ap-row-name">Sakura Sushi</div>
                 <div class="ap-row-meta"><span class="live-pip-mini"></span> Cooking · 42%</div>
-              </div>
+             </div>
               <div class="ap-row-eta">28 min</div>
-            </div>
+           </div>
             <div class="ap-row">
               <div class="ap-row-emoji">🍜</div>
               <div class="ap-row-body">
                 <div class="ap-row-name">Dragon Wok</div>
                 <div class="ap-row-meta"><span class="live-pip-mini"></span> Order received</div>
-              </div>
+             </div>
               <div class="ap-row-eta">35 min</div>
-            </div>
-          </div>
-        </div>
-      </div>
+           </div>
+         </div>
+       </div>
+     </div>
 
       <!-- FRONT phone — live feed -->
       <div class="app-phone phone-front" appTilt [tiltMax]="8">
@@ -546,8 +582,8 @@
               <span class="material-symbols-rounded">signal_cellular_alt</span>
               <span class="material-symbols-rounded">wifi</span>
               <span class="material-symbols-rounded">battery_full</span>
-            </span>
-          </div>
+           </span>
+         </div>
           <div class="ap-feed">
             <video
               #howVideo
@@ -555,37 +591,37 @@
               src="/videos/app-demo.mp4"
               autoplay muted loop playsinline
               preload="metadata">
-            </video>
+           </video>
             <span class="ap-feed-rec">● LIVE</span>
             <span class="ap-feed-q">HD · 60fps</span>
-          </div>
+         </div>
           <div class="ap-feed-info">
             <div class="ap-feed-row">
               <strong>Pizzeria Roma</strong>
               <span class="ap-eta-dot">·</span>
               <span>ETA 12 min</span>
-            </div>
+           </div>
             <div class="ap-feed-stage">Chef is cooking</div>
             <div class="ap-feed-bar">
               <div class="ap-feed-bar-fill" [style.width.%]="38"></div>
-            </div>
-          </div>
+           </div>
+         </div>
           <div class="ap-actions">
             <button class="ap-action">
               <span class="material-symbols-rounded">favorite</span>
               Tip chef
-            </button>
+           </button>
             <button class="ap-action primary">
               <span class="material-symbols-rounded">share</span>
               Share live
-            </button>
-          </div>
-        </div>
+           </button>
+         </div>
+       </div>
 
 
-      </div>
-    </div>
-  </div>
+     </div>
+   </div>
+ </div>
 </section>
 
 
@@ -594,27 +630,27 @@
   <div class="stats-bg" aria-hidden="true">
     <div class="stats-stripe stripe-1"></div>
     <div class="stats-stripe stripe-2"></div>
-  </div>
+ </div>
   <div class="container">
     <div class="stats-grid">
       <div class="stat" appScrollReveal>
         <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
         <div class="stat-label">Orders streamed live</div>
-      </div>
+     </div>
       <div class="stat" appScrollReveal [revealDelay]="100">
         <div class="stat-num"><span appCountUp [appCountUp]="5">5</span><span class="stat-star">★</span></div>
         <div class="stat-label">FSA hygiene minimum</div>
-      </div>
+     </div>
       <div class="stat" appScrollReveal [revealDelay]="200">
         <div class="stat-num">Q</div>
         <div class="stat-label">Hygiene re-verified quarterly</div>
-      </div>
+     </div>
       <div class="stat" appScrollReveal [revealDelay]="300">
         <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
         <div class="stat-label">Tips paid to the kitchen</div>
-      </div>
-    </div>
-  </div>
+     </div>
+   </div>
+ </div>
 </section>
 
 
@@ -622,29 +658,30 @@
 <section class="final-cta">
   <div class="cta-bg" aria-hidden="true">
     <div class="cta-blob"></div>
-  </div>
+ </div>
   <div class="container">
     <div class="cta-card" appScrollReveal appTilt [tiltMax]="6">
       <div class="card-glare"></div>
       <div class="cta-eyebrow">
         <span class="eb-line"></span>
         <span class="eb-text">START AN ORDER</span>
-      </div>
+     </div>
       <h2 class="cta-headline">
         Choose a kitchen. <br>
-        <span class="grad-text">Watch it cook.</span>
-      </h2>
-      <p class="cta-sub">Browse live kitchens in your area. No account needed to look around — sign in only when you're ready to order.</p>
+        <span class="text-gradient-NEW--primary">Watch it cook</span>
+     </h2>
+      <p class="cta-sub">Browse live kitchens in your area. No account needed to look around — sign in only when you're ready to order</p>
       <div class="cta-actions">
         <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
+          <span class="cta-micro-ring" aria-hidden="true"></span>
           <span class="material-symbols-rounded">restaurant</span>
           Browse live kitchens
           <span class="cta-shine"></span>
-        </button>
+       </button>
         <button class="cta-link" (click)="scrollToRestaurants()" type="button">Browse without signing up →</button>
-      </div>
-    </div>
-  </div>
+     </div>
+   </div>
+ </div>
 </section>
 
 
@@ -659,13 +696,13 @@
       <p class="footer-manifesto">
         UK food delivery, with the kitchen on camera.
         Verified hygiene, full allergen disclosure, tips paid in full to the chefs who cook your food.
-      </p>
+     </p>
 
       <form class="footer-news" (submit)="$event.preventDefault()">
         <label for="news-email" class="footer-news-label">
           <span class="footer-news-dot"></span>
           One email a month. New kitchens going live in your area.
-        </label>
+       </label>
         <div class="footer-news-row">
           <input
             id="news-email"
@@ -673,15 +710,16 @@
             type="email"
             inputmode="email"
             autocomplete="email"
-            placeholder="your@email.com" />
+            placeholder="your@email.com"
+            appRadialSelect />
           <button type="submit" class="footer-news-btn" appMagnetic>
             Subscribe
             <span class="material-symbols-rounded">arrow_forward</span>
-          </button>
-        </div>
-        <span class="footer-news-fineprint">No spam. Unsubscribe in one click.</span>
-      </form>
-    </div>
+         </button>
+       </div>
+        <span class="footer-news-fineprint">No spam. Unsubscribe in one click</span>
+     </form>
+   </div>
 
     <!-- Sitemap -->
     <nav class="footer-nav" aria-label="Footer">
@@ -691,30 +729,30 @@
         <a routerLink="/" fragment="how-section">How it works</a>
         <a routerLink="/login">Track an order</a>
         <a routerLink="/info/gift-cards">Gift cards</a>
-      </div>
+     </div>
       <div class="footer-col">
         <h4>Cook</h4>
         <a routerLink="/info/list-kitchen">List your kitchen</a>
         <a routerLink="/info/camera-kit">Camera kit</a>
         <a routerLink="/info/chef-stories">Chef stories</a>
         <a routerLink="/info/hygiene">Hygiene standards</a>
-      </div>
+     </div>
       <div class="footer-col">
         <h4>Company</h4>
         <a routerLink="/info/about">About us</a>
         <a routerLink="/info/press">Press kit</a>
         <a routerLink="/info/careers">Careers</a>
         <a routerLink="/info/contact">Contact</a>
-      </div>
+     </div>
       <div class="footer-col">
         <h4>Help</h4>
         <a routerLink="/info/help">Help centre</a>
         <a routerLink="/info/safety">Safety</a>
         <a routerLink="/login">Sign in</a>
         <a routerLink="/register">Create account</a>
-      </div>
-    </nav>
-  </div>
+     </div>
+   </nav>
+ </div>
 
   <!-- Partners strip -->
   <div class="footer-partners">
@@ -724,20 +762,20 @@
         <a class="partner-logo-link" href="https://www.thejobbuddy.in/" target="_blank" rel="noopener noreferrer" aria-label="JobBuddy — Workforce & Management Platform">
           <span class="partner-logo-text">JobBuddy</span>
           <span class="partner-logo-sub">Workforce & Management</span>
-        </a>
-      </div>
-    </div>
-  </div>
+       </a>
+     </div>
+   </div>
+ </div>
 
   <div class="container footer-bottom">
     <!-- Left: copyright + live status -->
     <div class="footer-bottom-left">
       <div class="footer-status" aria-live="polite">
         <span class="status-dot"></span>
-        <span><strong>All kitchens live.</strong> 6 streams active.</span>
-      </div>
+        <span><strong>All kitchens live</strong> 6 streams active</span>
+     </div>
       <span class="footer-copyright">© 2026 SeeThePrep Ltd · Made in London</span>
-    </div>
+   </div>
 
     <!-- Centre: legal links -->
     <nav class="footer-legal" aria-label="Legal">
@@ -752,20 +790,20 @@
       <a routerLink="/info/do-not-sell">Do not sell my info</a>
       <span aria-hidden="true">·</span>
       <a routerLink="/info/sitemap">Sitemap</a>
-    </nav>
+   </nav>
 
     <!-- Right: socials -->
     <div class="footer-socials">
       <a class="social" href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">𝕏</a>
       <a class="social" href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <span class="material-symbols-rounded">photo_camera</span>
-      </a>
+     </a>
       <a class="social" href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
         <span class="material-symbols-rounded">music_note</span>
-      </a>
+     </a>
       <a class="social" href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
         <span class="material-symbols-rounded">play_arrow</span>
-      </a>
-    </div>
-  </div>
+     </a>
+   </div>
+ </div>
 </footer>

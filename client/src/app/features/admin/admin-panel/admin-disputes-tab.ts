@@ -89,7 +89,7 @@ import { Order } from '../../../core/models';
 
     mat-chip.chip-disputed {
       font-size: 0.7rem !important; font-weight: 700 !important; height: 20px !important;
-      background: #ffedd5 !important; color: #9a3412 !important;
+      background: #ffedd5 !important; color: var(--warning) !important;
     }
 
     .dispute-meta {
@@ -117,7 +117,7 @@ import { Order } from '../../../core/models';
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       text-align: center;
 
-      .empty-icon { font-size: 56px; color: #10b981; }
+      .empty-icon { font-size: 56px; color: var(--success); }
       h3 { margin: 0; font-size: 1.125rem; font-weight: 700; color: #0f0f13; }
       p { margin: 0; color: #6b7280; font-size: 0.9375rem; }
     }

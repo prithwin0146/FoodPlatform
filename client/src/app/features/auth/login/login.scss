@@ -13,8 +13,8 @@
 /* ── Left: Brand panel — warm cream + gradient orb ── */
 .brand-panel {
   background:
-    radial-gradient(1100px circle at 20% 30%, rgba(255, 107, 26, 0.18), transparent 55%),
-    radial-gradient(900px circle at 90% 80%, rgba(255, 61, 138, 0.14), transparent 55%),
+    radial-gradient(1100px circle at 20% 30%, rgba(var(--NEW--primary-rgb), 0.18), transparent 55%),
+    radial-gradient(900px circle at 90% 80%, rgba(var(--NEW--accent-rgb), 0.14), transparent 55%),
     linear-gradient(135deg, #fff6ec 0%, #fffcf7 60%, #ffeedd 100%);
   display: flex;
   align-items: center;
@@ -29,7 +29,7 @@
     position: absolute;
     top: 12%; right: -18%;
     width: 460px; height: 460px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 122, 0, .25), transparent 70%);
+    background: radial-gradient(circle, rgba(var(--NEW--primary-rgb), .25), transparent 70%);
     filter: blur(40px);
     pointer-events: none;
     animation: orbDrift 16s ease-in-out infinite alternate;
@@ -39,7 +39,7 @@
     position: absolute;
     bottom: 8%; left: -10%;
     width: 380px; height: 380px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 61, 138, .22), transparent 70%);
+    background: radial-gradient(circle, rgba(var(--NEW--accent-rgb), .22), transparent 70%);
     filter: blur(40px);
     pointer-events: none;
     animation: orbDrift 18s ease-in-out infinite alternate-reverse;
@@ -91,8 +91,8 @@
     backdrop-filter: blur(8px);
     padding: 12px 16px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 107, 26, .15);
-    box-shadow: 0 4px 14px -6px rgba(255, 107, 26, .15);
+    border: 1px solid rgba(var(--NEW--primary-rgb), .15);
+    box-shadow: 0 4px 14px -6px rgba(var(--NEW--primary-rgb), .15);
 
     .material-symbols-rounded {
       font-size: 22px;
@@ -138,8 +138,8 @@
 .form-panel {
   position: relative;
   background:
-    radial-gradient(800px circle at 100% 0%, rgba(255, 107, 26, .06), transparent 55%),
-    radial-gradient(600px circle at 0% 100%, rgba(255, 61, 138, .05), transparent 55%),
+    radial-gradient(800px circle at 100% 0%, rgba(var(--NEW--primary-rgb), .06), transparent 55%),
+    radial-gradient(600px circle at 0% 100%, rgba(var(--NEW--accent-rgb), .05), transparent 55%),
     #fff;
   display: flex;
   align-items: center;
@@ -192,7 +192,7 @@
   }
   &.mat-focused .mat-mdc-text-field-wrapper {
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(255, 107, 26, .12);
+    box-shadow: 0 0 0 4px rgba(var(--NEW--primary-rgb), .12);
   }
   .mat-mdc-form-field-focus-overlay { background: transparent; }
 
@@ -229,7 +229,7 @@
   text-decoration: none;
   transition: color 0.15s;
 
-  &:hover { color: #ff6b1a; }
+  &:hover { color: var(--NEW--primary); }
 }
 
 .submit-btn {
@@ -238,7 +238,7 @@
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  background: linear-gradient(135deg, #ff6b1a 0%, #ff3d8a 100%) !important;
+  background: linear-gradient(135deg, var(--NEW--primary) 0%, var(--NEW--accent) 100%) !important;
   color: #fff !important;
   border-radius: 12px !important;
   display: flex;
@@ -246,12 +246,12 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  box-shadow: 0 14px 32px -10px rgba(255, 61, 138, .45);
+  box-shadow: 0 14px 32px -10px rgba(var(--NEW--accent-rgb), .45);
   transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
 
   &:hover:not(:disabled) {
     opacity: 0.96; transform: translateY(-1px);
-    box-shadow: 0 18px 40px -10px rgba(255, 61, 138, .6);
+    box-shadow: 0 18px 40px -10px rgba(var(--NEW--accent-rgb), .6);
   }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   mat-spinner { --mdc-circular-progress-active-indicator-color: #fff; }

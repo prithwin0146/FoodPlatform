@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, LowerCasePipe } from '@angular/common';
 import { Subscription, interval } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -33,7 +33,7 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
 @Component({
   selector: 'app-order-tracking',
   imports: [
-    CurrencyPipe, DatePipe, RouterLink,
+    CurrencyPipe, DatePipe, LowerCasePipe, RouterLink,
     FormsModule, MatFormFieldModule, MatInputModule,
     OrderStatusLabelPipe, SafeUrlPipe,
     MatButtonModule, MatProgressBarModule, MatChipsModule, MatRippleModule,
@@ -111,6 +111,18 @@ export class OrderTracking implements OnInit, OnDestroy {
     if (!o?.estimatedDeliveryTime) return null;
     const secsLeft = Math.floor((new Date(o.estimatedDeliveryTime).getTime() - Date.now()) / 1000);
     return secsLeft > 0 ? secsLeft : 0;
+  });
+
+  /** True only when order is actually out for delivery AND ETA has arrived. */
+  readonly isArrivingNow = computed(() => {
+    const o = this.order();
+    return o?.status === 'OutForDelivery' && this.etaCountdown() === 0;
+  });
+
+  /** True when ETA has passed but order is NOT yet out for delivery (prep running late). */
+  readonly isEtaPassedNotDelivering = computed(() => {
+    const o = this.order();
+    return !!o?.estimatedDeliveryTime && this.etaCountdown() === 0 && o.status !== 'OutForDelivery' && o.status !== 'Delivered';
   });
 
   /** Last-seen status — used to detect transitions and fire notifications. */
@@ -230,6 +242,107 @@ export class OrderTracking implements OnInit, OnDestroy {
     if (!o) return 0;
     const idx = this.getStepIndex(o.status as OrderStatus);
     return idx < 0 ? 0 : Math.round((idx / (this.statusSteps.length - 1)) * 100);
+  }
+
+  /** Material Symbols icon name for the current status card. */
+  statusNowIcon(status: OrderStatus): string {
+    const map: Partial<Record<OrderStatus, string>> = {
+      Pending:        'hourglass_empty',
+      Accepted:       'check_circle',
+      Preparing:      'restaurant',
+      Cooking:        'local_fire_department',
+      Packed:         'inventory_2',
+      OutForDelivery: 'delivery_dining',
+      Delivered:      'done_all',
+      Rejected:       'block',
+      Cancelled:      'cancel',
+    };
+    return map[status] ?? 'info';
+  }
+
+  /** Whether the order has reached a terminal status. */
+  isTerminalStatus(): boolean {
+    const o = this.order();
+    if (!o) return false;
+    return OrderTracking.TERMINAL_STATUSES.includes(o.status);
+  }
+
+  /** Short label displayed above the status title. */
+  statusNowLabel(status: OrderStatus): string {
+    const map: Partial<Record<OrderStatus, string>> = {
+      Pending:        'Awaiting confirmation',
+      Accepted:       'Order accepted',
+      Preparing:      'Preparation started',
+      Cooking:        'Cooking now',
+      Packed:         'Packed & ready',
+      OutForDelivery: 'Out for delivery',
+      Delivered:      'Delivered',
+      Rejected:       'Rejected',
+      Cancelled:      'Cancelled',
+    };
+    return map[status] ?? status;
+  }
+
+  /** Main status title. */
+  statusNowTitle(status: OrderStatus): string {
+    const map: Partial<Record<OrderStatus, string>> = {
+      Pending:        "We're confirming your order",
+      Accepted:       "Great news — the kitchen is ready",
+      Preparing:      'The kitchen is prepping your meal',
+      Cooking:        "It's on the stove right now",
+      Packed:         'Boxed up and waiting to move',
+      OutForDelivery: 'Your driver has the food',
+      Delivered:      'Enjoy your meal!',
+      Rejected:       'Order could not be accepted',
+      Cancelled:      'Order cancelled',
+    };
+    return map[status] ?? status;
+  }
+
+  /** Longer description for the current status. */
+  statusNowDescription(o: Order): string {
+    const map: Partial<Record<OrderStatus, string>> = {
+      Pending:        'The restaurant is reviewing your order.',
+      Accepted:       'Prep starts shortly — watch the kitchen live.',
+      Preparing:      'The chef is gathering ingredients and prepping.',
+      Cooking:        'Your food is being cooked to order — watch it happen.',
+      Packed:         'Sealed and ready for its courier.',
+      OutForDelivery: 'On the move. ETA is updated in real time.',
+      Delivered:      'Your order is complete. Enjoy every bite.',
+      Rejected:       'The restaurant could not fulfil this order.',
+      Cancelled:      'This order has been cancelled.',
+    };
+    return map[o.status] ?? '';
+  }
+
+  /** Fun kitchen quote shown beneath the camera feed. */
+  kitchenQuote(status: OrderStatus): string {
+    const quotes: Partial<Record<OrderStatus, string>> = {
+      Pending:        'Good things come to those who wait.',
+      Accepted:       "Let's get cooking!",
+      Preparing:      'Mise en place is everything.',
+      Cooking:        'The secret ingredient is always love.',
+      Packed:         'Handled with care.',
+      OutForDelivery: 'Hot and on the move.',
+      Delivered:      'Bon appétit!',
+      Rejected:       'Sometimes it just isn\'t meant to be.',
+      Cancelled:      'There will be other meals.',
+    };
+    return quotes[status] ?? '';
+  }
+
+  /** Time label for a timeline step (uses order timestamps when available). */
+  journeyStepTime(step: OrderStatus): string {
+    const o = this.order();
+    if (!o) return '';
+    // Map steps to rough timestamps; in a real app these would come from backend audit logs.
+    if (o.status === step) {
+      return 'Now';
+    }
+    if (this.isStepComplete(step)) {
+      return 'Completed';
+    }
+    return '';
   }
 
   /**

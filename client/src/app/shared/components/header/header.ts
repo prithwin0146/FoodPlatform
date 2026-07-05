@@ -28,6 +28,10 @@ export class Header {
   readonly scrolled = signal(false);
   readonly cartBouncing = signal(false);
   readonly dropdownOpen = signal(false);
+  /** 0..1 — how far the user has scrolled. Drives glass intensity via --glow-progress. */
+  readonly scrollProgress = signal(0);
+  /** Mobile detection for responsive sheet presentation */
+  readonly isMobile = signal(false);
 
   private readonly doc = inject(DOCUMENT);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -36,10 +40,16 @@ export class Header {
     readonly auth: AuthService,
     readonly cart: CartService,
     readonly orderService: OrderService,
-    readonly theme: ThemeService,
+    private readonly _theme: ThemeService,
     private readonly favourites: FavouritesService,
     private readonly router: Router
   ) {
+    // Mobile detection for responsive sheet presentation
+    if (this.isBrowser) {
+      this.checkMobile();
+      window.addEventListener('resize', () => this.checkMobile());
+    }
+
     // Bounce the cart icon every time a new item is added
     effect(() => {
       const added = this.cart.lastAdded();
@@ -63,6 +73,11 @@ export class Header {
         this.favourites.favouriteIds.set(new Set());
       }
     });
+  }
+
+  /** Check if viewport is mobile-sized for sheet presentation */
+  private checkMobile(): void {
+    this.isMobile.set(window.innerWidth < 768);
   }
 
   readonly dashboardLink = computed(() => {
@@ -98,6 +113,14 @@ export class Header {
     const next = y > 16;
     if (next !== this.scrolled()) this.scrolled.set(next);
     if (next && this.dropdownOpen()) this.dropdownOpen.set(false);
+
+    // Scroll progress: 0 at top, 1 at full document scroll. Clamped so
+    // short pages don't resolve to >1.
+    const docEl = this.doc.documentElement;
+    const max = Math.max(1, docEl.scrollHeight - window.innerHeight);
+    const p = Math.min(1, Math.max(0, y / max));
+    // Angular signals dedupe equal writes — most scroll events are skipped.
+    this.scrollProgress.set(p);
   }
 
   @HostListener('document:keydown.escape')

@@ -104,6 +104,7 @@
   .toggle-arrow { margin-left: auto; font-size: 1rem; color: var(--text-muted, #9a9088); }
   &:hover { border-color: var(--primary, #ff6b1a); color: var(--text); }
   &.active { border-style: solid; border-color: var(--primary, #ff6b1a); color: var(--text); background: rgba(255,107,26,0.06); }
+  &:focus-visible { outline: 2px solid var(--NEW--primary); outline-offset: 2px; }
 }
 .schedule-fields { margin: 10px 0 16px; }
 .schedule-hint {
@@ -184,6 +185,7 @@
   display: flex; align-items: center; justify-content: center; transition: all .2s;
   &.minus { background: #fde8e8; color: #b91c1c; &:hover { background: #ef4444; color: #fff; } }
   &.plus  { background: rgba(255, 107, 26, .12); color: var(--primary-dark); &:hover { background: var(--primary); color: #fff; } }
+  &:focus-visible { outline: 2px solid var(--NEW--primary); outline-offset: 2px; }
 }
 .qty { font-weight: 800; color: var(--text); min-width: 20px; text-align: center; }
 .cart-item-total { font-weight: 800; color: var(--primary-dark); white-space: nowrap; font-feature-settings: 'tnum'; }

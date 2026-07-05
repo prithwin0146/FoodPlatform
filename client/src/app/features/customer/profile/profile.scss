@@ -1,16 +1,17 @@
 .profile-page {
   min-height: 100vh;
-  padding: 100px 0 60px;
+  padding: calc(var(--header-height, 72px) + 32px) 0 80px;
   position: relative;
+  font-family: var(--font-sans);
 }
 
 .profile-bg {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(var(--brand-primary-rgb), 0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
-    var(--surface-primary);
+    radial-gradient(900px circle at 20% 20%, rgba(255, 107, 26, 0.10) 0%, transparent 60%),
+    radial-gradient(800px circle at 90% 80%, rgba(255, 61, 138, 0.08) 0%, transparent 60%),
+    var(--bg, #fffcf7);
   z-index: -1;
 }
 
@@ -36,7 +37,7 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand-primary), #a78bfa);
+  background: linear-gradient(135deg, #ff6b1a, #ff3d8a);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,13 +45,13 @@
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 8px 24px rgba(var(--brand-primary-rgb), 0.35);
+  box-shadow: 0 8px 24px rgba(255, 107, 26, 0.35);
 }
 
 .profile-username {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
   margin: 0 0 0.35rem;
 }
 
@@ -62,9 +63,9 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(var(--brand-primary-rgb), 0.18);
-  color: var(--brand-primary);
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.35);
+  background: rgba(255, 107, 26, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 26, 0.28);
 }
 
 /* ─── Section card ─── */
@@ -79,12 +80,12 @@
   gap: 0.6rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text);
   margin: 0 0 1.75rem;
 
   .material-symbols-rounded {
     font-size: 1.25rem;
-    color: var(--brand-primary);
+    color: var(--primary);
   }
 }
 
@@ -141,7 +142,7 @@
   font-weight: 600;
   font-size: 0.9rem;
   border-radius: 10px;
-  background: var(--brand-primary) !important;
+  background: var(--primary) !important;
   color: #fff !important;
   transition: opacity 0.2s, box-shadow 0.2s;
 
@@ -150,7 +151,7 @@
   }
 
   &:not(:disabled):hover {
-    box-shadow: 0 6px 20px rgba(var(--brand-primary-rgb), 0.4);
+    box-shadow: 0 6px 20px rgba(255, 107, 26, 0.40);
   }
 
   mat-spinner {
@@ -158,17 +159,17 @@
   }
 }
 
-/* ─── Dark Material overrides ─── */
+/* ─── Material overrides (light theme) ─── */
 .profile-section {
   ::ng-deep {
     .mat-mdc-form-field.dark-field {
       .mat-mdc-text-field-wrapper {
-        background: rgba(255, 255, 255, 0.04);
+        background: #fafaf8;
         border-radius: 10px;
       }
-      .mat-mdc-form-field-outline { color: var(--border-color); }
+      .mat-mdc-form-field-outline { color: var(--border); }
       .mdc-floating-label, .mat-mdc-floating-label { color: var(--text-secondary); }
-      input.mat-mdc-input-element { color: var(--text-primary); }
+      input.mat-mdc-input-element { color: var(--text); }
       .mat-mdc-form-field-hint { color: var(--text-secondary); }
     }
   }
@@ -185,10 +186,10 @@
 }
 .plus-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.2), rgba(var(--brand-primary-rgb), 0.05));
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.4);
+  background: linear-gradient(135deg, rgba(255, 107, 26, 0.14), rgba(255, 107, 26, 0.05));
+  border: 1px solid rgba(255, 107, 26, 0.30);
   border-radius: 999px; padding: 6px 14px;
-  font-weight: 700; color: var(--brand-primary); font-size: .875rem;
+  font-weight: 700; color: var(--primary); font-size: .875rem;
   .material-symbols-rounded { font-size: 1rem; }
 }
 .plus-renews { color: var(--text-secondary); font-size: .8rem; }
@@ -200,9 +201,9 @@
 }
 .plus-upsell-icon {
   width: 56px; height: 56px; border-radius: 16px;
-  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.2), rgba(var(--brand-primary-rgb), 0.05));
+  background: linear-gradient(135deg, rgba(255, 107, 26, 0.14), rgba(255, 107, 26, 0.04));
   display: flex; align-items: center; justify-content: center;
-  .material-symbols-rounded { font-size: 2rem; color: var(--brand-primary); }
+  .material-symbols-rounded { font-size: 2rem; color: var(--primary); }
 }
 .plus-upsell-title { font-size: 1.15rem; font-weight: 700; margin: 0; }
 .plus-upsell-desc { color: var(--text-secondary); font-size: .875rem; margin: 0; line-height: 1.5; }
@@ -213,7 +214,8 @@
   .material-symbols-rounded { font-size: 1rem; color: #22c55e; }
 }
 .subscribe-btn {
-  background: var(--brand-primary) !important; color: #fff !important;
+  background: var(--primary) !important; color: #fff !important;
   border-radius: 12px !important; padding: 0 24px !important; height: 44px;
+  box-shadow: 0 4px 18px rgba(255, 107, 26, 0.35);
   .material-symbols-rounded { font-size: 1.1rem; margin-right: 6px; }
 }

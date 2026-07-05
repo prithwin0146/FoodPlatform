@@ -1,8 +1,31 @@
-/* =========================================================
-   Header — transparent on hero, glass on scroll, avatar dropdown.
-   SOLID: SRP — only owns nav-shell visuals.
-   ========================================================= */
+/* ═══════════════════════════════════════════════════════════════════
+   Site Header — Professional, minimal, built to stand next to
+   Uber Eats / Swiggy / Just Eat.
+   Design decisions:
+   - No card/border around the logo
+   - No pill container around the nav
+   - Active state: 2px underline + weight + colour (no glow ring)
+   - Scroll: whisper-thin backdrop blur, hairline bottom border
+   - Auth: ghost "Sign in" + filled "Get started" (2-button pattern)
+   SRP: owns navigation chrome only.
+   ═══════════════════════════════════════════════════════════════ */
 
+// ── Tokens ────────────────────────────────────────────────────────
+$brand:      #ff6b1a;
+$brand-dark: #d9500a;
+$brand-glow: rgba(255, 107, 26, 0.3);
+$text:       #110d09;
+$text-soft:  #6a5c50;
+$text-mute:  #a09387;
+$surface:    #fffcf7;
+$border:     #ede8e2;
+$red:        #e53e3e;
+$green:      #1a9b5a;
+
+$font-sans: var(--NEW--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+$h: 68px; // header height
+
+// ── Host ─────────────────────────────────────────────────────────
 :host {
   display: block;
   position: sticky;
@@ -10,409 +33,543 @@
   z-index: 100;
 }
 
-.header {
-  position: relative;
-  height: var(--header-height, 72px);
-  background: rgba(255, 252, 247, 0.88);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(26, 20, 16, 0.06);
-  transition: background 0.45s ease,
-              border-color 0.45s ease,
-              box-shadow 0.45s ease;
-  will-change: background, box-shadow;
-}
+// ── Shell ─────────────────────────────────────────────────────────
+.site-header {
+  height: $h;
+  background: $surface;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    backdrop-filter 0.25s ease,
+    box-shadow 0.25s ease;
 
-.header-scrolled {
-  background: rgba(255, 252, 247, 0.94);
-  border-bottom-color: rgba(26, 20, 16, 0.08);
-  box-shadow: 0 12px 40px -20px rgba(255, 107, 26, 0.15);
-}
-
-/* Glow line at bottom */
-.header-glow {
-  position: absolute;
-  inset: auto 0 -1px 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 122, 0, 0.6) 30%,
-    rgba(255, 61, 138, 0.6) 70%,
-    transparent 100%
-  );
-  opacity: 0.55;
-  pointer-events: none;
-  overflow: hidden;
-  transition: opacity 0.45s ease;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    width: 40%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-    animation: glowLineSweep 4s ease-in-out infinite;
-    transform: translateX(-150%);
+  // Scrolled — glass blur + hairline border. That's it.
+  &.is-scrolled {
+    background: rgba(255, 252, 247, 0.90);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-color: rgba(255, 107, 26, 0.10);
+    box-shadow: 0 1px 0 rgba(255, 107, 26, 0.06), 0 4px 16px rgba(17, 13, 9, 0.05);
   }
 }
-@keyframes glowLineSweep {
-  0%   { transform: translateX(-150%); }
-  100% { transform: translateX(400%); }
-}
 
-.header-inner {
+// ── Inner flex row ─────────────────────────────────────────────────
+.site-header__inner {
   display: flex;
   align-items: center;
   height: 100%;
-  gap: 24px;
-}
-
-/* ─────────────── LOGO ─────────────── */
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  flex-shrink: 0;
-  outline: none;
-  &:focus-visible { outline: 2px solid #ff7a00; outline-offset: 4px; border-radius: 8px; }
-}
-.logo:hover app-logo { transform: translateY(-1px); }
-.logo app-logo { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s ease; color: #1a1410; }
-
-/* ─────────────── NAV pill rail ─────────────── */
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  background: rgba(26, 20, 16, 0.035);
-  border: 1px solid rgba(26, 20, 16, 0.05);
-  border-radius: 999px;
-  width: fit-content;
+  gap: 0;
+  max-width: 1280px;
   margin: 0 auto;
-  transition: background 0.45s ease, border-color 0.45s ease;
+  padding: 0 24px;
+}
+
+// ── Logo — just the wordmark, no card ─────────────────────────────
+.site-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  outline: none;
+  margin-right: 20px;
+  transition: opacity 0.18s ease;
+
+  &:hover { opacity: 0.82; }
+  &:focus-visible {
+    outline: 2px solid $brand;
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+}
+
+// ── Live kitchens USP pill (home only) ────────────────────────────
+// ── Primary nav — flat links ───────────────────────────────────────
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: auto; // push actions to the right
 }
 
 .nav-link {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 18px;
-  border-radius: 999px;
-  font-size: 0.9rem;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: rgba(26, 20, 16, 0.7);
+  color: $text-soft;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  font-family: $font-sans;
+  transition: color 0.16s ease, background 0.16s ease;
 
-  .nav-icon {
-    font-size: 1.05rem;
-    opacity: 0.85;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
+  // Hover: subtle fill
   &:hover {
-    color: #1a1410;
-    background: rgba(255, 107, 26, 0.06);
-    .nav-icon { transform: translateY(-1px) scale(1.08); }
+    color: $text;
+    background: rgba(0, 0, 0, 0.04);
   }
 
-  &.active {
-    color: #1a1410;
-    background: linear-gradient(135deg, rgba(255, 107, 26, 0.18), rgba(255, 61, 138, 0.14));
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 107, 26, 0.35),
-      0 6px 18px -8px rgba(255, 107, 26, 0.4);
-    .nav-icon { color: #ff6b1a; }
+  // Active indicator: 2px underline grows in
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: $brand;
+    border-radius: 1px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.22s cubic-bezier(.4, 0, .2, 1);
+  }
+
+  &.is-active {
+    color: $brand;
+    font-weight: 700;
+    background: transparent;
+
+    &::after { transform: scaleX(1); }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $brand;
+    outline-offset: 2px;
+    border-radius: 6px;
   }
 }
 
-/* ─────────────── ACTIONS ─────────────── */
-.actions {
+// Orders badge on nav link
+.nav-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: $brand;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+  animation: badgePop 0.3s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+@keyframes badgePop {
+  from { transform: scale(0) rotate(-90deg); }
+  to   { transform: scale(1) rotate(0); }
+}
+
+// ── Right actions ─────────────────────────────────────────────────
+.site-header__actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-left: auto;
+  gap: 10px;
   flex-shrink: 0;
 }
 
-/* Cart pill */
+// ── Cart button ───────────────────────────────────────────────────
 .cart-btn {
   position: relative;
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: rgba(255, 107, 26, 0.10);
-  border: 1px solid rgba(255, 107, 26, 0.30);
-  color: #1a1410;
-  text-decoration: none;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              background 0.3s ease,
-              box-shadow 0.3s ease;
-
-  .cart-icon { font-size: 1.2rem; color: #ff6b1a; }
-
-  &:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 107, 26, 0.18);
-    box-shadow: 0 10px 28px -12px rgba(255, 107, 26, 0.55);
-  }
-
-
-  &.cart-bouncing .cart-icon { animation: cartIconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-  &.cart-bouncing .cart-badge { animation: cartBadgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-
-  .cart-badge {
-    position: absolute;
-    top: -6px; right: -6px;
-    min-width: 20px; height: 20px;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #ff7a00, #ff3d8a);
-    color: #fff;
-    font-size: 0.7rem; font-weight: 800;
-    display: grid; place-items: center;
-    border: 2px solid #fffcf7;
-    box-shadow: 0 4px 12px rgba(255, 61, 138, 0.4);
-    animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-}
-
-.theme-toggle-btn {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
-  background: rgba(255, 107, 26, 0.08);
-  border: 1px solid rgba(255, 107, 26, 0.20);
-  color: var(--text, #1a1410);
-  cursor: pointer;
-  transition: transform 0.25s var(--ease-spring, ease),
-              background 0.2s ease;
+  border: 1px solid $border;
+  background: $surface;
+  color: $text;
+  text-decoration: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s cubic-bezier(.34, 1.56, .64, 1);
 
-  .material-symbols-rounded { font-size: 1.15rem; color: var(--primary, #ff6b1a); }
+  .material-symbols-rounded {
+    font-size: 1.25rem;
+    color: $brand;
+    transition: transform 0.2s cubic-bezier(.34, 1.56, .64, 1);
+  }
 
   &:hover {
-    transform: rotate(20deg) scale(1.1);
-    background: rgba(255, 107, 26, 0.16);
+    border-color: rgba(255, 107, 26, 0.35);
+    box-shadow: 0 4px 14px $brand-glow;
+    transform: translateY(-2px);
+    .material-symbols-rounded { transform: scale(1.15); }
+  }
+
+  &:active { transform: scale(0.95) translateY(0); }
+  &:focus-visible { outline: 2px solid $brand; outline-offset: 3px; }
+
+  // Bounce animation on item add
+  &.is-bouncing .material-symbols-rounded {
+    animation: cartBounce 0.6s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+  &.is-bouncing .cart-count {
+    animation: badgePop 0.6s cubic-bezier(.34, 1.56, .64, 1) both;
   }
 }
 
-/* ── Active orders nav badge ── */
-.nav-order-badge {
-  min-width: 18px; height: 18px; padding: 0 5px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #ff7a00, #ff3d8a);
-  color: #fff; font-size: 0.65rem; font-weight: 800;
-  display: inline-grid; place-items: center;
-  box-shadow: 0 2px 8px rgba(255, 61, 138, 0.4);
-  animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  &--sm { font-size: 0.6rem; min-width: 16px; height: 16px; margin-left: auto; }
-}
-
-@keyframes cartIconBounce {
-  0%   { transform: scale(1) rotate(0deg); }
-  25%  { transform: scale(1.4) rotate(-12deg); }
-  55%  { transform: scale(0.88) rotate(6deg); }
-  75%  { transform: scale(1.12) rotate(-3deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-@keyframes cartBadgePop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.6); }
-  70%  { transform: scale(0.85); }
-  100% { transform: scale(1); }
-}
-@keyframes badgePop {
-  0%   { transform: scale(0) rotate(-90deg); }
-  60%  { transform: scale(1.25) rotate(10deg); }
+@keyframes cartBounce {
+  0%   { transform: scale(1) rotate(0); }
+  25%  { transform: scale(1.4) rotate(-10deg); }
+  55%  { transform: scale(0.88) rotate(5deg); }
+  75%  { transform: scale(1.12) rotate(-2deg); }
   100% { transform: scale(1) rotate(0); }
 }
 
-/* ─────────────── AVATAR + DROPDOWN ─────────────── */
-.avatar-wrap {
-  position: relative;
+.cart-count {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: $brand;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  border: 2px solid $surface;
+  line-height: 1;
 }
 
-.avatar-btn {
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.35);
-  background: linear-gradient(135deg, #ff7a00, #ff3d8a);
-  cursor: pointer;
-  display: grid; place-items: center;
-  flex-shrink: 0;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.3s ease,
-              border-color 0.3s ease;
-  box-shadow: 0 4px 14px -4px rgba(255, 61, 138, 0.45);
-  outline: none;
+// ── Avatar button ─────────────────────────────────────────────────
+.avatar-wrap { position: relative; }
 
-  &:hover, &--open {
-    transform: scale(1.08);
-    box-shadow: 0 8px 24px -6px rgba(255, 61, 138, 0.6);
-    border-color: rgba(255,255,255,0.6);
+.avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 10px 0 4px;
+  border-radius: 9999px;
+  border: 1.5px solid $border;
+  background: $surface;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s cubic-bezier(.34, 1.56, .64, 1);
+
+  &:hover, &.is-open {
+    border-color: rgba(255, 107, 26, 0.4);
+    box-shadow: 0 4px 12px $brand-glow;
+    transform: scale(1.04);
   }
-  &:focus-visible { outline: 2px solid #ff7a00; outline-offset: 3px; }
+
+  &:focus-visible { outline: 2px solid $brand; outline-offset: 3px; }
 }
 
 .avatar-initial {
-  font-size: 0.9rem;
-  font-weight: 800;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $brand, #ff3d8a);
   color: #fff;
-  line-height: 1;
-  letter-spacing: -0.01em;
+  font-size: 0.82rem;
+  font-weight: 800;
+  flex-shrink: 0;
   pointer-events: none;
 }
 
-/* Glass dropdown */
-.avatar-dropdown {
+.avatar-chevron {
+  font-size: 1rem;
+  color: $text-mute;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+  .avatar-btn.is-open & { transform: rotate(180deg); }
+}
+
+// ── Dropdown sheet ────────────────────────────────────────────────
+.sheet-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: backdropIn 0.2s ease;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.avatar-sheet {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: 220px;
-  background: rgba(255, 252, 247, 0.92);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(26, 20, 16, 0.09);
+  width: 240px;
+  background: rgba(255, 252, 247, 0.96);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 107, 26, 0.14);
   border-radius: 18px;
-  box-shadow:
-    0 24px 60px -12px rgba(26, 20, 16, 0.18),
-    0 0 0 1px rgba(255,255,255,0.6) inset;
+  box-shadow: 0 20px 48px rgba(17, 13, 9, 0.14), 0 4px 12px rgba(17, 13, 9, 0.06);
   overflow: hidden;
-  animation: dropdownIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  z-index: 200;
   transform-origin: top right;
+  animation: sheetIn 0.22s cubic-bezier(.34, 1.56, .64, 1) both;
+
+  // Mobile: full-width bottom sheet
+  &.is-mobile-sheet {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 22px 22px 0 0;
+    border-bottom: none;
+    transform-origin: bottom center;
+    animation: sheetUp 0.28s cubic-bezier(.4, 0, .2, 1) both;
+  }
 }
 
-@keyframes dropdownIn {
-  from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+@keyframes sheetIn {
+  from { opacity: 0; transform: scale(0.88) translateY(-8px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.dropdown-identity {
+@keyframes sheetUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sheet-handle {
+  display: none;
+  width: 34px;
+  height: 4px;
+  margin: 10px auto 6px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+  .avatar-sheet.is-mobile-sheet & { display: block; }
+}
+
+.sheet-identity {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 14px 16px;
 }
 
-.dropdown-avatar {
-  width: 36px; height: 36px;
+.sheet-avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff7a00, #ff3d8a);
-  display: grid; place-items: center;
-  font-size: 0.88rem; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, $brand, #ff3d8a);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px $brand-glow;
 }
 
-.dropdown-name {
+.sheet-name {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #1a1410;
-  white-space: nowrap;
+  color: $text;
+  margin: 0 0 2px;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 140px;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
-.dropdown-role {
-  font-size: 0.75rem;
-  color: rgba(26,20,16,0.45);
-  font-weight: 500;
-  margin-top: 1px;
+.sheet-role {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: $text-mute;
+  margin: 0;
   text-transform: capitalize;
 }
 
-.dropdown-divider {
+.sheet-divider {
   height: 1px;
-  background: rgba(26,20,16,0.07);
   margin: 0 12px;
+  background: rgba(0, 0, 0, 0.06);
 }
 
-.dropdown-item {
+.sheet-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   width: 100%;
   padding: 11px 16px;
-  font-size: 0.875rem;
+  font-size: 0.86rem;
   font-weight: 600;
-  color: rgba(26,20,16,0.75);
+  color: $text-soft;
+  font-family: $font-sans;
   text-decoration: none;
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition: background 0.14s ease, color 0.14s ease;
 
-  .material-symbols-rounded { font-size: 1.05rem; opacity: 0.7; }
-
-  &:hover {
-    background: rgba(255, 107, 26, 0.06);
-    color: #1a1410;
-    .material-symbols-rounded { opacity: 1; }
+  .material-symbols-rounded {
+    font-size: 1.05rem;
+    color: $text-mute;
+    flex-shrink: 0;
+    transition: color 0.14s ease;
   }
 
-  &--danger {
-    color: #c93838;
-    .material-symbols-rounded { color: #c93838; opacity: 0.8; }
-    &:hover { background: rgba(239, 68, 68, 0.07); color: #b91c1c; }
+  &:hover {
+    background: rgba(255, 107, 26, 0.07);
+    color: $text;
+    .material-symbols-rounded { color: $brand; }
+  }
+
+  &:focus-visible { outline: 2px solid $brand; outline-offset: -2px; }
+
+  &--danger, &--danger .material-symbols-rounded { color: $red; }
+  &--danger:hover {
+    background: rgba(229, 62, 62, 0.07);
+    color: $red;
+    .material-symbols-rounded { color: $red; }
   }
 }
 
-/* ─────────────── SIGN IN (logged-out) ─────────────── */
-.signin-btn {
+.sheet-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: $brand;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  margin-left: auto;
+}
+
+// ── Auth buttons (logged out) ─────────────────────────────────────
+.auth-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// Ghost "Sign in"
+.btn-signin {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 9px;
+  border: 1.5px solid $border;
+  background: transparent;
+  color: $text-soft;
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-family: $font-sans;
+  text-decoration: none;
+  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+
+  &:hover {
+    border-color: rgba(255, 107, 26, 0.4);
+    color: $brand;
+    background: rgba(255, 107, 26, 0.04);
+  }
+
+  &:focus-visible { outline: 2px solid $brand; outline-offset: 3px; }
+}
+
+// Filled "Get started"
+.btn-getstarted {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 40px;
-  padding: 0 18px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(26,20,16,0.18);
-  background: transparent;
-  color: rgba(26,20,16,0.82);
-  font-size: 0.88rem;
+  padding: 0 20px;
+  border-radius: 9px;
+  border: none;
+  background: $brand;
+  color: #fff;
+  font-size: 0.86rem;
   font-weight: 700;
-  letter-spacing: 0.005em;
+  font-family: $font-sans;
   text-decoration: none;
-  cursor: pointer;
-  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  box-shadow: 0 4px 18px rgba(255, 107, 26, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition:
+    background 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.18s cubic-bezier(.34, 1.56, .64, 1);
 
-  .material-symbols-rounded { font-size: 1rem; transition: transform 0.25s ease; }
+  .material-symbols-rounded {
+    font-size: 0.95rem;
+    transition: transform 0.18s ease;
+  }
 
   &:hover {
-    background: rgba(255,107,26,0.06);
-    border-color: rgba(255,107,26,0.45);
-    color: #1a1410;
-    transform: translateY(-1px);
+    background: $brand-dark;
+    box-shadow: 0 6px 24px rgba(255, 107, 26, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
     .material-symbols-rounded { transform: translateX(3px); }
   }
+
+  &:active { transform: scale(0.97) translateY(0); }
+  &:focus-visible { outline: 2px solid $brand; outline-offset: 3px; }
 }
 
-/* ─────────────── RESPONSIVE ─────────────── */
-@media (max-width: 960px) {
-  .nav-link span:not(.nav-icon) { display: none; }
-  .nav-link { padding: 9px 12px; }
+// ══════════════════════════════════════════════════════════════════
+//  RESPONSIVE
+// ══════════════════════════════════════════════════════════════════
+@media (max-width: 1024px) {
+  .live-kitchens-pill { display: none; }
+}
+
+@media (max-width: 880px) {
+  // Collapse nav text — keep links but tighten
+  .nav-link { padding: 8px 10px; font-size: 0.84rem; }
 }
 
 @media (max-width: 720px) {
-  .nav { display: none; }
-  .header-inner { gap: 12px; }
+  // Hide nav entirely on mobile — lives in the account sheet
+  .site-nav { display: none; }
+  .site-header__inner { padding: 0 16px; }
+}
+
+@media (max-width: 560px) {
+  // On very small screens, hide the text of Get started
+  .btn-getstarted span:not(.material-symbols-rounded) {
+    display: none;
+  }
+  .btn-getstarted {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
-  .header { --header-height: 60px; }
-  .header-inner { gap: 8px; padding: 0 16px; }
-  .cart-btn { width: 36px; height: 36px; border-radius: 10px; }
-  .cart-badge { min-width: 17px; height: 17px; font-size: .62rem; top: -4px; right: -4px; }
-  .signin-btn { height: 36px; padding: 0 14px; font-size: .82rem; }
-  .avatar-btn { width: 34px; height: 34px; }
-  .avatar-dropdown { width: 200px; }
+  .site-header { height: 60px; }
+  .cart-btn, .avatar-btn { width: 38px; height: 38px; }
+  .avatar-btn { padding: 0 6px 0 3px; }
+  .avatar-initial { width: 28px; height: 28px; font-size: 0.75rem; }
+  .btn-signin { height: 36px; padding: 0 14px; font-size: 0.82rem; }
+  .site-logo { margin-right: 12px; }
+
+  // Mobile sheet: show backdrop
+  .sheet-backdrop { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

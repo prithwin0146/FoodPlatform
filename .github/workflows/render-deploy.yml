@@ -13,6 +13,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Scan for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        with:
+          args: --source .
+          fail-on-error: true
+
       - name: Trigger Render deploy hook
         # Add RENDER_DEPLOY_HOOK_URL as a GitHub secret.
         # Get it from: Render dashboard → seetheprep-api → Settings → Deploy Hook

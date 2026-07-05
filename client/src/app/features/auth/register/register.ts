@@ -10,6 +10,7 @@ import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
+import { Logo } from '../../../shared/components/logo/logo';
 
 @Component({
   selector: 'app-register',
@@ -22,6 +23,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
     MatProgressSpinnerModule,
     ScrollRevealDirective,
     MagneticDirective,
+    Logo,
   ],
   templateUrl: './register.html',
   styleUrl: './register.scss',

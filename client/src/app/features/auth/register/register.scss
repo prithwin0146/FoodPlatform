@@ -59,21 +59,9 @@
 }
 
 .brand-wordmark {
-  font-family: var(--font-display, 'Fraunces', Georgia, serif);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
   margin-bottom: 12px;
-  line-height: 1;
-
-  em {
-    font-style: italic;
-    background: linear-gradient(90deg, #ff6b1a 0%, #ff3d8a 55%, #a855f7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
 }
 
 .brand-panel__tagline {
@@ -220,7 +208,7 @@
   }
   &.mat-focused .mat-mdc-text-field-wrapper {
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(255, 107, 26, .12);
+    box-shadow: 0 0 0 4px rgba(var(--NEW--primary-rgb), .12);
   }
   .mat-mdc-form-field-focus-overlay { background: transparent; }
 
@@ -249,7 +237,7 @@
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  background: linear-gradient(135deg, #ff6b1a 0%, #ff3d8a 100%) !important;
+  background: linear-gradient(135deg, var(--NEW--primary) 0%, var(--NEW--accent) 100%) !important;
   color: #fff !important;
   border-radius: 12px !important;
   display: flex;
@@ -257,13 +245,13 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  box-shadow: 0 14px 32px -10px rgba(255, 61, 138, .45);
+  box-shadow: 0 14px 32px -10px rgba(var(--NEW--accent-rgb), .45);
   transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
 
   &:hover:not(:disabled) {
     opacity: 0.96;
     transform: translateY(-1px);
-    box-shadow: 0 18px 40px -10px rgba(255, 61, 138, .6);
+    box-shadow: 0 18px 40px -10px rgba(var(--NEW--accent-rgb), .6);
   }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   mat-spinner { --mdc-circular-progress-active-indicator-color: #fff; }

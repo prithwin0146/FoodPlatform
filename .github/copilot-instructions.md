@@ -1,16 +1,16 @@
-    # GitHub Copilot Instructions — SeeThePrep
+# GitHub Copilot Instructions — SeeThePrep
 
 ## Project Overview
 
 Full-stack food delivery platform where customers can **watch their food being prepared in real-time** — live kitchen transparency from order placement to doorstep.
 
 - **Backend**: .NET 8 Web API (`/src/FoodPlatform.Api/`)
-- **Frontend**: Angular 17+ standalone components (`/client/src/app/`)
+- **Frontend**: Angular 19+ standalone components (`/client/src/app/`)
 - **Database**: PostgreSQL (Neon) via Entity Framework Core + Migrations
 - **Auth**: JWT Bearer tokens
 - **Background jobs**: Hangfire
 - **Payments**: Stripe (PaymentIntents + Connect for restaurant payouts)
-- **UI**: Angular Material M3 + custom dark glassmorphism design system
+- **UI**: Angular Material M3 + **warm cream light theme** design system
 
 ### Production Infrastructure
 - **Frontend**: Deployed on **Vercel** → [seetheprep.com](https://seetheprep.com)
@@ -62,7 +62,7 @@ Each class/service owns exactly one concern.
 - `OrderStatusEmojiPipe`, `OrderStatusLabelPipe` — status display only
 - `IdempotencyKeyService` — idempotency key generation only
 - `TokenStorageService` — localStorage read/write only; no business logic
-- `TiltDirective`, `ScrollRevealDirective`, `MagneticDirective` — each owns exactly one interaction behaviour
+- `TiltDirective`, `ScrollRevealDirective`, `MagneticDirective`, `ParallaxHoverDirective`, `RadialSelectDirective`, `StaggerRevealDirective` — each owns exactly one interaction behaviour
 
 ### O — Open/Closed Principle
 Extend behaviour without modifying existing code.
@@ -135,16 +135,33 @@ High-level modules depend on abstractions, not concrete implementations.
     models/             # index.ts — all shared interfaces + ORDER_STATUS_FLOW
     services/           # One service per concern; thin Angular wrappers over HTTP
   features/
-    customer/           # restaurant-list, restaurant-menu, checkout, order-tracking
+    customer/
+      restaurant-list/  # Route "/" — marketing landing page + postcode search only
+      restaurants-browse/ # Route "/restaurants" — grid, filters, search (PLANNED SPLIT)
+      restaurant-menu/  # Route "/restaurant/:id"
+      checkout/
+      order-tracking/
+      my-orders/
+      profile/
     staff/              # dashboard
     admin/              # admin-panel
-    auth/               # login, register
+    auth/               # login, register, forgot-password, reset-password, verify-email
   shared/
-    components/         # header, toast — reusable UI shells
-    directives/         # tilt, scroll-reveal, magnetic — one behaviour each
+    components/         # header, toast, logo, live-stream-player — reusable UI shells
+    directives/         # tilt, scroll-reveal, magnetic, parallax-hover,
+                        #   radial-select, stagger-reveal — one behaviour each
     pipes/              # pure display transforms
     validators/         # uk-postcode — standalone validator factory
 ```
+
+### Planned: Home / Restaurants Split
+`restaurant-list` (currently both marketing + browse grid) will be split:
+- `restaurant-list` stays at `/` — marketing hero, postcode search, USP sections
+- New `restaurants-browse` at `/restaurants` — compact strip header, cuisine/dietary filters, restaurant grid
+- All `routerLink="/"` "Browse Restaurants" buttons → `/restaurants`
+- Header "Restaurants" nav link → `/restaurants`
+- Hero scroll cue / "Order now" CTA → `router.navigate(['/restaurants'])`
+- Postcode search on home page → `router.navigate(['/restaurants'], { queryParams: { q: postcode } })`
 
 ---
 
@@ -155,16 +172,51 @@ High-level modules depend on abstractions, not concrete implementations.
 - All signals: use `signal()`, `computed()`, `effect()` — no `BehaviorSubject` in new code
 - `readonly` on every injected service field and signal
 - Template expressions must be pure — no method calls that cause change-detection churn; use `computed()` or pipes
-- Use `@for`, `@if`, `@empty` Angular 17+ control flow — never `*ngFor` / `*ngIf`
+- Use `@for`, `@if`, `@empty` Angular 19 control flow — never `*ngFor` / `*ngIf`
 - Pipe names: kebab-case file names, camelCase class names, kebab-case in templates
 - No barrel-re-exports that create circular deps — import from the specific file
+- **Keep files under 500 lines** — split into focused components/services if exceeded
 
-### SCSS / Styling
-- Dark design system: `var(--surface-primary)`, `var(--brand-primary)`, `var(--brand-primary-rgb)`, `var(--text-primary)`, `var(--text-secondary)`, `var(--border-color)`, `var(--surface-card)`, `var(--shadow-card)`
-- All interactive cards use `transform-style: preserve-3d` + `.card-glare` driven by `--glare-x`, `--glare-y`, `--glare-opacity` CSS vars (set by `TiltDirective`)
-- `::ng-deep` only for Angular Material dark theme overrides; prefix with component class to reduce bleed
-- No magic numbers — use CSS custom properties or `clamp()` for responsive values
-- Keyframes defined globally in `styles.scss`; component SCSS only defines component-specific animations
+### SCSS / Styling — Warm Cream Light Theme
+The design system is a **warm cream light theme**. Do NOT use old dark-mode tokens.
+
+**Core CSS custom properties:**
+- Background: `var(--bg, #fffcf7)` — NOT `--surface-primary`
+- Primary brand: `var(--primary)` = `#ff6b1a` orange — NOT `--brand-primary`
+- Text: `var(--text)`, `var(--text-secondary)`, `var(--text-muted)`
+- Borders: `var(--border)`, `var(--border-light)`, `var(--border-strong)`
+- Soft background: `var(--bg-soft, #fff6ec)`
+- Shadows: `var(--shadow-md)`, `var(--shadow-sm)`
+
+**Brand SCSS variables (use in component SCSS files):**
+- `$brand: #ff6b1a`, `$brand-pink: #ff3d8a`, `$live: #00d4aa`, `$green: #1a9b5a`
+
+**Typography:**
+- `var(--font-display)` = Fraunces (display/headings, italic serif)
+- `var(--font-sans)` = Plus Jakarta Sans (body/UI)
+- `var(--font-mono)` = JetBrains Mono (numbers/countdown)
+
+**Page backgrounds:** `radial-gradient` per page using brand colours at 6–12% opacity over `var(--bg, #fffcf7)`.
+
+**Cards:** `.glass-card` = `background: #fff; border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-md)`
+
+**Interactive cards:** `appTilt [tiltMax]="10"` + `appScrollReveal [revealDelay]="idx * 60"`
+
+**`::ng-deep`** only for Angular Material light-theme overrides (field bg `#fafaf8`, border `var(--border)`, label `var(--text-secondary)`); always prefix with the component class.
+
+**No magic numbers** — use CSS custom properties or `clamp()`.
+
+### Angular Material Usage
+- `MatFormFieldModule` + `MatInputModule` — all form inputs; add `.dark-field` class for overrides
+- `MatButtonModule` — `mat-flat-button` (primary), `mat-stroked-button` (secondary/danger)
+- `MatChipsModule` — filter chips and tag displays
+- `MatRippleModule` — interactive cards
+- `MatTooltipModule` — action buttons
+- `MatProgressBarModule` — progress indicators
+- Never mix custom `<button class="btn">` with Material buttons in the same component
+
+### Material Icons
+Use `<span class="material-symbols-rounded">icon_name</span>` for all icons.
 
 ### .NET / C#
 - Controllers: thin — parse HTTP input, call service, map result to response. No business logic.
@@ -178,34 +230,33 @@ High-level modules depend on abstractions, not concrete implementations.
 ## UI Design System
 
 ### Visual Language
-Every page uses the **dark glassmorphism + 3D interactive** design system:
-- **Background**: dark radial gradients per page (each page has its own atmospheric palette)
-- **Cards**: `glass-card` class — frosted glass (`backdrop-filter: blur(20px) saturate(150%)`), subtle border, `transform-style: preserve-3d`
-- **3D tilt**: apply `appTilt [tiltMax]="10"` to every interactive card
-- **Scroll reveal**: apply `appScrollReveal [revealDelay]="idx * 60"` for staggered entrance
-- **Magnetic buttons**: apply `appMagnetic` to primary CTAs (place order, sign in, logout)
+Every page uses the **warm cream light theme**:
+- **Background**: `#fffcf7` (warm cream) with per-page radial gradient tints in brand colours
+- **Cards**: `.glass-card` — white bg, `var(--border)` border, 20px radius, `var(--shadow-md)`
+- **3D tilt**: `appTilt [tiltMax]="10"` on every interactive card
+- **Scroll reveal**: `appScrollReveal [revealDelay]="idx * 60"` for staggered entrance
+- **Magnetic buttons**: `appMagnetic` on primary CTAs
+- **Parallax hover**: `appParallaxHover` on hero sections
+- **Stagger reveal**: `appStaggerReveal` on headline words
 
-### Angular Material Usage
-- `MatFormFieldModule` + `MatInputModule` — all form inputs; always add `.dark-field` class for dark theme overrides
-- `MatButtonModule` — all buttons: `mat-flat-button` (primary), `mat-stroked-button` (secondary/danger)
-- `MatChipsModule` — filter chips and tag displays
-- `MatRippleModule` — interactive cards
-- `MatTooltipModule` — action buttons (accept, reject, add to cart)
-- `MatProgressBarModule` — progress indicators
-- Never mix custom `<button class="btn btn-primary">` with Material buttons in the same component
-
-### Material Icons
-Use `<span class="material-symbols-rounded">icon_name</span>` for all icons.
+### Header (`shared/components/header/`)
+Flat minimal header — **do not add pill containers or cards to the nav**:
+- Logo: bare `<app-logo>` wordmark, no border/card
+- Nav: flat links, `::after` 2px orange underline active state
+- Scrolled: `is-scrolled` class → `backdrop-filter: blur(20px)` + hairline border
+- Logged out: ghost `btn-signin` + filled `btn-getstarted`
+- Logged in: avatar pill with dropdown sheet
+- No live-kitchens pill (removed)
 
 ---
 
 ## When Adding a New Feature
 
-1. **Backend**: Create `I{Feature}Service` interface in `Services/Interfaces/` → implement in `Services/` → register in `Infrastructure/ServiceCollectionExtensions.cs` → inject into controller
-2. **Frontend service**: Create `{feature}.service.ts` in `core/services/` — one HTTP concern per file
-3. **Frontend component**: Standalone, inject services (never `new`), use signals, import only what is used
-4. **Template**: Use `@for/@if/@empty`, Material components where applicable, `appTilt`+`appScrollReveal` on cards
-5. **Styles**: Use CSS custom properties from the design system; glassmorphism `glass-card` for all card surfaces
+1. **Backend**: Create `I{Feature}Service` → implement → register in `ServiceCollectionExtensions.cs` → inject into controller
+2. **Frontend service**: `{feature}.service.ts` in `core/services/` — one HTTP concern per file
+3. **Frontend component**: Standalone, signals, import only what is used, under 500 lines
+4. **Template**: `@for`/`@if`, Material components, `appTilt`+`appScrollReveal` on cards
+5. **Styles**: Warm cream tokens; `.glass-card` for card surfaces; per-page radial-gradient background
 
 ---
 
@@ -219,3 +270,7 @@ Use `<span class="material-symbols-rounded">icon_name</span>` for all icons.
 - ❌ Don't put CSS in `styles.scss` that belongs in a component's own `.scss` file
 - ❌ Don't use `throw new Exception("message")` from services — use `ServiceResult.Fail`
 - ❌ Don't put `Router` into `AuthService` — inject it into the component/guard that needs navigation
+- ❌ Don't use old dark-mode tokens (`--surface-primary`, `--brand-primary`, `--brand-primary-rgb`, `--text-primary`, `--border-color`, `--surface-card`) — use warm cream tokens
+- ❌ Don't exceed 500 lines per file — split into focused components/services
+- ❌ Don't commit `*-original.mp4` files — compressed versions only
+- ❌ Don't use `routerLink="/"` for "Browse Restaurants" links — use `routerLink="/restaurants"` (after the split)

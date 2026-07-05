@@ -1,120 +1,133 @@
-<header class="header"
-  [class.header-scrolled]="scrolled()">
-  <div class="header-glow" aria-hidden="true"></div>
+<header class="site-header" [class.is-scrolled]="scrolled()">
 
-  <div class="header-inner container">
-    <!-- Logo -->
-    <a routerLink="/" class="logo" aria-label="SeeThePrep home">
-      <app-logo variant="wordmark" [size]="56" />
+  <div class="site-header__inner container">
+
+    <!-- ── Logo — wordmark only, no card ─────────────────────────── -->
+    <a routerLink="/" class="site-logo" aria-label="SeeThePrep home">
+      <app-logo variant="wordmark" [size]="52" />
     </a>
 
-    <!-- Primary nav -->
-    <nav class="nav" aria-label="Primary">
+    <!-- ── Primary nav — flat links, no container ────────────────── -->
+    <nav class="site-nav" aria-label="Primary navigation">
       @if (auth.isLoggedIn()) {
         @if (auth.isCustomer()) {
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
-            <span class="material-symbols-rounded nav-icon">storefront</span>
-            <span>Restaurants</span>
+          <a routerLink="/"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{exact: true}"
+            class="nav-link">
+            Restaurants
           </a>
-          <a routerLink="/orders" routerLinkActive="active" class="nav-link">
-            <span class="material-symbols-rounded nav-icon">receipt_long</span>
-            <span>My Orders</span>
+          <a routerLink="/orders"
+            routerLinkActive="is-active"
+            class="nav-link nav-link--orders">
+            My Orders
             @if (orderService.activeOrderCount() > 0) {
-              <span class="nav-order-badge">{{ orderService.activeOrderCount() }}</span>
+              <span class="nav-badge" aria-label="{{ orderService.activeOrderCount() }} active orders">
+                {{ orderService.activeOrderCount() }}
+              </span>
             }
           </a>
         }
         @if (dashboardLink()) {
-          <a [routerLink]="dashboardLink()" routerLinkActive="active" class="nav-link">
-            <span class="material-symbols-rounded nav-icon">dashboard</span>
-            <span>Dashboard</span>
+          <a [routerLink]="dashboardLink()"
+            routerLinkActive="is-active"
+            class="nav-link">
+            Dashboard
           </a>
         }
       }
     </nav>
 
-    <!-- Right-side actions -->
-    <div class="actions">
+    <!-- ── Right actions ─────────────────────────────────────────── -->
+    <div class="site-header__actions">
+
       @if (auth.isCustomer() && !cart.isEmpty()) {
-        <a routerLink="/checkout" class="cart-btn" [class.cart-bouncing]="cartBouncing()" matTooltip="View cart" aria-label="Open cart">
-          <span class="material-symbols-rounded cart-icon">shopping_bag</span>
-          <span class="cart-badge">{{ cart.count() }}</span>
+        <a routerLink="/checkout"
+          class="cart-btn"
+          [class.is-bouncing]="cartBouncing()"
+          matTooltip="View cart"
+          aria-label="Open cart ({{ cart.count() }} items)"
+          appMagnetic>
+          <span class="material-symbols-rounded">shopping_bag</span>
+          <span class="cart-count" aria-hidden="true">{{ cart.count() }}</span>
         </a>
       }
 
-      <!-- Theme toggle -->
-      <button class="theme-toggle-btn"
-        (click)="theme.toggle()"
-        [matTooltip]="theme.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
-        aria-label="Toggle colour theme">
-        @if (theme.theme() === 'dark') {
-          <span class="material-symbols-rounded">light_mode</span>
-        } @else {
-          <span class="material-symbols-rounded">dark_mode</span>
-        }
-      </button>
-
       @if (auth.isLoggedIn()) {
-        <!-- Avatar + dropdown -->
+        <!-- Avatar + sheet -->
         <div class="avatar-wrap">
           <button class="avatar-btn"
-            [class.avatar-btn--open]="dropdownOpen()"
+            [class.is-open]="dropdownOpen()"
             (click)="toggleDropdown()"
             aria-haspopup="true"
             [attr.aria-expanded]="dropdownOpen()"
-            aria-label="Account menu">
+            aria-label="Account menu"
+            appMagnetic>
             <span class="avatar-initial">{{ userInitial() }}</span>
+            <span class="material-symbols-rounded avatar-chevron" aria-hidden="true">expand_more</span>
           </button>
 
           @if (dropdownOpen()) {
-            <div class="avatar-dropdown" role="menu">
-              <!-- Identity -->
-              <div class="dropdown-identity">
-                <div class="dropdown-avatar">{{ userInitial() }}</div>
+            <div class="sheet-backdrop" (click)="dropdownOpen.set(false)" aria-hidden="true"></div>
+
+            <div class="avatar-sheet" role="menu" [class.is-mobile-sheet]="isMobile()">
+              <div class="sheet-handle" aria-hidden="true"></div>
+
+              <div class="sheet-identity">
+                <div class="sheet-avatar">{{ userInitial() }}</div>
                 <div>
-                  <div class="dropdown-name">{{ displayName() }}</div>
-                  <div class="dropdown-role">{{ roleLabel() }}</div>
+                  <p class="sheet-name">{{ displayName() }}</p>
+                  <p class="sheet-role">{{ roleLabel() }}</p>
                 </div>
               </div>
 
-              <div class="dropdown-divider"></div>
+              <div class="sheet-divider"></div>
 
-              <!-- Links -->
               @if (auth.isCustomer()) {
-                <a routerLink="/" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">storefront</span> Restaurants
+                <a routerLink="/" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">storefront</span>
+                  Restaurants
                 </a>
-                <a routerLink="/orders" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">receipt_long</span> My Orders
+                <a routerLink="/orders" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">receipt_long</span>
+                  My Orders
                   @if (orderService.activeOrderCount() > 0) {
-                    <span class="nav-order-badge nav-order-badge--sm">{{ orderService.activeOrderCount() }}</span>
+                    <span class="sheet-badge">{{ orderService.activeOrderCount() }}</span>
                   }
                 </a>
-                <a routerLink="/profile" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">manage_accounts</span> Profile
+                <a routerLink="/profile" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">manage_accounts</span>
+                  Profile
                 </a>
               }
               @if (dashboardLink()) {
-                <a [routerLink]="dashboardLink()" class="dropdown-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">dashboard</span> Dashboard
+                <a [routerLink]="dashboardLink()" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+                  <span class="material-symbols-rounded">dashboard</span>
+                  Dashboard
                 </a>
               }
 
-              <div class="dropdown-divider"></div>
+              <div class="sheet-divider"></div>
 
-              <button class="dropdown-item dropdown-item--danger" (click)="logout()" role="menuitem">
-                <span class="material-symbols-rounded">logout</span> Sign out
+              <button class="sheet-item sheet-item--danger" (click)="logout()" role="menuitem">
+                <span class="material-symbols-rounded">logout</span>
+                Sign out
               </button>
             </div>
           }
         </div>
 
       } @else {
-        <a routerLink="/login" class="signin-btn" appMagnetic>
-          Sign In
-          <span class="material-symbols-rounded">arrow_forward</span>
-        </a>
+        <!-- Two-button pattern: ghost Sign in + filled Get started -->
+        <div class="auth-btns">
+          <a routerLink="/login" class="btn-signin">Sign in</a>
+          <a routerLink="/register" class="btn-getstarted" appMagnetic>
+            Get started
+            <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+          </a>
+        </div>
       }
+
     </div>
   </div>
 </header>

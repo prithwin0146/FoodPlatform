@@ -161,14 +161,14 @@ import { Order } from '../../../core/models';
 
     mat-chip {
       font-size: 0.75rem !important; font-weight: 600 !important; height: 24px !important;
-      &.chip-pending { background: #fef3c7 !important; color: #92400e !important; }
-      &.chip-accepted { background: #dbeafe !important; color: #1e40af !important; }
+      &.chip-pending { background: #fef3c7 !important; color: var(--warning) !important; }
+      &.chip-accepted { background: #dbeafe !important; color: var(--info) !important; }
       &.chip-preparing { background: #ede9fe !important; color: #5b21b6 !important; }
-      &.chip-outfordelivery { background: #fce7f3 !important; color: #9d174d !important; }
-      &.chip-delivered { background: #d1fae5 !important; color: #065f46 !important; }
-      &.chip-rejected { background: #fee2e2 !important; color: #991b1b !important; }
+      &.chip-outfordelivery { background: #ecfdf5 !important; color: var(--success) !important; }
+      &.chip-delivered { background: #d1fae5 !important; color: var(--success) !important; }
+      &.chip-rejected { background: #fee2e2 !important; color: var(--danger) !important; }
       &.chip-cancelled { background: #f3f4f6 !important; color: #6b7280 !important; }
-      &.chip-disputed { background: #ffedd5 !important; color: #9a3412 !important; }
+      &.chip-disputed { background: #ffedd5 !important; color: var(--warning) !important; }
     }
 
     .pagination-row {

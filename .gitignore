@@ -22,3 +22,17 @@ admin-credentials.md
 *.credentials.md
 appsettings.Production.json
 appsettings.Staging.json
+
+# Agent / AI tooling — local runtime data, never commit
+.agents/
+.claude-flow/
+.swarm/
+client/.claude-flow/
+agentdb.rvf
+agentdb.rvf.lock
+ruvector.db
+
+# Original / uncompressed video source files (keep compressed versions only)
+*-original.mp4
+.vscode/mcp.json
+client/.env.local
