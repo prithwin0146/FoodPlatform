@@ -1,25 +1,16 @@
 import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, ViewChildren, QueryList, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { retry } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { CanonicalService } from '../../../core/services/canonical.service';
 import { environment } from '../../../../environments/environment';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { PlatformSettingsService } from '../../../core/services/platform-settings.service';
-import { FavouritesService } from '../../../core/services/favourites.service';
-import { AuthService } from '../../../core/auth/auth.service';
 import { Restaurant } from '../../../core/models';
-import { HygieneStarsPipe } from '../../../shared/pipes/hygiene-stars.pipe';
-import { HygieneLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
@@ -49,12 +40,10 @@ interface Promise {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    HygieneStarsPipe, HygieneLabelPipe,
     TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
     StaggerRevealDirective, ParallaxHoverDirective, RadialSelectDirective,
     Logo, ImageFallback,
-    MatFormFieldModule, MatInputModule, MatChipsModule,
-    MatProgressSpinnerModule, MatRippleModule, MatTooltipModule, MatButtonModule,
+    MatRippleModule, MatButtonModule,
   ],
   templateUrl: './restaurant-list.html',
   styleUrl: './restaurant-list.scss',
@@ -63,62 +52,29 @@ export class RestaurantList implements OnInit, AfterViewInit {
   @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
   @ViewChildren('howVideo') private howVideoRefs!: QueryList<ElementRef<HTMLVideoElement>>;
 
-  readonly restaurants = signal<Restaurant[]>([]);
-  readonly loading = signal(true);
-  readonly searchQuery = signal('');
   readonly demoVideoUrl = signal<string>('');
-  private readonly sanitizer = inject(DomSanitizer);
-  private readonly platformSettings = inject(PlatformSettingsService);
-  readonly favourites = inject(FavouritesService);
-  readonly auth = inject(AuthService);
+  /** Postcode / name typed into the Kitchen Spotlight on the hero. */
+  readonly postcodeQuery = signal('');
+  readonly spotlightFocused = signal(false);
 
-  /** IDs of restaurants the customer is currently toggling (prevents double-click). */
-  readonly togglingFavId = signal<number | null>(null);
+  /** Lightweight restaurant list — powers Spotlight count + preview only. */
+  private readonly allRestaurants = signal<Restaurant[]>([]);
 
-  /** Restaurants the customer has favourited — shown in a pinned section. */
-  readonly favouriteRestaurants = computed(() =>
-    this.restaurants().filter(r => this.favourites.isFavourite(r.id))
-  );
+  /** Live kitchen count displayed inside the Spotlight CTA button. */
+  readonly liveKitchenCount = computed(() => this.allRestaurants().length);
 
-  readonly CUISINE_OPTIONS = ['All', 'Indian', 'Italian', 'Japanese', 'Burgers', 'Chinese', 'Healthy', 'Pizza', 'Other'];
-  readonly DIETARY_OPTIONS = ['Vegan', 'Vegetarian', 'Halal', 'Gluten-free'];
-
-  readonly cuisineFilter = signal('All');
-  readonly sortOption = signal<'name' | 'rating' | 'time'>('rating');
-  readonly activeDietary = signal<string[]>([]);
-
-  /** Filtered + sorted restaurants — recomputes whenever any filter/sort signal changes. */
-  readonly filteredRestaurants = computed(() => {
-    const q = this.searchQuery().toLowerCase();
-    const cuisine = this.cuisineFilter();
-    const dietary = this.activeDietary();
-    const sort = this.sortOption();
-
-    let result = this.restaurants().filter(r => {
-      if (cuisine !== 'All' && r.cuisineType !== cuisine) return false;
-      if (dietary.length > 0) {
-        // dietary tags come from menu items — we approximate at restaurant level via cuisineType
-        // Full implementation: check menu item dietaryTags. For now filter by known mappings.
-        const tags = r.cuisineType?.toLowerCase() ?? '';
-        const veganCuisines = ['healthy'];
-        const vegCuisines = ['healthy', 'indian'];
-        if (dietary.includes('Vegan') && !veganCuisines.includes(tags)) return false;
-        if (dietary.includes('Vegetarian') && !vegCuisines.includes(tags)) return false;
-        if (dietary.includes('Halal') && !['indian', 'chinese'].includes(tags)) return false;
-      }
-      if (q) return r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q);
-      return true;
-    });
-
-    if (sort === 'name') result = [...result].sort((a, b) => a.name.localeCompare(b.name));
-    else if (sort === 'rating') result = [...result].sort((a, b) => b.hygieneRating - a.hygieneRating);
-    else if (sort === 'time') result = [...result].sort((a, b) => a.estimatedDeliveryMinutes - b.estimatedDeliveryMinutes);
-
-    return result;
+  /** Up to 3 restaurants shown in the Spotlight preview dropdown. */
+  readonly spotlightPreview = computed(() => {
+    const q = this.postcodeQuery().toLowerCase();
+    if (!q) return this.allRestaurants().slice(0, 3);
+    return this.allRestaurants()
+      .filter(r => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q))
+      .slice(0, 3);
   });
 
-  /** Hero scroll progress (0 → 1) for header colour shift */
-  readonly scrollY = signal(0);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly platformSettings = inject(PlatformSettingsService);
+  private readonly router = inject(Router);
 
   /** Resolves a video filename to a CDN URL (if videoCdnUrl is set) or local public path. */
   private videoUrl(filename: string): string {
@@ -268,19 +224,14 @@ export class RestaurantList implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Lightweight load for Kitchen Spotlight count + preview — no UI loading state needed.
     this.restaurantService.list()
       .pipe(retry({ count: 3, delay: () => timer(2000) }))
-      .subscribe({
-        next: (data) => { this.restaurants.set(data); this.loading.set(false); },
-        error: () => this.loading.set(false),
-      });
+      .subscribe({ next: (data) => this.allRestaurants.set(data), error: () => undefined });
     this.platformSettings.getPublicSettings().subscribe(s => {
       const v = s['homepage_demo_video'];
       if (v) this.demoVideoUrl.set(v);
     });
-    if (this.auth.isCustomer()) {
-      this.favourites.loadFavourites().subscribe();
-    }
   }
 
   ngAfterViewInit(): void {
@@ -369,44 +320,22 @@ export class RestaurantList implements OnInit, AfterViewInit {
     }
   }
 
-  onSearch(event: Event): void {
-    this.searchQuery.set((event.target as HTMLInputElement).value);
+  onPostcodeInput(event: Event): void {
+    this.postcodeQuery.set((event.target as HTMLInputElement).value);
   }
 
-  onSort(event: Event): void {
-    this.sortOption.set((event.target as HTMLSelectElement).value as 'name' | 'rating' | 'time');
+  onSpotlightBlur(): void {
+    // Small delay allows click events on preview items to fire before hiding dropdown.
+    setTimeout(() => this.spotlightFocused.set(false), 200);
   }
 
-  toggleDietary(tag: string): void {
-    const current = this.activeDietary();
-    this.activeDietary.set(
-      current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag]
-    );
-  }
-
-  /** Adds or removes a restaurant from the customer's favourites list. */
-  toggleFavourite(event: Event, restaurant: Restaurant): void {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!this.auth.isCustomer() || this.togglingFavId() !== null) return;
-    this.togglingFavId.set(restaurant.id);
-    this.favourites.toggle(restaurant.hashId, restaurant.id).subscribe({
-      next: () => this.togglingFavId.set(null),
-      error: () => this.togglingFavId.set(null),
-    });
-  }
-
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
-    if (!this.isBrowser) return;
-    this.scrollY.set(window.scrollY);
-  }
-
-  scrollToRestaurants(): void {
-    this.doc.getElementById('restaurants-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  scrollToHow(): void {
-    this.doc.getElementById('how-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /** Navigate to /restaurants, carrying the postcode query as ?q= if present. */
+  navigateToRestaurants(): void {
+    const q = this.postcodeQuery().trim();
+    if (q) {
+      this.router.navigate(['/restaurants'], { queryParams: { q } });
+    } else {
+      this.router.navigate(['/restaurants']);
+    }
   }
 }

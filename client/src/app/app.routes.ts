@@ -8,6 +8,11 @@ export const routes: Routes = [
       import('./features/customer/restaurant-list/restaurant-list').then((m) => m.RestaurantList),
   },
   {
+    path: 'restaurants',
+    loadComponent: () =>
+      import('./features/customer/restaurants-browse/restaurants-browse').then((m) => m.RestaurantsBrowse),
+  },
+  {
     path: 'restaurant/:id',
     loadComponent: () =>
       import('./features/customer/restaurant-menu/restaurant-menu').then((m) => m.RestaurantMenu),

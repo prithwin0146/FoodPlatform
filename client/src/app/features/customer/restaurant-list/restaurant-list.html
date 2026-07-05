@@ -67,274 +67,59 @@
         Verified hygiene ratings. Allergens on the record. The receipt is the footage.
      </p>
 
-      <div class="hero-ctas">
-        <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
-          <span class="cta-micro-ring" aria-hidden="true"></span>
-          <span class="material-symbols-rounded">restaurant</span>
-          Order & Watch Live
-          <span class="cta-shine"></span>
-       </button>
-        <button mat-stroked-button class="cta-secondary" appMagnetic appRadialSelect (click)="scrollToHow()">
-          <span class="material-symbols-rounded">play_circle</span>
-          See how it works
-       </button>
-     </div>
-
-      <ul class="proof-strip">
-        <li class="proof-pill">
-          <span class="material-symbols-rounded">verified_user</span>
-          FSA 5-star kitchens only
-       </li>
-        <li class="proof-pill">
-          <span class="material-symbols-rounded">videocam</span>
-          Live camera on every order
-       </li>
-        <li class="proof-pill">
-          <span class="material-symbols-rounded">payments</span>
-          Tips paid in full to chefs
-       </li>
-     </ul>
-   </div>
- </div>
-
-  <!-- Scroll nudge -->
-  <div class="hero-scroll-cue" aria-hidden="true" (click)="scrollToRestaurants()">
-    <span class="material-symbols-rounded">keyboard_arrow_down</span>
- </div>
-
-  <!-- Hero scroll progress rail (scroll-driven, no JS) -->
-  <div class="hero-progress-rail" aria-hidden="true"></div>
-
-</section>
-
-
-<!-- ════════════════════════════════════ LOGO WALL removed pending real partners ══ -->
-
-
-<!-- ════════════════════════════════════════════════════ RESTAURANTS GRID ══ -->
-<section class="restaurants" id="restaurants-section">
-  <div class="container">
-    <header class="section-eyebrow" appScrollReveal>
-      <span class="eyebrow-line live-pulse"></span>
-      <span class="eyebrow-text">BROWSE & ORDER</span>
-   </header>
-    <div class="section-header" appScrollReveal>
-      <div>
-        <h2 class="section-h2">Kitchens <span class="text-gradient-NEW--primary">currently live</span></h2>
-        <p class="section-sub">{{ filteredRestaurants().length }} verified kitchens · search by name, cuisine or postcode</p>
-     </div>
-      <div class="search-wrapper">
-        <mat-form-field class="hero-search" appearance="outline" color="primary">
-          <mat-label>Search by name, cuisine or postcode</mat-label>
-          <span matPrefix class="material-symbols-rounded search-prefix">search</span>
-          <input matInput
-                 [value]="searchQuery()"
-                 (input)="onSearch($event)"
-                 appRadialSelect
-                 autocomplete="off" />
-       </mat-form-field>
-     </div>
-   </div>
-
-    <!-- ── Cuisine filter chips ── -->
-    <div class="filter-bar glass-card" appScrollReveal>
-      @for (c of CUISINE_OPTIONS; track c) {
-        <button class="cuisine-chip chip-pill"
-          [class.chip-active]="cuisineFilter() === c"
-          (click)="cuisineFilter.set(c)"
-          appRadialSelect>{{ c }}</button>
-      }
-    </div>
-
-    <!-- ── Sort + Dietary row ── -->
-    <div class="filter-row" appScrollReveal>
-      <div class="sort-wrapper">
-        <span class="material-symbols-rounded sort-icon">sort</span>
-        <select class="sort-select" [value]="sortOption()" (change)="onSort($event)" appRadialSelect>
-          <option value="rating">Top rated</option>
-          <option value="time">Fastest delivery</option>
-          <option value="name">Name A–Z</option>
-       </select>
-     </div>
-      <div class="dietary-chips">
-        @for (d of DIETARY_OPTIONS; track d) {
-          <button class="dietary-chip"
-            [class.active]="activeDietary().includes(d)"
-            (click)="toggleDietary(d)"
-            appRadialSelect>{{ d }}</button>
-        }
-     </div>
-   </div>
-
-    @if (loading()) {
-      <div class="grid">
-        @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="skeleton-card">
-            <div class="sk-img"></div>
-            <div class="sk-line w70"></div>
-            <div class="sk-line w50"></div>
-            <div class="sk-line w35"></div>
+      <!-- ── Kitchen Spotlight — single-action hero CTA ── -->
+      <div class="kitchen-spotlight" appScrollReveal>
+        <div class="spotlight-pill" [class.is-focused]="spotlightFocused()">
+          <span class="spotlight-icon material-symbols-rounded">place</span>
+          <input
+            type="text"
+            class="spotlight-input"
+            placeholder="Search kitchens, cuisine or postcode"
+            [value]="postcodeQuery()"
+            (input)="onPostcodeInput($event)"
+            (focus)="spotlightFocused.set(true)"
+            (blur)="onSpotlightBlur()"
+            (keydown.enter)="navigateToRestaurants()"
+            appRadialSelect
+            aria-label="Search kitchens" />
+          <button class="spotlight-cta" (click)="navigateToRestaurants()" appMagnetic type="button">
+            @if (liveKitchenCount() > 0) {
+              <span class="spotlight-cta-count">{{ liveKitchenCount() }}</span>
+              <span class="spotlight-cta-label">live kitchens</span>
+            } @else {
+              <span class="spotlight-cta-label">Find kitchens</span>
+            }
+            <span class="material-symbols-rounded">arrow_forward</span>
+          </button>
+        </div>
+        @if (spotlightFocused() && spotlightPreview().length > 0) {
+          <div class="spotlight-dropdown">
+            @for (r of spotlightPreview(); track r.id) {
+              <a [routerLink]="['/restaurant', r.hashId]" class="spi-row">
+                <div class="spi-thumb">
+                  @if (r.imageUrl) {
+                    <img [src]="r.imageUrl" [alt]="r.name" width="44" height="44">
+                  } @else {
+                    <app-image-fallback [name]="r.name" tone="auto" />
+                  }
+                </div>
+                <div class="spi-body">
+                  <p class="spi-name">{{ r.name }}</p>
+                  <p class="spi-meta">{{ r.cuisineType }} · ~{{ r.estimatedDeliveryMinutes }} min</p>
+                </div>
+                <span class="spi-live"><span class="spi-live-dot"></span> LIVE</span>
+              </a>
+            }
+            <button class="spi-see-all" (click)="navigateToRestaurants()" type="button">
+              See all {{ liveKitchenCount() }} kitchens
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
           </div>
         }
-     </div>
-    } @else {
-
-      <!-- ── Favourites section (customers only, if they have saved restaurants) ── -->
-      @if (auth.isCustomer() && favouriteRestaurants().length > 0) {
-        <div class="favourites-section" appScrollReveal>
-          <h2 class="favourites-heading">
-            <span class="material-symbols-rounded">favorite</span>
-            Your Favourites
-         </h2>
-          <div class="grid">
-            @for (restaurant of favouriteRestaurants(); track restaurant.id; let i = $index) {
-              <a [routerLink]="['/restaurant', restaurant.hashId]"
-                 class="glass-card tilt-card restaurant-card card-ripple elite-card"
-                 appTilt [tiltMax]="12"
-                 appParallaxHover [parallaxMax]="10"
-                 appScrollReveal [revealDelay]="i * 70"
-                 appRadialSelect>
-                <div class="card-glare"></div>
-                <div class="card-image">
-                  <div class="card-image-gradient" data-parallax-depth="0.3"></div>
-                  <div class="card-img-overlay" data-parallax-depth="0.5"></div>
-                  <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
-                    <span class="material-symbols-rounded">workspace_premium</span>
-                    Elite
-                 </span>
-                  @if (restaurant.imageUrl) {
-                    <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
-                  } @else {
-                    <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
-                  }
-                  <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
-                    <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
-                    <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
-                 </div>
-                  <button class="fav-btn fav-btn--active"
-                    (click)="toggleFavourite($event, restaurant)"
-                    [disabled]="togglingFavId() === restaurant.id"
-                    aria-label="Remove from favourites"
-                    matTooltip="Remove from favourites"
-                    appMagnetic
-                    appRadialSelect
-                    data-parallax-depth="1.3">
-                    <span class="material-symbols-rounded">favorite</span>
-                 </button>
-               </div>
-                <div class="card-body" data-parallax-depth="1.0">
-                  <div class="card-title-row">
-                    <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-                 </div>
-                  <div class="restaurant-meta">
-                    <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
-                    <span class="meta-item">
-                      <span class="material-symbols-rounded meta-icon">schedule</span>
-                      ~{{ restaurant.estimatedDeliveryMinutes }} min
-                   </span>
-                    @if (restaurant.supportsCollection) {
-                      <span class="collection-badge">
-                        <span class="material-symbols-rounded">store</span> Pickup
-                     </span>
-                    }
-                 </div>
-               </div>
-             </a>
-            }
-         </div>
-       </div>
-        <div class="section-divider" appScrollReveal>
-          <span>All Restaurants</span>
-       </div>
-      }
-
-      <div class="grid">
-        @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
-          <a [routerLink]="['/restaurant', restaurant.hashId]"
-             class="glass-card tilt-card restaurant-card card-ripple elite-card"
-             appParallaxHover [parallaxMax]="10"
-             appScrollReveal [revealDelay]="i * 70">
-            <div class="card-glare"></div>
-            <div class="card-image">
-              <div class="card-image-gradient" data-parallax-depth="0.3"></div>
-              <div class="card-img-overlay" data-parallax-depth="0.5"></div>
-              @if (restaurant.hygieneRating >= 5) {
-                <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
-                  <span class="material-symbols-rounded">workspace_premium</span>
-                  5★
-               </span>
-              }
-              @if (restaurant.imageUrl) {
-                <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
-              } @else {
-                <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
-              }
-              <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
-                <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
-                <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
-             </div>
-              <div class="live-pip live-badge"><span class="live-dot-anim"></span> LIVE</div>
-              @if (auth.isCustomer()) {
-                <button class="fav-btn"
-                  [class.fav-btn--active]="favourites.isFavourite(restaurant.id)"
-                  (click)="toggleFavourite($event, restaurant)"
-                  [disabled]="togglingFavId() === restaurant.id"
-                  [attr.aria-label]="favourites.isFavourite(restaurant.id) ? 'Remove from favourites' : 'Add to favourites'"
-                  [attr.matTooltip]="favourites.isFavourite(restaurant.id) ? 'Saved' : 'Save restaurant'"
-                  appRadialSelect
-                  data-parallax-depth="1.3">
-                  <span class="material-symbols-rounded">
-                    {{ favourites.isFavourite(restaurant.id) ? 'favorite' : 'favorite_border' }}
-                 </span>
-               </button>
-              }
-           </div>
-            <div class="card-body" data-parallax-depth="1.0">
-              <div class="card-title-row">
-                <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-                @if (restaurant.isActive) {
-                  <span class="status-pill pill-open">
-                    <span class="pulse-dot"></span> Open
-                 </span>
-                } @else {
-                  <span class="status-pill pill-closed">Closed</span>
-                }
-             </div>
-              <p class="restaurant-address">
-                <span class="material-symbols-rounded meta-icon">location_on</span>
-                {{ restaurant.address }}
-             </p>
-              <div class="restaurant-meta">
-                <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
-                <span class="meta-item">
-                  <span class="material-symbols-rounded meta-icon">schedule</span>
-                  ~{{ restaurant.estimatedDeliveryMinutes }} min
-               </span>
-                <span class="meta-item">
-                  <span class="material-symbols-rounded meta-icon">pedal_bike</span>
-                  {{ restaurant.deliveryRadiusMiles }} mi
-               </span>
-                @if (restaurant.supportsCollection) {
-                  <span class="collection-badge">
-                    <span class="material-symbols-rounded">store</span> Pickup
-                 </span>
-                }
-                <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
-             </div>
-           </div>
-         </a>
-        } @empty {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <span class="material-symbols-rounded">restaurant</span>
-           </div>
-            <h3>Nothing's cooking here — yet</h3>
-            <p>Try a different name, cuisine or postcode. New kitchens go live every week.</p>
-         </div>
-        }
-     </div>
-    }
+      </div>
+   </div>
  </div>
+
 </section>
 
 
@@ -672,13 +457,13 @@
      </h2>
       <p class="cta-sub">Browse live kitchens in your area. No account needed to look around — sign in only when you're ready to order</p>
       <div class="cta-actions">
-        <button mat-flat-button class="cta-primary" appMagnetic (click)="scrollToRestaurants()">
+        <button mat-flat-button class="cta-primary" appMagnetic (click)="navigateToRestaurants()">
           <span class="cta-micro-ring" aria-hidden="true"></span>
           <span class="material-symbols-rounded">restaurant</span>
           Browse live kitchens
           <span class="cta-shine"></span>
        </button>
-        <button class="cta-link" (click)="scrollToRestaurants()" type="button">Browse without signing up →</button>
+        <button class="cta-link" (click)="navigateToRestaurants()" type="button">Browse without signing up →</button>
      </div>
    </div>
  </div>
@@ -725,7 +510,7 @@
     <nav class="footer-nav" aria-label="Footer">
       <div class="footer-col">
         <h4>Eat</h4>
-        <a routerLink="/" fragment="restaurants-section">Browse kitchens</a>
+        <a routerLink="/restaurants">Browse kitchens</a>
         <a routerLink="/" fragment="how-section">How it works</a>
         <a routerLink="/login">Track an order</a>
         <a routerLink="/info/gift-cards">Gift cards</a>

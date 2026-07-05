@@ -11,9 +11,8 @@
     <nav class="site-nav" aria-label="Primary navigation">
       @if (auth.isLoggedIn()) {
         @if (auth.isCustomer()) {
-          <a routerLink="/"
+          <a routerLink="/restaurants"
             routerLinkActive="is-active"
-            [routerLinkActiveOptions]="{exact: true}"
             class="nav-link">
             Restaurants
           </a>

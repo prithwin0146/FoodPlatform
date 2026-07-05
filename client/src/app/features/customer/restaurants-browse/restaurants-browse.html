@@ -1,0 +1,241 @@
+<div class="browse-page">
+  <!-- Decorative ambient orbs -->
+  <div class="browse-bg" aria-hidden="true">
+    <div class="bb-orb bb-orb-1"></div>
+    <div class="bb-orb bb-orb-2"></div>
+    <div class="bb-orb bb-orb-3"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ PAGE HEADER ══ -->
+  <header class="browse-header">
+    <div class="container browse-header-inner">
+      <div class="browse-header-left" appScrollReveal>
+        <div class="browse-eyebrow">
+          <span class="eyebrow-line live-pulse"></span>
+          <span class="eyebrow-text">LIVE NOW</span>
+        </div>
+        <h1 class="browse-title">
+          Live Kitchens <span class="text-gradient">near you</span>
+        </h1>
+        <p class="browse-sub">
+          {{ filteredRestaurants().length }} verified kitchens · FSA 5★ · cameras always on
+        </p>
+      </div>
+
+      <div class="browse-search-wrap" appScrollReveal [revealDelay]="80">
+        <mat-form-field class="browse-search" appearance="outline">
+          <mat-label>Search by name, cuisine or postcode</mat-label>
+          <span matPrefix class="material-symbols-rounded search-prefix">search</span>
+          <input matInput
+                 [value]="searchQuery()"
+                 (input)="onSearch($event)"
+                 appRadialSelect
+                 autocomplete="off" />
+        </mat-form-field>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════ BROWSE BODY ══ -->
+  <div class="browse-body">
+    <div class="container">
+
+      <!-- Cuisine filter chips -->
+      <div class="filter-bar" appScrollReveal>
+        @for (c of CUISINE_OPTIONS; track c) {
+          <button class="cuisine-chip"
+            [class.chip-active]="cuisineFilter() === c"
+            (click)="cuisineFilter.set(c)"
+            appRadialSelect>{{ c }}</button>
+        }
+      </div>
+
+      <!-- Sort + Dietary row -->
+      <div class="filter-row" appScrollReveal [revealDelay]="40">
+        <div class="sort-wrapper">
+          <span class="material-symbols-rounded sort-icon">sort</span>
+          <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
+            <option value="rating">Top rated</option>
+            <option value="time">Fastest delivery</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+        <div class="dietary-chips">
+          @for (d of DIETARY_OPTIONS; track d) {
+            <button class="dietary-chip"
+              [class.active]="activeDietary().includes(d)"
+              (click)="toggleDietary(d)"
+              appRadialSelect>{{ d }}</button>
+          }
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="grid">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="skeleton-card">
+              <div class="sk-img"></div>
+              <div class="sk-line w70"></div>
+              <div class="sk-line w50"></div>
+              <div class="sk-line w35"></div>
+            </div>
+          }
+        </div>
+      } @else {
+
+        <!-- Favourites section (customers only) -->
+        @if (auth.isCustomer() && favouriteRestaurants().length > 0) {
+          <div class="favourites-section" appScrollReveal>
+            <h2 class="favourites-heading">
+              <span class="material-symbols-rounded">favorite</span>
+              Your Favourites
+            </h2>
+            <div class="grid">
+              @for (restaurant of favouriteRestaurants(); track restaurant.id; let i = $index) {
+                <a [routerLink]="['/restaurant', restaurant.hashId]"
+                   class="restaurant-card tilt-card elite-card card-ripple"
+                   appTilt [tiltMax]="12"
+                   appParallaxHover [parallaxMax]="10"
+                   appScrollReveal [revealDelay]="i * 70">
+                  <div class="card-glare"></div>
+                  <div class="card-image">
+                    <div class="card-image-gradient" data-parallax-depth="0.3"></div>
+                    <div class="card-img-overlay" data-parallax-depth="0.5"></div>
+                    <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
+                      <span class="material-symbols-rounded">workspace_premium</span>
+                      Elite
+                    </span>
+                    @if (restaurant.imageUrl) {
+                      <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
+                    } @else {
+                      <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
+                    }
+                    <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
+                      <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
+                      <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
+                    </div>
+                    <button class="fav-btn fav-btn--active"
+                      (click)="toggleFavourite($event, restaurant)"
+                      [disabled]="togglingFavId() === restaurant.id"
+                      aria-label="Remove from favourites"
+                      matTooltip="Remove from favourites"
+                      appMagnetic
+                      data-parallax-depth="1.3">
+                      <span class="material-symbols-rounded">favorite</span>
+                    </button>
+                  </div>
+                  <div class="card-body" data-parallax-depth="1.0">
+                    <div class="card-title-row">
+                      <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                    </div>
+                    <div class="restaurant-meta">
+                      <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
+                      <span class="meta-item">
+                        <span class="material-symbols-rounded meta-icon">schedule</span>
+                        ~{{ restaurant.estimatedDeliveryMinutes }} min
+                      </span>
+                      @if (restaurant.supportsCollection) {
+                        <span class="collection-badge">
+                          <span class="material-symbols-rounded">store</span> Pickup
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </a>
+              }
+            </div>
+          </div>
+          <div class="section-divider" appScrollReveal><span>All Restaurants</span></div>
+        }
+
+        <!-- ── Main grid ── -->
+        <div class="grid">
+          @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
+            <a [routerLink]="['/restaurant', restaurant.hashId]"
+               class="restaurant-card tilt-card elite-card card-ripple"
+               appParallaxHover [parallaxMax]="10"
+               appScrollReveal [revealDelay]="i * 70">
+              <div class="card-glare"></div>
+              <div class="card-image">
+                <div class="card-image-gradient" data-parallax-depth="0.3"></div>
+                <div class="card-img-overlay" data-parallax-depth="0.5"></div>
+                @if (restaurant.hygieneRating >= 5) {
+                  <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
+                    <span class="material-symbols-rounded">workspace_premium</span>
+                    5★
+                  </span>
+                }
+                @if (restaurant.imageUrl) {
+                  <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
+                } @else {
+                  <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
+                }
+                <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
+                  <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
+                  <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
+                </div>
+                <div class="live-pip"><span class="live-dot-anim"></span> LIVE</div>
+                @if (auth.isCustomer()) {
+                  <button class="fav-btn"
+                    [class.fav-btn--active]="favourites.isFavourite(restaurant.id)"
+                    (click)="toggleFavourite($event, restaurant)"
+                    [disabled]="togglingFavId() === restaurant.id"
+                    [attr.aria-label]="favourites.isFavourite(restaurant.id) ? 'Remove from favourites' : 'Add to favourites'"
+                    [attr.matTooltip]="favourites.isFavourite(restaurant.id) ? 'Saved' : 'Save restaurant'"
+                    appRadialSelect
+                    data-parallax-depth="1.3">
+                    <span class="material-symbols-rounded">
+                      {{ favourites.isFavourite(restaurant.id) ? 'favorite' : 'favorite_border' }}
+                    </span>
+                  </button>
+                }
+              </div>
+              <div class="card-body" data-parallax-depth="1.0">
+                <div class="card-title-row">
+                  <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                  @if (restaurant.isActive) {
+                    <span class="status-pill pill-open">
+                      <span class="pulse-dot"></span> Open
+                    </span>
+                  } @else {
+                    <span class="status-pill pill-closed">Closed</span>
+                  }
+                </div>
+                <p class="restaurant-address">
+                  <span class="material-symbols-rounded meta-icon">location_on</span>
+                  {{ restaurant.address }}
+                </p>
+                <div class="restaurant-meta">
+                  <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
+                  <span class="meta-item">
+                    <span class="material-symbols-rounded meta-icon">schedule</span>
+                    ~{{ restaurant.estimatedDeliveryMinutes }} min
+                  </span>
+                  <span class="meta-item">
+                    <span class="material-symbols-rounded meta-icon">pedal_bike</span>
+                    {{ restaurant.deliveryRadiusMiles }} mi
+                  </span>
+                  @if (restaurant.supportsCollection) {
+                    <span class="collection-badge">
+                      <span class="material-symbols-rounded">store</span> Pickup
+                    </span>
+                  }
+                  <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
+                </div>
+              </div>
+            </a>
+          } @empty {
+            <div class="empty-state">
+              <div class="empty-icon">
+                <span class="material-symbols-rounded">restaurant</span>
+              </div>
+              <h3>Nothing's cooking here — yet</h3>
+              <p>Try a different name, cuisine or postcode. New kitchens go live every week.</p>
+            </div>
+          }
+        </div>
+
+      }
+    </div>
+  </div>
+</div>
