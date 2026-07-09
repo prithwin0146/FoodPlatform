@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { OrderService } from '../../../core/services/order.service';
 import { IdempotencyKeyService } from '../../../core/services/idempotency-key.service';
-import { Order, PaginatedResult } from '../../../core/models';
+import { Order, PaginatedResult, ORDER_STATUS_FLOW } from '../../../core/models';
 import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 
@@ -84,6 +84,14 @@ export class MyOrders implements OnInit {
 
   nextPage(): void { this.loadPage(this.currentPage() + 1); }
   prevPage(): void { this.loadPage(this.currentPage() - 1); }
+
+  readonly statusFlow = ORDER_STATUS_FLOW;
+
+  /** Returns the index of a status in the happy-path flow, or -1 for terminal states (Rejected/Cancelled). */
+  getStatusIndex(status: string): number {
+    const idx = this.statusFlow.findIndex(s => s.toLowerCase() === status.toLowerCase());
+    return idx;
+  }
 
   /** True while an order is still in the active pipeline. */
   isActive(order: Order): boolean {

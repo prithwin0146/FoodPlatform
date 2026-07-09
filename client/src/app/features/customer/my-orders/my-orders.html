@@ -2,28 +2,29 @@
   <div class="page-bg"></div>
   <div class="container">
 
+    <!-- ── Header ── -->
     <div class="page-header" appScrollReveal>
       <div class="page-title-wrap">
         <span class="page-icon material-symbols-rounded">receipt_long</span>
         <div>
           <h1 class="page-title">My Orders</h1>
-          <p class="page-sub">Track your orders and revisit past deliveries.</p>
+          <p class="page-sub">Track your orders and revisit past favourites.</p>
         </div>
       </div>
       <a routerLink="/restaurants" mat-stroked-button class="back-btn">
         <span class="material-symbols-rounded">storefront</span>
-        Browse Restaurants
+        Browse
       </a>
     </div>
 
-    <!-- Search + Filter -->
+    <!-- ── Search + Filter Bar ── -->
     <div class="search-filter-bar" appScrollReveal>
       <mat-form-field appearance="outline" class="dark-field search-field">
         <mat-label>Search by restaurant</mat-label>
         <span matPrefix class="material-symbols-rounded search-prefix-icon">search</span>
         <input matInput [ngModel]="restaurantSearch()"
           (ngModelChange)="restaurantSearch.set($event)"
-          placeholder="e.g. Burger Palace">
+          placeholder="e.g. Spice Garden">
         @if (restaurantSearch()) {
           <button matSuffix mat-icon-button aria-label="Clear" (click)="restaurantSearch.set('')">
             <span class="material-symbols-rounded">close</span>
@@ -31,7 +32,6 @@
         }
       </mat-form-field>
 
-      <!-- Filter tabs -->
       <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeFilter() === 'all'"    (click)="activeFilter.set('all')">All</button>
         <button class="filter-tab" [class.active]="activeFilter() === 'active'" (click)="activeFilter.set('active')">Active</button>
@@ -39,83 +39,134 @@
       </div>
     </div>
 
+    <!-- ── Loading Skeleton ── -->
     @if (loading()) {
       <div class="skeleton-list">
         @for (i of [1,2,3]; track i) {
-          <div class="skeleton-row">
-            <div class="sk sk-id"></div>
-            <div class="sk sk-name"></div>
-            <div class="sk sk-status"></div>
-            <div class="sk sk-total"></div>
+          <div class="skeleton-card">
+            <div class="sk-pipeline">
+              @for (j of [1,2,3,4,5,6,7]; track j) {
+                <span class="sk-dot"></span>
+              }
+            </div>
+            <div class="sk-body">
+              <div class="sk sk-id"></div>
+              <div class="sk sk-name"></div>
+              <div class="sk sk-tags"></div>
+              <div class="sk sk-total"></div>
+            </div>
           </div>
         }
       </div>
-    } @else if (filteredOrders().length === 0) {
-      <div class="empty-state glass-card" appScrollReveal>
-        <span class="empty-icon material-symbols-rounded">inbox</span>
-        <h3>No orders yet</h3>
-        <p>Your order history will appear here once you place your first order.</p>
-        <a routerLink="/" mat-flat-button class="browse-btn">
+    }
+
+    <!-- ── Empty State ── -->
+    @else if (filteredOrders().length === 0) {
+      <div class="empty-state" appScrollReveal>
+        <div class="empty-illustration">
+          <span class="empty-icon material-symbols-rounded empty-icon--back">restaurant_menu</span>
+          <span class="empty-icon material-symbols-rounded empty-icon--mid">shopping_basket</span>
+          <span class="empty-icon material-symbols-rounded empty-icon--front">local_shipping</span>
+        </div>
+        <h3 class="empty-title">No orders yet</h3>
+        <p class="empty-desc">Your order history will appear here once you place your first order.</p>
+        <a routerLink="/restaurants" mat-flat-button class="browse-btn">
           <span class="material-symbols-rounded">restaurant</span>
           Browse Restaurants
         </a>
       </div>
-    } @else {
+    }
+
+    <!-- ── Order Cards ── -->
+    @else {
       <div class="orders-list">
         @for (order of filteredOrders(); track order.id; let idx = $index) {
+          @let stepIdx = getStatusIndex(order.status);
+          @let isTerminal = stepIdx < 0;
+
           <a
-            class="order-row glass-card"
-            [class.order-row--active]="isActive(order)"
+            class="order-card"
+            [class.card--active]="isActive(order)"
+            [class.card--terminal]="!isActive(order)"
             [routerLink]="['/orders', order.hashId]"
-            appScrollReveal [revealDelay]="idx * 40"
+            appScrollReveal [revealDelay]="idx * 50"
             matRipple
           >
-            <div class="row-left">
-              <div class="order-num-wrap">
-                <span class="order-num">#{{ order.id }}</span>
-                @if (isActive(order)) {
-                  <span class="active-pill">Live</span>
+            <!-- ── Status Pipeline ── -->
+            @if (!isTerminal) {
+              <div class="status-pipeline">
+                @for (step of statusFlow; track step; let i = $index) {
+                  <span class="pipe-step"
+                    [class.step--completed]="i < stepIdx"
+                    [class.step--current]="i === stepIdx"
+                    [class.step--future]="i > stepIdx">
+                    <span class="step-dot">
+                      @if (i < stepIdx) {
+                        <span class="material-symbols-rounded dot-check">check</span>
+                      }
+                      @if (i === stepIdx) {
+                        <span class="dot-pulse-ring"></span>
+                      }
+                    </span>
+                    <span class="step-label">{{ step }}</span>
+                  </span>
+                  @if (i < statusFlow.length - 1) {
+                    <span class="step-line" [class.line--completed]="i < stepIdx"></span>
+                  }
                 }
               </div>
-              <span class="restaurant-name">{{ order.restaurantName }}</span>
-              <span class="order-date">{{ order.createdAt | date:'d MMM y · HH:mm' }}</span>
-            </div>
+            } @else {
+              <div class="status-terminal">
+                <span class="terminal-dot"></span>
+                <span class="terminal-label">{{ order.status | orderStatusLabel }}</span>
+              </div>
+            }
 
-            <div class="row-middle">
-              @for (item of order.items.slice(0, 3); track item.id) {
-                <span class="item-tag">{{ item.quantity }}× {{ item.menuItemName }}</span>
-              }
-              @if (order.items.length > 3) {
-                <span class="item-tag item-tag--more">+{{ order.items.length - 3 }} more</span>
-              }
-            </div>
-
-            <div class="row-right">
-              <span class="status-chip" [class]="'chip-' + order.status.toLowerCase()">
-                <span class="status-dot"></span>
-                {{ order.status | orderStatusLabel }}
-              </span>
-              <span class="order-total">{{ order.totalAmount | currency:'GBP' }}</span>
-              @if (!isActive(order)) {
-                <button mat-flat-button class="reorder-btn"
-                  (click)="$event.preventDefault(); $event.stopPropagation(); reorder(order)"
-                  [disabled]="reorderingId() !== null"
-                  matTooltip="Re-place this order">
-                  @if (reorderingId() === order.id) {
-                    <span class="material-symbols-rounded spin">progress_activity</span>
-                  } @else {
-                    <span class="material-symbols-rounded">replay</span>
+            <!-- ── Order Body ── -->
+            <div class="order-body">
+              <div class="body-left">
+                <div class="order-num-wrap">
+                  <span class="order-num">#{{ order.id }}</span>
+                  @if (isActive(order)) {
+                    <span class="live-pill">Live</span>
                   }
-                  Reorder
-                </button>
-              }
-              <span class="material-symbols-rounded chevron">chevron_right</span>
+                </div>
+                <span class="restaurant-name">{{ order.restaurantName }}</span>
+                <span class="order-date">{{ order.createdAt | date:'d MMM y · HH:mm' }}</span>
+              </div>
+
+              <div class="body-middle">
+                @for (item of order.items.slice(0, 3); track item.id) {
+                  <span class="item-tag">{{ item.quantity }}× {{ item.menuItemName }}</span>
+                }
+                @if (order.items.length > 3) {
+                  <span class="item-tag item-tag--more">+{{ order.items.length - 3 }} more</span>
+                }
+              </div>
+
+              <div class="body-right">
+                <span class="order-total">{{ order.totalAmount | currency:'GBP' }}</span>
+                @if (!isActive(order)) {
+                  <button mat-flat-button class="reorder-btn"
+                    (click)="$event.preventDefault(); $event.stopPropagation(); reorder(order)"
+                    [disabled]="reorderingId() !== null"
+                    matTooltip="Re-order this meal">
+                    @if (reorderingId() === order.id) {
+                      <span class="material-symbols-rounded spin">progress_activity</span>
+                    } @else {
+                      <span class="material-symbols-rounded">replay</span>
+                    }
+                    Reorder
+                  </button>
+                }
+                <span class="material-symbols-rounded chevron">chevron_right</span>
+              </div>
             </div>
           </a>
         }
       </div>
 
-      <!-- Pagination controls -->
+      <!-- ── Pagination ── -->
       @if (totalPages() > 1) {
         <div class="pagination-row" appScrollReveal>
           <button mat-stroked-button [disabled]="!hasPrevPage()" (click)="prevPage()">

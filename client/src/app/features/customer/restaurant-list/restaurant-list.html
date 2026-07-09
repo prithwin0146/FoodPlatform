@@ -1,41 +1,34 @@
 <!-- ════════════════════════════════════════════════════════════ HERO ══ -->
 <section class="hero" appParallaxHover [parallaxMax]="14" [parallaxPerspective]="1100">
-  <!-- Looping kitchen background video — NOT a parallax layer.
-       data-parallax-depth intentionally absent: the directive writes
-       translate3d() which overwrites the centering translate(-50%,-50%)
-       causing a visible half-screen glitch. Fullscreen bg videos
-       shouldn't move with the cursor anyway. -->
-  <video #heroVideo class="hero-video"
-    autoplay muted loop playsinline
-    preload="auto"
-    [poster]="heroPosterUrl"
-    aria-hidden="true">
-    <source [src]="heroVideoUrl" type="video/mp4">
- </video>
-  <!-- Dark overlay so text stays legible -->
-  <div class="hero-video-overlay" aria-hidden="true"></div>
+  <div class="hero-visuals" aria-hidden="true">
+    <!-- Looping kitchen background video — NOT a parallax layer. -->
+    <video #heroVideo class="hero-video"
+      autoplay muted loop playsinline
+      preload="auto"
+      [poster]="heroPosterUrl">
+      <source [src]="heroVideoUrl" type="video/mp4">
+    </video>
+    <div class="hero-video-overlay"></div>
 
-  <!-- Animated gradient mesh — mid parallax layer (3 blobs) -->
-  <div class="mesh-bg" aria-hidden="true">
-    <div class="mesh-blob blob-1" data-parallax-depth="0.7"></div>
-    <div class="mesh-blob blob-2" data-parallax-depth="0.7"></div>
-    <div class="mesh-blob blob-3" data-parallax-depth="0.7"></div>
- </div>
+    <div class="mesh-bg">
+      <div class="mesh-blob blob-1" data-parallax-depth="0.7"></div>
+      <div class="mesh-blob blob-2" data-parallax-depth="0.7"></div>
+      <div class="mesh-blob blob-3" data-parallax-depth="0.7"></div>
+    </div>
 
-  <!-- Noise / grain layer — finest parallax (adds depth without motion blur) -->
-  <div class="hero-noise" data-parallax-depth="0.2" aria-hidden="true"></div>
+    <div class="hero-noise" data-parallax-depth="0.2"></div>
 
-  <!-- Animated SVG ribbons (floating decorative) -->
-  <svg class="hero-ribbon" viewBox="0 0 800 800" aria-hidden="true">
-    <defs>
-      <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%"   stop-color="#ff7a00" stop-opacity="0.5"/>
-        <stop offset="100%" stop-color="#ff3d8a" stop-opacity="0.05"/>
-     </linearGradient>
-   </defs>
-    <path d="M0,400 Q200,200 400,400 T800,400" stroke="url(#ribbonGrad)" stroke-width="2" fill="none" class="ribbon-path"/>
-    <path d="M0,500 Q200,700 400,500 T800,500" stroke="url(#ribbonGrad)" stroke-width="1" fill="none" class="ribbon-path delay"/>
- </svg>
+    <svg class="hero-ribbon" viewBox="0 0 800 800">
+      <defs>
+        <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff7a00" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#ff3d8a" stop-opacity="0.05"/>
+        </linearGradient>
+      </defs>
+      <path d="M0,400 Q200,200 400,400 T800,400" stroke="url(#ribbonGrad)" stroke-width="2" fill="none" class="ribbon-path"/>
+      <path d="M0,500 Q200,700 400,500 T800,500" stroke="url(#ribbonGrad)" stroke-width="1" fill="none" class="ribbon-path delay"/>
+    </svg>
+  </div>
 
   <div class="container hero-grid">
     <div class="hero-copy">
@@ -53,7 +46,7 @@
         <span class="line">
           <span class="word w4">Trust</span>
           <span class="word w5 grad">
-            <span class="text-gradient-NEW--primary">every</span>
+            <span class="hero-word-orange">every</span>
             <svg class="grad-underline" viewBox="0 0 200 12" preserveAspectRatio="none">
               <path d="M2,9 Q50,2 100,7 T198,5" stroke="url(#ribbonGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
            </svg>
@@ -297,9 +290,12 @@
            </span>
          </a>
           <a class="store-btn" aria-label="Coming soon to Google Play">
-            <svg class="store-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M3.18 23.18c.26.14.56.18.85.1l12.9-12.9-3.4-3.4L3.18 23.18zM21.8 11.06l-2.9-1.67-3.56 3.56 3.56 3.56 2.93-1.69c.84-.48.84-1.77-.03-2.26zM3.18.82C2.88.74 2.58.78 2.32.92l10.3 10.3-3.4-3.4L3.18.82zM2.32.92C1.73 1.25 1.73 2.73 2.32 3.06v-.01l9.3 9.3-9.3 9.81"/>
-           </svg>
+            <svg class="store-svg store-svg--google" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#00d4aa" d="M3 2.2v19.6L14.2 12 3 2.2Z"/>
+              <path fill="#3b82f6" d="m3 2.2 13.6 7.6-2.4 2.2L3 2.2Z"/>
+              <path fill="#fbbf24" d="m3 21.8 13.6-7.6-2.4-2.2L3 21.8Z"/>
+              <path fill="#ef4444" d="m16.6 9.8 3.6 2c.5.3.5.7 0 1l-3.6 2-2.4-2.8 2.4-2.2Z"/>
+            </svg>
             <span class="store-text">
               <span class="store-small">Coming soon to</span>
               <span class="store-big">Google Play</span>

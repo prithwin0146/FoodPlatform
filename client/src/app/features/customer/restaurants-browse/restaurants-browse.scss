@@ -315,6 +315,7 @@ $green:      #1a9b5a;
 /* ── LIVE badge ── */
 .live-pip {
   position: absolute; top: 12px; left: 12px;
+  isolation: isolate;
   display: flex; align-items: center; gap: 5px;
   padding: 4px 10px;
   background: rgba(0,18,13,.70); backdrop-filter: blur(8px);
@@ -322,7 +323,7 @@ $green:      #1a9b5a;
   color: #00d4aa; font-size: .65rem; font-weight: 800; letter-spacing: .08em;
   border-radius: 8px;
   box-shadow: 0 0 12px rgba(0,212,170,.18);
-  z-index: 8; transform: translateZ(30px);
+  z-index: 12; transform: translateZ(50px);
   transition: transform .3s ease;
 }
 .live-dot-anim {

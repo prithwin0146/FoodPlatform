@@ -63,13 +63,12 @@ export class RestaurantList implements OnInit, AfterViewInit {
   /** Live kitchen count displayed inside the Spotlight CTA button. */
   readonly liveKitchenCount = computed(() => this.allRestaurants().length);
 
-  /** Up to 3 restaurants shown in the Spotlight preview dropdown. */
+  /** Matching restaurants shown in the independently scrolling Spotlight dropdown. */
   readonly spotlightPreview = computed(() => {
-    const q = this.postcodeQuery().toLowerCase();
-    if (!q) return this.allRestaurants().slice(0, 3);
+    const q = this.postcodeQuery().trim().toLowerCase();
+    if (!q) return this.allRestaurants();
     return this.allRestaurants()
-      .filter(r => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q))
-      .slice(0, 3);
+      .filter(r => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q));
   });
 
   private readonly sanitizer = inject(DomSanitizer);
