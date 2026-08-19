@@ -284,3 +284,63 @@
   .form-header h1 { font-size: 1.8rem; }
   .submit-btn { height: 48px !important; font-size: .95rem !important; }
 }
+
+.oauth-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.apple-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+
+  &:hover {
+    background: #222;
+  }
+
+  .material-symbols-rounded {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  &::before { margin-right: 16px; }
+  &::after { margin-left: 16px; }
+}

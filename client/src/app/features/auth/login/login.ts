@@ -14,6 +14,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { Logo } from '../../../shared/components/logo/logo';
 import { HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -50,6 +51,83 @@ export class Login {
     const meta = inject(Meta);
     meta.updateTag({ name: 'description', content: 'Sign in to SeeThePrep — the UK food delivery platform where you watch your meal being cooked live on camera.' });
     meta.updateTag({ name: 'robots', content: 'noindex, follow' });
+  }
+
+  ngAfterViewInit() {
+    this.initGoogleOAuth();
+  }
+
+  private initGoogleOAuth() {
+    // @ts-ignore
+    if (typeof google === 'undefined' || !google.accounts) return;
+    
+    // @ts-ignore
+    window.handleGoogleCredentialResponse = (response: any) => {
+      this.loading.set(true);
+      const headers = new HttpHeaders().set(SILENT_ERROR_HEADER, 'true');
+      this.apiAuth.loginWithGoogle(response.credential).subscribe({
+        next: (res) => this.handleSuccessfulLogin(res),
+        error: (err) => {
+          this.loading.set(false);
+          this.toast.error(err.error?.error ?? 'Google sign in failed');
+        }
+      });
+    };
+
+    // @ts-ignore
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      // @ts-ignore
+      callback: window.handleGoogleCredentialResponse
+    });
+
+    // @ts-ignore
+    google.accounts.id.renderButton(
+      document.getElementById('google-btn'),
+      { theme: 'outline', size: 'large', width: '100%', text: 'continue_with' }
+    );
+  }
+
+  async loginWithApple() {
+    // @ts-ignore
+    if (typeof AppleID === 'undefined') {
+      this.toast.error('Apple Sign-In is currently unavailable.');
+      return;
+    }
+
+    try {
+      // @ts-ignore
+      AppleID.auth.init({
+        clientId: environment.appleClientId,
+        scope: 'name email',
+        redirectURI: window.location.origin + '/login',
+        state: 'signin',
+        usePopup: true
+      });
+      
+      // @ts-ignore
+      const response = await AppleID.auth.signIn();
+      
+      this.loading.set(true);
+      this.apiAuth.loginWithApple(response.authorization.id_token).subscribe({
+        next: (res) => this.handleSuccessfulLogin(res),
+        error: (err) => {
+          this.loading.set(false);
+          this.toast.error(err.error?.error ?? 'Apple sign in failed');
+        }
+      });
+    } catch (error) {
+      this.toast.error('Apple Sign-In was cancelled or failed.');
+    }
+  }
+
+  private handleSuccessfulLogin(res: any) {
+    this.auth.setSession(res);
+    this.toast.success('Welcome back!');
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] ?? null;
+    if (res.role === 'Admin') this.router.navigate(['/admin']);
+    else if (res.role === 'Staff') this.router.navigate(['/dashboard']);
+    else this.router.navigateByUrl(returnUrl ?? '/');
   }
 
   submit(): void {

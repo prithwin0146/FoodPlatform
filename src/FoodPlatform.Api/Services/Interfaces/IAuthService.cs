@@ -15,6 +15,7 @@ public record LoginResult(LoginOutcome Outcome, AuthResponse? Token = null);
 public interface IAuthService
 {
     Task<LoginResult> LoginAsync(LoginRequest request);
+    Task<LoginResult> LoginWithOAuthAsync(OAuthLoginRequest request);
     Task<(RegisterResponse? Response, string? Error)> RegisterAsync(RegisterRequest request);
     Task<(AuthResponse? Response, string? Error)> VerifyOtpAsync(VerifyOtpRequest request);
     Task<(bool Success, string? Error)> ResendOtpAsync(ResendOtpRequest request);

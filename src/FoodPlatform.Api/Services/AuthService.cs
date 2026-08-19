@@ -29,23 +29,69 @@ public class AuthService : IAuthService
     private readonly IJwtTokenService _jwt;
     private readonly IPasswordHasher _hasher;
     private readonly IBackgroundJobClient _jobs;
+    private readonly IOAuthVerificationService _oauth;
 
     public AuthService(FoodPlatformDbContext db, IJwtTokenService jwt,
-        IPasswordHasher hasher, IBackgroundJobClient jobs)
+        IPasswordHasher hasher, IBackgroundJobClient jobs, IOAuthVerificationService oauth)
     {
         _db = db;
         _jwt = jwt;
         _hasher = hasher;
         _jobs = jobs;
+        _oauth = oauth;
     }
 
     public async Task<LoginResult> LoginAsync(LoginRequest request)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-        if (user == null || !_hasher.Verify(request.Password, user.PasswordHash))
+        if (user == null || user.AuthProvider != "Local" || !_hasher.Verify(request.Password, user.PasswordHash))
             return new LoginResult(LoginOutcome.InvalidCredentials);
         if (!user.IsEmailVerified)
             return new LoginResult(LoginOutcome.EmailNotVerified);
+
+        var token = _jwt.GenerateToken(user);
+        return new LoginResult(LoginOutcome.Success,
+            new AuthResponse(token, user.Role, user.Username, user.Id, user.RestaurantId));
+    }
+
+    public async Task<LoginResult> LoginWithOAuthAsync(OAuthLoginRequest request)
+    {
+        OAuthVerificationResult verification;
+        if (request.Provider == "Google")
+            verification = await _oauth.VerifyGoogleTokenAsync(request.IdToken);
+        else if (request.Provider == "Apple")
+            verification = await _oauth.VerifyAppleTokenAsync(request.IdToken);
+        else
+            return new LoginResult(LoginOutcome.InvalidCredentials);
+
+        if (!verification.IsSuccessful)
+            return new LoginResult(LoginOutcome.InvalidCredentials);
+
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == verification.Email);
+        if (user == null)
+        {
+            // Auto-register OAuth user
+            user = new User
+            {
+                Email = verification.Email,
+                Username = verification.Name,
+                AuthProvider = request.Provider,
+                ProviderId = verification.ProviderId,
+                IsEmailVerified = true, // OAuth emails are pre-verified by the provider
+                Role = "Customer",
+                PasswordHash = "" // No password for OAuth
+            };
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+        }
+        else if (user.AuthProvider == "Local")
+        {
+            // Link existing local account to OAuth
+            user.AuthProvider = request.Provider;
+            user.ProviderId = verification.ProviderId;
+            user.IsEmailVerified = true;
+            await _db.SaveChangesAsync();
+        }
 
         var token = _jwt.GenerateToken(user);
         return new LoginResult(LoginOutcome.Success,

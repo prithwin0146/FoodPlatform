@@ -30,7 +30,19 @@
         <p>Takes under a minute. We’ll send a 6-digit code to verify your email.</p>
       </header>
 
-      <form (ngSubmit)="submit()" class="register-form" novalidate>
+      <div class="oauth-container" appScrollReveal>
+        <div id="google-btn" class="oauth-btn"></div>
+        <button class="oauth-btn apple-btn" type="button" (click)="loginWithApple()">
+          <span class="material-symbols-rounded">apple</span>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="divider" appScrollReveal>
+        <span>or</span>
+      </div>
+
+      <form (ngSubmit)="submit()" class="register-form" novalidate appScrollReveal>
 
         <mat-form-field appearance="outline" class="full-width dark-field">
           <mat-label>Username</mat-label>

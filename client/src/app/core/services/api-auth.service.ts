@@ -14,6 +14,18 @@ export class ApiAuthService {
     return this.http.post<AuthResponse>(`${this.url}/login`, req, { headers });
   }
 
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.url}/oauth/google`, `"${idToken}"`, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    });
+  }
+
+  loginWithApple(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.url}/oauth/apple`, `"${idToken}"`, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    });
+  }
+
   register(req: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${this.url}/register`, req);
   }

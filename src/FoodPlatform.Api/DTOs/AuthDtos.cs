@@ -7,6 +7,10 @@ public record LoginRequest(
     [Required, EmailAddress] string Email,
     [Required] string Password);
 
+public record OAuthLoginRequest(
+    [Required] string Provider,
+    [Required] string IdToken);
+
 public record RegisterRequest(
     [Required, MinLength(2), MaxLength(50)] string Username,
     [Required, EmailAddress] string Email,

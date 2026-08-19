@@ -15,6 +15,10 @@ public class User
     /// <summary>When the most recent OTP was dispatched. Used to throttle resend requests.</summary>
     public DateTime? OtpSentAt { get; set; }
 
+    // OAuth
+    public string AuthProvider { get; set; } = "Local"; // "Local", "Google", "Apple"
+    public string? ProviderId { get; set; }
+
     // Navigation
     public Restaurant? Restaurant { get; set; }
     public ICollection<Order> Orders { get; set; } = [];

@@ -110,6 +110,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddHttpClient<IOAuthVerificationService, OAuthVerificationService>();
 
         // Domain services
         services.AddScoped<IMenuService, MenuService>();
