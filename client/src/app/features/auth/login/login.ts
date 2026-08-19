@@ -58,9 +58,19 @@ export class Login {
   }
 
   private initGoogleOAuth() {
-    // @ts-ignore
-    if (typeof google === 'undefined' || !google.accounts) return;
-    
+    const checkGoogle = setInterval(() => {
+      // @ts-ignore
+      if (typeof google !== 'undefined' && google.accounts) {
+        clearInterval(checkGoogle);
+        this.renderGoogleButton();
+      }
+    }, 100);
+
+    // Stop checking after 5 seconds just in case it's blocked by adblockers
+    setTimeout(() => clearInterval(checkGoogle), 5000);
+  }
+
+  private renderGoogleButton() {
     // @ts-ignore
     window.handleGoogleCredentialResponse = (response: any) => {
       this.loading.set(true);
