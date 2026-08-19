@@ -1,7 +1,7 @@
 {
   "framework": "angular",
   "buildCommand": "npx ng build --configuration production",
-  "outputDirectory": "dist/client/browser",
+  "outputDirectory": "dist/client",
   "rewrites": [
     { "source": "/og-image.png", "destination": "/og-image.png" },
     { "source": "/og-image-v2.png", "destination": "/og-image-v2.png" },
