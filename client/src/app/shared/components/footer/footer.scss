@@ -1,0 +1,440 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SeeThePrep — Site Footer (Shared Component)
+   SOLID: Single Responsibility — owns only its own visuals.
+   Design: Editorial Luxury, VARIANCE: 8 / MOTION: 6 / DENSITY: 3
+   Brand: Duotone orange (#ff6b1a) → pink (#ff3d8a)
+   Light mode only. No dark mode overrides.
+   ═══════════════════════════════════════════════════════════════ */
+
+// ── Design tokens (mirrors CSS vars from global theme) ────────────
+$orange:       #ff6b1a;
+$pink:         #ff3d8a;
+$gradient:     linear-gradient(135deg, $orange 0%, $pink 100%);
+$glow-orange:  rgba(255, 107, 26, 0.32);
+$glow-pink:    rgba(255, 61, 138, 0.24);
+
+$text:         #110d09;
+$text-soft:    #5c4f45;
+$text-mute:    #9e8f86;
+$surface:      #fefcf8;   // warm off-white, NOT the banned beige family
+$border:       rgba(17, 13, 9, 0.08);
+$green:        #22c55e;
+
+$sans:         var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+$display:      var(--font-display, 'Fraunces', Georgia, serif);
+
+// ── Spring cubic-bezier (no linear/ease-in-out) ───────────────────
+$spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+$smooth:       cubic-bezier(0.16, 1, 0.3, 1);
+
+:host { display: block; }
+
+// ═══════════════════════════════════════════════════════════════════
+//  SHELL
+// ═══════════════════════════════════════════════════════════════════
+.stp-footer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  // Warm ambient brand glow at the top corners (not the banned beige)
+  background:
+    radial-gradient(900px circle at 0% 0%,   rgba(255, 107, 26, 0.08), transparent 55%),
+    radial-gradient(700px circle at 100% 0%,  rgba(255, 61, 138, 0.06), transparent 55%),
+    $surface;
+}
+
+// 2px full-width duotone hairline at top
+.stp-footer__glow {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: $gradient;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  MAIN BODY
+// ═══════════════════════════════════════════════════════════════════
+.stp-footer__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+  gap: 0;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 120px 48px 80px;
+  align-items: start;
+
+  @media (max-width: 980px) {
+    grid-template-columns: 1fr;
+    padding: 48px 32px 40px;
+    gap: 48px;
+  }
+  @media (max-width: 640px) {
+    padding: 40px 24px 32px;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BRAND COLUMN
+// ═══════════════════════════════════════════════════════════════════
+.stp-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-right: 56px;
+  // Hairline right border between brand and nav
+  border-right: 1px solid $border;
+
+  @media (max-width: 980px) {
+    border-right: none;
+    border-bottom: 1px solid $border;
+    padding-right: 0;
+    padding-bottom: 48px;
+  }
+}
+
+.stp-footer__logo-link {
+  display: inline-flex;
+  text-decoration: none;
+  opacity: 1;
+  transition: opacity 0.18s ease;
+  &:hover { opacity: 0.7; }
+  &:focus-visible { outline: 2px solid $orange; outline-offset: 4px; border-radius: 6px; }
+}
+
+.stp-footer__manifesto {
+  font-family: $display;
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.05;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: linear-gradient(to right, $text, $text 50%, rgba(17,13,9,0.15) 50%, rgba(17,13,9,0.15));
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  margin: 0;
+  max-width: 500px;
+  letter-spacing: -0.03em;
+  
+  @supports (animation-timeline: scroll()) {
+    animation: revealText both;
+    animation-timeline: view();
+    animation-range: cover 10% cover 50%;
+  }
+}
+
+@keyframes revealText {
+  to { background-position: 0 0; }
+}
+
+// ── Newsletter ────────────────────────────────────────────────────
+.stp-footer__news { display: flex; flex-direction: column; gap: 10px; }
+
+.stp-footer__news-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $sans;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: $text-mute;
+}
+
+.stp-footer__news-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: $green;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  flex-shrink: 0;
+  animation: stp-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes stp-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }
+  50%       { box-shadow: 0 0 16px rgba(34, 197, 94, 0.9); }
+}
+
+.stp-footer__news-form { display: flex; flex-direction: column; gap: 8px; }
+
+// Double-bezel pill input per the high-end skill
+.stp-footer__news-pill {
+  display: flex;
+  align-items: center;
+  // Outer shell
+  padding: 4px;
+  border-radius: 9999px;
+  border: 1px solid rgba(17, 13, 9, 0.12);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    0 4px 12px rgba(17, 13, 9, 0.04);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+
+  &:focus-within {
+    border-color: $orange;
+    box-shadow: 
+      inset 0 1px 1px rgba(255, 255, 255, 0.8),
+      0 0 0 4px rgba(255, 107, 26, 0.12);
+  }
+}
+
+.stp-footer__news-input {
+  flex: 1; min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: $sans;
+  font-size: 0.88rem;
+  color: $text;
+  &::placeholder { color: $text-mute; }
+}
+
+// Button-in-button CTA pattern from high-end skill
+.stp-footer__news-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 8px 0 16px;
+  border-radius: 9999px;
+  border: none;
+  background: $gradient;
+  color: #fff;
+  font-family: $sans;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px -6px $glow-orange;
+  transition:
+    transform 0.22s $spring,
+    box-shadow 0.22s ease;
+
+  &:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 8px 24px -6px $glow-orange;
+  }
+  &:active { transform: scale(0.97); }
+  &:focus-visible { outline: 2px solid $orange; outline-offset: 3px; border-radius: 9999px; }
+}
+
+.stp-footer__news-btn-icon {
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+  transition: transform 0.22s $spring, background 0.18s ease;
+
+  .material-symbols-rounded { font-size: 0.95rem; }
+
+  .stp-footer__news-btn:hover & {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateX(2px) translateY(-1px);
+  }
+}
+
+.stp-footer__news-fine {
+  font-family: $sans;
+  font-size: 0.72rem;
+  color: $text-mute;
+}
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  NAV COLUMNS
+// ═══════════════════════════════════════════════════════════════════
+.stp-footer__nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding-left: 56px;
+  gap: 0;
+
+  @media (max-width: 980px) { padding-left: 0; }
+  @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); gap: 32px 0; }
+}
+
+.stp-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 16px;
+
+  // Hairline dividers between columns
+  & + & {
+    border-left: 1px solid $border;
+    padding-left: 20px;
+  }
+}
+
+.stp-footer__col-head {
+  font-family: $sans;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  // Gradient accent on column heads
+  background: $gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 8px;
+}
+
+.stp-footer__link {
+  font-family: $sans;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: $text-soft;
+  text-decoration: none;
+  transition: color 0.18s ease, transform 0.18s $smooth;
+  display: block;
+
+  &:hover {
+    color: $orange;
+    transform: translateX(3px);
+  }
+  &:focus-visible { outline: 2px solid $orange; outline-offset: 2px; border-radius: 3px; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BOTTOM BAR
+// ═══════════════════════════════════════════════════════════════════
+.stp-footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px 48px 28px;
+  border-top: 1px solid $border;
+
+  @media (max-width: 980px) { padding: 20px 32px 28px; }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 24px 28px;
+  }
+}
+
+.stp-footer__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stp-footer__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(34, 197, 94, 0.09);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  font-family: $sans;
+  font-size: 0.76rem;
+  color: $text-soft;
+  width: fit-content;
+
+  strong { color: #168a40; font-weight: 700; }
+}
+
+.stp-footer__status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: $green;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+  animation: stp-pulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.stp-footer__copy {
+  font-family: $sans;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $text-mute;
+}
+
+// Legal links
+.stp-footer__legal {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+
+  @media (max-width: 768px) { gap: 6px 16px; }
+}
+
+.stp-footer__legal-link {
+  font-family: $sans;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $text-mute;
+  text-decoration: none;
+  transition: color 0.16s ease;
+
+  &:hover { color: $orange; }
+  &:focus-visible { outline: 2px solid $orange; outline-offset: 2px; border-radius: 2px; }
+}
+
+// Social icon buttons — gradient fill on hover
+.stp-footer__socials {
+  display: flex;
+  gap: 6px;
+
+  @media (max-width: 768px) { margin-top: 4px; }
+}
+
+.stp-footer__social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid $border;
+  color: $text-soft;
+  font-size: 0.88rem;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  transition:
+    background  0.22s ease,
+    color       0.22s ease,
+    border-color 0.22s ease,
+    transform   0.22s $spring,
+    box-shadow  0.22s ease;
+
+  .material-symbols-rounded { font-size: 1rem; }
+
+  &:hover {
+    color: #fff;
+    background: $gradient;
+    border-color: transparent;
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 10px 24px -8px $glow-orange;
+  }
+  &:active { transform: scale(0.95) translateY(0); }
+  &:focus-visible { outline: 2px solid $orange; outline-offset: 3px; }
+}
+
+// ── prefers-reduced-motion ────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

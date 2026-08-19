@@ -24,7 +24,14 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<FoodPlatformDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(config.GetConnectionString("DefaultConnection"),
+                npgsqlOptionsAction: sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorCodesToAdd: null);
+                }));
         return services;
     }
 

@@ -63,8 +63,18 @@ function resolveMessage(err: HttpErrorResponse): string {
   // Prefer the API's own message if it provides one (e.g. validation errors)
   const body = err.error;
   if (typeof body === 'string' && body.length > 0) return body;
+  
+  // Extract specific validation error from ASP.NET Core ProblemDetails
+  if (body?.errors && typeof body.errors === 'object') {
+    const firstKey = Object.keys(body.errors)[0];
+    if (firstKey && Array.isArray(body.errors[firstKey]) && body.errors[firstKey].length > 0) {
+      return body.errors[firstKey][0];
+    }
+  }
+  
   if (body?.message) return body.message as string;
-  if (body?.title) return body.title as string; // ProblemDetails
+  if (body?.error) return body.error as string; // Custom API errors
+  if (body?.title) return body.title as string; // Fallback to generic title
 
   return 'Something went wrong';
 }

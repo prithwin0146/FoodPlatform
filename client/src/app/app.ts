@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { Header } from './shared/components/header/header';
 import { Toast } from './shared/components/toast/toast';
+import { FooterComponent } from './shared/components/footer/footer';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Toast],
+  imports: [RouterOutlet, Header, Toast, FooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

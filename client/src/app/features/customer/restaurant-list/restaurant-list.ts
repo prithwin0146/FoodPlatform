@@ -42,7 +42,7 @@ interface Promise {
     RouterLink,
     TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
     StaggerRevealDirective, ParallaxHoverDirective, RadialSelectDirective,
-    Logo, ImageFallback,
+    ImageFallback,
     MatRippleModule, MatButtonModule,
   ],
   templateUrl: './restaurant-list.html',

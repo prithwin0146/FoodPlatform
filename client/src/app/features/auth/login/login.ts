@@ -8,10 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { SILENT_ERROR_HEADER } from '../../../core/auth/error.interceptor';
 import { ToastService } from '../../../core/services/toast.service';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
 import { Logo } from '../../../shared/components/logo/logo';
+import { HttpHeaders } from '@angular/common/http';
 
 
 @Component({
@@ -54,7 +56,10 @@ export class Login {
     if (!this.email || !this.password) return;
     this.loading.set(true);
     const returnUrl = this.route.snapshot.queryParams['returnUrl'] ?? null;
-    this.apiAuth.login({ email: this.email, password: this.password }).subscribe({
+    
+    // We handle errors manually to show the 'resend code' banner, so we suppress the global toast
+    const headers = new HttpHeaders().set(SILENT_ERROR_HEADER, 'true');
+    this.apiAuth.login({ email: this.email, password: this.password }, headers).subscribe({
       next: (res) => {
         this.auth.setSession(res);
         this.toast.success('Welcome back!');

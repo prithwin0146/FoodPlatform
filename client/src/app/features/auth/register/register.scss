@@ -125,6 +125,7 @@
   justify-content: center;
   padding: 56px 48px;
   overflow-y: auto;
+  view-transition-name: auth-panel;
 
   @media (max-width: 480px) { padding: 40px 24px; }
 }

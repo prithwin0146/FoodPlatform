@@ -89,7 +89,7 @@ export class Register {
         },
         error: (err) => {
           this.loading.set(false);
-          this.toast.error(err.error?.error ?? 'Registration failed');
+          // Global error interceptor handles the toast display automatically
         },
       });
   }

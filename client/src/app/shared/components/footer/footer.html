@@ -1,0 +1,136 @@
+<footer class="stp-footer">
+
+  <!-- ── Gradient hairline ────────────────────────────── -->
+  <div class="stp-footer__glow" aria-hidden="true"></div>
+
+  <!-- ═══════════════════ MAIN BODY ══════════════════════ -->
+  <div class="stp-footer__body">
+
+    <!-- LEFT: brand column -->
+    <div class="stp-footer__brand">
+
+      <!-- Logo -->
+      <a routerLink="/" class="stp-footer__logo-link" aria-label="SeeThePrep home">
+        <app-logo variant="wordmark" [size]="42" [showTag]="false" />
+      </a>
+
+      <!-- Manifesto -->
+      <h3 class="stp-footer__manifesto">
+        Food delivery, on the record.
+      </h3>
+
+      <!-- Newsletter -->
+      <div class="stp-footer__news">
+        <p class="stp-footer__news-label">
+          <span class="stp-footer__news-dot" aria-hidden="true"></span>
+          One email a month. New kitchens near you.
+        </p>
+        <form class="stp-footer__news-form" (submit)="$event.preventDefault()" novalidate>
+          <label for="stp-footer-email" class="sr-only">Email address</label>
+          <div class="stp-footer__news-pill">
+            <input
+              id="stp-footer-email"
+              type="email"
+              name="email"
+              inputmode="email"
+              autocomplete="email"
+              placeholder="your@email.com"
+              class="stp-footer__news-input"
+              aria-label="Email for newsletter" />
+            <button type="submit" class="stp-footer__news-btn" aria-label="Subscribe">
+              Subscribe
+              <span class="stp-footer__news-btn-icon" aria-hidden="true">
+                <span class="material-symbols-rounded">arrow_forward</span>
+              </span>
+            </button>
+          </div>
+          <span class="stp-footer__news-fine">No spam. Unsubscribe in one click.</span>
+        </form>
+      </div>
+
+
+    </div>
+
+    <!-- RIGHT: nav columns -->
+    <nav class="stp-footer__nav" aria-label="Footer navigation">
+
+      <div class="stp-footer__col">
+        <h4 class="stp-footer__col-head">Eat</h4>
+        <a routerLink="/restaurants" class="stp-footer__link">Browse kitchens</a>
+        <a routerLink="/" class="stp-footer__link">How it works</a>
+        <a routerLink="/login" class="stp-footer__link">Track an order</a>
+        <a routerLink="/info/gift-cards" class="stp-footer__link">Gift cards</a>
+      </div>
+
+      <div class="stp-footer__col">
+        <h4 class="stp-footer__col-head">Cook</h4>
+        <a routerLink="/info/list-kitchen" class="stp-footer__link">List your kitchen</a>
+        <a routerLink="/info/camera-kit" class="stp-footer__link">Camera kit</a>
+        <a routerLink="/info/chef-stories" class="stp-footer__link">Chef stories</a>
+        <a routerLink="/info/hygiene" class="stp-footer__link">Hygiene standards</a>
+      </div>
+
+      <div class="stp-footer__col">
+        <h4 class="stp-footer__col-head">Company</h4>
+        <a routerLink="/info/about" class="stp-footer__link">About us</a>
+        <a routerLink="/info/press" class="stp-footer__link">Press kit</a>
+        <a routerLink="/info/careers" class="stp-footer__link">Careers</a>
+        <a routerLink="/info/contact" class="stp-footer__link">Contact</a>
+      </div>
+
+      <div class="stp-footer__col">
+        <h4 class="stp-footer__col-head">Help</h4>
+        <a routerLink="/info/help" class="stp-footer__link">Help centre</a>
+        <a routerLink="/info/safety" class="stp-footer__link">Safety</a>
+        <a routerLink="/login" class="stp-footer__link">Sign in</a>
+        <a routerLink="/register" class="stp-footer__link">Create account</a>
+      </div>
+
+    </nav>
+  </div>
+
+  <!-- ═══════════════════ BOTTOM BAR ═════════════════════ -->
+  <div class="stp-footer__bottom">
+
+    <!-- Live status + copyright -->
+    <div class="stp-footer__meta">
+
+      <span class="stp-footer__copy">© 2026 SeeThePrep Ltd · Made in London</span>
+    </div>
+
+    <!-- Legal links -->
+    <nav class="stp-footer__legal" aria-label="Legal">
+      <a routerLink="/info/privacy" class="stp-footer__legal-link">Privacy</a>
+      <a routerLink="/info/terms" class="stp-footer__legal-link">Terms</a>
+      <a routerLink="/info/cookies" class="stp-footer__legal-link">Cookies</a>
+      <a routerLink="/info/accessibility" class="stp-footer__legal-link">Accessibility</a>
+    </nav>
+
+    <!-- Social icons -->
+    <div class="stp-footer__socials">
+      <a class="stp-footer__social" href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+        <span aria-hidden="true">𝕏</span>
+      </a>
+      <a class="stp-footer__social" href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
+      </a>
+      <a class="stp-footer__social" href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+        <span class="material-symbols-rounded" aria-hidden="true">music_note</span>
+      </a>
+      <a class="stp-footer__social" href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        <span class="material-symbols-rounded" aria-hidden="true">play_arrow</span>
+      </a>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Screen-reader only utility -->
+<style>
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+</style>

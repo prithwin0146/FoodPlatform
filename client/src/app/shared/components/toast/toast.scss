@@ -7,7 +7,12 @@
   flex-direction: column;
   gap: 10px;
   width: 340px;
+  // Click events pass through the container, but toasts catch them
   pointer-events: none;
+  
+  app-toast-item {
+    pointer-events: auto;
+  }
 }
 
 .toast {
