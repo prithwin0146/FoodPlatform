@@ -98,38 +98,6 @@ export class Login {
     );
   }
 
-  async loginWithApple() {
-    // @ts-ignore
-    if (typeof AppleID === 'undefined') {
-      this.toast.error('Apple Sign-In is currently unavailable.');
-      return;
-    }
-
-    try {
-      // @ts-ignore
-      AppleID.auth.init({
-        clientId: environment.appleClientId,
-        scope: 'name email',
-        redirectURI: window.location.origin + '/login',
-        state: 'signin',
-        usePopup: true
-      });
-      
-      // @ts-ignore
-      const response = await AppleID.auth.signIn();
-      
-      this.loading.set(true);
-      this.apiAuth.loginWithApple(response.authorization.id_token).subscribe({
-        next: (res) => this.handleSuccessfulLogin(res),
-        error: (err) => {
-          this.loading.set(false);
-          this.toast.error(err.error?.error ?? 'Apple sign in failed');
-        }
-      });
-    } catch (error) {
-      this.toast.error('Apple Sign-In was cancelled or failed.');
-    }
-  }
 
   private handleSuccessfulLogin(res: any) {
     this.auth.setSession(res);

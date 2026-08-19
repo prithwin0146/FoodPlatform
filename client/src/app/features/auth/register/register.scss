@@ -308,20 +308,6 @@
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.apple-btn {
-  background: #000;
-  color: #fff;
-  border: none;
-
-  &:hover {
-    background: #222;
-  }
-
-  .material-symbols-rounded {
-    font-size: 20px;
-    margin-bottom: 2px;
-  }
-}
 
 .divider {
   display: flex;

@@ -20,11 +20,6 @@ export class ApiAuthService {
     });
   }
 
-  loginWithApple(idToken: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.url}/oauth/apple`, `"${idToken}"`, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    });
-  }
 
   register(req: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${this.url}/register`, req);

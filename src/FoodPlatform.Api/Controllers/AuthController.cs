@@ -38,15 +38,6 @@ public class AuthController : ControllerBase
             : Unauthorized(new { error = "Invalid Google login." });
     }
 
-    [HttpPost("oauth/apple")]
-    [EnableRateLimiting("auth")]
-    public async Task<IActionResult> LoginWithApple([FromBody] string idToken)
-    {
-        var result = await _auth.LoginWithOAuthAsync(new OAuthLoginRequest("Apple", idToken));
-        return result.Outcome == LoginOutcome.Success 
-            ? Ok(result.Token) 
-            : Unauthorized(new { error = "Invalid Apple login." });
-    }
 
     [HttpPost("register")]
     [EnableRateLimiting("auth")]

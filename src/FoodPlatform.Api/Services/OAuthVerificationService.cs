@@ -10,14 +10,12 @@ namespace FoodPlatform.Api.Services;
 public class OAuthVerificationService : IOAuthVerificationService
 {
     private readonly string _googleClientId;
-    private readonly string _appleClientId;
     private readonly ILogger<OAuthVerificationService> _logger;
     private readonly HttpClient _httpClient;
 
     public OAuthVerificationService(IConfiguration config, ILogger<OAuthVerificationService> logger, HttpClient httpClient)
     {
         _googleClientId = config["Authentication:Google:ClientId"] ?? "";
-        _appleClientId = config["Authentication:Apple:ClientId"] ?? ""; // e.g., com.seetheprep.app
         _logger = logger;
         _httpClient = httpClient;
     }
@@ -59,50 +57,5 @@ public class OAuthVerificationService : IOAuthVerificationService
         }
     }
 
-    public async Task<OAuthVerificationResult> VerifyAppleTokenAsync(string idToken)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(_appleClientId))
-            {
-                _logger.LogWarning("Apple ClientId is not configured.");
-                return new OAuthVerificationResult { IsSuccessful = false, ErrorMessage = "Apple login is currently unavailable." };
-            }
 
-            // Fetch Apple's public keys
-            var response = await _httpClient.GetStringAsync("https://appleid.apple.com/auth/keys");
-            var jwks = new JsonWebKeySet(response);
-            
-            var handler = new JwtSecurityTokenHandler();
-            var parameters = new TokenValidationParameters
-            {
-                ValidIssuer = "https://appleid.apple.com",
-                ValidAudience = _appleClientId,
-                IssuerSigningKeys = jwks.Keys
-            };
-
-            var principal = handler.ValidateToken(idToken, parameters, out var validatedToken);
-
-            var email = principal.FindFirst("email")?.Value;
-            var providerId = principal.FindFirst("sub")?.Value;
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(providerId))
-            {
-                return new OAuthVerificationResult { IsSuccessful = false, ErrorMessage = "Apple token missing required claims." };
-            }
-
-            return new OAuthVerificationResult
-            {
-                IsSuccessful = true,
-                Email = email,
-                Name = email.Split('@')[0], // Apple only sends the name on the very first login, so we fallback to email prefix
-                ProviderId = providerId
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Error verifying Apple token.");
-            return new OAuthVerificationResult { IsSuccessful = false, ErrorMessage = "Invalid Apple token." };
-        }
-    }
 }

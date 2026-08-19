@@ -12,5 +12,4 @@ public class OAuthVerificationResult
 public interface IOAuthVerificationService
 {
     Task<OAuthVerificationResult> VerifyGoogleTokenAsync(string idToken);
-    Task<OAuthVerificationResult> VerifyAppleTokenAsync(string idToken);
 }
