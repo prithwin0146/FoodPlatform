@@ -36,3 +36,5 @@ ruvector.db
 *-original.mp4
 .vscode/mcp.json
 client/.env.local
+.vercel
+.env*
