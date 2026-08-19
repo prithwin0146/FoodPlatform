@@ -1,0 +1,196 @@
+/* ── Small phone overrides (480px and below) ── */
+@media (max-width: 480px) {
+  /* Hero */
+  .hero {
+    height: auto;
+    min-height: calc(100svh - 60px);
+    padding: 2rem 0 2.5rem;
+  }
+  .hero-grid {
+    min-height: 0;
+    padding: 1rem 0;
+  }
+  .hero-headline { font-size: clamp(2.4rem, 11vw, 4rem); letter-spacing: -0.025em; margin-bottom: 1.25rem; }
+  .hero-subtitle { font-size: 1rem; margin-bottom: 1.5rem; }
+  .kitchen-spotlight {
+    width: calc(100% - 32px);
+    margin-bottom: 1rem;
+  }
+  .spotlight-pill {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 6px;
+    padding: 8px;
+    border-radius: 24px;
+  }
+  .spotlight-icon { margin: 0 2px 0 6px; }
+  .spotlight-input {
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+  .spotlight-cta {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+    padding: 0 1rem;
+    justify-content: center;
+  }
+  .spotlight-dropdown {
+    top: calc(100% + 8px);
+    max-height: min(420px, calc(100dvh - 96px));
+    border-radius: 16px;
+  }
+  .hero-ctas { flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 0 8px; }
+  .hero-scroll-cue { display: none; }
+  .proof-strip { gap: 0.45rem; }
+  .proof-pill { font-size: .76rem; padding: 0.4rem 0.7rem; }
+  /* Stats */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .stat { padding: 1.25rem 1rem; }
+  .stat-num { font-size: clamp(2rem, 8vw, 2.8rem); }
+  /* Restaurants */
+  .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .search-wrapper { min-width: 0; width: 100%; }
+  .grid { grid-template-columns: 1fr; }
+  /* Footer */
+  .footer { padding: 3.5rem 0 1.5rem; }
+  .footer-top { gap: 2.5rem; }
+  .footer-nav { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  .footer-news-row { flex-direction: column; border-radius: 18px; padding: 10px; }
+  .footer-news-input { padding: 0.75rem 1rem; }
+  .footer-news-btn { border-radius: 12px; padding: 0.75rem 1rem; justify-content: center; width: 100%; }
+  /* Final CTA */
+  .cta-card { padding: 2.5rem 1.5rem; border-radius: 24px; }
+  .cta-headline { font-size: clamp(1.8rem, 7vw, 2.8rem); }
+}
+
+// ══════════════════════════════ CUISINE + DIETARY FILTER BARS ══
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.cuisine-chip {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-soft);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+
+  &:hover { border-color: var(--c-orange); color: var(--c-orange); transform: translateY(-1px); }
+
+  &.active {
+    background: var(--c-orange);
+    border-color: var(--c-orange);
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.sort-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 6px 12px;
+
+  .sort-icon {
+    font-size: 1.1rem;
+    color: var(--c-text-muted);
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+  }
+}
+
+.sort-select {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--c-text);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 4px;
+
+  option { background: var(--c-surface); color: var(--c-text); }
+}
+
+.dietary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dietary-chip {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-text-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover { border-color: var(--NEW--live); color: var(--NEW--live); }
+
+  &.active {
+    background: var(--NEW--live);
+    border-color: var(--NEW--live);
+    color: var(--NEW--bg);
+    font-weight: 700;
+  }
+}
+
+.cuisine-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--NEW--primary-subtle);
+  color: var(--NEW--primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ════════════════════════════════════════════ DARK MODE ═══
+   Override :host local vars for dark theme.
+   ─────────────────────────────────────────────────────────────── */
+[data-theme="dark"] :host {
+  --c-bg:        var(--NEW--bg);
+  --c-bg-soft:   var(--NEW--bg-warm);
+  --c-surface:   var(--NEW--surface);
+  --c-border:     var(--NEW--border);
+  --c-border-strong: var(--NEW--border-md);
+  --c-text:       var(--NEW--text);
+  --c-text-soft:  var(--NEW--text-secondary);
+  --c-text-muted: var(--NEW--text-muted);
+
+  --shadow-card:  var(--NEW--shadow-md);
+  --shadow-soft: var(--NEW--shadow-xs);
+  --shadow-lift: var(--NEW--shadow-lg);
+
+  /* Deeper orange→accent for dark bg contrast */
+  --c-stats-gradient: linear-gradient(135deg, var(--NEW--primary), var(--NEW--accent));
+
+  background: var(--NEW--bg);
+  color: var(--NEW--text);
+}

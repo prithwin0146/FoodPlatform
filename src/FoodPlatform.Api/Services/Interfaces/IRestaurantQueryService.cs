@@ -11,4 +11,7 @@ public interface IRestaurantQueryService
     Task<RestaurantDetailDto?> GetDetailAsync(int id);
     Task<IEnumerable<RestaurantHoursDto>> GetHoursAsync(int id);
     Task<IEnumerable<MenuCategoryDto>> GetMenuAsync(int id);
+
+    /// <summary>Returns true if the restaurant exists and is active. (DIP: lets controllers avoid DbContext)</summary>
+    Task<bool> IsActiveAsync(int id);
 }

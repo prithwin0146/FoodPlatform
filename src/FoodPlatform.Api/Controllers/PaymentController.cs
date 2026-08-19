@@ -1,9 +1,7 @@
-using FoodPlatform.Api.Data;
 using FoodPlatform.Api.DTOs;
 using FoodPlatform.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FoodPlatform.Api.Controllers;
 
@@ -13,19 +11,19 @@ namespace FoodPlatform.Api.Controllers;
 /// server-side via IOrderPricingService — the same service OrderService uses when persisting
 /// the order, so the card is charged exactly what the customer is shown.
 /// (SRP: payment intent creation is isolated from the order flow)
-/// (DIP: depends on IOrderPricingService + IStripeService abstractions)
+/// (DIP: depends on IRestaurantQueryService + IOrderPricingService + IStripeService abstractions — no DbContext)
 /// </summary>
 [Route("api/payment-intent")]
 [Authorize(Roles = "Customer")]
 public class PaymentController : RestaurantScopedController
 {
-    private readonly FoodPlatformDbContext _db;
+    private readonly IRestaurantQueryService _restaurants;
     private readonly IStripeService _stripe;
     private readonly IOrderPricingService _pricing;
 
-    public PaymentController(FoodPlatformDbContext db, IStripeService stripe, IOrderPricingService pricing)
+    public PaymentController(IRestaurantQueryService restaurants, IStripeService stripe, IOrderPricingService pricing)
     {
-        _db = db;
+        _restaurants = restaurants;
         _stripe = stripe;
         _pricing = pricing;
     }
@@ -34,8 +32,7 @@ public class PaymentController : RestaurantScopedController
     public async Task<IActionResult> Create(CreatePaymentIntentRequest request)
     {
         // Validate restaurant is active
-        var restaurantActive = await _db.Restaurants
-            .AnyAsync(r => r.Id == request.RestaurantId && r.IsActive);
+        var restaurantActive = await _restaurants.IsActiveAsync(request.RestaurantId);
 
         if (!restaurantActive)
             return BadRequest(new { error = "Restaurant not found or inactive" });

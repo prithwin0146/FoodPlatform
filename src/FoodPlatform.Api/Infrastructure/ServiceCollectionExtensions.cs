@@ -139,6 +139,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRestaurantPromotionService, RestaurantPromotionService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IGiftCardService, GiftCardService>();
+        services.AddScoped<IStripeWebhookHandlerService, StripeWebhookHandlerService>();
 
         // Phase 3: Inventory management + CSV bulk import
         services.AddScoped<IInventoryService, InventoryService>();

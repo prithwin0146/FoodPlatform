@@ -219,3 +219,31 @@
   box-shadow: 0 4px 18px rgba(255, 107, 26, 0.35);
   .material-symbols-rounded { font-size: 1.1rem; margin-right: 6px; }
 }
+
+/* ─── Mobile-first responsive breakpoints ─── */
+@media (max-width: 768px) {
+  .profile-page { padding: calc(var(--header-height, 64px) + 20px) 0 64px; }
+  .profile-container { padding: 0 1rem; gap: 1.25rem; }
+  .profile-hero { padding: 1.5rem; gap: 1rem; }
+  .profile-avatar { width: 60px; height: 60px; font-size: 1.6rem; }
+  .profile-username { font-size: 1.25rem; }
+  .profile-section { padding: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  .profile-container { padding: 0 0.85rem; }
+  .profile-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 1.25rem;
+  }
+  .profile-section { padding: 1.25rem; border-radius: 16px; }
+  .section-title { font-size: 1rem; margin-bottom: 1.25rem; }
+  .submit-btn, .cancel-plus-btn, .subscribe-btn {
+    align-self: stretch;
+    width: 100%;
+    justify-content: center;
+  }
+  .plus-badge-row { gap: 8px; }
+}

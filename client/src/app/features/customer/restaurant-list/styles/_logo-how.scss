@@ -1,0 +1,165 @@
+/* ════════════════════════════════════════════ LOGO WALL ═══ */
+.logo-wall {
+  position: relative;
+  padding: 3rem 0;
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  overflow: hidden;
+}
+.wall-eyebrow {
+  display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--c-text-muted);
+  margin: 0 0 1.5rem;
+  text-align: center;
+  strong { color: var(--c-text); font-weight: 800; }
+}
+.wall-pulse {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--NEW--live);
+  box-shadow: 0 0 0 0 var(--NEW--live-glow);
+  animation: livePulseNew 1.6s infinite;
+}
+.wall-track {
+  display: flex; gap: 3rem; align-items: center;
+  width: max-content;
+  animation: wallScroll 40s linear infinite;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+@keyframes wallScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.wall-logo {
+  display: flex; align-items: center; gap: 0.75rem;
+  flex-shrink: 0;
+  padding: 0.75rem 1.25rem;
+  border-radius: 14px;
+  transition: background 0.25s, transform 0.25s;
+  &:hover { background: var(--c-bg-soft); transform: translateY(-2px); }
+}
+.wall-mark {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-pink));
+  border-radius: 10px;
+  color: #fff; font-weight: 900; font-size: 1.05rem;
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--c-orange) 50%, transparent);
+}
+.wall-name {
+  font-weight: 700; color: var(--c-text-soft); font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+/* ════════════════════════════════════════ HOW IT WORKS ═══ */
+.how {
+  position: relative;
+  z-index: 2;          /* sits above hero stacking context so its content receives pointer events */
+  padding: var(--section-pad) 0;
+  background: var(--c-bg);
+  overflow: hidden;
+}
+.how-bg { position: absolute; inset: 0; pointer-events: none; }
+.how-orb {
+  position: absolute; width: 500px; height: 500px;
+  border-radius: 50%; filter: blur(120px); opacity: 0.10;
+}
+.how-orb-1 { top: -10%; left: -10%; background: var(--c-orange); }
+.how-orb-2 { bottom: -10%; right: -10%; background: var(--c-purple); }
+
+.how-steps {
+  position: relative;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+  margin-top: 3.5rem;
+}
+@media (max-width: 900px) { .how-steps { grid-template-columns: 1fr; } }
+
+.how-connector {
+  position: absolute; top: -30px; left: 0; right: 0;
+  width: 100%; height: 60px; pointer-events: none;
+  z-index: 0;
+}
+.connector-path {
+  stroke-dasharray: 2400;
+  stroke-dashoffset: 2400;
+  animation: drawConnector 2.5s ease-out forwards 0.3s;
+}
+@keyframes drawConnector { to { stroke-dashoffset: 0; } }
+
+.how-step {
+  position: relative;
+  overflow: visible !important;
+  isolation: isolate;
+  padding: 2.5rem 2rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 24px;
+
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  &:hover {
+    border-color: var(--c-orange);
+    box-shadow: var(--shadow-lift);
+  }
+}
+.how-num {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  height: 40px;
+  padding: 0 0.75rem;
+  border: 2px solid rgba(255,255,255,.9);
+  border-radius: 999px;
+  box-shadow: 0 10px 26px -8px rgba(15,11,8,.45);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-pink));
+}
+.how-icon {
+  position: relative;
+  width: 64px; height: 64px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--c-orange-soft), var(--c-pink-soft));
+  border: 1px solid var(--c-orange);
+  border-radius: 18px;
+  margin-bottom: 1.5rem;
+  .material-symbols-rounded { font-size: 1.85rem; color: var(--c-orange); }
+}
+.how-icon-glow {
+  position: absolute; inset: -2px;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-pink));
+  border-radius: 18px;
+  filter: blur(20px); opacity: 0.20; z-index: -1;
+  animation: iconGlow 3s ease-in-out infinite alternate;
+}
+@keyframes iconGlow { to { opacity: 0.4; transform: scale(1.05); } }
+.how-title { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.75rem; color: var(--c-text); }
+.how-copy { font-size: 1rem; line-height: 1.6; color: var(--c-text-soft); margin: 0; }
+
+.how-step--video {
+  padding-bottom: 2rem;
+}
+.how-video-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: #000;
+}
+.how-video-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 14px;
+}

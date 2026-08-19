@@ -65,3 +65,16 @@
 
 .review-thanks { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.5rem; }
 .review-comment-display { font-style: italic; color: var(--text-secondary); font-size: 0.9rem; }
+
+/* ─── Mobile-first responsive breakpoints ─── */
+@media (max-width: 768px) {
+  .review-form { max-width: 100%; padding: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .review-form { padding: 1rem; border-radius: 16px; }
+  .review-title { font-size: 1rem; }
+  .star-icon { font-size: 1.75rem; }
+  .star-btn { padding: 4px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .submit-review-btn { min-height: 44px; }
+}

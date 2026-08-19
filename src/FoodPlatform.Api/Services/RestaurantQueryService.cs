@@ -22,6 +22,9 @@ public class RestaurantQueryService : IRestaurantQueryService
     _cache = cache;
 }
 
+    public Task<bool> IsActiveAsync(int id) =>
+        _db.Restaurants.AsNoTracking().AnyAsync(r => r.Id == id && r.IsActive);
+
     public async Task<IEnumerable<RestaurantDto>> ListActiveAsync(string? postcode = null)
     {
         // TODO Phase 2: filter by delivery radius using postcode

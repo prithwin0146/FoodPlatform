@@ -21,3 +21,18 @@
     pointer-events: none;
   }
 }
+
+/* ─── Mobile-first: respect safe-area insets on notched devices ─── */
+@media (max-width: 768px) {
+  .app-main {
+    min-height: calc(100vh - 64px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-main {
+    transition: none;
+    &.route-transitioning { transform: none; }
+  }
+}

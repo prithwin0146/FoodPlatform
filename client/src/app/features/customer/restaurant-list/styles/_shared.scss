@@ -1,0 +1,276 @@
+/* =================================================================
+   SEETHEPREP HOMEPAGE — SHARED TOKENS + HELPERS
+   Host token mapping + reusable glass/chip/ripple/glare primitives
+   used across every section of the homepage.
+   ================================================================= */
+
+:host {
+  display: block;
+  background: var(--NEW--bg);
+  color: var(--NEW--text);
+
+  /* ── Map to NEW-- premium token system ── */
+  --c-orange:        var(--NEW--primary);
+  --c-orange-soft:   var(--NEW--primary-subtle);
+  --c-pink:          var(--NEW--accent);
+  --c-pink-soft:     var(--NEW--accent-subtle);
+  --c-purple:        var(--NEW--accent);
+  --c-purple-soft:   var(--NEW--accent-subtle);
+  --c-green:         #22c55e;
+  --c-red:           #ef4444;
+
+  --c-bg:            var(--NEW--bg);
+  --c-bg-soft:       var(--NEW--bg-warm);
+  --c-bg-warm:       var(--NEW--bg-warm);
+  --c-surface:       #ffffff;
+
+  --c-border:        var(--NEW--border);
+  --c-border-strong: var(--NEW--border-md);
+
+  --c-text:          var(--NEW--text);
+  --c-text-soft:     var(--NEW--text-secondary);
+  --c-text-muted:    var(--NEW--text-muted);
+  --c-text-faint:    var(--NEW--text-muted);
+
+  --shadow-soft:     var(--NEW--shadow-xs);
+  --shadow-card:     var(--NEW--shadow-md);
+  --shadow-lift:     var(--NEW--shadow-lg);
+  --shadow-glow:     var(--NEW--shadow-xl);
+
+  /* Direct glow aliases — used in hardcoded rgba/glow contexts */
+  --glow-orange:      rgba(255, 107, 26, 0.55);
+  --glow-pink:        rgba(110, 58, 255, 0.40);
+  --glow-green:       rgba(34, 197, 94, 0.60);
+
+  /* Stats banner gradient — maps to badge gradient (orange→orange) as base;
+     dark mode override below provides a deeper accent variant */
+  --c-stats-gradient: var(--NEW--gradient-badge);
+
+  font-family: var(--NEW--font-sans);
+  font-size: var(--NEW--text-base);
+  line-height: var(--NEW--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────── Shared helpers ─────────────── */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+
+.section-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.18em;
+  color: var(--c-orange);
+  &.center { display: flex; justify-content: center; }
+}
+.eyebrow-line {
+  width: 36px; height: 2px;
+  background: var(--NEW--gradient-primary);
+  border-radius: var(--NEW--radius-sm);
+  &.live-pulse {
+    background: var(--NEW--live);
+    box-shadow: 0 0 8px var(--NEW--live);
+    animation: pulseShadow 1.4s ease-in-out infinite;
+  }
+}
+@keyframes pulseShadow {
+  0%, 100% { box-shadow: 0 0 8px var(--NEW--live); }
+  50%      { box-shadow: 0 0 18px var(--NEW--live); }
+}
+
+.section-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.2vw, 3.6rem);
+  font-weight: 600;
+  line-height: 1.05; letter-spacing: -0.025em;
+  font-variation-settings: 'opsz' 96;
+  margin: 0 0 1rem;
+  color: var(--c-text);
+  &.center { text-align: center; }
+  &.inline { display: inline; }
+}
+.section-lead {
+  font-size: 1.1rem; line-height: 1.6;
+  color: var(--c-text-soft);
+  max-width: 620px;
+  margin: 0 0 3.5rem;
+  &.center-block { margin-left: auto; margin-right: auto; text-align: center; }
+}
+.text-gradient-NEW {
+  background: var(--NEW--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-NEW--primary {
+  background: var(--NEW--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-word-orange {
+  color: #ff6b1a;
+  -webkit-text-fill-color: #ff6b1a;
+}
+
+// ── Premium Glass Card ─────────────────────────────────────────────────────
+.glass-card {
+  background: var(--NEW--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--NEW--glass-border);
+  border-radius: var(--NEW--radius-xl);
+  box-shadow:
+    var(--NEW--shadow-sm),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  transition: box-shadow var(--NEW--duration-base) var(--NEW--ease-spring),
+              border-color var(--NEW--duration-base) var(--NEW--ease-out),
+              transform var(--NEW--duration-base) var(--NEW--ease-spring);
+  will-change: transform, box-shadow;
+
+  [data-theme="dark"] & {
+    box-shadow:
+      var(--NEW--shadow-sm),
+      0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    border-color: var(--NEW--glass-border);
+  }
+}
+
+// ── Tilt Card with Glare ───────────────────────────────────────────────────
+.tilt-card {
+  position: relative;
+  isolation: isolate;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      600px circle at var(--glare-x, 50%) var(--glare-y, 50%),
+      rgba(255, 255, 255, 0.35) 0%,
+      transparent 60%
+    );
+    opacity: var(--glare-opacity, 0);
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+}
+
+// ── Premium Chip Pills ─────────────────────────────────────────────────────
+.chip-pill {
+  padding: 6px 16px;
+  border-radius: 99px;
+  border: 1.5px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--NEW--duration-fast) var(--NEW--ease-out),
+    border-color var(--NEW--duration-fast) var(--NEW--ease-out),
+    color var(--NEW--duration-fast) var(--NEW--ease-out),
+    transform var(--NEW--duration-fast) var(--NEW--ease-spring),
+    box-shadow var(--NEW--duration-fast) var(--NEW--ease-out);
+
+  &:hover {
+    border-color: var(--c-orange);
+    color: var(--c-orange);
+    background: color-mix(in srgb, var(--c-orange) 6%, var(--c-surface));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px -4px var(--NEW--primary-glow);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}
+
+.chip-active {
+  background: var(--NEW--gradient-primary) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 20px -6px var(--NEW--primary-glow) !important;
+
+  &:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+  }
+}
+
+// ── Card Ripple Effect ─────────────────────────────────────────────────────
+.card-ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+      rgba(255, 107, 26, 0.18) 0%,
+      transparent 60%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 1;
+  }
+
+  &:active::after {
+    opacity: 1;
+    animation: rippleFlash 0.4s ease-out;
+  }
+}
+@keyframes rippleFlash {
+  from { opacity: 0.7; transform: scale(0.8); }
+  to   { opacity: 0; transform: scale(1.4); }
+}
+
+// ── Glass Number Badge ─────────────────────────────────────────────────────
+.glass-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--NEW--glass-bg);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--NEW--glass-border);
+  box-shadow:
+    var(--NEW--shadow-xs),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--c-orange);
+  font-variation-settings: 'opsz' 48;
+}
+
+// ── Premium Gradient Text ──────────────────────────────────────────────────
+.grad-text {
+  background: linear-gradient(135deg, var(--c-orange) 0%, var(--c-pink) 50%, var(--c-orange) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradShift 5s ease-in-out infinite;
+}
+@keyframes gradShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+.card-glare {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(circle 240px at var(--glare-x, 50%) var(--glare-y, 50%), color-mix(in srgb, var(--c-orange) 10%, transparent), transparent 60%);
+  opacity: var(--glare-opacity, 0);
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+}

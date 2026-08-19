@@ -100,3 +100,19 @@
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
 }
+
+/* ─── Mobile-first responsive breakpoints ─── */
+@media (max-width: 600px) {
+  .toast-container {
+    top: calc(var(--header-height, 64px) + env(safe-area-inset-top, 0px) + 10px);
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast { padding: 12px 12px 12px 14px; gap: 10px; }
+  .toast-message { font-size: 0.82rem; }
+  .toast-close { width: 32px; height: 32px; }
+}
