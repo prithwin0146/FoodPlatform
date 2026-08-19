@@ -3,6 +3,6 @@ export const environment = {
   apiUrl: 'https://seetheprep-api.onrender.com/api',
   videoCdnUrl: '',
   stripePublishableKey: 'pk_live_placeholder',
-  googleClientId: 'GOOGLE_CLIENT_ID_PLACEHOLDER',
+  googleClientId: '247135100687-b57n6jjtur48ci4uj9baj1c296nhffek.apps.googleusercontent.com',
   appleClientId: 'APPLE_CLIENT_ID_PLACEHOLDER',
 };
