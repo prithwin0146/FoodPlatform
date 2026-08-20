@@ -17,18 +17,11 @@ public static class DevDataSeeder
         var db = scope.ServiceProvider.GetRequiredService<FoodPlatformDbContext>();
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-        // Idempotent: skip if any users exist already.
-        if (await db.Users.AnyAsync())
-        {
-            logger.LogInformation("DevDataSeeder: users already present, skipping.");
-            return;
-        }
-
         const string devPassword = "Password123!";
         var hash = hasher.Hash(devPassword);
         var now = DateTime.UtcNow;
 
-        var users = new List<User>
+        var wanted = new List<User>
         {
             new() { Role = "Admin",    Username = "admin",       Email = "admin@foodplatform.co.uk",  PasswordHash = hash, CreatedAt = now, IsEmailVerified = true },
             new() { Role = "Customer", Username = "demo",        Email = "customer@example.com",      PasswordHash = hash, CreatedAt = now, IsEmailVerified = true },
@@ -40,9 +33,26 @@ public static class DevDataSeeder
             new() { RestaurantId = 6, Role = "Staff", Username = "dragonwok",   Email = "staff@dragonwok.co.uk",   PasswordHash = hash, CreatedAt = now, IsEmailVerified = true },
         };
 
-        db.Users.AddRange(users);
+        // Per-account idempotency check (NOT "skip if any user exists"). The old logic
+        // bailed out the moment a single real customer registered through the app, which
+        // meant these demo admin/staff accounts silently never got created on a dev
+        // database that already had real users in it — the actual cause of "can't log in
+        // with admin/staff ids" locally.
+        var existingEmails = await db.Users
+            .Where(u => wanted.Select(w => w.Email).Contains(u.Email))
+            .Select(u => u.Email)
+            .ToListAsync();
+
+        var missing = wanted.Where(u => !existingEmails.Contains(u.Email)).ToList();
+        if (missing.Count == 0)
+        {
+            logger.LogInformation("DevDataSeeder: all demo accounts already present, skipping.");
+            return;
+        }
+
+        db.Users.AddRange(missing);
         await db.SaveChangesAsync();
         logger.LogWarning("DevDataSeeder: inserted {Count} demo users with shared password '{Pwd}'. NEVER run in production.",
-            users.Count, devPassword);
+            missing.Count, devPassword);
     }
 }

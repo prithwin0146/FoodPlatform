@@ -54,36 +54,56 @@
     <!-- RIGHT: nav columns -->
     <nav class="stp-footer__nav" aria-label="Footer navigation">
 
-      <div class="stp-footer__col">
-        <h4 class="stp-footer__col-head">Eat</h4>
-        <a routerLink="/restaurants" class="stp-footer__link">Browse kitchens</a>
-        <a routerLink="/" class="stp-footer__link">How it works</a>
-        <a routerLink="/login" class="stp-footer__link">Track an order</a>
-        <a routerLink="/info/gift-cards" class="stp-footer__link">Gift cards</a>
+      <div class="stp-footer__col" [class.is-open]="isSectionOpen('Eat')">
+        <button type="button" class="stp-footer__col-head" (click)="toggleSection('Eat')" [attr.aria-expanded]="isSectionOpen('Eat')">
+          Eat
+          <span class="stp-footer__col-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="stp-footer__col-links">
+          <a routerLink="/restaurants" class="stp-footer__link">Browse kitchens</a>
+          <a routerLink="/" class="stp-footer__link">How it works</a>
+          <a routerLink="/login" class="stp-footer__link">Track an order</a>
+          <a routerLink="/info/gift-cards" class="stp-footer__link">Gift cards</a>
+        </div>
       </div>
 
-      <div class="stp-footer__col">
-        <h4 class="stp-footer__col-head">Cook</h4>
-        <a routerLink="/info/list-kitchen" class="stp-footer__link">List your kitchen</a>
-        <a routerLink="/info/camera-kit" class="stp-footer__link">Camera kit</a>
-        <a routerLink="/info/chef-stories" class="stp-footer__link">Chef stories</a>
-        <a routerLink="/info/hygiene" class="stp-footer__link">Hygiene standards</a>
+      <div class="stp-footer__col" [class.is-open]="isSectionOpen('Cook')">
+        <button type="button" class="stp-footer__col-head" (click)="toggleSection('Cook')" [attr.aria-expanded]="isSectionOpen('Cook')">
+          Cook
+          <span class="stp-footer__col-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="stp-footer__col-links">
+          <a routerLink="/info/list-kitchen" class="stp-footer__link">List your kitchen</a>
+          <a routerLink="/info/camera-kit" class="stp-footer__link">Camera kit</a>
+          <a routerLink="/info/chef-stories" class="stp-footer__link">Chef stories</a>
+          <a routerLink="/info/hygiene" class="stp-footer__link">Hygiene standards</a>
+        </div>
       </div>
 
-      <div class="stp-footer__col">
-        <h4 class="stp-footer__col-head">Company</h4>
-        <a routerLink="/info/about" class="stp-footer__link">About us</a>
-        <a routerLink="/info/press" class="stp-footer__link">Press kit</a>
-        <a routerLink="/info/careers" class="stp-footer__link">Careers</a>
-        <a routerLink="/info/contact" class="stp-footer__link">Contact</a>
+      <div class="stp-footer__col" [class.is-open]="isSectionOpen('Company')">
+        <button type="button" class="stp-footer__col-head" (click)="toggleSection('Company')" [attr.aria-expanded]="isSectionOpen('Company')">
+          Company
+          <span class="stp-footer__col-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="stp-footer__col-links">
+          <a routerLink="/info/about" class="stp-footer__link">About us</a>
+          <a routerLink="/info/press" class="stp-footer__link">Press kit</a>
+          <a routerLink="/info/careers" class="stp-footer__link">Careers</a>
+          <a routerLink="/info/contact" class="stp-footer__link">Contact</a>
+        </div>
       </div>
 
-      <div class="stp-footer__col">
-        <h4 class="stp-footer__col-head">Help</h4>
-        <a routerLink="/info/help" class="stp-footer__link">Help centre</a>
-        <a routerLink="/info/safety" class="stp-footer__link">Safety</a>
-        <a routerLink="/login" class="stp-footer__link">Sign in</a>
-        <a routerLink="/register" class="stp-footer__link">Create account</a>
+      <div class="stp-footer__col" [class.is-open]="isSectionOpen('Help')">
+        <button type="button" class="stp-footer__col-head" (click)="toggleSection('Help')" [attr.aria-expanded]="isSectionOpen('Help')">
+          Help
+          <span class="stp-footer__col-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="stp-footer__col-links">
+          <a routerLink="/info/help" class="stp-footer__link">Help centre</a>
+          <a routerLink="/info/safety" class="stp-footer__link">Safety</a>
+          <a routerLink="/login" class="stp-footer__link">Sign in</a>
+          <a routerLink="/register" class="stp-footer__link">Create account</a>
+        </div>
       </div>
 
     </nav>
@@ -91,20 +111,6 @@
 
   <!-- ═══════════════════ BOTTOM BAR ═════════════════════ -->
   <div class="stp-footer__bottom">
-
-    <!-- Live status + copyright -->
-    <div class="stp-footer__meta">
-
-      <span class="stp-footer__copy">© 2026 SeeThePrep Ltd · Made in London</span>
-    </div>
-
-    <!-- Legal links -->
-    <nav class="stp-footer__legal" aria-label="Legal">
-      <a routerLink="/info/privacy" class="stp-footer__legal-link">Privacy</a>
-      <a routerLink="/info/terms" class="stp-footer__legal-link">Terms</a>
-      <a routerLink="/info/cookies" class="stp-footer__legal-link">Cookies</a>
-      <a routerLink="/info/accessibility" class="stp-footer__legal-link">Accessibility</a>
-    </nav>
 
     <!-- Social icons -->
     <div class="stp-footer__socials">
@@ -120,6 +126,19 @@
       <a class="stp-footer__social" href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
         <span class="material-symbols-rounded" aria-hidden="true">play_arrow</span>
       </a>
+    </div>
+
+    <!-- Legal links -->
+    <nav class="stp-footer__legal" aria-label="Legal">
+      <a routerLink="/info/privacy" class="stp-footer__legal-link">Privacy</a>
+      <a routerLink="/info/terms" class="stp-footer__legal-link">Terms</a>
+      <a routerLink="/info/cookies" class="stp-footer__legal-link">Cookies</a>
+      <a routerLink="/info/accessibility" class="stp-footer__legal-link">Accessibility</a>
+    </nav>
+
+    <!-- Live status + copyright -->
+    <div class="stp-footer__meta">
+      <span class="stp-footer__copy">© 2026 SeeThePrep Ltd · Made in London</span>
     </div>
 
   </div>

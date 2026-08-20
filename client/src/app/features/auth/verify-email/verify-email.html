@@ -3,7 +3,9 @@
   <!-- ── LEFT BRAND PANEL ─────────────────────────────────────── -->
   <div class="brand-panel" aria-hidden="true">
     <div class="brand-panel__inner">
-      <div class="brand-wordmark">see the <em>prep</em>&#9646;</div>
+      <div class="brand-wordmark">
+        <app-logo variant="wordmark" [size]="44" [showTag]="false" />
+      </div>
       <p class="brand-panel__tagline">One quick check before you order.</p>
 
       <div class="verify-visual">
@@ -31,6 +33,12 @@
         </li>
       </ul>
     </div>
+  </div>
+
+  <!-- ── MOBILE BRAND STRIP — replaces the hidden brand panel on small screens ── -->
+  <div class="mobile-brand-strip" aria-hidden="true">
+    <app-logo variant="wordmark" [size]="30" [showTag]="false" />
+    <span class="mobile-brand-strip__tagline">One quick check before you order.</span>
   </div>
 
   <!-- ── RIGHT FORM PANEL ──────────────────────────────────────── -->

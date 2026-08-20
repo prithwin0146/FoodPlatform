@@ -261,7 +261,13 @@ $smooth:       cubic-bezier(0.16, 1, 0.3, 1);
   gap: 0;
 
   @media (max-width: 980px) { padding-left: 0; }
-  @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); gap: 32px 0; }
+
+  // Below 640px, columns stack full-width and become collapsible
+  // accordions to reduce initial scroll length on mobile.
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 
 .stp-footer__col {
@@ -275,20 +281,83 @@ $smooth:       cubic-bezier(0.16, 1, 0.3, 1);
     border-left: 1px solid $border;
     padding-left: 20px;
   }
+
+  @media (max-width: 640px) {
+    padding: 0;
+    gap: 0;
+
+    & + & {
+      border-left: none;
+      padding-left: 0;
+    }
+
+    // Full-width divider between stacked accordion rows
+    border-bottom: 1px solid $border;
+
+    .stp-footer__col-head {
+      cursor: pointer;
+      padding: 16px 4px;
+      margin: 0;
+      min-height: 44px; // touch target
+    }
+
+    .stp-footer__col-chevron { display: block; }
+
+    &.is-open .stp-footer__col-chevron { transform: rotate(180deg); }
+
+    .stp-footer__col-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.28s $smooth;
+    }
+
+    &.is-open .stp-footer__col-links {
+      max-height: 240px; // comfortably covers 4 links at mobile line-height
+      padding-bottom: 16px;
+    }
+
+    .stp-footer__link { padding: 6px 4px; min-height: 32px; }
+  }
 }
 
 .stp-footer__col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: default;
   font-family: $sans;
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  // Gradient accent on column heads
-  background: $gradient;
+  margin: 0 0 8px;
+  // Gradient accent text
+  background-image: $gradient;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0 0 8px;
+}
+
+.stp-footer__col-chevron {
+  display: none; // mobile-only, see RESPONSIVE
+  font-size: 1.1rem;
+  color: $text-mute;
+  -webkit-text-fill-color: $text-mute; // override the gradient clip above
+  transition: transform 0.22s $smooth;
+  flex-shrink: 0;
+}
+
+.stp-footer__col-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .stp-footer__link {
@@ -324,15 +393,26 @@ $smooth:       cubic-bezier(0.16, 1, 0.3, 1);
   @media (max-width: 980px) { padding: 20px 32px 28px; }
   @media (max-width: 768px) {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 20px 24px 28px;
+    align-items: center;
+    text-align: center;
+    padding: 24px 24px 32px;
+    gap: 18px;
   }
 }
+
+// Restore visual order (DOM is socials, legal, meta for cleaner mobile
+// stacking markup) — flex `order` keeps meta → legal → socials on screen
+// across every breakpoint, matching the original design.
+.stp-footer__meta    { order: 1; }
+.stp-footer__legal   { order: 2; }
+.stp-footer__socials { order: 3; }
 
 .stp-footer__meta {
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  @media (max-width: 768px) { align-items: center; }
 }
 
 .stp-footer__status {
@@ -375,7 +455,7 @@ $smooth:       cubic-bezier(0.16, 1, 0.3, 1);
   flex-wrap: wrap;
   gap: 6px 20px;
 
-  @media (max-width: 768px) { gap: 6px 16px; }
+  @media (max-width: 768px) { justify-content: center; gap: 6px 16px; }
 }
 
 .stp-footer__legal-link {
@@ -395,8 +475,6 @@ $smooth:       cubic-bezier(0.16, 1, 0.3, 1);
 .stp-footer__socials {
   display: flex;
   gap: 6px;
-
-  @media (max-width: 768px) { margin-top: 4px; }
 }
 
 .stp-footer__social {

@@ -28,6 +28,8 @@ export class Header {
   readonly scrolled = signal(false);
   readonly cartBouncing = signal(false);
   readonly dropdownOpen = signal(false);
+  /** Mobile primary-nav sheet (hamburger menu) — separate from the account dropdown. */
+  readonly mobileNavOpen = signal(false);
   /** 0..1 — how far the user has scrolled. Drives glass intensity via --glow-progress. */
   readonly scrollProgress = signal(0);
   /** Mobile detection for responsive sheet presentation */
@@ -113,6 +115,7 @@ export class Header {
     const next = y > 16;
     if (next !== this.scrolled()) this.scrolled.set(next);
     if (next && this.dropdownOpen()) this.dropdownOpen.set(false);
+    if (next && this.mobileNavOpen()) this.mobileNavOpen.set(false);
 
     // Scroll progress: 0 at top, 1 at full document scroll. Clamped so
     // short pages don't resolve to >1.
@@ -124,7 +127,10 @@ export class Header {
   }
 
   @HostListener('document:keydown.escape')
-  onEscape(): void { this.dropdownOpen.set(false); }
+  onEscape(): void {
+    this.dropdownOpen.set(false);
+    this.mobileNavOpen.set(false);
+  }
 
   @HostListener('document:click', ['$event'])
   onDocClick(e: MouseEvent): void {
@@ -135,8 +141,13 @@ export class Header {
 
   toggleDropdown(): void { this.dropdownOpen.update(v => !v); }
 
+  toggleMobileNav(): void { this.mobileNavOpen.update(v => !v); }
+
+  closeMobileNav(): void { this.mobileNavOpen.set(false); }
+
   logout(): void {
     this.dropdownOpen.set(false);
+    this.mobileNavOpen.set(false);
     this.auth.clearSession();
     this.router.navigate(['/login']);
   }

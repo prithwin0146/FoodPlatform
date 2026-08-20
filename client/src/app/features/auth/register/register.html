@@ -1,24 +1,19 @@
 <div class="auth-shell">
 
-  <!-- ── LEFT BRAND PANEL ─────────────────────────────────────── -->
+  <!-- ── LEFT BRAND PANEL — logo + tagline only, vertically centered ── -->
   <div class="brand-panel" aria-hidden="true">
     <div class="brand-panel__inner">
       <div class="brand-wordmark" appScrollReveal>
-        <app-logo variant="wordmark" [size]="44" [showTag]="false" />
+        <app-logo variant="wordmark" [size]="52" [showTag]="false" />
       </div>
       <p class="brand-panel__tagline" appScrollReveal [revealDelay]="60">Food delivery, on the record.</p>
-
-      <ul class="brand-panel__pills">
-        <li appScrollReveal [revealDelay]="120"><span class="material-symbols-rounded">videocam</span> Watch every order being cooked, live</li>
-        <li appScrollReveal [revealDelay]="180"><span class="material-symbols-rounded">verified</span> FSA 5-star kitchens, audited quarterly</li>
-        <li appScrollReveal [revealDelay]="240"><span class="material-symbols-rounded">lock</span> Card payments secured by Stripe</li>
-        <li appScrollReveal [revealDelay]="300"><span class="material-symbols-rounded">notifications</span> Stage-by-stage order updates</li>
-      </ul>
-
-      <div class="brand-panel__quote" appScrollReveal [revealDelay]="380">
-        <blockquote>“You shouldn’t have to guess what’s in your food.”</blockquote>
-      </div>
     </div>
+  </div>
+
+  <!-- ── MOBILE BRAND STRIP — replaces the hidden brand panel on small screens ── -->
+  <div class="mobile-brand-strip" aria-hidden="true">
+    <app-logo variant="wordmark" [size]="34" [showTag]="false" />
+    <span class="mobile-brand-strip__tagline">Food delivery, on the record.</span>
   </div>
 
   <!-- ── RIGHT FORM PANEL ──────────────────────────────────────── -->

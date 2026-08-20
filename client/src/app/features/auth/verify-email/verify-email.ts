@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiAuthService } from '../../../core/services/api-auth.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { Logo } from '../../../shared/components/logo/logo';
 
 /**
  * Handles the email OTP verification step after registration.
@@ -23,6 +24,7 @@ import { ToastService } from '../../../core/services/toast.service';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    Logo,
   ],
   templateUrl: './verify-email.html',
   styleUrl: './verify-email.scss',

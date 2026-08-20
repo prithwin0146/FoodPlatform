@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 64px 56px;
+  padding: 116px 56px 64px;
   position: relative;
   overflow: hidden;
   border-right: 1px solid var(--border);
@@ -55,33 +55,48 @@
   max-width: 420px;
   z-index: 1;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .brand-wordmark {
-  font-family: var(--font-display, 'Fraunces', Georgia, serif);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.03em;
-  margin-bottom: 12px;
-  line-height: 1;
-
-  em {
-    font-style: italic;
-    background: linear-gradient(90deg, var(--NEW--primary) 0%, var(--NEW--brand-pink) 55%, var(--NEW--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .brand-panel__tagline {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--primary-dark);
   font-weight: 800;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
+}
+
+/* ── Mobile brand strip — compact logo+tagline replacement for the hidden desktop panel ── */
+.mobile-brand-strip {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 96px 24px 4px;
+  background: linear-gradient(180deg, #fff6ec 0%, #fffcf7 100%);
+
+  &__tagline {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary-dark);
+    font-weight: 800;
+  }
+
+  @media (max-width: 860px) {
+    display: flex;
+  }
 }
 
 /* Shield visual */
@@ -187,9 +202,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 64px 48px;
+  padding: 116px 48px 64px;
 
-  @media (max-width: 480px) { padding: 48px 24px; }
+  @media (max-width: 480px) { padding: 88px 24px 48px; }
 }
 
 .form-panel__inner {

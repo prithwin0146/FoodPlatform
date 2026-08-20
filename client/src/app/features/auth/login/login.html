@@ -1,34 +1,19 @@
 <div class="login-shell">
 
-  <!-- ── LEFT BRAND PANEL ─────────────────────────────────────── -->
+  <!-- ── LEFT BRAND PANEL — logo + tagline only, vertically centered ── -->
   <div class="brand-panel" aria-hidden="true">
     <div class="brand-panel__inner">
       <div class="brand-wordmark" appScrollReveal>
-        <app-logo variant="wordmark" [size]="44" [showTag]="false" />
+        <app-logo variant="wordmark" [size]="52" [showTag]="false" />
       </div>
       <p class="brand-panel__tagline" appScrollReveal [revealDelay]="60">Food delivery, on the record.</p>
-
-      <ul class="brand-panel__pills">
-        <li appScrollReveal [revealDelay]="120"><span class="material-symbols-rounded">videocam</span> Live camera on every order</li>
-        <li appScrollReveal [revealDelay]="180"><span class="material-symbols-rounded">verified</span> FSA 5-star kitchens only</li>
-        <li appScrollReveal [revealDelay]="240"><span class="material-symbols-rounded">payments</span> Tips paid in full to chefs</li>
-      </ul>
-
-      <div class="brand-panel__quote" appScrollReveal [revealDelay]="320">
-        <blockquote>“You shouldn’t have to guess what’s in your food.”</blockquote>
-      </div>
-
-      <div class="brand-panel__trust" appScrollReveal [revealDelay]="400">
-        <span class="trust-label">Trusted by</span>
-        <span class="trust-row">
-          <span class="trust-tag">FSA</span>
-          <span class="trust-dot">·</span>
-          <span class="trust-tag">Stripe</span>
-          <span class="trust-dot">·</span>
-          <span class="trust-tag">JobBuddy</span>
-        </span>
-      </div>
     </div>
+  </div>
+
+  <!-- ── MOBILE BRAND STRIP — replaces the hidden brand panel on small screens ── -->
+  <div class="mobile-brand-strip" aria-hidden="true">
+    <app-logo variant="wordmark" [size]="34" [showTag]="false" />
+    <span class="mobile-brand-strip__tagline">Food delivery, on the record.</span>
   </div>
 
   <!-- ── RIGHT FORM PANEL ──────────────────────────────────────── -->

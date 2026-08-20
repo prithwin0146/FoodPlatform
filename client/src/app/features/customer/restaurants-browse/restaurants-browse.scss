@@ -61,7 +61,7 @@ $green:      #1a9b5a;
 /* ════════════════════════ BROWSE HEADER ═════ */
 .browse-header {
   position: relative; z-index: 1;
-  padding: 5.5rem 0 2.75rem;
+  padding: 7.5rem 0 2rem;
   background:
     radial-gradient(800px circle at 0% 0%, rgba(255,107,26,.07), transparent 55%),
     radial-gradient(600px circle at 100% 100%, rgba(255,61,138,.05), transparent 55%),
@@ -72,9 +72,9 @@ $green:      #1a9b5a;
 .browse-header-inner {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 2.5rem;
+  justify-content: flex-start;
   flex-wrap: wrap;
+  margin-bottom: 1.75rem;
 }
 
 .browse-header-left { flex: 1 1 auto; }
@@ -115,7 +115,7 @@ $green:      #1a9b5a;
   margin: 0;
 }
 
-.browse-search-wrap { flex-shrink: 0; width: 380px; }
+.browse-search-wrap { flex-shrink: 0; width: 100%; max-width: 640px; }
 .browse-search { width: 100%; }
 .search-prefix {
   font-size: 1.1rem; color: var(--c-text-muted);
@@ -137,22 +137,33 @@ $green:      #1a9b5a;
 /* ════════════════════════ BROWSE BODY ═══════ */
 .browse-body {
   position: relative; z-index: 1;
-  padding: 2.25rem 0 7rem;
+  padding: 2rem 0 7rem;
   background: var(--c-bg-soft);
 }
 
-/* ════════════════════════ FILTER BAR ════════ */
-.filter-bar {
-  display: flex; flex-wrap: wrap; gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding: 1rem 1.25rem;
+/* ════════════════════════ UNIFIED CONTROL BAR ═══ */
+.control-bar {
+  display: flex; flex-direction: column; gap: .85rem;
+  margin-bottom: 1.75rem;
+  padding: 1.1rem 1.25rem;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: var(--shadow-soft);
+  position: sticky; top: 88px; z-index: 5;
 }
+.control-bar__row { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; }
+.control-bar__cuisines {
+  flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  &::-webkit-scrollbar { display: none; }
+}
+.control-bar__divider { height: 1px; background: var(--c-border); }
+.control-bar__meta { justify-content: space-between; }
 
 .cuisine-chip {
+  flex-shrink: 0;
   padding: 6px 16px; border-radius: 20px;
   border: 1.5px solid var(--c-border);
   background: var(--c-surface);
@@ -174,14 +185,9 @@ $green:      #1a9b5a;
   }
 }
 
-.filter-row {
-  display: flex; align-items: center; flex-wrap: wrap;
-  gap: 0.75rem; margin-bottom: 1.75rem;
-}
-
 .sort-wrapper {
   display: inline-flex; align-items: center; gap: 0.35rem;
-  background: var(--c-surface);
+  background: var(--c-bg-soft);
   border: 1px solid var(--c-border);
   border-radius: 10px; padding: 6px 12px;
   .sort-icon { font-size: 1.1rem; color: var(--c-text-muted); }
@@ -202,6 +208,17 @@ $green:      #1a9b5a;
   transition: background .2s, color .2s, border-color .2s;
   &:hover { border-color: $live; color: $live; }
   &.active { background: $live; border-color: $live; color: #fff; font-weight: 700; }
+}
+
+.result-count {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .78rem; font-weight: 700; color: var(--c-text-soft);
+  margin-left: auto; white-space: nowrap;
+  &__dot {
+    width: 6px; height: 6px; border-radius: 50%; background: $live;
+    box-shadow: 0 0 6px rgba(0,212,170,.7);
+    animation: pulseDot 1.8s ease-in-out infinite;
+  }
 }
 
 /* ════════════════════════ GRID ══════════════ */
@@ -387,7 +404,7 @@ $green:      #1a9b5a;
 }
 
 /* ── Card body ── */
-.card-body { padding: 1.25rem 1.5rem 1.5rem; position: relative; z-index: 3; }
+.card-body { padding: 1.25rem 4rem 1.5rem 1.5rem; position: relative; z-index: 3; }
 .card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: .4rem; }
 .restaurant-name { font-size: 1.2rem; font-weight: 700; margin: 0; color: var(--c-text); flex: 1; }
 .status-pill {
@@ -422,12 +439,19 @@ $green:      #1a9b5a;
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
   color: var(--c-text-muted);
 }
-.meta-cta {
-  margin-left: auto; display: flex; align-items: center; gap: 4px;
-  color: var(--c-orange); font-weight: 700;
-  .material-symbols-rounded { font-size: 1rem; transition: transform .3s; }
+.card-arrow {
+  position: absolute; bottom: 1.4rem; right: 1.4rem; z-index: 4;
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--c-bg-soft); color: var(--c-orange);
+  opacity: 0; transform: translateX(-4px) scale(.85);
+  transition: opacity .25s ease, transform .25s ease, background .25s ease;
+  .material-symbols-rounded { font-size: 1.15rem; }
 }
-.restaurant-card:hover .meta-cta .material-symbols-rounded { transform: translateX(4px); }
+.restaurant-card:hover .card-arrow {
+  opacity: 1; transform: translateX(0) scale(1);
+  background: linear-gradient(135deg, $brand, $brand-pink); color: #fff;
+}
 .cuisine-tag {
   display: inline-block; padding: 3px 10px; border-radius: 12px;
   background: rgba(255,107,26,.10); color: $brand;
@@ -481,14 +505,17 @@ $green:      #1a9b5a;
 
 /* ══════════════════════════════════════════ RESPONSIVE ═══ */
 @media (max-width: 768px) {
-  .browse-header { padding: 4.5rem 0 2rem; }
-  .browse-header-inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .browse-header { padding: 6rem 0 1.5rem; }
+  .browse-header-inner { flex-direction: column; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.25rem; }
   .browse-search-wrap { width: 100%; }
   .browse-title { font-size: clamp(1.75rem, 7vw, 2.4rem); }
+  .control-bar { position: static; top: auto; }
+  .control-bar__meta { justify-content: flex-start; }
+  .result-count { margin-left: 0; width: 100%; order: 3; }
 }
 @media (max-width: 480px) {
-  .browse-header { padding: 3.5rem 0 1.75rem; }
+  .browse-header { padding: 5.25rem 0 1.25rem; }
   .grid { grid-template-columns: 1fr; }
-  .filter-row { flex-direction: column; align-items: flex-start; }
+  .card-body { padding: 1.1rem 3.5rem 1.35rem 1.25rem; }
   .container { padding: 0 1.25rem; }
 }

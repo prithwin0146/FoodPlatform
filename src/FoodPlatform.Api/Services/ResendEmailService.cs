@@ -225,8 +225,15 @@ public class ResendEmailService : IEmailService
         }
         catch (Exception ex)
         {
-            // Email failure must never break order flow — log and continue
-            _logger.LogError(ex, "Failed to send email '{Subject}' to {Email}", subject, toEmail);
+            // IMPORTANT: every caller of IEmailService is invoked through Hangfire
+            // (IBackgroundJobClient.Enqueue), never inline in a request. Rethrowing here
+            // lets Hangfire's automatic-retry policy (10 attempts, exponential backoff)
+            // actually kick in on transient Resend failures (rate limits, network blips,
+            // bad API key). Swallowing the exception silently marks the job "succeeded"
+            // even though nothing was delivered — which is what caused OTP/notification
+            // emails to go missing with no retry and no visible error.
+            _logger.LogError(ex, "Failed to send email '{Subject}' to {Email} — will be retried by Hangfire", subject, toEmail);
+            throw;
         }
     }
 }

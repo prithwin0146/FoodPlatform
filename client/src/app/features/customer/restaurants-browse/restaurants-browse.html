@@ -21,8 +21,10 @@
           {{ filteredRestaurants().length }} verified kitchens · FSA 5★ · cameras always on
         </p>
       </div>
+    </div>
 
-      <div class="browse-search-wrap" appScrollReveal [revealDelay]="80">
+    <div class="container">
+      <div class="browse-search-wrap" appScrollReveal [revealDelay]="60">
         <mat-form-field class="browse-search" appearance="outline">
           <mat-label>Search by name, cuisine or postcode</mat-label>
           <span matPrefix class="material-symbols-rounded search-prefix">search</span>
@@ -40,33 +42,38 @@
   <div class="browse-body">
     <div class="container">
 
-      <!-- Cuisine filter chips -->
-      <div class="filter-bar" appScrollReveal>
-        @for (c of CUISINE_OPTIONS; track c) {
-          <button class="cuisine-chip"
-            [class.chip-active]="cuisineFilter() === c"
-            (click)="cuisineFilter.set(c)"
-            appRadialSelect>{{ c }}</button>
-        }
-      </div>
-
-      <!-- Sort + Dietary row -->
-      <div class="filter-row" appScrollReveal [revealDelay]="40">
-        <div class="sort-wrapper">
-          <span class="material-symbols-rounded sort-icon">sort</span>
-          <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
-            <option value="rating">Top rated</option>
-            <option value="time">Fastest delivery</option>
-            <option value="name">Name A–Z</option>
-          </select>
-        </div>
-        <div class="dietary-chips">
-          @for (d of DIETARY_OPTIONS; track d) {
-            <button class="dietary-chip"
-              [class.active]="activeDietary().includes(d)"
-              (click)="toggleDietary(d)"
-              appRadialSelect>{{ d }}</button>
+      <!-- Unified control bar: cuisine chips + sort + dietary + live count -->
+      <div class="control-bar" appScrollReveal>
+        <div class="control-bar__row control-bar__cuisines">
+          @for (c of CUISINE_OPTIONS; track c) {
+            <button class="cuisine-chip"
+              [class.chip-active]="cuisineFilter() === c"
+              (click)="cuisineFilter.set(c)"
+              appRadialSelect>{{ c }}</button>
           }
+        </div>
+        <div class="control-bar__divider"></div>
+        <div class="control-bar__row control-bar__meta">
+          <div class="sort-wrapper">
+            <span class="material-symbols-rounded sort-icon">sort</span>
+            <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
+              <option value="rating">Top rated</option>
+              <option value="time">Fastest delivery</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </div>
+          <div class="dietary-chips">
+            @for (d of DIETARY_OPTIONS; track d) {
+              <button class="dietary-chip"
+                [class.active]="activeDietary().includes(d)"
+                (click)="toggleDietary(d)"
+                appRadialSelect>{{ d }}</button>
+            }
+          </div>
+          <span class="result-count">
+            <span class="result-count__dot"></span>
+            {{ filteredRestaurants().length }} kitchen{{ filteredRestaurants().length === 1 ? '' : 's' }} live now
+          </span>
         </div>
       </div>
 
@@ -214,8 +221,10 @@
                       <span class="material-symbols-rounded">store</span> Pickup
                     </span>
                   }
-                  <span class="meta-cta">View menu <span class="material-symbols-rounded">arrow_forward</span></span>
                 </div>
+                <span class="card-arrow" aria-hidden="true">
+                  <span class="material-symbols-rounded">arrow_forward</span>
+                </span>
               </div>
             </a>
           } @empty {

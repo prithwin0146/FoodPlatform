@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Logo } from '../logo/logo';
 
@@ -9,4 +9,22 @@ import { Logo } from '../logo/logo';
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
 })
-export class FooterComponent {}
+export class FooterComponent {
+  /**
+   * Mobile-only accordion state for the footer nav columns (Eat / Cook /
+   * Company / Help). Ignored on desktop — CSS forces columns open there.
+   */
+  readonly openSections = signal<Set<string>>(new Set());
+
+  toggleSection(name: string): void {
+    this.openSections.update(set => {
+      const next = new Set(set);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  }
+
+  isSectionOpen(name: string): boolean {
+    return this.openSections().has(name);
+  }
+}

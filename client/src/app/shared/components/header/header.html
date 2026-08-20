@@ -40,6 +40,20 @@
     <!-- ── Right actions ─────────────────────────────────────────── -->
     <div class="site-header__actions">
 
+      <!-- Hamburger — mobile-only, opens the primary-nav sheet -->
+      @if (auth.isLoggedIn()) {
+        <button class="nav-toggle-btn"
+          [class.is-open]="mobileNavOpen()"
+          (click)="toggleMobileNav()"
+          aria-haspopup="true"
+          [attr.aria-expanded]="mobileNavOpen()"
+          aria-label="Open navigation menu">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+      }
+
       @if (auth.isCustomer() && !cart.isEmpty()) {
         <a routerLink="/checkout"
           class="cart-btn"
@@ -131,4 +145,44 @@
 
     </div>
   </div>
+
+  <!-- ── Mobile primary-nav sheet — surfaces the links hidden by .site-nav on small screens ── -->
+  @if (mobileNavOpen()) {
+    <div class="mobilenav-backdrop" (click)="closeMobileNav()" aria-hidden="true"></div>
+
+    <nav class="mobilenav-sheet" aria-label="Primary navigation (mobile)">
+      <div class="sheet-handle" aria-hidden="true"></div>
+
+      @if (auth.isCustomer()) {
+        <a routerLink="/restaurants"
+          routerLinkActive="is-active"
+          class="mobilenav-link"
+          (click)="closeMobileNav()">
+          <span class="material-symbols-rounded">storefront</span>
+          Restaurants
+        </a>
+        <a routerLink="/orders"
+          routerLinkActive="is-active"
+          class="mobilenav-link"
+          (click)="closeMobileNav()">
+          <span class="material-symbols-rounded">receipt_long</span>
+          My Orders
+          @if (orderService.activeOrderCount() > 0) {
+            <span class="mobilenav-badge" aria-label="{{ orderService.activeOrderCount() }} active orders">
+              {{ orderService.activeOrderCount() }}
+            </span>
+          }
+        </a>
+      }
+      @if (dashboardLink()) {
+        <a [routerLink]="dashboardLink()"
+          routerLinkActive="is-active"
+          class="mobilenav-link"
+          (click)="closeMobileNav()">
+          <span class="material-symbols-rounded">dashboard</span>
+          Dashboard
+        </a>
+      }
+    </nav>
+  }
 </div>
