@@ -1,11 +1,24 @@
 <!-- ════════════════════════════════════════════════════════════ HERO ══ -->
 <section class="hero" appParallaxHover [parallaxMax]="14" [parallaxPerspective]="1100">
   <div class="hero-visuals" aria-hidden="true">
+    <!--
+      Poster is a plain <img>, not just a <video poster> attribute — it is the
+      REAL, guaranteed hero background. A network path that can't reach the
+      video CDN (carrier/regional routing, ad-blockers, corporate firewalls,
+      data-saver) still gets a fully complete, good-looking hero: this image
+      loads like any other image on the page, with none of <video>'s extra
+      failure modes (autoplay policy, codec support, buffering stalls).
+      The video below is layered on top and ONLY fades in once it's actually
+      playing — a pure progressive enhancement that can arrive late, or
+      never, without the page ever looking broken or "stuck".
+    -->
+    <img [src]="heroPosterUrl" alt="" class="hero-poster" fetchpriority="high" decoding="async">
+
     <!-- Looping kitchen background video — NOT a parallax layer. -->
-    <video #heroVideo class="hero-video"
+    <video #heroVideo class="hero-video" [class.is-visible]="heroVideoPlaying()"
       autoplay muted loop playsinline
       preload="auto"
-      [poster]="heroPosterUrl">
+      crossorigin="anonymous">
       <source [src]="heroVideoUrl" type="video/mp4">
     </video>
     <div class="hero-video-overlay"></div>

@@ -123,6 +123,13 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
 
   readonly heroVideoReady = signal(false);
+  /** True only once the hero video is GENUINELY playing frames — drives the
+   * video's crossfade-in over the always-present poster image. Deliberately
+   * separate from `heroVideoReady` (which times the headline reveal and has
+   * a short fail-safe timer): the poster is a complete, guaranteed hero on
+   * its own, so there is no reason to rush or fake this one — it simply
+   * reflects reality, however long that takes. */
+  readonly heroVideoPlaying = signal(false);
   // IMPORTANT: format is pinned to `f_mp4` (NOT `f_auto`). Cloudinary's on-the-fly
   // f_auto negotiates a distinct derived asset per Accept/User-Agent combination
   // (Vary: Accept, User-Agent) — the FIRST request for any given browser/version
@@ -266,6 +273,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     const tryPlay = () => {
       if (video.readyState >= 3) {
         this.heroVideoReady.set(true);
+        this.heroVideoPlaying.set(true);
       }
       video.play().catch(() => undefined);
     };
@@ -274,10 +282,12 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     tryPlay();
     video.addEventListener('canplay', () => {
       this.heroVideoReady.set(true);
+      this.heroVideoPlaying.set(true);
       tryPlay();
     }, { once: false });
     video.addEventListener('loadeddata', () => {
       this.heroVideoReady.set(true);
+      this.heroVideoPlaying.set(true);
       tryPlay();
     }, { once: true });
 
@@ -292,42 +302,52 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     window.addEventListener('touchstart', userKick, { once: true });
     window.addEventListener('keydown', userKick, { once: true });
 
-    // If tab regains focus, ensure still playing
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && video.paused) tryPlay();
-    });
+    // ── Patient background retry ─────────────────────────────────────
+    // The poster <img> underneath is ALREADY a complete, good-looking hero —
+    // so there is nothing to "fix" or give up on here. A slow mobile network,
+    // regional CDN routing issue, or a transient Cloudinary cold-cache path
+    // may simply take longer. Rather than aggressively reloading (which
+    // restarts the download from zero each time and can make a genuinely-
+    // slow-but-progressing download *never* finish) we back off with
+    // increasing delays and cap the number of hard reload attempts. No
+    // countdown here ever hides the hero or blocks anything — worst case
+    // the poster silently stays forever, which is a perfectly fine outcome.
+    let attempt = 0;
+    const MAX_ATTEMPTS = 6; // spread over a few minutes of patient background retrying
+    let retryTimer: number | undefined;
+    const scheduleRetry = () => {
+      if (this.heroVideoPlaying() || attempt >= MAX_ATTEMPTS || document.hidden) return;
+      attempt++;
+      const delay = Math.min(30000, 4000 * attempt); // 4s, 8s, 12s … capped at 30s
+      retryTimer = window.setTimeout(() => {
+        if (this.heroVideoPlaying()) return;
+        if (video.readyState < 3) {
+          video.load();
+          tryPlay();
+        }
+        scheduleRetry();
+      }, delay);
+    };
+    scheduleRetry();
 
-    // ── Stall/error resilience ──────────────────────────────────────
-    // Defense-in-depth for the underlying CDN transformation: if Cloudinary
-    // ever serves a cold (not-yet-cached) derived asset again — e.g. after a
-    // cache purge — the very first request for it can take many seconds with
-    // no Content-Length/Range support, which stalls <video> indefinitely with
-    // no error event at all (it's still "loading", just very slowly). A bare
-    // reload() a few seconds later reliably lands on the now-warmed cache.
-    let stallRetries = 0;
-    const MAX_STALL_RETRIES = 2;
-    const stallTimer = window.setTimeout(function retryIfStalled() {
-      if (video.readyState < 3 && stallRetries < MAX_STALL_RETRIES) {
-        stallRetries++;
-        video.load();
-        tryPlay();
-        window.setTimeout(retryIfStalled, 6000);
-      }
-    }, 6000);
-
-    // Genuine playback errors (bad format, network failure, 4xx/5xx) fire
-    // 'error' immediately — retry once via reload, same rationale as above.
-    let erroredOnce = false;
+    // Genuine playback errors (bad format, network failure, 4xx/5xx) feed
+    // into the same patient retry loop rather than a separate one-shot.
     video.addEventListener('error', () => {
-      if (!erroredOnce) {
-        erroredOnce = true;
-        video.load();
-        tryPlay();
-      }
+      if (!this.heroVideoPlaying() && attempt === 0) scheduleRetry();
     });
 
-    // Nothing further to do once ready — clear the stall watchdog.
-    video.addEventListener('canplay', () => window.clearTimeout(stallTimer), { once: true });
+    // If tab regains focus, ensure still playing and resume patient
+    // retrying (retries are paused while hidden to avoid wasted work).
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      if (video.paused) tryPlay();
+      if (!this.heroVideoPlaying() && !retryTimer) scheduleRetry();
+    });
+
+    // Nothing further to do once genuinely playing — stop the retry loop.
+    video.addEventListener('canplay', () => {
+      if (retryTimer) window.clearTimeout(retryTimer);
+    }, { once: true });
 
     // Pause when hero scrolls out of view (saves mobile battery / CPU)
     if ('IntersectionObserver' in window) {
