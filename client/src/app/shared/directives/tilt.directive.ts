@@ -26,11 +26,17 @@ export class TiltDirective implements OnInit {
 
   private el!: HTMLElement;
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  /** Tilt-on-mousemove is a hover concept; touch devices get no benefit from
+   * it and paid the cost of a permanent preserve-3d/will-change compositing
+   * layer for nothing since `mousemove` never fires there. Gate to
+   * hover-capable + fine-pointer devices so mobile skips this entirely. */
+  private readonly hoverCapable =
+    this.isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   constructor(private elRef: ElementRef<HTMLElement>, private renderer: Renderer2) {}
 
   ngOnInit(): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || !this.hoverCapable) return;
     this.el = this.elRef.nativeElement;
     this.renderer.setStyle(this.el, 'transform-style', 'preserve-3d');
     this.renderer.setStyle(this.el, 'will-change', 'transform');
@@ -39,13 +45,13 @@ export class TiltDirective implements OnInit {
 
   @HostListener('mouseenter')
   onEnter(): void {
-    if (!this.isBrowser || !this.el) return;
+    if (!this.isBrowser || !this.hoverCapable || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', 'transform 0.08s ease-out, box-shadow 0.08s ease-out');
   }
 
   @HostListener('mousemove', ['$event'])
   onMove(e: MouseEvent): void {
-    if (!this.isBrowser || !this.el) return;
+    if (!this.isBrowser || !this.hoverCapable || !this.el) return;
     const rect = this.el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -68,7 +74,7 @@ export class TiltDirective implements OnInit {
 
   @HostListener('mouseleave')
   onLeave(): void {
-    if (!this.isBrowser || !this.el) return;
+    if (!this.isBrowser || !this.hoverCapable || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', 'transform 0.6s cubic-bezier(0.16,1,0.3,1), box-shadow 0.6s cubic-bezier(0.16,1,0.3,1)');
     this.el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)';
     this.el.style.boxShadow = '';

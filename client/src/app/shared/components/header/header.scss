@@ -704,7 +704,15 @@ $h: 76px; // vertical space the host occupies
 
 @media (max-width: 560px) {
   .site-header { padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); }
-  .site-header__inner { height: 48px; padding: 0 4px 0 12px; }
+  .site-header__inner {
+    height: 48px; padding: 0 4px 0 12px;
+    // The header pill is fixed and repaints on every scroll frame. A 32-48px
+    // backdrop-filter blur compositing continuously behind live scroll on a
+    // mobile GPU is expensive enough to contribute real jank; a much lighter
+    // blur reads almost identically at this size and is dramatically cheaper.
+    backdrop-filter: blur(14px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  }
   .site-logo { margin-right: auto; }
   .btn-signin { padding: 0 8px; font-size: 0.8rem; }
   .btn-getstarted { padding: 0 4px 0 12px; gap: 4px; font-size: 0.8rem; }

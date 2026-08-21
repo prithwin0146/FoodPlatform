@@ -133,6 +133,21 @@
   50%  { transform: translate3d(4vw,-3vw,0) scale(1.1); }
   100% { transform: translate3d(-3vw,4vw,0) scale(0.95); }
 }
+// Mobile: these blobs run a 3-layer, 140px-blur, infinite compositing
+// animation for the entire time the hero is mounted. Blur cost scales
+// sharply with radius, and continuous animation means the browser can never
+// cache/rasterize a static result — on mid/low-end mobile GPUs this alone
+// was enough to compound with everything else on the page (video decode,
+// backdrop-filter, SVG animation) into visible jank/freezing. Cut blur
+// radius drastically and stop the animation outright on small screens; the
+// blobs still render as a static ambient wash, just without the per-frame
+// GPU cost.
+@media (max-width: 768px) {
+  .mesh-blob {
+    filter: blur(48px);
+    animation: none;
+  }
+}
 /* Parallax depth layer 3/3 — fine-grain noise. High blur + low opacity =
    perceived texture without competing with content. z-index bumped to 2
    (above .hero-video-overlay's 1) so the grain consistently reads over
@@ -349,6 +364,12 @@
     box-shadow 0.3s ease,
     background 0.3s ease;
 
+  @media (max-width: 768px) {
+    background: rgba(20, 10, 6, 0.55);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+
   &.is-focused {
     border-color: rgba(255, 107, 26, 0.8);
     box-shadow:
@@ -356,6 +377,11 @@
       0 8px 32px -8px rgba(0, 0, 0, 0.28);
     background: rgba(255, 255, 255, 0.28);
     animation: spotlightGlow 2s ease-in-out infinite;
+
+    @media (max-width: 768px) {
+      animation: none;
+      background: rgba(20, 10, 6, 0.6);
+    }
   }
 }
 @keyframes spotlightGlow {
