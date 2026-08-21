@@ -302,7 +302,7 @@
 }
 .as-orb-2 {
   bottom: -160px; left: -100px;
-  background: radial-gradient(circle, var(--NEW--accent-glow), transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-orange) 55%, transparent), transparent 70%);
 }
 .as-grid {
   position: absolute; inset: 0;
@@ -359,7 +359,7 @@
   display: inline;
   font-style: italic;
   font-weight: 500;
-  background: linear-gradient(120deg, var(--c-orange) 0%, var(--c-pink) 60%, var(--c-purple) 100%);
+  background: linear-gradient(120deg, var(--c-orange) 0%, #ff9a4d 55%, #ffb870 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -445,13 +445,13 @@
   font-size: 0.9rem;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, var(--c-orange) 0%, var(--c-pink) 100%);
+  background: linear-gradient(135deg, var(--c-orange) 0%, #ff9540 100%);
   border: 0;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 14px 32px -10px var(--NEW--accent-glow);
+    box-shadow: 0 14px 32px -10px var(--NEW--primary-glow);
   }
   .material-symbols-rounded { font-size: 1.05rem; }
 }
@@ -486,7 +486,7 @@
 /* ─── RIGHT COLUMN: stacked phone mockups ────────────────────── */
 .app-soon-stage {
   position: relative;
-  min-height: 620px;
+  min-height: 640px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -500,10 +500,31 @@
   padding: 10px;
   box-shadow:
     0 50px 100px -30px rgba(26, 20, 16, 0.55),
-    0 25px 60px -20px color-mix(in srgb, var(--c-pink) 30%, transparent),
+    0 25px 60px -20px color-mix(in srgb, var(--c-orange) 32%, transparent),
     inset 0 0 0 1.5px rgba(255, 255, 255, 0.06);
 
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.phone-float {
+  position: absolute;
+  inset: 0;
+  animation: phoneIdleFloat 7s ease-in-out infinite;
+}
+.phone-float-1 { top: 0; right: 0; }
+.phone-float-2 { bottom: 0; left: 0; animation-delay: -3.4s; }
+@keyframes phoneIdleFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+.as-stage-glow {
+  position: absolute;
+  left: 50%; bottom: 6%;
+  width: 70%; height: 120px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--c-orange) 38%, transparent), transparent 72%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
 }
 .phone-back {
   top: 0; right: 0;
@@ -558,7 +579,7 @@
   width: 32px; height: 32px;
   border-radius: 50%;
   display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--c-orange), var(--c-pink));
+  background: linear-gradient(135deg, var(--c-orange), #ff9a4d);
   color: #fff; font-weight: 800; font-size: 0.85rem;
 }
 
@@ -651,7 +672,7 @@
 .ap-feed-bar-fill {
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, var(--c-orange), var(--c-pink));
+  background: linear-gradient(90deg, var(--c-orange), #ff9a4d);
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ap-actions {
@@ -672,7 +693,7 @@
   cursor: pointer;
   .material-symbols-rounded { font-size: 0.9rem; }
   &.primary {
-    background: linear-gradient(135deg, var(--c-orange), var(--c-pink));
+    background: linear-gradient(135deg, var(--c-orange), #ff9a4d);
     border-color: transparent;
   }
 }
@@ -700,7 +721,7 @@
     width: 32px; height: 32px;
     display: grid; place-items: center;
     border-radius: 9px;
-    background: linear-gradient(135deg, var(--c-orange), var(--c-pink));
+    background: linear-gradient(135deg, var(--c-orange), #ff9a4d);
     color: #fff;
     font-size: 1.05rem;
   }

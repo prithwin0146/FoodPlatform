@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, OnDestroy, ViewChild, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -57,7 +57,7 @@ interface Promise {
 })
 export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
-  @ViewChildren('howVideo') private howVideoRefs!: QueryList<ElementRef<HTMLVideoElement>>;
+
 
   // GSAP 3D Scroll Journey refs
   @ViewChild('gsapJourney') private gsapJourneyRef?: ElementRef<HTMLElement>;

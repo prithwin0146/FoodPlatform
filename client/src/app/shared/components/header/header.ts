@@ -1,5 +1,5 @@
-import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,11 +20,11 @@ import { Logo } from '../logo/logo';
  */
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, MatButtonModule, MatTooltipModule, MagneticDirective, Logo],
+  imports: [RouterLink, RouterLinkActive, MatButtonModule, MatTooltipModule, MagneticDirective, Logo, NgTemplateOutlet],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header {
+export class Header implements OnDestroy {
   readonly scrolled = signal(false);
   readonly cartBouncing = signal(false);
   readonly dropdownOpen = signal(false);
@@ -75,6 +75,20 @@ export class Header {
         this.favourites.favouriteIds.set(new Set());
       }
     });
+
+    // Lock background scroll while a full-screen mobile sheet (nav or
+    // account) is open — prevents the page scrolling behind the sheet
+    // on touch devices, a common mobile UX bug.
+    if (this.isBrowser) {
+      effect(() => {
+        const mobileSheetOpen = this.mobileNavOpen() || (this.dropdownOpen() && this.isMobile());
+        this.doc.body.style.overflow = mobileSheetOpen ? 'hidden' : '';
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.isBrowser) this.doc.body.style.overflow = '';
   }
 
   /** Check if viewport is mobile-sized for sheet presentation */
