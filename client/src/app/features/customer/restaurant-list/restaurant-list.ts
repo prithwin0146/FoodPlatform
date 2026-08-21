@@ -65,6 +65,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('journeyCanvas') private journeyCanvasRef?: ElementRef<HTMLCanvasElement>;
   
   private gsapCtx?: gsap.Context;
+  private journeyResizeHandler?: () => void;
 
   readonly demoVideoUrl = signal<string>('');
   /** Postcode / name typed into the Kitchen Spotlight on the hero. */
@@ -349,7 +350,24 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // ── Setup GSAP 3D Scroll Journey ──────────────────────
-    this.initScrollJourney();
+    // Deferred: this section loads a 300-frame image sequence. Kicking that
+    // off unconditionally at initial page load was firing 300 concurrent
+    // HTTP requests at once, competing with the hero video and restaurant
+    // API calls for bandwidth/connections and causing the whole landing
+    // page to feel laggy on first paint — especially on mobile/slow
+    // connections. Instead, only start loading frames once the journey
+    // section is actually approaching the viewport.
+    if (this.gsapJourneyRef && 'IntersectionObserver' in window) {
+      const journeyIo = new IntersectionObserver((entries) => {
+        if (entries[0]?.isIntersecting) {
+          this.initScrollJourney();
+          journeyIo.disconnect();
+        }
+      }, { rootMargin: '800px 0px' });
+      journeyIo.observe(this.gsapJourneyRef.nativeElement);
+    } else {
+      this.initScrollJourney();
+    }
 
   }
 
@@ -364,7 +382,19 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
       const frameCount = 300;
       const images: HTMLImageElement[] = [];
       const imageSeq = { frame: 0 };
-      
+
+      // Canvas pixel size is set ONCE here (and again on a real window
+      // resize) rather than inside render(). render() fires on every single
+      // scroll-scrub tick via onUpdate — resizing the canvas element there
+      // forces the browser to fully reset and repaint the canvas backing
+      // store on every tick, which was the main cause of scroll jank on
+      // this section.
+      const sizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      sizeCanvas();
+
       // Load all frames
       for (let i = 1; i <= frameCount; i++) {
         const img = new Image();
@@ -376,9 +406,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
       function render() {
         if (images[imageSeq.frame] && images[imageSeq.frame].complete && images[imageSeq.frame].naturalWidth > 0) {
           const img = images[imageSeq.frame];
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-          
+
           const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
           const x = (canvas.width / 2) - (img.naturalWidth / 2) * scale;
           const y = (canvas.height / 2) - (img.naturalHeight / 2) * scale;
@@ -392,8 +420,11 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
       images[0].onload = () => render();
       if (images[0].complete) render();
 
-      // Handle window resize
-      window.addEventListener('resize', render);
+      // Handle window resize — re-size the canvas backing store, then
+      // repaint the current frame. Listener is removed in ngOnDestroy.
+      const onResize = () => { sizeCanvas(); render(); };
+      window.addEventListener('resize', onResize);
+      this.journeyResizeHandler = onResize;
 
       // The main timeline tied to scroll
       const tl = gsap.timeline({
@@ -444,6 +475,9 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.gsapCtx?.revert();
+    if (this.journeyResizeHandler) {
+      window.removeEventListener('resize', this.journeyResizeHandler);
+    }
   }
 
   onPostcodeInput(event: Event): void {

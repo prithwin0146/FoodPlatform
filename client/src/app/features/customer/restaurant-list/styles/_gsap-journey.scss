@@ -45,12 +45,22 @@
   width: 100%;
   max-width: 420px;
   opacity: 0;
-  will-change: transform, opacity, filter;
+  // NOTE: `filter` deliberately excluded from will-change here. This section
+  // is pinned for a long scroll range (+=400%) with a continuous GSAP scrub
+  // updating this element every tick — combined with `will-change: filter`
+  // that forces the browser to keep a dedicated compositing layer alive for
+  // the entire pin duration on top of the already-expensive backdrop-filter
+  // blur below. That compounded GPU cost was a major source of the reported
+  // scroll jank, especially on mobile GPUs.
+  will-change: transform, opacity;
 
   .glass-card-shell {
     background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    // Reduced from 40px: backdrop-filter blur cost scales sharply with
+    // radius and this card repaints continuously while pinned/scrubbing.
+    // 20px keeps the glass look at roughly half the compositing cost.
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 32px;
     padding: 0.5rem;
