@@ -250,6 +250,14 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (!this.isBrowser) return;
+
+    // Fail-safe: the hero headline reveal is visually nicer when timed to
+    // the video becoming ready, but it must NEVER block on the video —
+    // slow networks, ad-blockers, or data-saver mode can delay/prevent the
+    // video indefinitely. Force the reveal after a short grace period no
+    // matter what the video is doing.
+    window.setTimeout(() => this.heroVideoReady.set(true), 900);
+
     const video = this.heroVideoRef?.nativeElement;
     if (!video) return;
 
