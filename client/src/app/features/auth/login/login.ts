@@ -1,4 +1,5 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -39,6 +40,7 @@ export class Login {
   readonly loading = signal(false);
   readonly showPw = signal(false);
   readonly emailNotVerified = signal(false);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor(
     private readonly apiAuth: ApiAuthService,
@@ -54,7 +56,9 @@ export class Login {
   }
 
   ngAfterViewInit() {
-    this.initGoogleOAuth();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initGoogleOAuth();
+    }
   }
 
   private initGoogleOAuth() {
@@ -85,7 +89,7 @@ export class Login {
     };
 
     // @ts-ignore
-    google.accounts.id.initialize({
+    window.google.accounts.id.initialize({
       client_id: environment.googleClientId,
       // @ts-ignore
       callback: window.handleGoogleCredentialResponse
