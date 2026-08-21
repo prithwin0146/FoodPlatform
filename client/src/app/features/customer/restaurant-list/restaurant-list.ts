@@ -133,8 +133,18 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
 
   readonly heroVideoReady = signal(false);
-  readonly heroVideoUrl = 'https://res.cloudinary.com/ddnl8vtdd/video/upload/q_auto,f_auto/v1787242596/hero-kitchen.mp4';
-  readonly heroPosterUrl = 'https://res.cloudinary.com/ddnl8vtdd/video/upload/q_auto,f_auto/v1787242596/hero-kitchen.jpg';
+  // IMPORTANT: format is pinned to `f_mp4` (NOT `f_auto`). Cloudinary's on-the-fly
+  // f_auto negotiates a distinct derived asset per Accept/User-Agent combination
+  // (Vary: Accept, User-Agent) — the FIRST request for any given browser/version
+  // fingerprint pays a ~15-20s real-time transcode before any bytes are served,
+  // which blows straight past <video preload="auto" autoplay>'s patience budget.
+  // In practice this meant most real visitors (each an effectively unique UA)
+  // hit a cold path and the hero video simply never appeared to load.
+  // f_mp4 is a single universally-playable H.264/mp4 rendition — it collapses
+  // the Vary space down to just `Save-Data` (2 variants), so it's transcoded
+  // once, ever, then served instantly from cache to everyone after that.
+  readonly heroVideoUrl = 'https://res.cloudinary.com/ddnl8vtdd/video/upload/q_auto,f_mp4/v1787242596/hero-kitchen.mp4';
+  readonly heroPosterUrl = 'https://res.cloudinary.com/ddnl8vtdd/video/upload/q_auto,f_jpg/v1787242596/hero-kitchen.jpg';
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly doc = inject(DOCUMENT);
@@ -288,6 +298,38 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && video.paused) tryPlay();
     });
+
+    // ── Stall/error resilience ──────────────────────────────────────
+    // Defense-in-depth for the underlying CDN transformation: if Cloudinary
+    // ever serves a cold (not-yet-cached) derived asset again — e.g. after a
+    // cache purge — the very first request for it can take many seconds with
+    // no Content-Length/Range support, which stalls <video> indefinitely with
+    // no error event at all (it's still "loading", just very slowly). A bare
+    // reload() a few seconds later reliably lands on the now-warmed cache.
+    let stallRetries = 0;
+    const MAX_STALL_RETRIES = 2;
+    const stallTimer = window.setTimeout(function retryIfStalled() {
+      if (video.readyState < 3 && stallRetries < MAX_STALL_RETRIES) {
+        stallRetries++;
+        video.load();
+        tryPlay();
+        window.setTimeout(retryIfStalled, 6000);
+      }
+    }, 6000);
+
+    // Genuine playback errors (bad format, network failure, 4xx/5xx) fire
+    // 'error' immediately — retry once via reload, same rationale as above.
+    let erroredOnce = false;
+    video.addEventListener('error', () => {
+      if (!erroredOnce) {
+        erroredOnce = true;
+        video.load();
+        tryPlay();
+      }
+    });
+
+    // Nothing further to do once ready — clear the stall watchdog.
+    video.addEventListener('canplay', () => window.clearTimeout(stallTimer), { once: true });
 
     // Pause when hero scrolls out of view (saves mobile battery / CPU)
     if ('IntersectionObserver' in window) {

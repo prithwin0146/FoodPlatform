@@ -60,7 +60,7 @@ export class Login {
   private initGoogleOAuth() {
     const checkGoogle = setInterval(() => {
       // @ts-ignore
-      if (typeof google !== 'undefined' && google.accounts) {
+      if (typeof window !== 'undefined' && window.google && window.google.accounts) {
         clearInterval(checkGoogle);
         this.renderGoogleButton();
       }
@@ -92,9 +92,12 @@ export class Login {
     });
 
     // @ts-ignore
-    google.accounts.id.renderButton(
+    const btnWidth = window.innerWidth < 480 ? window.innerWidth - 48 : 360;
+    
+    // @ts-ignore
+    window.google.accounts.id.renderButton(
       document.getElementById('google-btn'),
-      { theme: 'outline', size: 'large', text: 'continue_with' }
+      { theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: btnWidth }
     );
   }
 

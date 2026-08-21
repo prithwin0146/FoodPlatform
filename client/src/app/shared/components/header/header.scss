@@ -695,10 +695,13 @@ $h: 76px; // vertical space the host occupies
 }
 
 @media (max-width: 560px) {
-  .site-header { padding: 10px 16px; }
-  .site-header__inner { height: 48px; }
-  .btn-signin { padding: 0 12px; }
-  .btn-getstarted { padding: 0 6px 0 14px; gap: 4px; }
+  .site-header { padding: 10px 12px; }
+  .site-header__inner { height: 48px; padding: 0 4px 0 12px; }
+  .site-logo { margin-right: auto; }
+  .btn-signin { padding: 0 8px; font-size: 0.8rem; }
+  .btn-getstarted { padding: 0 4px 0 12px; gap: 4px; font-size: 0.8rem; }
+  .btn-getstarted .material-symbols-rounded { font-size: 0.85rem; }
+  .btn-getstarted .btn-icon-circle { width: 24px; height: 24px; }
   .sheet-backdrop { display: block; }
   .mobilenav-sheet { inset: auto 8px 8px; border-radius: 24px; }
 }
