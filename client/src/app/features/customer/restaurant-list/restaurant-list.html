@@ -37,7 +37,7 @@
         Live across <strong>UK kitchens</strong> · FSA-verified
      </div>
 
-      <h1 class="hero-headline" appStaggerReveal [staggerStep]="80" [staggerDuration]="640">
+      <h1 class="hero-headline" appStaggerReveal [staggerStep]="80" [staggerDuration]="640" [staggerReady]="heroVideoReady()">
         <span class="line">
           <span class="word w1">See</span>
           <span class="word w2">the</span>
@@ -114,112 +114,6 @@
  </div>
 
 </section>
-
-
-<!-- ══════════════════════════════════════════════════════ HOW IT WORKS ══ -->
-<section class="how" id="how-section">
-  <div class="how-bg" aria-hidden="true">
-    <div class="how-orb how-orb-1"></div>
-    <div class="how-orb how-orb-2"></div>
- </div>
-
-  <div class="container">
-    <header class="section-eyebrow" appScrollReveal>
-      <span class="eyebrow-line"></span>
-      <span class="eyebrow-text">HOW IT WORKS</span>
-   </header>
-    <h2 class="section-h2" appScrollReveal>
-      Three steps. <span class="text-gradient-NEW">Full visibility</span>
-   </h2>
-    <p class="section-lead" appScrollReveal>
-      From the moment you place the order to the handover at your door — every stage is on camera, on the record.
-   </p>
-
-    <div class="how-steps">
-      <!-- Connecting SVG path that draws on scroll -->
-      <svg class="how-connector" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M80,30 Q400,-10 600,30 T1120,30"
-              stroke="url(#ribbonGrad)" stroke-width="2" fill="none"
-              stroke-dasharray="6 8" class="connector-path"/>
-     </svg>
-
-      @for (step of howSteps; track step.num; let i = $index) {
-        <div class="how-step how-step--video glass-card" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
-          <div class="card-glare"></div>
-          <div class="how-num glass-num">{{ step.num }}</div>
-          <div class="how-video-wrap">
-            <video
-              #howVideo
-              class="how-video-frame"
-              [src]="step.video"
-              autoplay muted loop playsinline
-              preload="metadata"
-              [attr.title]="step.title">
-           </video>
-         </div>
-          <h3 class="how-title">{{ step.title }}</h3>
-          <p class="how-copy">{{ step.copy }}</p>
-       </div>
-      }
-   </div>
- </div>
-</section>
-
-
-<!-- ════════════════════════════════════════════ WHY · EDITORIAL ══ -->
-<section class="why">
-  <div class="why-bg" aria-hidden="true">
-    <div class="why-orb orb-a"></div>
-    <div class="why-orb orb-b"></div>
- </div>
-
-  <div class="container">
-    <header class="why-head">
-      <div class="why-eyebrow" appScrollReveal>
-        <span class="eb-line"></span>
-        <span class="eb-text">Why SeeThePrep</span>
-     </div>
-      <h2 class="why-title" appScrollReveal>
-        Four standards.
-        <span class="why-title-em">Held to the letter</span>
-     </h2>
-      <p class="why-lead" appScrollReveal>
-        Transparency only counts when it's enforced. These are the operating standards every kitchen on SeeThePrep agrees to before they take a single order — and what we measure them against, in public.
-     </p>
-   </header>
-
-    <ol class="promise-grid">
-      @for (p of promises; track p.num; let i = $index) {
-        <li class="promise" appScrollReveal [revealDelay]="i * 110" appTilt [tiltMax]="6" appMagnetic>
-          <div class="card-glare"></div>
-          <div class="promise-num promise-num--roll" aria-hidden="true">{{ p.num }}</div>
-          <div class="promise-body">
-            <h3 class="promise-title">{{ p.title }}</h3>
-            <p class="promise-copy">{{ p.copy }}</p>
-            <div class="promise-foot">
-              <span class="promise-metric">{{ p.metric }}</span>
-              <span class="promise-metric-label">{{ p.metricLabel }}</span>
-              <span class="promise-icon" aria-hidden="true">
-                <span class="material-symbols-rounded">{{ p.icon }}</span>
-             </span>
-           </div>
-         </div>
-       </li>
-      }
-   </ol>
-
-    <aside class="why-pullquote" appScrollReveal>
-      <span class="pq-quote">“</span>
-      <p>
-        If the camera isn't on, the order doesn't leave the kitchen.
-        That's the standard — every kitchen, every order, no exceptions.
-     </p>
-      <span class="pq-attr">— SeeThePrep kitchen onboarding agreement, clause 1</span>
-   </aside>
- </div>
-</section>
-
-
 <!-- ════════════════════════════════════════════ MOBILE APP · COMING SOON ══ -->
 <section class="app-soon">
   <div class="app-soon-bg" aria-hidden="true">
@@ -405,61 +299,55 @@
  </div>
 </section>
 
-
-<!-- ════════════════════════════════════════════ OUR PROMISE ══ -->
-<section class="stats-banner">
-  <div class="stats-bg" aria-hidden="true">
-    <div class="stats-stripe stripe-1"></div>
-    <div class="stats-stripe stripe-2"></div>
- </div>
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat" appScrollReveal>
-        <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
-        <div class="stat-label">Orders streamed live</div>
-     </div>
-      <div class="stat" appScrollReveal [revealDelay]="100">
-        <div class="stat-num"><span appCountUp [appCountUp]="5">5</span><span class="stat-star">★</span></div>
-        <div class="stat-label">FSA hygiene minimum</div>
-     </div>
-      <div class="stat" appScrollReveal [revealDelay]="200">
-        <div class="stat-num">Q</div>
-        <div class="stat-label">Hygiene re-verified quarterly</div>
-     </div>
-      <div class="stat" appScrollReveal [revealDelay]="300">
-        <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
-        <div class="stat-label">Tips paid to the kitchen</div>
-     </div>
-   </div>
- </div>
+<!-- ══════════════════════════════════════════════════════ 3D SCROLL JOURNEY ══ -->
+<section class="gsap-journey" #gsapJourney>
+  <div class="journey-pin-container" #journeyPin>
+    <canvas class="journey-canvas" #journeyCanvas></canvas>
+    
+    <div class="journey-overlay">
+      <div class="journey-step step-1" #step1>
+        <div class="glass-card-shell">
+          <div class="glass-card-core">
+            <span class="step-badge">Phase 01</span>
+            <h2>Order Received.</h2>
+            <p>Browse live kitchens and place your order. The kitchen is notified instantly.</p>
+            <div class="step-progress"><div class="step-progress-fill progress-1"></div></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="journey-step step-2" #step2>
+        <div class="glass-card-shell">
+          <div class="glass-card-core">
+            <span class="step-badge">Phase 02</span>
+            <h2>Cooking Live.</h2>
+            <p>No blind spots. Watch your food being prepped and cooked in real-time on our HD kitchen cameras.</p>
+            <div class="step-progress"><div class="step-progress-fill progress-2"></div></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="journey-step step-3" #step3>
+        <div class="glass-card-shell">
+          <div class="glass-card-core">
+            <span class="step-badge">Phase 03</span>
+            <h2>Handover.</h2>
+            <p>Plated, sealed, and handed to the rider. The receipt is the footage.</p>
+            <div class="step-progress"><div class="step-progress-fill progress-3"></div></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="journey-step step-4" #step4>
+        <div class="glass-card-shell">
+          <div class="glass-card-core">
+            <span class="step-badge">Phase 04</span>
+            <h2>Arrived.</h2>
+            <p>Fresh and on the record, right to your door.</p>
+            <div class="step-progress"><div class="step-progress-fill progress-4"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
-
-
-<!-- ════════════════════════════════════════════ FINAL CTA ══ -->
-<section class="final-cta">
-  <div class="cta-bg" aria-hidden="true">
-    <div class="cta-blob"></div>
- </div>
-  <div class="container">
-    <div class="cta-card" appScrollReveal appTilt [tiltMax]="6">
-      <div class="card-glare"></div>
-      <div class="cta-eyebrow">
-        <span class="eb-line"></span>
-        <span class="eb-text">START AN ORDER</span>
-     </div>
-      <h2 class="cta-headline">
-        Choose a kitchen. <br>
-        <span class="text-gradient-NEW--primary">Watch it cook</span>
-     </h2>
-      <p class="cta-sub">Browse live kitchens in your area. No account needed to look around — sign in only when you're ready to order</p>
-      <div class="cta-actions">
-        <button mat-flat-button class="cta-primary" appMagnetic (click)="navigateToRestaurants()">
-          <span class="cta-micro-ring" aria-hidden="true"></span>
-          <span class="material-symbols-rounded">restaurant</span>
-          Browse live kitchens
-          <span class="cta-shine"></span>
-       </button>
-        <button class="cta-link" (click)="navigateToRestaurants()" type="button">Browse without signing up →</button>
-     </div>
-   </div>
- </div>

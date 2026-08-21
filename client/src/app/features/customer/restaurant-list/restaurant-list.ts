@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, ViewChildren, QueryList, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -21,6 +21,13 @@ import { RadialSelectDirective } from '../../../shared/directives/radial-select.
 import { Logo } from '../../../shared/components/logo/logo';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 interface HowStep {
   num: string; title: string; copy: string; icon: string; video: string;
 }
@@ -40,7 +47,7 @@ interface Promise {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
+    TiltDirective, ScrollRevealDirective, MagneticDirective,
     StaggerRevealDirective, ParallaxHoverDirective, RadialSelectDirective,
     ImageFallback,
     MatRippleModule, MatButtonModule,
@@ -48,9 +55,16 @@ interface Promise {
   templateUrl: './restaurant-list.html',
   styleUrl: './restaurant-list.scss',
 })
-export class RestaurantList implements OnInit, AfterViewInit {
+export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
   @ViewChildren('howVideo') private howVideoRefs!: QueryList<ElementRef<HTMLVideoElement>>;
+
+  // GSAP 3D Scroll Journey refs
+  @ViewChild('gsapJourney') private gsapJourneyRef?: ElementRef<HTMLElement>;
+  @ViewChild('journeyPin') private journeyPinRef?: ElementRef<HTMLElement>;
+  @ViewChild('journeyCanvas') private journeyCanvasRef?: ElementRef<HTMLCanvasElement>;
+  
+  private gsapCtx?: gsap.Context;
 
   readonly demoVideoUrl = signal<string>('');
   /** Postcode / name typed into the Kitchen Spotlight on the hero. */
@@ -80,12 +94,6 @@ export class RestaurantList implements OnInit, AfterViewInit {
     return environment.videoCdnUrl ? `${environment.videoCdnUrl}/${filename}` : `/videos/${filename}`;
   }
 
-  /** Section: How it works */
-  readonly howSteps: HowStep[] = [
-    { num: '01', title: 'Choose a kitchen',   copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu', video: this.videoUrl('choose-the-kitchen.mp4')  },
-    { num: '02', title: 'Watch it cook',      copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam',        video: this.videoUrl('watch-it-cook.mp4')         },
-    { num: '03', title: 'Track to the door',  copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you\'re happy with the food.',               icon: 'delivery_dining', video: this.videoUrl('track-to-the-door.mp4')    },
-  ];
 
   /** Section: Why · four honest promises (editorial layout) */
   readonly promises: Promise[] = [
@@ -124,12 +132,9 @@ export class RestaurantList implements OnInit, AfterViewInit {
   ];
 
 
-  readonly heroVideoUrl = environment.videoCdnUrl
-    ? `${environment.videoCdnUrl}/hero-kitchen.mp4`
-    : '/hero-kitchen.mp4';
-  readonly heroPosterUrl = environment.videoCdnUrl
-    ? `${environment.videoCdnUrl}/hero-kitchen-poster.jpg`
-    : '/hero-kitchen-poster.jpg';
+  readonly heroVideoReady = signal(false);
+  readonly heroVideoUrl = 'https://res.cloudinary.com/ddnl8vtdd/video/upload/q_auto,f_auto/v1787242596/hero-kitchen.mp4';
+  readonly heroPosterUrl = 'https://res.cloudinary.com/ddnl8vtdd/video/upload/q_auto,f_auto/v1787242596/hero-kitchen.jpg';
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly doc = inject(DOCUMENT);
@@ -250,12 +255,23 @@ export class RestaurantList implements OnInit, AfterViewInit {
     // forces the browser to re-read the now-populated <source src> attribute.
     video.load();
 
-    const tryPlay = () => video.play().catch(() => undefined);
+    const tryPlay = () => {
+      if (video.readyState >= 3) {
+        this.heroVideoReady.set(true);
+      }
+      video.play().catch(() => undefined);
+    };
 
     // Try immediately, on canplay, on loadeddata
     tryPlay();
-    video.addEventListener('canplay', tryPlay, { once: false });
-    video.addEventListener('loadeddata', tryPlay, { once: true });
+    video.addEventListener('canplay', () => {
+      this.heroVideoReady.set(true);
+      tryPlay();
+    }, { once: false });
+    video.addEventListener('loadeddata', () => {
+      this.heroVideoReady.set(true);
+      tryPlay();
+    }, { once: true });
 
     // Retry on first user interaction (handles strict autoplay policies)
     const userKick = () => {
@@ -282,41 +298,102 @@ export class RestaurantList implements OnInit, AfterViewInit {
       io.observe(video);
     }
 
-    // ── Force-play how-it-works step videos ──────────────────────
-    this.howVideoRefs.forEach(ref => this.forcePlayVideo(ref.nativeElement));
-    this.howVideoRefs.changes.subscribe((list: QueryList<ElementRef<HTMLVideoElement>>) => {
-      list.forEach(ref => this.forcePlayVideo(ref.nativeElement));
-    });
+    // ── Setup GSAP 3D Scroll Journey ──────────────────────
+    this.initScrollJourney();
+
   }
 
-  /** Mirrors hero video autoplay logic for any <video> element. */
-  private forcePlayVideo(v: HTMLVideoElement): void {
-    v.muted = true;
-    v.defaultMuted = true;
-    v.volume = 0;
-    v.setAttribute('muted', '');
-    v.playsInline = true;
+  private initScrollJourney(): void {
+    if (!this.gsapJourneyRef || !this.journeyPinRef || !this.journeyCanvasRef) return;
 
-    const tryPlay = () => v.play().catch(() => undefined);
-    tryPlay();
-    v.addEventListener('canplay', tryPlay, { once: false });
-    v.addEventListener('loadeddata', tryPlay, { once: true });
+    this.gsapCtx = gsap.context(() => {
+      const canvas = this.journeyCanvasRef!.nativeElement;
+      const context = canvas.getContext('2d');
+      if (!context) return;
 
-    const userKick = () => { tryPlay(); };
-    window.addEventListener('pointerdown', userKick, { once: true });
-    window.addEventListener('touchstart', userKick, { once: true });
+      const frameCount = 300;
+      const images: HTMLImageElement[] = [];
+      const imageSeq = { frame: 0 };
+      
+      // Load all frames
+      for (let i = 1; i <= frameCount; i++) {
+        const img = new Image();
+        const paddedNum = i.toString().padStart(3, '0');
+        img.src = `/frames/ezgif-frame-${paddedNum}.jpg`;
+        images.push(img);
+      }
 
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && v.paused) tryPlay();
-    });
+      function render() {
+        if (images[imageSeq.frame] && images[imageSeq.frame].complete && images[imageSeq.frame].naturalWidth > 0) {
+          const img = images[imageSeq.frame];
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          
+          const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+          const x = (canvas.width / 2) - (img.naturalWidth / 2) * scale;
+          const y = (canvas.height / 2) - (img.naturalHeight / 2) * scale;
+          
+          context?.clearRect(0, 0, canvas.width, canvas.height);
+          context?.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
+        }
+      }
 
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(
-        ([entry]) => entry.isIntersecting ? tryPlay() : v.pause(),
-        { threshold: 0.1 }
-      );
-      io.observe(v);
-    }
+      // Initial render
+      images[0].onload = () => render();
+      if (images[0].complete) render();
+
+      // Handle window resize
+      window.addEventListener('resize', render);
+
+      // The main timeline tied to scroll
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: this.gsapJourneyRef?.nativeElement,
+          start: 'top top',
+          end: '+=400%',
+          pin: this.journeyPinRef?.nativeElement,
+          scrub: 0.5, // 0.5s smoothing
+        },
+        onUpdate: render
+      });
+
+      // Scrub through frames
+      tl.to(imageSeq, {
+        frame: frameCount - 1,
+        snap: 'frame',
+        ease: 'none',
+        duration: 4
+      }, 0);
+
+      // Advanced Z-axis motion choreography
+      const enterAnim = { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' };
+      const exitAnim = { opacity: 0, scale: 1.05, filter: 'blur(8px)', duration: 0.3, ease: 'power2.in' };
+
+      // Phase 1 (0 to 1)
+      tl.fromTo('.step-1', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 0);
+      tl.fromTo('.progress-1', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 0);
+      tl.to('.step-1', exitAnim, 0.7);
+      
+      // Phase 2 (1 to 2)
+      tl.fromTo('.step-2', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 1);
+      tl.fromTo('.progress-2', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 1);
+      tl.to('.step-2', exitAnim, 1.7);
+      
+      // Phase 3 (2 to 3)
+      tl.fromTo('.step-3', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 2);
+      tl.fromTo('.progress-3', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 2);
+      tl.to('.step-3', exitAnim, 2.7);
+      
+      // Phase 4 (3 to 4)
+      tl.fromTo('.step-4', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 3);
+      tl.fromTo('.progress-4', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 3);
+      // keeps step 4 visible until the pin ends
+
+    }, this.gsapJourneyRef.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.gsapCtx?.revert();
   }
 
   onPostcodeInput(event: Event): void {

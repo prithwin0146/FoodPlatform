@@ -4,7 +4,7 @@ namespace FoodPlatform.Api.DTOs;
 
 // (SRP: auth DTOs isolated from menu, order and restaurant DTOs)
 public record LoginRequest(
-    [Required, EmailAddress] string Email,
+    [Required] string Email,
     [Required] string Password);
 
 public record OAuthLoginRequest(

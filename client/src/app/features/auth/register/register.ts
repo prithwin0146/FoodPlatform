@@ -120,7 +120,7 @@ export class Register {
     // @ts-ignore
     google.accounts.id.renderButton(
       document.getElementById('google-btn'),
-      { theme: 'outline', size: 'large', width: '100%', text: 'continue_with' }
+      { theme: 'outline', size: 'large', text: 'continue_with' }
     );
   }
 

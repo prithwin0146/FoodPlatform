@@ -43,7 +43,7 @@ public class AuthService : IAuthService
 
     public async Task<LoginResult> LoginAsync(LoginRequest request)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email || u.Username == request.Email);
         if (user == null || user.AuthProvider != "Local" || !_hasher.Verify(request.Password, user.PasswordHash))
             return new LoginResult(LoginOutcome.InvalidCredentials);
         if (!user.IsEmailVerified)
