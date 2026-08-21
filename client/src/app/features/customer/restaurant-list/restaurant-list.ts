@@ -21,12 +21,7 @@ import { RadialSelectDirective } from '../../../shared/directives/radial-select.
 import { Logo } from '../../../shared/components/logo/logo';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface HowStep {
   num: string; title: string; copy: string; icon: string; video: string;
@@ -59,13 +54,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
 
 
-  // GSAP 3D Scroll Journey refs
-  @ViewChild('gsapJourney') private gsapJourneyRef?: ElementRef<HTMLElement>;
-  @ViewChild('journeyPin') private journeyPinRef?: ElementRef<HTMLElement>;
-  @ViewChild('journeyCanvas') private journeyCanvasRef?: ElementRef<HTMLCanvasElement>;
-  
-  private gsapCtx?: gsap.Context;
-  private journeyResizeHandler?: () => void;
+
 
   readonly demoVideoUrl = signal<string>('');
   /** Postcode / name typed into the Kitchen Spotlight on the hero. */
@@ -349,135 +338,14 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
       io.observe(video);
     }
 
-    // ── Setup GSAP 3D Scroll Journey ──────────────────────
-    // Deferred: this section loads a 300-frame image sequence. Kicking that
-    // off unconditionally at initial page load was firing 300 concurrent
-    // HTTP requests at once, competing with the hero video and restaurant
-    // API calls for bandwidth/connections and causing the whole landing
-    // page to feel laggy on first paint — especially on mobile/slow
-    // connections. Instead, only start loading frames once the journey
-    // section is actually approaching the viewport.
-    if (this.gsapJourneyRef && 'IntersectionObserver' in window) {
-      const journeyIo = new IntersectionObserver((entries) => {
-        if (entries[0]?.isIntersecting) {
-          this.initScrollJourney();
-          journeyIo.disconnect();
-        }
-      }, { rootMargin: '800px 0px' });
-      journeyIo.observe(this.gsapJourneyRef.nativeElement);
-    } else {
-      this.initScrollJourney();
-    }
+
 
   }
 
-  private initScrollJourney(): void {
-    if (!this.gsapJourneyRef || !this.journeyPinRef || !this.journeyCanvasRef) return;
 
-    this.gsapCtx = gsap.context(() => {
-      const canvas = this.journeyCanvasRef!.nativeElement;
-      const context = canvas.getContext('2d');
-      if (!context) return;
-
-      const frameCount = 300;
-      const images: HTMLImageElement[] = [];
-      const imageSeq = { frame: 0 };
-
-      // Canvas pixel size is set ONCE here (and again on a real window
-      // resize) rather than inside render(). render() fires on every single
-      // scroll-scrub tick via onUpdate — resizing the canvas element there
-      // forces the browser to fully reset and repaint the canvas backing
-      // store on every tick, which was the main cause of scroll jank on
-      // this section.
-      const sizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      };
-      sizeCanvas();
-
-      // Load all frames
-      for (let i = 1; i <= frameCount; i++) {
-        const img = new Image();
-        const paddedNum = i.toString().padStart(3, '0');
-        img.src = `/frames/ezgif-frame-${paddedNum}.jpg`;
-        images.push(img);
-      }
-
-      function render() {
-        if (images[imageSeq.frame] && images[imageSeq.frame].complete && images[imageSeq.frame].naturalWidth > 0) {
-          const img = images[imageSeq.frame];
-
-          const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-          const x = (canvas.width / 2) - (img.naturalWidth / 2) * scale;
-          const y = (canvas.height / 2) - (img.naturalHeight / 2) * scale;
-          
-          context?.clearRect(0, 0, canvas.width, canvas.height);
-          context?.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
-        }
-      }
-
-      // Initial render
-      images[0].onload = () => render();
-      if (images[0].complete) render();
-
-      // Handle window resize — re-size the canvas backing store, then
-      // repaint the current frame. Listener is removed in ngOnDestroy.
-      const onResize = () => { sizeCanvas(); render(); };
-      window.addEventListener('resize', onResize);
-      this.journeyResizeHandler = onResize;
-
-      // The main timeline tied to scroll
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: this.gsapJourneyRef?.nativeElement,
-          start: 'top top',
-          end: '+=400%',
-          pin: this.journeyPinRef?.nativeElement,
-          scrub: 0.5, // 0.5s smoothing
-        },
-        onUpdate: render
-      });
-
-      // Scrub through frames
-      tl.to(imageSeq, {
-        frame: frameCount - 1,
-        snap: 'frame',
-        ease: 'none',
-        duration: 4
-      }, 0);
-
-      // Advanced Z-axis motion choreography
-      const enterAnim = { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' };
-      const exitAnim = { opacity: 0, scale: 1.05, filter: 'blur(8px)', duration: 0.3, ease: 'power2.in' };
-
-      // Phase 1 (0 to 1)
-      tl.fromTo('.step-1', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 0);
-      tl.fromTo('.progress-1', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 0);
-      tl.to('.step-1', exitAnim, 0.7);
-      
-      // Phase 2 (1 to 2)
-      tl.fromTo('.step-2', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 1);
-      tl.fromTo('.progress-2', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 1);
-      tl.to('.step-2', exitAnim, 1.7);
-      
-      // Phase 3 (2 to 3)
-      tl.fromTo('.step-3', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 2);
-      tl.fromTo('.progress-3', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 2);
-      tl.to('.step-3', exitAnim, 2.7);
-      
-      // Phase 4 (3 to 4)
-      tl.fromTo('.step-4', { opacity: 0, scale: 0.85, filter: 'blur(12px)' }, enterAnim, 3);
-      tl.fromTo('.progress-4', { width: '0%' }, { width: '100%', duration: 1, ease: 'none' }, 3);
-      // keeps step 4 visible until the pin ends
-
-    }, this.gsapJourneyRef.nativeElement);
-  }
 
   ngOnDestroy(): void {
-    this.gsapCtx?.revert();
-    if (this.journeyResizeHandler) {
-      window.removeEventListener('resize', this.journeyResizeHandler);
-    }
+
   }
 
   onPostcodeInput(event: Event): void {
