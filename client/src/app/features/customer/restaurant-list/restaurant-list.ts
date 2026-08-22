@@ -19,7 +19,7 @@ import { RadialSelectDirective } from '../../../shared/directives/radial-select.
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
 
 /** A single "promise" panel in the WHY section — editorial layout, no animation gimmicks. */
-interface Promise {
+interface WhyPromise {
   num: string;
   title: string;
   copy: string;
@@ -76,6 +76,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly animationZone = inject(NgZone);
   private cinematicRaf = 0;
+  private isRendering = false;
   private targetProgress = 0;
   private currentProgress = 0;
   private promiseTimer?: number;
@@ -87,7 +88,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   /** Section: Why · four honest promises (editorial layout) */
-  readonly promises: Promise[] = [
+  readonly promises: WhyPromise[] = [
     {
       num: '01',
       title: 'Live camera on every order.',
@@ -243,73 +244,104 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     if (!this.isBrowser) return;
     if (this.promiseTimer) window.clearInterval(this.promiseTimer);
-    window.removeEventListener('scroll', this.scheduleScrollUpdate);
+    window.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
     cancelAnimationFrame(this.cinematicRaf);
   }
 
-  private preloadFrameSequences(): void {
-    this.animationZone.runOutsideAngular(() => {
-      for (let i = 1; i <= 300; i++) {
-        const frameNum = String(i).padStart(3, '0');
+  private async preloadFrameSequences(): Promise<void> {
+    await this.animationZone.runOutsideAngular(async () => {
+      const loadScene = async (scenePath: string, targetArray: HTMLImageElement[]) => {
+        const batchSize = 50;
+        for (let i = 1; i <= 300; i += batchSize) {
+          const promises = [];
+          for (let j = i; j < i + batchSize && j <= 300; j++) {
+            promises.push(new Promise<void>((resolve) => {
+              const img = new Image();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+              img.src = `/frames/${scenePath}/ezgif-frame-${String(j).padStart(3, '0')}.jpg`;
+              targetArray[j] = img;
+            }));
+          }
+          await Promise.all(promises);
+        }
+      };
 
-        // Scene 1 frames
-        const img1 = new Image();
-        img1.src = `/frames/scene1/ezgif-frame-${frameNum}.jpg`;
-        this.scene1Images[i] = img1;
-
-        // Scene 2 frames
-        const img2 = new Image();
-        img2.src = `/frames/scene2/ezgif-frame-${frameNum}.jpg`;
-        this.scene2Images[i] = img2;
-
-        // Scene 3 frames
-        const img3 = new Image();
-        img3.src = `/frames/scene3/ezgif-frame-${frameNum}.jpg`;
-        this.scene3Images[i] = img3;
-      }
+      // Load scene 1 fully first, since it's the first thing seen
+      await loadScene('scene1', this.scene1Images);
+      // Kick off the first render immediately in case they already scrolled
+      this.forceRender();
+      
+      // Then load the rest quietly in the background
+      await loadScene('scene2', this.scene2Images);
+      await loadScene('scene3', this.scene3Images);
     });
+  }
+
+  private forceRender(): void {
+    if (!this.isRendering) {
+      this.isRendering = true;
+      this.cinematicRaf = requestAnimationFrame(this.renderLoop);
+    }
   }
 
   private stageTop = 0;
   private stageScrollableHeight = 1;
+  private canvasRect: { width: number; height: number } = { width: 0, height: 0 };
 
   private setupCinematicScroll(): void {
     this.animationZone.runOutsideAngular(() => {
       this.recalculateStageDimensions();
-      window.addEventListener('scroll', this.scheduleScrollUpdate, { passive: true });
+      window.addEventListener('scroll', this.onScroll, { passive: true });
       window.addEventListener('resize', this.onResize, { passive: true });
-      this.scheduleScrollUpdate();
+      this.onScroll();
     });
   }
 
   private readonly onResize = (): void => {
     this.recalculateStageDimensions();
-    this.scheduleScrollUpdate();
+    this.onScroll();
   };
 
   private recalculateStageDimensions(): void {
     const stage = this.cinematicStage?.nativeElement;
-    if (!stage) return;
-    const rect = stage.getBoundingClientRect();
-    this.stageTop = rect.top + window.scrollY;
-    this.stageScrollableHeight = Math.max(1, stage.offsetHeight - window.innerHeight);
+    if (stage) {
+      const rect = stage.getBoundingClientRect();
+      this.stageTop = rect.top + window.scrollY;
+      this.stageScrollableHeight = Math.max(1, stage.offsetHeight - window.innerHeight);
+    }
+    const canvas = this.cinematicCanvas?.nativeElement;
+    if (canvas) {
+      this.canvasRect = canvas.getBoundingClientRect();
+    }
   }
 
-  private readonly scheduleScrollUpdate = (): void => {
-    if (this.cinematicRaf) return;
-    this.cinematicRaf = requestAnimationFrame(() => {
-      this.cinematicRaf = 0;
+  private readonly onScroll = (): void => {
+    const scrollY = window.scrollY;
+    this.targetProgress = Math.max(0, Math.min(1, (scrollY - this.stageTop) / this.stageScrollableHeight));
+    
+    if (!this.isRendering) {
+      this.isRendering = true;
+      this.cinematicRaf = requestAnimationFrame(this.renderLoop);
+    }
+  };
+
+  private readonly renderLoop = (): void => {
+    const lerpFactor = 0.08; // The "shock absorber" easing factor
+    
+    if (Math.abs(this.targetProgress - this.currentProgress) > 0.0001) {
+      this.currentProgress += (this.targetProgress - this.currentProgress) * lerpFactor;
       this.updateCinematicScroll();
-    });
+      this.cinematicRaf = requestAnimationFrame(this.renderLoop);
+    } else {
+      this.currentProgress = this.targetProgress;
+      this.updateCinematicScroll();
+      this.isRendering = false;
+    }
   };
 
   private updateCinematicScroll(): void {
-    const scrollY = window.scrollY;
-    const progress = Math.max(0, Math.min(1, (scrollY - this.stageTop) / this.stageScrollableHeight));
-
-    this.targetProgress = progress;
-    this.currentProgress = progress;
     const currentP = this.currentProgress;
 
     // Active scene determination:
@@ -371,7 +403,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = this.canvasRect;
     if (rect.width === 0 || rect.height === 0) return;
 
     const dpr = Math.min(2, window.devicePixelRatio || 1);
