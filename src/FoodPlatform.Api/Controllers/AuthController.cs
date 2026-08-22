@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
         var result = await _auth.LoginWithOAuthAsync(request);
         return result.Outcome == LoginOutcome.Success 
             ? Ok(result.Token) 
-            : Unauthorized(new { error = "Invalid Google login." });
+            : Unauthorized(new { error = $"Invalid Google login. {result.ErrorMessage}" });
     }
 
 

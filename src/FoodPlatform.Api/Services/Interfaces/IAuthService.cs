@@ -7,7 +7,7 @@ namespace FoodPlatform.Api.Services.Interfaces;
 /// different HTTP responses without leaking internal auth logic. (SRP / ISP)
 /// </summary>
 public enum LoginOutcome { Success, InvalidCredentials, EmailNotVerified }
-public record LoginResult(LoginOutcome Outcome, AuthResponse? Token = null);
+public record LoginResult(LoginOutcome Outcome, AuthResponse? Token = null, string? ErrorMessage = null);
 
 /// <summary>
 /// Handles user authentication and registration. (SRP: auth logic only, no JWT or hashing details)

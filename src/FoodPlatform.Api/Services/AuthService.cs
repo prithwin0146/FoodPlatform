@@ -62,10 +62,10 @@ public class AuthService : IAuthService
         else if (request.Provider == "Apple")
             verification = await _oauth.VerifyAppleTokenAsync(request.IdToken);
         else
-            return new LoginResult(LoginOutcome.InvalidCredentials);
+            return new LoginResult(LoginOutcome.InvalidCredentials, ErrorMessage: "Unsupported OAuth provider.");
 
         if (!verification.IsSuccessful)
-            return new LoginResult(LoginOutcome.InvalidCredentials);
+            return new LoginResult(LoginOutcome.InvalidCredentials, ErrorMessage: verification.ErrorMessage);
 
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == verification.Email);
         if (user == null)
