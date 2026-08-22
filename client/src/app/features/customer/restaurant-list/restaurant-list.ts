@@ -50,7 +50,6 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   readonly spotlightFocused = signal(false);
   readonly cinematicProgress = signal(0);
   readonly cinematicScene = signal(0);
-  readonly activePromise = signal(0);
 
   private readonly scene1Images: HTMLImageElement[] = [];
   private readonly scene2Images: HTMLImageElement[] = [];
@@ -79,7 +78,6 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   private isRendering = false;
   private targetProgress = 0;
   private currentProgress = 0;
-  private promiseTimer?: number;
 
   readonly cinematicScenes = [
     { title: 'Choose a', accent: 'kitchen', body: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.' },
@@ -238,12 +236,10 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
     this.preloadFrameSequences();
     this.setupCinematicScroll();
-    this.startPromiseCarousel();
   }
 
   ngOnDestroy(): void {
     if (!this.isBrowser) return;
-    if (this.promiseTimer) window.clearInterval(this.promiseTimer);
     window.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
     cancelAnimationFrame(this.cinematicRaf);
@@ -439,26 +435,6 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
     ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
     ctx.restore();
-  }
-
-  promiseTrackStyle(): string {
-    return `translate3d(${-this.activePromise() * 25}%, 0, 0)`;
-  }
-
-  setActivePromise(index: number): void {
-    this.activePromise.set(index);
-    this.restartPromiseCarousel();
-  }
-
-  private startPromiseCarousel(): void {
-    this.promiseTimer = window.setInterval(() => {
-      this.activePromise.update(index => (index + 1) % this.promises.length);
-    }, 6000);
-  }
-
-  private restartPromiseCarousel(): void {
-    if (this.promiseTimer) window.clearInterval(this.promiseTimer);
-    this.startPromiseCarousel();
   }
 
   onPostcodeInput(event: Event): void {

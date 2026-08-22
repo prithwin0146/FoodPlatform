@@ -134,35 +134,27 @@
       </p>
     </header>
 
-    <div class="promise-carousel">
-      <div class="promise-carousel-viewport">
-        <ol class="promise-track" [style.transform]="promiseTrackStyle()">
-          @for (p of promises; track p.num) {
-          <li class="promise promise-carousel-card">
-            <div class="promise-num promise-num--roll" aria-hidden="true">{{ p.num }}</div>
-            <div class="promise-body">
-              <h3 class="promise-title">{{ p.title }}</h3>
-              <p class="promise-copy">{{ p.copy }}</p>
-              <div class="promise-foot">
-                <span class="promise-metric">{{ p.metric }}</span>
-                <span class="promise-metric-label">{{ p.metricLabel }}</span>
-                <span class="promise-icon" aria-hidden="true"><span class="material-symbols-rounded">{{ p.icon
-                    }}</span></span>
+    <div class="bento-grid">
+      @for (p of promises; track p.num; let i = $index) {
+        <div class="bento-card bento-card--{{ i + 1 }}" appScrollReveal [revealDelay]="i * 100">
+          <div class="bento-card-inner">
+            <div class="bento-head">
+              <span class="bento-num">{{ p.num }}</span>
+              <div class="bento-icon-wrapper" aria-hidden="true">
+                <span class="material-symbols-rounded">{{ p.icon }}</span>
               </div>
             </div>
-          </li>
-          }
-        </ol>
-      </div>
-      <div class="promise-identifiers" role="tablist" aria-label="Four standards">
-        @for (p of promises; track p.num; let i = $index) {
-        <button type="button" role="tab" [attr.aria-selected]="activePromise() === i"
-          [class.is-active]="activePromise() === i" (click)="setActivePromise(i)">
-          <span class="identifier-number">{{ p.num }}</span>
-          <span class="identifier-title">{{ p.title }}</span>
-        </button>
-        }
-      </div>
+            <div class="bento-body">
+              <h3 class="bento-title">{{ p.title }}</h3>
+              <p class="bento-copy">{{ p.copy }}</p>
+            </div>
+            <div class="bento-foot">
+              <span class="bento-metric">{{ p.metric }}</span>
+              <span class="bento-metric-label">{{ p.metricLabel }}</span>
+            </div>
+          </div>
+        </div>
+      }
     </div>
 
     <aside class="why-pullquote" appScrollReveal>
