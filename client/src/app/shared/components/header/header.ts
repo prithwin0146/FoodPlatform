@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID, OnDestroy, NgZone } from '@angular/core';
 import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -37,6 +37,8 @@ export class Header implements OnDestroy {
 
   private readonly doc = inject(DOCUMENT);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly zone = inject(NgZone);
+  private lastScrollY = 0;
 
   constructor(
     readonly auth: AuthService,
@@ -49,7 +51,10 @@ export class Header implements OnDestroy {
     // Mobile detection for responsive sheet presentation
     if (this.isBrowser) {
       this.checkMobile();
-      window.addEventListener('resize', () => this.checkMobile());
+      this.zone.runOutsideAngular(() => {
+        window.addEventListener('resize', this.onResize);
+        window.addEventListener('scroll', this.onScroll, { passive: true });
+      });
     }
 
     // Bounce the cart icon every time a new item is added
@@ -88,8 +93,19 @@ export class Header implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.isBrowser) this.doc.body.style.overflow = '';
+    if (this.isBrowser) {
+      this.doc.body.style.overflow = '';
+      window.removeEventListener('resize', this.onResize);
+      window.removeEventListener('scroll', this.onScroll);
+    }
   }
+
+  private readonly onResize = (): void => {
+    const isMob = window.innerWidth < 768;
+    if (this.isMobile() !== isMob) {
+      this.zone.run(() => this.isMobile.set(isMob));
+    }
+  };
 
   /** Check if viewport is mobile-sized for sheet presentation */
   private checkMobile(): void {
@@ -122,23 +138,42 @@ export class Header implements OnDestroy {
     return r.charAt(0).toUpperCase() + r.slice(1).toLowerCase();
   });
 
-  @HostListener('window:scroll')
-  onScroll(): void {
+  private readonly onScroll = (): void => {
     if (!this.isBrowser) return;
     const y = window.scrollY || this.doc.documentElement.scrollTop;
     const next = y > 16;
-    if (next !== this.scrolled()) this.scrolled.set(next);
-    if (next && this.dropdownOpen()) this.dropdownOpen.set(false);
-    if (next && this.mobileNavOpen()) this.mobileNavOpen.set(false);
+    
+    // Only trigger Angular change detection if state actually changes
+    const stateChanged = next !== this.scrolled();
+    const scrollDelta = Math.abs(y - this.lastScrollY);
+    
+    // Only close dropdowns if the user actually scrolled a decent amount (e.g., > 10px),
+    // to prevent accidental 1px scrolls when tapping from instantly closing the menu.
+    const shouldCloseDropdowns = next && scrollDelta > 10 && (this.dropdownOpen() || this.mobileNavOpen());
 
-    // Scroll progress: 0 at top, 1 at full document scroll. Clamped so
-    // short pages don't resolve to >1.
+    if (stateChanged || shouldCloseDropdowns) {
+      this.zone.run(() => {
+        if (stateChanged) this.scrolled.set(next);
+        if (shouldCloseDropdowns) {
+          if (this.dropdownOpen()) this.dropdownOpen.set(false);
+          if (this.mobileNavOpen()) this.mobileNavOpen.set(false);
+        }
+      });
+    }
+
+    if (scrollDelta > 10) {
+      this.lastScrollY = y;
+    }
+
+    // Scroll progress calculation
     const docEl = this.doc.documentElement;
     const max = Math.max(1, docEl.scrollHeight - window.innerHeight);
     const p = Math.min(1, Math.max(0, y / max));
-    // Angular signals dedupe equal writes — most scroll events are skipped.
-    this.scrollProgress.set(p);
-  }
+    
+    if (Math.abs(this.scrollProgress() - p) > 0.01) {
+      this.zone.run(() => this.scrollProgress.set(p));
+    }
+  };
 
   @HostListener('document:keydown.escape')
   onEscape(): void {

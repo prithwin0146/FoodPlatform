@@ -79,7 +79,7 @@ export class Login {
     window.handleGoogleCredentialResponse = (response: any) => {
       this.loading.set(true);
       const headers = new HttpHeaders().set(SILENT_ERROR_HEADER, 'true');
-      this.apiAuth.loginWithGoogle(response.credential).subscribe({
+      this.apiAuth.loginWithGoogle(response.credential, headers).subscribe({
         next: (res) => this.handleSuccessfulLogin(res),
         error: (err) => {
           this.loading.set(false);

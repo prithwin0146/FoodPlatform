@@ -14,10 +14,8 @@ export class ApiAuthService {
     return this.http.post<AuthResponse>(`${this.url}/login`, req, { headers });
   }
 
-  loginWithGoogle(idToken: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.url}/oauth/google`, `"${idToken}"`, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    });
+  loginWithGoogle(idToken: string, headers?: HttpHeaders): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.url}/oauth/google`, { provider: 'Google', idToken }, { headers });
   }
 
 

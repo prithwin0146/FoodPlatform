@@ -30,9 +30,9 @@ public class AuthController : ControllerBase
 
     [HttpPost("oauth/google")]
     [EnableRateLimiting("auth")]
-    public async Task<IActionResult> LoginWithGoogle([FromBody] string idToken)
+    public async Task<IActionResult> LoginWithGoogle([FromBody] OAuthLoginRequest request)
     {
-        var result = await _auth.LoginWithOAuthAsync(new OAuthLoginRequest("Google", idToken));
+        var result = await _auth.LoginWithOAuthAsync(request);
         return result.Outcome == LoginOutcome.Success 
             ? Ok(result.Token) 
             : Unauthorized(new { error = "Invalid Google login." });
