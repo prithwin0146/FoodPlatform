@@ -134,27 +134,40 @@
       </p>
     </header>
 
-    <div class="bento-grid">
-      @for (p of promises; track p.num; let i = $index) {
-        <div class="bento-card bento-card--{{ i + 1 }}" appScrollReveal [revealDelay]="i * 100">
-          <div class="bento-card-inner">
-            <div class="bento-head">
-              <span class="bento-num">{{ p.num }}</span>
-              <div class="bento-icon-wrapper" aria-hidden="true">
-                <span class="material-symbols-rounded">{{ p.icon }}</span>
+    <div class="promise-carousel">
+      <div class="promise-carousel-viewport">
+        <ol class="promise-track" [style.transform]="promiseTrackStyle()">
+          @for (p of promises; track p.num; let i = $index) {
+          <li class="promise-carousel-card">
+            <div class="carousel-card-inner">
+              <div class="carousel-head">
+                <span class="carousel-num">{{ p.num }}</span>
+                <div class="carousel-icon-wrapper" aria-hidden="true">
+                  <span class="material-symbols-rounded">{{ p.icon }}</span>
+                </div>
+              </div>
+              <div class="carousel-body">
+                <h3 class="carousel-title">{{ p.title }}</h3>
+                <p class="carousel-copy">{{ p.copy }}</p>
+              </div>
+              <div class="carousel-foot">
+                <span class="carousel-metric">{{ p.metric }}</span>
+                <span class="carousel-metric-label">{{ p.metricLabel }}</span>
               </div>
             </div>
-            <div class="bento-body">
-              <h3 class="bento-title">{{ p.title }}</h3>
-              <p class="bento-copy">{{ p.copy }}</p>
-            </div>
-            <div class="bento-foot">
-              <span class="bento-metric">{{ p.metric }}</span>
-              <span class="bento-metric-label">{{ p.metricLabel }}</span>
-            </div>
-          </div>
-        </div>
-      }
+          </li>
+          }
+        </ol>
+      </div>
+      <div class="promise-identifiers" role="tablist" aria-label="Four standards">
+        @for (p of promises; track p.num; let i = $index) {
+        <button type="button" role="tab" [attr.aria-selected]="activePromise() === i"
+          [class.is-active]="activePromise() === i" (click)="setActivePromise(i)">
+          <span class="identifier-number">{{ p.num }}</span>
+          <span class="identifier-title">{{ p.title }}</span>
+        </button>
+        }
+      </div>
     </div>
 
     <aside class="why-pullquote" appScrollReveal>
