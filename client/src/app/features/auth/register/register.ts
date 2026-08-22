@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { Component, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
@@ -18,6 +18,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-register',
   imports: [
     FormsModule,

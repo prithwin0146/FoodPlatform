@@ -1,4 +1,4 @@
-import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
+import { Component, signal, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
@@ -19,6 +19,7 @@ import { environment } from '../../../../environments/environment';
 
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-login',
   imports: [
     FormsModule,

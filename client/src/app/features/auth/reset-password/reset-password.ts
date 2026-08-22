@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
  * (SRP: only owns the reset-password interaction; no email collection or login logic)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-reset-password',
   imports: [
     FormsModule,

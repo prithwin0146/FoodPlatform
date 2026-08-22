@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { SubscriptionStatus } from '../../../core/models';
  * DIP: delegates auth state to AuthService, HTTP to ApiAuthService.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile',
   imports: [
     FormsModule, DatePipe,

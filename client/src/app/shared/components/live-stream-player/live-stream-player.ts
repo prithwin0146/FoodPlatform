@@ -1,8 +1,7 @@
 import {
   Component, Input, OnChanges, OnDestroy, SimpleChanges,
   ElementRef, ViewChild, AfterViewInit, signal, PLATFORM_ID, inject,
-  Output, EventEmitter,
-} from '@angular/core';
+  Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 /**
@@ -19,6 +18,7 @@ import { isPlatformBrowser } from '@angular/common';
  * cached URL signal and trigger a fresh backend fetch on the next poll cycle.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-live-stream-player',
   templateUrl: './live-stream-player.html',
   styleUrl: './live-stream-player.scss',

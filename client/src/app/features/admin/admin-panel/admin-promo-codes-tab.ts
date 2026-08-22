@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -19,6 +19,7 @@ import { PromoCode, CreatePromoCodeRequest } from '../../../core/models';
  * (SRP: promo code admin UI only; delegates HTTP to PromoCodeService)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-admin-promo-codes-tab',
   standalone: true,
   imports: [

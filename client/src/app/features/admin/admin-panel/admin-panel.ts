@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { AdminOrdersTab } from './admin-orders-tab';
@@ -16,6 +16,7 @@ import { AdminPromoCodesTab } from './admin-promo-codes-tab';
  * (SRP: data loading and actions delegated to AdminOrdersTab, AdminDisputesTab, AdminRestaurantsTab)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-admin-panel',
   standalone: true,
   imports: [AdminOrdersTab, AdminDisputesTab, AdminRestaurantsTab, AdminMenuTab, AdminUsersTab, AdminAnalyticsTab, AdminReviewsTab, AdminSettingsTab, AdminPromoCodesTab, MatTabsModule, MatButtonModule],

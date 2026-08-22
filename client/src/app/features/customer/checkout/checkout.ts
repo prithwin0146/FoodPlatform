@@ -1,4 +1,4 @@
-import { Component, signal, computed, ViewChild, ElementRef, OnDestroy, AfterViewInit, inject } from '@angular/core';
+import { Component, signal, computed, ViewChild, ElementRef, OnDestroy, AfterViewInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
@@ -34,6 +34,7 @@ import { ValidatePromoCodeResponse, ValidateGiftCardResponse } from '../../../co
  *  payment → StripeService + PaymentService; order placement → OrderService)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-checkout',
   imports: [
     FormsModule, ReactiveFormsModule, CurrencyPipe, RouterLink,

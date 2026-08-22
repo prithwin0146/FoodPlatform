@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID, OnDestroy, NgZone } from '@angular/core';
+import { Component, HostListener, computed, signal, effect, inject, DOCUMENT, PLATFORM_ID, OnDestroy, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { Logo } from '../logo/logo';
  *  - DIP: Router lives here, NOT in AuthService (avoids circular dep).
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-header',
   imports: [RouterLink, RouterLinkActive, MatButtonModule, MatTooltipModule, MagneticDirective, Logo, NgTemplateOutlet],
   templateUrl: './header.html',

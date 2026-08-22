@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,7 @@ import { AdminAnalyticsService, AnalyticsDto } from '../../../core/services/admi
  * (DIP: depends on AdminAnalyticsService, not HttpClient)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-admin-analytics-tab',
   standalone: true,
   imports: [CurrencyPipe, DecimalPipe, MatProgressBarModule, MatCardModule],

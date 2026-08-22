@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, computed, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, LowerCasePipe } from '@angular/common';
 import { Subscription, interval } from 'rxjs';
@@ -31,6 +31,7 @@ import { LiveStreamPlayer } from '../../../shared/components/live-stream-player/
  * (OCP: ORDER_STATUS_FLOW is shared — no hardcoded array here)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-order-tracking',
   imports: [
     CurrencyPipe, DatePipe, LowerCasePipe, RouterLink,

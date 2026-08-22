@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { ToastService } from '../../../core/services/toast.service';
  * (SRP: only owns the "send reset code" interaction; no OTP verification or password logic)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-forgot-password',
   imports: [
     FormsModule,

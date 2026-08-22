@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -19,6 +19,7 @@ import { User } from '../../../core/models';
  * (SRP: user listing + role assignment only; pagination mirrored from AdminOrdersTab pattern)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-admin-users-tab',
   standalone: true,
   imports: [DatePipe, FormsModule, MatTableModule, MatChipsModule, MatCardModule,

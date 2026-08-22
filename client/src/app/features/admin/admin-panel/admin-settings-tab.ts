@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,7 @@ import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
  * (DIP: depends on PlatformSettingsService, not HttpClient)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-admin-settings-tab',
   standalone: true,
   imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule, SafeUrlPipe],

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.
  * (SRP: data loading via OrderService; status display via pipes)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-my-orders',
   imports: [
     CurrencyPipe, DatePipe, RouterLink, FormsModule,

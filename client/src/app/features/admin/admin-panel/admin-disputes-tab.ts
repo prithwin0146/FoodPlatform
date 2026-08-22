@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,7 @@ import { Order } from '../../../core/models';
  * (SRP: split from AdminPanel god component)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-admin-disputes-tab',
   standalone: true,
   imports: [CurrencyPipe, DatePipe, MatCardModule, MatButtonModule, MatChipsModule, MatProgressBarModule, MatTooltipModule],

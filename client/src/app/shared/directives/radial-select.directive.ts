@@ -1,11 +1,12 @@
 import {
   Directive,
   ElementRef,
-  HostListener,
   Input,
   OnInit,
+  OnDestroy,
   PLATFORM_ID,
   inject,
+  NgZone,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -27,14 +28,18 @@ import { isPlatformBrowser } from '@angular/common';
   selector: '[appRadialSelect]',
   standalone: true,
 })
-export class RadialSelectDirective implements OnInit {
+export class RadialSelectDirective implements OnInit, OnDestroy {
   /** CSS variable name for the gradient's X origin (set on host). */
   @Input() radialXVar = '--rx';
   /** CSS variable name for the gradient's Y origin (set on host). */
   @Input() radialYVar = '--ry';
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly zone = inject(NgZone);
   private active = false;
+
+  private moveListener?: (e: PointerEvent) => void;
+  private leaveListener?: () => void;
 
   constructor(private elRef: ElementRef<HTMLElement>) {}
 
@@ -43,10 +48,28 @@ export class RadialSelectDirective implements OnInit {
     const host = this.elRef.nativeElement;
     host.style.setProperty(this.radialXVar, '0.5');
     host.style.setProperty(this.radialYVar, '0.5');
+
+    this.moveListener = (e: PointerEvent) => this.onPointerMove(e);
+    this.leaveListener = () => this.onLeave();
+
+    this.zone.runOutsideAngular(() => {
+      host.addEventListener('pointermove', this.moveListener!);
+      host.addEventListener('pointerleave', this.leaveListener!);
+      host.addEventListener('blur', this.leaveListener!);
+    });
   }
 
-  @HostListener('pointermove', ['$event'])
-  onPointerMove(ev: PointerEvent): void {
+  ngOnDestroy(): void {
+    if (!this.isBrowser) return;
+    const host = this.elRef.nativeElement;
+    if (this.moveListener) host.removeEventListener('pointermove', this.moveListener);
+    if (this.leaveListener) {
+      host.removeEventListener('pointerleave', this.leaveListener);
+      host.removeEventListener('blur', this.leaveListener);
+    }
+  }
+
+  private onPointerMove(ev: PointerEvent): void {
     if (!this.isBrowser) return;
     const host = this.elRef.nativeElement;
     const rect = host.getBoundingClientRect();
@@ -60,9 +83,7 @@ export class RadialSelectDirective implements OnInit {
     }
   }
 
-  @HostListener('pointerleave')
-  @HostListener('blur')
-  onLeave(): void {
+  private onLeave(): void {
     if (!this.isBrowser) return;
     const host = this.elRef.nativeElement;
     host.classList.remove('radial-active');

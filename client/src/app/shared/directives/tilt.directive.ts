@@ -1,12 +1,13 @@
 import {
   Directive,
   ElementRef,
-  HostListener,
   Input,
   OnInit,
+  OnDestroy,
   Renderer2,
   PLATFORM_ID,
   inject,
+  NgZone,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -21,7 +22,7 @@ import { isPlatformBrowser } from '@angular/common';
   selector: '[appTilt]',
   standalone: true,
 })
-export class TiltDirective implements OnInit {
+export class TiltDirective implements OnInit, OnDestroy {
   @Input() tiltMax = 12;
 
   private el!: HTMLElement;
@@ -33,6 +34,12 @@ export class TiltDirective implements OnInit {
   private readonly hoverCapable =
     this.isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+  private readonly zone = inject(NgZone);
+
+  private enterListener?: () => void;
+  private moveListener?: (e: MouseEvent) => void;
+  private leaveListener?: () => void;
+
   constructor(private elRef: ElementRef<HTMLElement>, private renderer: Renderer2) {}
 
   ngOnInit(): void {
@@ -41,16 +48,30 @@ export class TiltDirective implements OnInit {
     this.renderer.setStyle(this.el, 'transform-style', 'preserve-3d');
     this.renderer.setStyle(this.el, 'will-change', 'transform');
     this.renderer.setStyle(this.el, 'transition', 'transform 0.1s ease-out, box-shadow 0.1s ease-out');
+    this.enterListener = () => this.onEnter();
+    this.moveListener = (e: MouseEvent) => this.onMove(e);
+    this.leaveListener = () => this.onLeave();
+
+    this.zone.runOutsideAngular(() => {
+      this.el.addEventListener('mouseenter', this.enterListener!);
+      this.el.addEventListener('mousemove', this.moveListener!);
+      this.el.addEventListener('mouseleave', this.leaveListener!);
+    });
   }
 
-  @HostListener('mouseenter')
-  onEnter(): void {
+  ngOnDestroy(): void {
+    if (!this.isBrowser || !this.hoverCapable || !this.el) return;
+    if (this.enterListener) this.el.removeEventListener('mouseenter', this.enterListener);
+    if (this.moveListener) this.el.removeEventListener('mousemove', this.moveListener);
+    if (this.leaveListener) this.el.removeEventListener('mouseleave', this.leaveListener);
+  }
+
+  private onEnter(): void {
     if (!this.isBrowser || !this.hoverCapable || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', 'transform 0.08s ease-out, box-shadow 0.08s ease-out');
   }
 
-  @HostListener('mousemove', ['$event'])
-  onMove(e: MouseEvent): void {
+  private onMove(e: MouseEvent): void {
     if (!this.isBrowser || !this.hoverCapable || !this.el) return;
     const rect = this.el.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -72,8 +93,7 @@ export class TiltDirective implements OnInit {
     this.el.style.boxShadow = `${shadowX}px ${shadowY}px 40px rgba(255, 87, 34, 0.25), 0 20px 60px rgba(0,0,0,0.15)`;
   }
 
-  @HostListener('mouseleave')
-  onLeave(): void {
+  private onLeave(): void {
     if (!this.isBrowser || !this.hoverCapable || !this.el) return;
     this.renderer.setStyle(this.el, 'transition', 'transform 0.6s cubic-bezier(0.16,1,0.3,1), box-shadow 0.6s cubic-bezier(0.16,1,0.3,1)');
     this.el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)';

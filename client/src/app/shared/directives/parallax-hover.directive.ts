@@ -1,11 +1,12 @@
 import {
   Directive,
   ElementRef,
-  HostListener,
   Input,
   OnInit,
+  OnDestroy,
   PLATFORM_ID,
   inject,
+  NgZone,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -26,7 +27,7 @@ import { isPlatformBrowser } from '@angular/common';
   selector: '[appParallaxHover]',
   standalone: true,
 })
-export class ParallaxHoverDirective implements OnInit {
+export class ParallaxHoverDirective implements OnInit, OnDestroy {
   /** Maximum pixel travel in any axis (per unit of depth). */
   @Input() parallaxMax = 12;
   /** Perspective applied to the host so child translations read as 3D. */
@@ -58,6 +59,11 @@ export class ParallaxHoverDirective implements OnInit {
   private layers: HTMLElement[] = [];
   private active = false;
 
+  private readonly zone = inject(NgZone);
+
+  private moveListener?: (e: PointerEvent) => void;
+  private leaveListener?: () => void;
+
   constructor(private elRef: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
@@ -74,10 +80,31 @@ export class ParallaxHoverDirective implements OnInit {
       layer.style.willChange = 'transform';
       layer.style.transform = 'translate3d(0, 0, 0)';
     }
+
+    this.moveListener = (e: PointerEvent) => this.onPointerMove(e);
+    this.leaveListener = () => this.onPointerLeave();
+
+    this.zone.runOutsideAngular(() => {
+      host.addEventListener('pointermove', this.moveListener!);
+      host.addEventListener('pointerleave', this.leaveListener!);
+      host.addEventListener('pointercancel', this.leaveListener!);
+      host.addEventListener('pointerup', this.leaveListener!);
+    });
   }
 
-  @HostListener('pointermove', ['$event'])
-  onPointerMove(ev: PointerEvent): void {
+  ngOnDestroy(): void {
+    if (!this.isBrowser || !this.hoverCapable) return;
+    const host = this.elRef.nativeElement;
+    if (this.moveListener) host.removeEventListener('pointermove', this.moveListener);
+    if (this.leaveListener) {
+      host.removeEventListener('pointerleave', this.leaveListener);
+      host.removeEventListener('pointercancel', this.leaveListener);
+      host.removeEventListener('pointerup', this.leaveListener);
+    }
+    cancelAnimationFrame(this.rafId);
+  }
+
+  private onPointerMove(ev: PointerEvent): void {
     if (!this.isBrowser || !this.hoverCapable) return;
     if (ev.pointerType !== 'mouse') return; // extra safety: never engage for touch/pen
     const host = this.elRef.nativeElement;
@@ -91,10 +118,7 @@ export class ParallaxHoverDirective implements OnInit {
     this.active = true;
   }
 
-  @HostListener('pointerleave')
-  @HostListener('pointercancel')
-  @HostListener('pointerup')
-  onPointerLeave(): void {
+  private onPointerLeave(): void {
     if (!this.isBrowser || !this.hoverCapable) return;
     this.targetX = 0;
     this.targetY = 0;

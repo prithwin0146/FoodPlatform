@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { Logo } from '../../../shared/components/logo/logo';
  * (SRP: only owns the verify/resend interaction; no registration or login logic)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-verify-email',
   imports: [
     FormsModule,

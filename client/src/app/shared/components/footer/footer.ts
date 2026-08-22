@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Logo } from '../logo/logo';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-footer',
   standalone: true,
   imports: [RouterLink, Logo],

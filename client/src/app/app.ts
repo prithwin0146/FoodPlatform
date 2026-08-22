@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { Header } from './shared/components/header/header';
 import { Toast } from './shared/components/toast/toast';
 import { FooterComponent } from './shared/components/footer/footer';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
   imports: [RouterOutlet, Header, Toast, FooterComponent],
   templateUrl: './app.html',

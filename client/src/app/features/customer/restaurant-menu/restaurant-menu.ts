@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, CurrencyPipe, DatePipe } from '@angular/common';
@@ -29,6 +29,7 @@ import { ImageFallback } from '../../../shared/components/image-fallback/image-f
  * (SRP: display helpers extracted to pipes; forkJoin ensures atomic data loading)
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-restaurant-menu',
   imports: [
     CurrencyPipe, DatePipe, RouterLink,
