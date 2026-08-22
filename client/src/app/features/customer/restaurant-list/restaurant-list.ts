@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, ViewChild, ViewChildren, QueryList, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, OnDestroy, ViewChild, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -11,19 +11,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { RestaurantService } from '../../../core/services/restaurant.service';
 import { PlatformSettingsService } from '../../../core/services/platform-settings.service';
 import { Restaurant } from '../../../core/models';
-import { TiltDirective } from '../../../shared/directives/tilt.directive';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MagneticDirective } from '../../../shared/directives/magnetic.directive';
-import { CountUpDirective } from '../../../shared/directives/count-up.directive';
 import { StaggerRevealDirective } from '../../../shared/directives/stagger-reveal.directive';
 import { ParallaxHoverDirective } from '../../../shared/directives/parallax-hover.directive';
 import { RadialSelectDirective } from '../../../shared/directives/radial-select.directive';
-import { Logo } from '../../../shared/components/logo/logo';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
-
-interface HowStep {
-  num: string; title: string; copy: string; icon: string; video: string;
-}
 
 /** A single "promise" panel in the WHY section — editorial layout, no animation gimmicks. */
 interface Promise {
@@ -40,22 +33,29 @@ interface Promise {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    TiltDirective, ScrollRevealDirective, MagneticDirective, CountUpDirective,
-    StaggerRevealDirective, ParallaxHoverDirective, RadialSelectDirective,
+    ScrollRevealDirective,
     ImageFallback,
     MatRippleModule, MatButtonModule,
   ],
   templateUrl: './restaurant-list.html',
   styleUrl: './restaurant-list.scss',
 })
-export class RestaurantList implements OnInit, AfterViewInit {
-  @ViewChild('heroVideo') private heroVideoRef?: ElementRef<HTMLVideoElement>;
-  @ViewChildren('howVideo') private howVideoRefs!: QueryList<ElementRef<HTMLVideoElement>>;
+export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('cinematicStage') private cinematicStage?: ElementRef<HTMLElement>;
+  @ViewChild('cinematicCanvas') private cinematicCanvas?: ElementRef<HTMLCanvasElement>;
 
   readonly demoVideoUrl = signal<string>('');
   /** Postcode / name typed into the Kitchen Spotlight on the hero. */
   readonly postcodeQuery = signal('');
   readonly spotlightFocused = signal(false);
+  readonly cinematicProgress = signal(0);
+  readonly cinematicScene = signal(0);
+  readonly activePromise = signal(0);
+
+  private readonly scene1Images: HTMLImageElement[] = [];
+  private readonly scene2Images: HTMLImageElement[] = [];
+  private readonly scene3Images: HTMLImageElement[] = [];
+  private lastDrawnFrameKey = '';
 
   /** Lightweight restaurant list — powers Spotlight count + preview only. */
   private readonly allRestaurants = signal<Restaurant[]>([]);
@@ -74,17 +74,16 @@ export class RestaurantList implements OnInit, AfterViewInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly platformSettings = inject(PlatformSettingsService);
   private readonly router = inject(Router);
+  private readonly animationZone = inject(NgZone);
+  private cinematicRaf = 0;
+  private targetProgress = 0;
+  private currentProgress = 0;
+  private promiseTimer?: number;
 
-  /** Resolves a video filename to a CDN URL (if videoCdnUrl is set) or local public path. */
-  private videoUrl(filename: string): string {
-    return environment.videoCdnUrl ? `${environment.videoCdnUrl}/${filename}` : `/videos/${filename}`;
-  }
-
-  /** Section: How it works */
-  readonly howSteps: HowStep[] = [
-    { num: '01', title: 'Choose a kitchen',   copy: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.', icon: 'restaurant_menu', video: this.videoUrl('choose-the-kitchen.mp4')  },
-    { num: '02', title: 'Watch it cook',      copy: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.',     icon: 'videocam',        video: this.videoUrl('watch-it-cook.mp4')         },
-    { num: '03', title: 'Track to the door',  copy: 'Live ETA from the kitchen to your address. Tip the chef directly when you\'re happy with the food.',               icon: 'delivery_dining', video: this.videoUrl('track-to-the-door.mp4')    },
+  readonly cinematicScenes = [
+    { title: 'Choose a', accent: 'kitchen', body: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.' },
+    { title: 'Watch it', accent: 'cook', body: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.' },
+    { title: 'Track to the', accent: 'door', body: "Live ETA from the kitchen to your address. Tip the chef directly when you're happy with the food." },
   ];
 
   /** Section: Why · four honest promises (editorial layout) */
@@ -235,88 +234,199 @@ export class RestaurantList implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!this.isBrowser) return;
-    const video = this.heroVideoRef?.nativeElement;
-    if (!video) return;
 
-    // Force muted (some browsers carry over previous mute state)
-    video.muted = true;
-    video.defaultMuted = true;
-    video.volume = 0;
-    video.setAttribute('muted', '');
-    video.playsInline = true;
+    this.preloadFrameSequences();
+    this.setupCinematicScroll();
+    this.startPromiseCarousel();
+  }
 
-    // Angular binds [src] on the <source> child AFTER the browser's initial
-    // resource-selection algorithm ran (with no src → gave up). video.load()
-    // forces the browser to re-read the now-populated <source src> attribute.
-    video.load();
+  ngOnDestroy(): void {
+    if (!this.isBrowser) return;
+    if (this.promiseTimer) window.clearInterval(this.promiseTimer);
+    window.removeEventListener('scroll', this.scheduleScrollUpdate);
+    window.removeEventListener('resize', this.onResize);
+    cancelAnimationFrame(this.cinematicRaf);
+  }
 
-    const tryPlay = () => video.play().catch(() => undefined);
+  private preloadFrameSequences(): void {
+    this.animationZone.runOutsideAngular(() => {
+      for (let i = 1; i <= 300; i++) {
+        const frameNum = String(i).padStart(3, '0');
 
-    // Try immediately, on canplay, on loadeddata
-    tryPlay();
-    video.addEventListener('canplay', tryPlay, { once: false });
-    video.addEventListener('loadeddata', tryPlay, { once: true });
+        // Scene 1 frames
+        const img1 = new Image();
+        img1.src = `/frames/scene1/ezgif-frame-${frameNum}.jpg`;
+        this.scene1Images[i] = img1;
 
-    // Retry on first user interaction (handles strict autoplay policies)
-    const userKick = () => {
-      tryPlay();
-      window.removeEventListener('pointerdown', userKick);
-      window.removeEventListener('touchstart', userKick);
-      window.removeEventListener('keydown', userKick);
-    };
-    window.addEventListener('pointerdown', userKick, { once: true });
-    window.addEventListener('touchstart', userKick, { once: true });
-    window.addEventListener('keydown', userKick, { once: true });
+        // Scene 2 frames
+        const img2 = new Image();
+        img2.src = `/frames/scene2/ezgif-frame-${frameNum}.jpg`;
+        this.scene2Images[i] = img2;
 
-    // If tab regains focus, ensure still playing
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && video.paused) tryPlay();
-    });
-
-    // Pause when hero scrolls out of view (saves mobile battery / CPU)
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(
-        ([entry]) => entry.isIntersecting ? tryPlay() : video.pause(),
-        { threshold: 0.1 }
-      );
-      io.observe(video);
-    }
-
-    // ── Force-play how-it-works step videos ──────────────────────
-    this.howVideoRefs.forEach(ref => this.forcePlayVideo(ref.nativeElement));
-    this.howVideoRefs.changes.subscribe((list: QueryList<ElementRef<HTMLVideoElement>>) => {
-      list.forEach(ref => this.forcePlayVideo(ref.nativeElement));
+        // Scene 3 frames
+        const img3 = new Image();
+        img3.src = `/frames/scene3/ezgif-frame-${frameNum}.jpg`;
+        this.scene3Images[i] = img3;
+      }
     });
   }
 
-  /** Mirrors hero video autoplay logic for any <video> element. */
-  private forcePlayVideo(v: HTMLVideoElement): void {
-    v.muted = true;
-    v.defaultMuted = true;
-    v.volume = 0;
-    v.setAttribute('muted', '');
-    v.playsInline = true;
+  private stageTop = 0;
+  private stageScrollableHeight = 1;
 
-    const tryPlay = () => v.play().catch(() => undefined);
-    tryPlay();
-    v.addEventListener('canplay', tryPlay, { once: false });
-    v.addEventListener('loadeddata', tryPlay, { once: true });
-
-    const userKick = () => { tryPlay(); };
-    window.addEventListener('pointerdown', userKick, { once: true });
-    window.addEventListener('touchstart', userKick, { once: true });
-
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && v.paused) tryPlay();
+  private setupCinematicScroll(): void {
+    this.animationZone.runOutsideAngular(() => {
+      this.recalculateStageDimensions();
+      window.addEventListener('scroll', this.scheduleScrollUpdate, { passive: true });
+      window.addEventListener('resize', this.onResize, { passive: true });
+      this.scheduleScrollUpdate();
     });
+  }
 
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(
-        ([entry]) => entry.isIntersecting ? tryPlay() : v.pause(),
-        { threshold: 0.1 }
-      );
-      io.observe(v);
+  private readonly onResize = (): void => {
+    this.recalculateStageDimensions();
+    this.scheduleScrollUpdate();
+  };
+
+  private recalculateStageDimensions(): void {
+    const stage = this.cinematicStage?.nativeElement;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    this.stageTop = rect.top + window.scrollY;
+    this.stageScrollableHeight = Math.max(1, stage.offsetHeight - window.innerHeight);
+  }
+
+  private readonly scheduleScrollUpdate = (): void => {
+    if (this.cinematicRaf) return;
+    this.cinematicRaf = requestAnimationFrame(() => {
+      this.cinematicRaf = 0;
+      this.updateCinematicScroll();
+    });
+  };
+
+  private updateCinematicScroll(): void {
+    const scrollY = window.scrollY;
+    const progress = Math.max(0, Math.min(1, (scrollY - this.stageTop) / this.stageScrollableHeight));
+
+    this.targetProgress = progress;
+    this.currentProgress = progress;
+    const currentP = this.currentProgress;
+
+    // Active scene determination:
+    // Scene 0: 0.0 - 0.28 (Scene 1 frames 1..300)
+    // Scene 1: 0.28 - 0.58 (Scene 2 frames 1..300)
+    // Scene 2: 0.58 - 0.85 (Scene 3 frames 1..300)
+    // Scene 3: 0.85 - 1.0 (CTA Search stage - holds final frame)
+    let activeSceneIndex = 0;
+    if (currentP >= 0.85) {
+      activeSceneIndex = 3;
+    } else if (currentP >= 0.58) {
+      activeSceneIndex = 2;
+    } else if (currentP >= 0.28) {
+      activeSceneIndex = 1;
+    } else {
+      activeSceneIndex = 0;
     }
+
+    if (this.cinematicScene() !== activeSceneIndex) {
+      this.cinematicScene.set(activeSceneIndex);
+    }
+
+    // Calculate exact 1..300 frame index relative to scroll progress
+    let sceneProgress = 0;
+    let targetImages: HTMLImageElement[] = this.scene1Images;
+    let sceneKey = '1';
+
+    if (activeSceneIndex === 0) {
+      sceneProgress = Math.max(0, Math.min(1, currentP / 0.28));
+      targetImages = this.scene1Images;
+      sceneKey = '1';
+    } else if (activeSceneIndex === 1) {
+      sceneProgress = Math.max(0, Math.min(1, (currentP - 0.28) / 0.30));
+      targetImages = this.scene2Images;
+      sceneKey = '2';
+    } else if (activeSceneIndex === 2) {
+      sceneProgress = Math.max(0, Math.min(1, (currentP - 0.58) / 0.27));
+      targetImages = this.scene3Images;
+      sceneKey = '3';
+    } else {
+      sceneProgress = 1;
+      targetImages = this.scene3Images;
+      sceneKey = '3';
+    }
+
+    const frameIdx = Math.max(1, Math.min(300, Math.round(1 + sceneProgress * 299)));
+    const drawKey = `${sceneKey}_${frameIdx}`;
+
+    if (this.lastDrawnFrameKey !== drawKey) {
+      this.lastDrawnFrameKey = drawKey;
+      this.renderFrameToCanvas(targetImages[frameIdx]);
+    }
+  }
+
+  private renderFrameToCanvas(image: HTMLImageElement | undefined): void {
+    const canvas = this.cinematicCanvas?.nativeElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const canvasWidth = Math.floor(rect.width * dpr);
+    const canvasHeight = Math.floor(rect.height * dpr);
+
+    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+    }
+
+    if (!image || !image.complete || image.naturalWidth === 0) return;
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    // Calculate object-fit: cover scaling
+    const imageRatio = image.naturalWidth / image.naturalHeight;
+    const containerRatio = rect.width / rect.height;
+
+    let drawWidth = rect.width;
+    let drawHeight = rect.height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (containerRatio > imageRatio) {
+      drawHeight = rect.width / imageRatio;
+      offsetY = (rect.height - drawHeight) / 2;
+    } else {
+      drawWidth = rect.height * imageRatio;
+      offsetX = (rect.width - drawWidth) / 2;
+    }
+
+    ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+    ctx.restore();
+  }
+
+  promiseTrackStyle(): string {
+    return `translate3d(${-this.activePromise() * 25}%, 0, 0)`;
+  }
+
+  setActivePromise(index: number): void {
+    this.activePromise.set(index);
+    this.restartPromiseCarousel();
+  }
+
+  private startPromiseCarousel(): void {
+    this.promiseTimer = window.setInterval(() => {
+      this.activePromise.update(index => (index + 1) % this.promises.length);
+    }, 6000);
+  }
+
+  private restartPromiseCarousel(): void {
+    if (this.promiseTimer) window.clearInterval(this.promiseTimer);
+    this.startPromiseCarousel();
   }
 
   onPostcodeInput(event: Event): void {

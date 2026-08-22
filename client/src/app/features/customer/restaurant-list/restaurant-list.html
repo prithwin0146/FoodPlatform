@@ -1,168 +1,113 @@
-<!-- ════════════════════════════════════════════════════════════ HERO ══ -->
-<section class="hero" appParallaxHover [parallaxMax]="14" [parallaxPerspective]="1100">
-  <div class="hero-visuals" aria-hidden="true">
-    <!-- Looping kitchen background video — NOT a parallax layer. -->
-    <video #heroVideo class="hero-video"
-      autoplay muted loop playsinline
-      preload="auto"
-      [poster]="heroPosterUrl">
-      <source [src]="heroVideoUrl" type="video/mp4">
-    </video>
-    <div class="hero-video-overlay"></div>
+<!-- ════════════════════════════════════════ CINEMATIC SCROLL HERO ══ -->
+<section #cinematicStage class="cinematic-hero-section" id="how-section">
+  <div class="cinematic-sticky-viewport">
 
-    <div class="mesh-bg">
-      <div class="mesh-blob blob-1" data-parallax-depth="0.7"></div>
-      <div class="mesh-blob blob-2" data-parallax-depth="0.7"></div>
-      <div class="mesh-blob blob-3" data-parallax-depth="0.7"></div>
+    <!-- High Performance 30fps Frame Canvas Sequence Renderer -->
+    <div class="cinematic-video-wrapper" aria-hidden="true">
+      <canvas #cinematicCanvas class="cinematic-bg-canvas"></canvas>
+
+      <div class="cinematic-overlay-scrim"></div>
+      <div class="hero-noise"></div>
     </div>
 
-    <div class="hero-noise" data-parallax-depth="0.2"></div>
+    <!-- Progress Rail Header (Pure CSS Scroll Timeline) -->
+    <div class="cinematic-header-badge">
+      <div class="cinematic-progress-indicator">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
 
-    <svg class="hero-ribbon" viewBox="0 0 800 800">
-      <defs>
-        <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#ff7a00" stop-opacity="0.5"/>
-          <stop offset="100%" stop-color="#ff3d8a" stop-opacity="0.05"/>
-        </linearGradient>
-      </defs>
-      <path d="M0,400 Q200,200 400,400 T800,400" stroke="url(#ribbonGrad)" stroke-width="2" fill="none" class="ribbon-path"/>
-      <path d="M0,500 Q200,700 400,500 T800,500" stroke="url(#ribbonGrad)" stroke-width="1" fill="none" class="ribbon-path delay"/>
-    </svg>
-  </div>
+    <!-- Editorial Story Text Overlay Layers -->
+    <div class="cinematic-content-container">
 
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <div class="live-badge" appScrollReveal>
-        <span class="live-dot"></span>
-        Live across <strong>UK kitchens</strong> · FSA-verified
-     </div>
+      <!-- Scene 1 Text -->
+      <article class="cinematic-story-card" [class.is-active]="cinematicScene() === 0">
+        <h1 class="story-headline">Choose a <span class="story-accent">kitchen</span></h1>
+        <p class="story-body">
+          Browse FSA 5-star verified kitchens near you. Independent restaurants only — watch real chefs work in real
+          time with total transparency.
+        </p>
+      </article>
 
-      <h1 class="hero-headline" appStaggerReveal [staggerStep]="80" [staggerDuration]="640">
-        <span class="line">
-          <span class="word w1">See</span>
-          <span class="word w2">the</span>
-          <span class="word w3">prep</span>
-       </span>
-        <span class="line">
-          <span class="word w4">Trust</span>
-          <span class="word w5 grad">
-            <span class="hero-word-orange">every</span>
-            <svg class="grad-underline" viewBox="0 0 200 12" preserveAspectRatio="none">
-              <path d="M2,9 Q50,2 100,7 T198,5" stroke="url(#ribbonGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
-           </svg>
-         </span>
-          <span class="word w6">bite</span>
-       </span>
-     </h1>
+      <!-- Scene 2 Text -->
+      <article class="cinematic-story-card" [class.is-active]="cinematicScene() === 1">
+        <h1 class="story-headline">Watch it <span class="story-accent">cook</span></h1>
+        <p class="story-body">
+          The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating
+          and dispatch.
+        </p>
+      </article>
 
-      <p class="hero-subtitle">
-        Order from independent UK kitchens and watch every step on a <strong>live HD camera</strong>.
-        Verified hygiene ratings. Allergens on the record. The receipt is the footage.
-     </p>
+      <!-- Scene 3 Text -->
+      <article class="cinematic-story-card" [class.is-active]="cinematicScene() === 2">
+        <h1 class="story-headline">Track to the <span class="story-accent">door</span></h1>
+        <p class="story-body">
+          Live ETA from the kitchen to your address. Watch your food arrive fresh, hot, and prepared with complete
+          integrity.
+        </p>
+      </article>
 
-      <!-- ── Kitchen Spotlight — single-action hero CTA ── -->
-      <div class="kitchen-spotlight" appScrollReveal>
-        <div class="spotlight-pill" [class.is-focused]="spotlightFocused()">
-          <span class="spotlight-icon material-symbols-rounded">place</span>
-          <input
-            type="text"
-            class="spotlight-input"
-            placeholder="Search kitchens, cuisine or postcode"
-            [value]="postcodeQuery()"
-            (input)="onPostcodeInput($event)"
-            (focus)="spotlightFocused.set(true)"
-            (blur)="onSpotlightBlur()"
-            (keydown.enter)="navigateToRestaurants()"
-            appRadialSelect
-            aria-label="Search kitchens" />
-          <button class="spotlight-cta" (click)="navigateToRestaurants()" appMagnetic type="button">
-            @if (liveKitchenCount() > 0) {
+      <!-- Scene 4 / CTA Transition (Matches exact serif font & white color of scenes above) -->
+      <article class="cinematic-story-card cta-card" [class.is-active]="cinematicScene() === 3">
+        <h1 class="story-headline brand-reveal-title">
+          See the prep<br>
+          Trust <span class="story-accent">every</span> bite
+        </h1>
+
+        <!-- ── Kitchen Spotlight — CTA ── -->
+        <div class="kitchen-spotlight">
+          <div class="spotlight-pill" [class.is-focused]="spotlightFocused()">
+            <span class="spotlight-icon material-symbols-rounded">place</span>
+            <input type="text" class="spotlight-input" placeholder="Search kitchens, cuisine or postcode"
+              [value]="postcodeQuery()" (input)="onPostcodeInput($event)" (focus)="spotlightFocused.set(true)"
+              (blur)="onSpotlightBlur()" (keydown.enter)="navigateToRestaurants()" aria-label="Search kitchens" />
+            <button class="spotlight-cta" (click)="navigateToRestaurants()" type="button">
+              @if (liveKitchenCount() > 0) {
               <span class="spotlight-cta-count">{{ liveKitchenCount() }}</span>
               <span class="spotlight-cta-label">live kitchens</span>
-            } @else {
+              } @else {
               <span class="spotlight-cta-label">Find kitchens</span>
-            }
-            <span class="material-symbols-rounded">arrow_forward</span>
-          </button>
-        </div>
-        @if (spotlightFocused() && spotlightPreview().length > 0) {
+              }
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+          </div>
+
+          @if (spotlightFocused() && spotlightPreview().length > 0) {
           <div class="spotlight-dropdown">
             @for (r of spotlightPreview(); track r.id) {
-              <a [routerLink]="['/restaurant', r.hashId]" class="spi-row">
-                <div class="spi-thumb">
-                  @if (r.imageUrl) {
-                    <img [src]="r.imageUrl" [alt]="r.name" width="44" height="44">
-                  } @else {
-                    <app-image-fallback [name]="r.name" tone="auto" />
-                  }
-                </div>
-                <div class="spi-body">
-                  <p class="spi-name">{{ r.name }}</p>
-                  <p class="spi-meta">{{ r.cuisineType }} · ~{{ r.estimatedDeliveryMinutes }} min</p>
-                </div>
-                <span class="spi-live"><span class="spi-live-dot"></span> LIVE</span>
-              </a>
+            <a [routerLink]="['/restaurant', r.hashId]" class="spi-row">
+              <div class="spi-thumb">
+                @if (r.imageUrl) {
+                <img [src]="r.imageUrl" [alt]="r.name" width="44" height="44">
+                } @else {
+                <app-image-fallback [name]="r.name" tone="auto" />
+                }
+              </div>
+              <div class="spi-body">
+                <p class="spi-name">{{ r.name }}</p>
+                <p class="spi-meta">{{ r.cuisineType }} · ~{{ r.estimatedDeliveryMinutes }} min</p>
+              </div>
+              <span class="spi-live"><span class="spi-live-dot"></span> LIVE</span>
+            </a>
             }
             <button class="spi-see-all" (click)="navigateToRestaurants()" type="button">
               See all {{ liveKitchenCount() }} kitchens
               <span class="material-symbols-rounded">arrow_forward</span>
             </button>
           </div>
-        }
-      </div>
-   </div>
- </div>
+          }
+        </div>
+      </article>
 
-</section>
+    </div>
 
+    <!-- Scroll Navigation Cue -->
+    <div class="cinematic-scroll-cue" [class.is-hidden]="cinematicScene() === 3">
+      <span>Scroll to explore</span>
+      <span class="material-symbols-rounded cue-arrow">keyboard_arrow_down</span>
+    </div>
 
-<!-- ══════════════════════════════════════════════════════ HOW IT WORKS ══ -->
-<section class="how" id="how-section">
-  <div class="how-bg" aria-hidden="true">
-    <div class="how-orb how-orb-1"></div>
-    <div class="how-orb how-orb-2"></div>
- </div>
-
-  <div class="container">
-    <header class="section-eyebrow" appScrollReveal>
-      <span class="eyebrow-line"></span>
-      <span class="eyebrow-text">HOW IT WORKS</span>
-   </header>
-    <h2 class="section-h2" appScrollReveal>
-      Three steps. <span class="text-gradient-NEW">Full visibility</span>
-   </h2>
-    <p class="section-lead" appScrollReveal>
-      From the moment you place the order to the handover at your door — every stage is on camera, on the record.
-   </p>
-
-    <div class="how-steps">
-      <!-- Connecting SVG path that draws on scroll -->
-      <svg class="how-connector" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M80,30 Q400,-10 600,30 T1120,30"
-              stroke="url(#ribbonGrad)" stroke-width="2" fill="none"
-              stroke-dasharray="6 8" class="connector-path"/>
-     </svg>
-
-      @for (step of howSteps; track step.num; let i = $index) {
-        <div class="how-step how-step--video glass-card" appScrollReveal [revealDelay]="i * 150" appTilt [tiltMax]="8">
-          <div class="card-glare"></div>
-          <div class="how-num glass-num">{{ step.num }}</div>
-          <div class="how-video-wrap">
-            <video
-              #howVideo
-              class="how-video-frame"
-              [src]="step.video"
-              autoplay muted loop playsinline
-              preload="metadata"
-              [attr.title]="step.title">
-           </video>
-         </div>
-          <h3 class="how-title">{{ step.title }}</h3>
-          <p class="how-copy">{{ step.copy }}</p>
-       </div>
-      }
-   </div>
- </div>
+  </div>
 </section>
 
 
@@ -171,295 +116,62 @@
   <div class="why-bg" aria-hidden="true">
     <div class="why-orb orb-a"></div>
     <div class="why-orb orb-b"></div>
- </div>
+  </div>
 
   <div class="container">
     <header class="why-head">
       <div class="why-eyebrow" appScrollReveal>
         <span class="eb-line"></span>
         <span class="eb-text">Why SeeThePrep</span>
-     </div>
+      </div>
       <h2 class="why-title" appScrollReveal>
         Four standards.
         <span class="why-title-em">Held to the letter</span>
-     </h2>
+      </h2>
       <p class="why-lead" appScrollReveal>
-        Transparency only counts when it's enforced. These are the operating standards every kitchen on SeeThePrep agrees to before they take a single order — and what we measure them against, in public.
-     </p>
-   </header>
+        Transparency only counts when it's enforced. These are the operating standards every kitchen on SeeThePrep
+        agrees to before they take a single order — and what we measure them against, in public.
+      </p>
+    </header>
 
-    <ol class="promise-grid">
-      @for (p of promises; track p.num; let i = $index) {
-        <li class="promise" appScrollReveal [revealDelay]="i * 110" appTilt [tiltMax]="6" appMagnetic>
-          <div class="card-glare"></div>
-          <div class="promise-num promise-num--roll" aria-hidden="true">{{ p.num }}</div>
-          <div class="promise-body">
-            <h3 class="promise-title">{{ p.title }}</h3>
-            <p class="promise-copy">{{ p.copy }}</p>
-            <div class="promise-foot">
-              <span class="promise-metric">{{ p.metric }}</span>
-              <span class="promise-metric-label">{{ p.metricLabel }}</span>
-              <span class="promise-icon" aria-hidden="true">
-                <span class="material-symbols-rounded">{{ p.icon }}</span>
-             </span>
-           </div>
-         </div>
-       </li>
-      }
-   </ol>
+    <div class="promise-carousel">
+      <div class="promise-carousel-viewport">
+        <ol class="promise-track" [style.transform]="promiseTrackStyle()">
+          @for (p of promises; track p.num) {
+          <li class="promise promise-carousel-card">
+            <div class="promise-num promise-num--roll" aria-hidden="true">{{ p.num }}</div>
+            <div class="promise-body">
+              <h3 class="promise-title">{{ p.title }}</h3>
+              <p class="promise-copy">{{ p.copy }}</p>
+              <div class="promise-foot">
+                <span class="promise-metric">{{ p.metric }}</span>
+                <span class="promise-metric-label">{{ p.metricLabel }}</span>
+                <span class="promise-icon" aria-hidden="true"><span class="material-symbols-rounded">{{ p.icon
+                    }}</span></span>
+              </div>
+            </div>
+          </li>
+          }
+        </ol>
+      </div>
+      <div class="promise-identifiers" role="tablist" aria-label="Four standards">
+        @for (p of promises; track p.num; let i = $index) {
+        <button type="button" role="tab" [attr.aria-selected]="activePromise() === i"
+          [class.is-active]="activePromise() === i" (click)="setActivePromise(i)">
+          <span class="identifier-number">{{ p.num }}</span>
+          <span class="identifier-title">{{ p.title }}</span>
+        </button>
+        }
+      </div>
+    </div>
 
     <aside class="why-pullquote" appScrollReveal>
       <span class="pq-quote">“</span>
       <p>
         If the camera isn't on, the order doesn't leave the kitchen.
         That's the standard — every kitchen, every order, no exceptions.
-     </p>
+      </p>
       <span class="pq-attr">— SeeThePrep kitchen onboarding agreement, clause 1</span>
-   </aside>
- </div>
+    </aside>
+  </div>
 </section>
-
-
-<!-- ════════════════════════════════════════════ MOBILE APP · COMING SOON ══ -->
-<section class="app-soon">
-  <div class="app-soon-bg" aria-hidden="true">
-    <div class="as-orb as-orb-1"></div>
-    <div class="as-orb as-orb-2"></div>
-    <div class="as-grid"></div>
- </div>
-
-  <div class="container app-soon-grid">
-    <!-- LEFT: copy + waitlist -->
-    <div class="app-soon-copy">
-      <div class="app-eyebrow" appScrollReveal>
-        <span class="eb-dot"></span>
-        <span class="eb-text">Mobile · Coming Q3 2026</span>
-     </div>
-
-      <h2 class="app-headline" appScrollReveal>
-        SeeThePrep,
-        <span class="app-headline-em">in your pocket</span>
-     </h2>
-
-      <p class="app-lead" appScrollReveal>
-        The full platform on iOS and Android. Persistent live feed, prep-stage notifications, allergen flags and one-tap tipping — built native, no web wrappers.
-     </p>
-
-      <ul class="app-features" appScrollReveal>
-        <li>
-          <span class="material-symbols-rounded">notifications_active</span>
-          <span><strong>Stage notifications</strong> Pinged at prep start, plating and rider handover</span>
-       </li>
-        <li>
-          <span class="material-symbols-rounded">picture_in_picture</span>
-          <span><strong>Picture-in-picture feed</strong> Keep the kitchen visible while you use other apps</span>
-       </li>
-        <li>
-          <span class="material-symbols-rounded">watch</span>
-          <span><strong>Apple Watch & Wear OS</strong> Live ETA and stage updates on your wrist</span>
-       </li>
-     </ul>
-
-      <form class="app-waitlist" (submit)="$event.preventDefault()" appScrollReveal>
-        <label class="app-waitlist-label">
-          <span class="wl-pulse"></span>
-          Get notified when the apps launch
-       </label>
-        <div class="app-waitlist-row">
-          <input
-            type="email"
-            inputmode="email"
-            autocomplete="email"
-            placeholder="your@email.com"
-            class="app-waitlist-input"
-            appRadialSelect />
-          <button type="submit" class="app-waitlist-btn" appMagnetic>
-            Notify me
-            <span class="material-symbols-rounded">arrow_forward</span>
-         </button>
-       </div>
-
-        <div class="app-stores">
-          <a class="store-btn" aria-label="Coming soon to the App Store">
-            <svg class="store-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.3.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/>
-           </svg>
-            <span class="store-text">
-              <span class="store-small">Coming soon to</span>
-              <span class="store-big">App Store</span>
-           </span>
-         </a>
-          <a class="store-btn" aria-label="Coming soon to Google Play">
-            <svg class="store-svg store-svg--google" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#00d4aa" d="M3 2.2v19.6L14.2 12 3 2.2Z"/>
-              <path fill="#3b82f6" d="m3 2.2 13.6 7.6-2.4 2.2L3 2.2Z"/>
-              <path fill="#fbbf24" d="m3 21.8 13.6-7.6-2.4-2.2L3 21.8Z"/>
-              <path fill="#ef4444" d="m16.6 9.8 3.6 2c.5.3.5.7 0 1l-3.6 2-2.4-2.8 2.4-2.2Z"/>
-            </svg>
-            <span class="store-text">
-              <span class="store-small">Coming soon to</span>
-              <span class="store-big">Google Play</span>
-           </span>
-         </a>
-       </div>
-     </form>
-   </div>
-
-    <!-- RIGHT: floating phone mockups -->
-    <div class="app-soon-stage" appScrollReveal>
-      <!-- BACK phone — orders list -->
-      <div class="app-phone phone-back" appTilt [tiltMax]="6">
-        <div class="ap-screen">
-          <div class="ap-statusbar">
-            <span>9:41</span>
-            <span class="ap-sb-icons">
-              <span class="material-symbols-rounded">signal_cellular_alt</span>
-              <span class="material-symbols-rounded">wifi</span>
-              <span class="material-symbols-rounded">battery_full</span>
-           </span>
-         </div>
-          <div class="ap-header">
-            <div>
-              <div class="ap-greeting">Tonight's prep</div>
-              <div class="ap-sub">3 kitchens cooking nearby</div>
-           </div>
-            <div class="ap-avatar">P</div>
-         </div>
-          <div class="ap-list">
-            <div class="ap-row">
-              <div class="ap-row-emoji">🍕</div>
-              <div class="ap-row-body">
-                <div class="ap-row-name">Pizzeria Roma</div>
-                <div class="ap-row-meta"><span class="live-pip-mini"></span> Plating · 88%</div>
-             </div>
-              <div class="ap-row-eta">12 min</div>
-           </div>
-            <div class="ap-row">
-              <div class="ap-row-emoji">🍣</div>
-              <div class="ap-row-body">
-                <div class="ap-row-name">Sakura Sushi</div>
-                <div class="ap-row-meta"><span class="live-pip-mini"></span> Cooking · 42%</div>
-             </div>
-              <div class="ap-row-eta">28 min</div>
-           </div>
-            <div class="ap-row">
-              <div class="ap-row-emoji">🍜</div>
-              <div class="ap-row-body">
-                <div class="ap-row-name">Dragon Wok</div>
-                <div class="ap-row-meta"><span class="live-pip-mini"></span> Order received</div>
-             </div>
-              <div class="ap-row-eta">35 min</div>
-           </div>
-         </div>
-       </div>
-     </div>
-
-      <!-- FRONT phone — live feed -->
-      <div class="app-phone phone-front" appTilt [tiltMax]="8">
-        <div class="ap-screen dark">
-          <div class="ap-statusbar light">
-            <span>9:41</span>
-            <span class="ap-sb-icons">
-              <span class="material-symbols-rounded">signal_cellular_alt</span>
-              <span class="material-symbols-rounded">wifi</span>
-              <span class="material-symbols-rounded">battery_full</span>
-           </span>
-         </div>
-          <div class="ap-feed">
-            <video
-              #howVideo
-              class="ap-feed-video"
-              src="/videos/app-demo.mp4"
-              autoplay muted loop playsinline
-              preload="metadata">
-           </video>
-            <span class="ap-feed-rec">● LIVE</span>
-            <span class="ap-feed-q">HD · 60fps</span>
-         </div>
-          <div class="ap-feed-info">
-            <div class="ap-feed-row">
-              <strong>Pizzeria Roma</strong>
-              <span class="ap-eta-dot">·</span>
-              <span>ETA 12 min</span>
-           </div>
-            <div class="ap-feed-stage">Chef is cooking</div>
-            <div class="ap-feed-bar">
-              <div class="ap-feed-bar-fill" [style.width.%]="38"></div>
-           </div>
-         </div>
-          <div class="ap-actions">
-            <button class="ap-action">
-              <span class="material-symbols-rounded">favorite</span>
-              Tip chef
-           </button>
-            <button class="ap-action primary">
-              <span class="material-symbols-rounded">share</span>
-              Share live
-           </button>
-         </div>
-       </div>
-
-
-     </div>
-   </div>
- </div>
-</section>
-
-
-<!-- ════════════════════════════════════════════ OUR PROMISE ══ -->
-<section class="stats-banner">
-  <div class="stats-bg" aria-hidden="true">
-    <div class="stats-stripe stripe-1"></div>
-    <div class="stats-stripe stripe-2"></div>
- </div>
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat" appScrollReveal>
-        <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
-        <div class="stat-label">Orders streamed live</div>
-     </div>
-      <div class="stat" appScrollReveal [revealDelay]="100">
-        <div class="stat-num"><span appCountUp [appCountUp]="5">5</span><span class="stat-star">★</span></div>
-        <div class="stat-label">FSA hygiene minimum</div>
-     </div>
-      <div class="stat" appScrollReveal [revealDelay]="200">
-        <div class="stat-num">Q</div>
-        <div class="stat-label">Hygiene re-verified quarterly</div>
-     </div>
-      <div class="stat" appScrollReveal [revealDelay]="300">
-        <div class="stat-num" appCountUp [appCountUp]="100" countUpSuffix="%">100%</div>
-        <div class="stat-label">Tips paid to the kitchen</div>
-     </div>
-   </div>
- </div>
-</section>
-
-
-<!-- ════════════════════════════════════════════ FINAL CTA ══ -->
-<section class="final-cta">
-  <div class="cta-bg" aria-hidden="true">
-    <div class="cta-blob"></div>
- </div>
-  <div class="container">
-    <div class="cta-card" appScrollReveal appTilt [tiltMax]="6">
-      <div class="card-glare"></div>
-      <div class="cta-eyebrow">
-        <span class="eb-line"></span>
-        <span class="eb-text">START AN ORDER</span>
-     </div>
-      <h2 class="cta-headline">
-        Choose a kitchen. <br>
-        <span class="text-gradient-NEW--primary">Watch it cook</span>
-     </h2>
-      <p class="cta-sub">Browse live kitchens in your area. No account needed to look around — sign in only when you're ready to order</p>
-      <div class="cta-actions">
-        <button mat-flat-button class="cta-primary" appMagnetic (click)="navigateToRestaurants()">
-          <span class="cta-micro-ring" aria-hidden="true"></span>
-          <span class="material-symbols-rounded">restaurant</span>
-          Browse live kitchens
-          <span class="cta-shine"></span>
-       </button>
-        <button class="cta-link" (click)="navigateToRestaurants()" type="button">Browse without signing up →</button>
-     </div>
-   </div>
- </div>

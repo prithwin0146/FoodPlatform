@@ -16,3 +16,390 @@
 @use './styles/stats-restaurants' as *;
 @use './styles/cta-footer' as *;
 @use './styles/responsive-dark' as *;
+
+/* Integrated single cinematic scroll hero section */
+.cinematic-hero-section {
+  position: relative;
+  height: 600vh;
+  background: #0f0c0a;
+  color: #fff;
+}
+
+.cinematic-sticky-viewport {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  isolation: isolate;
+}
+
+.cinematic-video-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.cinematic-bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cinematic-overlay-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.75) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.85) 100%);
+  pointer-events: none;
+}
+
+.cinematic-header-badge {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1200px;
+  padding: clamp(1.2rem, 3vw, 2.5rem) clamp(1rem, 4vw, 3rem) 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .live-badge {
+    margin-bottom: 0;
+    background: rgba(20, 14, 10, 0.65);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #f0e6dd;
+  }
+}
+
+.cinematic-progress-indicator {
+  width: 140px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  overflow: hidden;
+
+  .progress-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff6b1a, #ff3d8a);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+
+    @supports (animation-timeline: scroll()) {
+      animation: progressGrow linear;
+      animation-timeline: scroll(root block);
+      animation-range: 0 600vh;
+    }
+  }
+}
+
+@keyframes progressGrow {
+  to { transform: scaleX(1); }
+}
+
+.cinematic-content-container {
+  position: relative;
+  z-index: 10;
+  width: min(92%, 840px);
+  margin: auto;
+  text-align: center;
+  display: grid;
+  place-items: center;
+}
+
+.cinematic-story-card {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  &.cta-card {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+
+    &::before, &::after {
+      display: none !important;
+      content: none !important;
+    }
+
+    .brand-reveal-title {
+      color: #ffffff;
+      font-family: var(--font-serif, 'Fraunces', serif);
+      font-size: clamp(3.2rem, 7vw, 5.8rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 2.2rem;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+
+      .story-accent {
+        color: #ff6b1a;
+        font-style: italic;
+      }
+    }
+
+    .kitchen-spotlight {
+      animation: none;
+      opacity: 1;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.story-eyebrow {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #ff6b1a;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.story-headline {
+  font-family: var(--font-serif, 'Fraunces', serif);
+  font-size: clamp(2.8rem, 6.5vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+  color: #fff;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+}
+
+.story-accent {
+  color: #ff6b1a;
+  font-style: italic;
+}
+
+.story-body {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 580px;
+  margin: 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+}
+
+.cinematic-scroll-cue {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: clamp(1.2rem, 3vw, 2.5rem);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  transition: opacity 0.3s ease;
+
+  &.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cue-arrow {
+    color: #ff6b1a;
+    font-size: 1.2rem;
+    animation: cueBounce 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes cueBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@media (max-width: 640px) {
+  .cinematic-header-badge {
+    padding-top: 1rem;
+
+    .cinematic-progress-indicator {
+      width: 90px;
+    }
+  }
+
+  .story-body {
+    font-size: 0.95rem;
+  }
+}
+
+/* Four standards: automatic carousel, retaining the original two-column card width. */
+.promise-carousel {
+  margin: 2.5rem 0 3rem;
+  position: relative;
+  width: 100%;
+}
+
+.promise-carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+  border-radius: 24px;
+}
+
+.promise-track {
+  align-items: stretch;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translate3d(0, 0, 0);
+  transition: transform 1.3s cubic-bezier(.16, 1, .3, 1);
+  width: 400%;
+}
+
+.promise-carousel-card {
+  flex: 0 0 25%;
+  width: 25%;
+  min-height: 320px;
+  padding: 2.5rem 2.25rem;
+  box-sizing: border-box;
+
+  .promise-body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .promise-copy {
+    max-width: 42ch;
+  }
+
+  &::before {
+    display: none;
+  }
+}
+
+.promise-identifiers {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 1.5rem auto 0;
+  max-width: 960px;
+  width: 100%;
+}
+
+.promise-identifiers button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-top: 2px solid var(--c-border, rgba(0,0,0,.12));
+  color: var(--c-text-muted);
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  gap: 0.65rem;
+  padding: 0.85rem 0.4rem 0;
+  text-align: left;
+  transition: border-color .25s ease, color .25s ease;
+
+  &.is-active {
+    border-top-color: var(--c-orange);
+    color: var(--c-text);
+  }
+}
+
+.identifier-number {
+  font: 700 .75rem 'JetBrains Mono', monospace;
+}
+
+.identifier-title {
+  font-size: 0.82rem;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+@media (max-width: 880px) {
+  .promise-carousel {
+    margin: 1.75rem 0 2rem;
+  }
+
+  .promise-carousel-card {
+    min-height: 340px;
+    padding: 1.75rem 1.5rem;
+  }
+
+  .promise-identifiers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1rem;
+    margin-top: 1.25rem;
+
+    button {
+      padding-top: 0.6rem;
+    }
+  }
+}
+
+@media (max-width: 540px) {
+  .promise-carousel-card {
+    padding: 1.35rem 1.15rem;
+    min-height: 310px;
+
+    .promise-num {
+      font-size: 2.4rem;
+    }
+
+    .promise-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .promise-copy {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .promise-identifiers {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+
+    button {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+      padding: 0.5rem 0.2rem 0;
+    }
+
+    .identifier-title {
+      font-size: 0.62rem;
+      line-height: 1.15;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+}

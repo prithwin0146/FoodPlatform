@@ -34,6 +34,8 @@ ruvector.db
 
 # Original / uncompressed video source files (keep compressed versions only)
 *-original.mp4
+/*_202*.mp4
+/*_frames/
 .vscode/mcp.json
 client/.env.local
 .vercel
