@@ -51,6 +51,11 @@
   width: 100%;
   height: 100%;
   display: block;
+  /* Poster image to prevent black screen before JS canvas loads */
+  background-image: url('/frames/scene1/ezgif-frame-001.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .cinematic-overlay-scrim {
