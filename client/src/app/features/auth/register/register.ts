@@ -1,4 +1,5 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -41,6 +42,7 @@ export class Register {
   readonly showPw = signal(false);
   readonly showConfirmPw = signal(false);
   readonly passwordSignal = signal('');
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly passwordStrength = computed(() => {
     const p = this.passwordSignal();
@@ -80,13 +82,15 @@ export class Register {
   }
 
   ngAfterViewInit() {
-    this.initGoogleOAuth();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initGoogleOAuth();
+    }
   }
 
   private initGoogleOAuth() {
     const checkGoogle = setInterval(() => {
       // @ts-ignore
-      if (typeof google !== 'undefined' && google.accounts) {
+      if (typeof window !== 'undefined' && window.google && window.google.accounts) {
         clearInterval(checkGoogle);
         this.renderGoogleButton();
       }
@@ -111,16 +115,19 @@ export class Register {
     };
 
     // @ts-ignore
-    google.accounts.id.initialize({
+    window.google.accounts.id.initialize({
       client_id: environment.googleClientId,
       // @ts-ignore
       callback: window.handleGoogleCredentialResponse
     });
 
     // @ts-ignore
-    google.accounts.id.renderButton(
+    const btnWidth = window.innerWidth < 480 ? window.innerWidth - 48 : 360;
+    
+    // @ts-ignore
+    window.google.accounts.id.renderButton(
       document.getElementById('google-btn'),
-      { theme: 'outline', size: 'large', width: '100%', text: 'continue_with' }
+      { theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: btnWidth }
     );
   }
 

@@ -80,52 +80,11 @@
             <span class="material-symbols-rounded avatar-chevron" aria-hidden="true">expand_more</span>
           </button>
 
-          @if (dropdownOpen()) {
+          @if (dropdownOpen() && !isMobile()) {
             <div class="sheet-backdrop" (click)="dropdownOpen.set(false)" aria-hidden="true"></div>
 
-            <div class="avatar-sheet" role="menu" [class.is-mobile-sheet]="isMobile()">
-              <div class="sheet-handle" aria-hidden="true"></div>
-
-              <div class="sheet-identity">
-                <div class="sheet-avatar">{{ userInitial() }}</div>
-                <div>
-                  <p class="sheet-name">{{ displayName() }}</p>
-                  <p class="sheet-role">{{ roleLabel() }}</p>
-                </div>
-              </div>
-
-              <div class="sheet-divider"></div>
-
-              @if (auth.isCustomer()) {
-                <a routerLink="/" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">storefront</span>
-                  Restaurants
-                </a>
-                <a routerLink="/orders" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">receipt_long</span>
-                  My Orders
-                  @if (orderService.activeOrderCount() > 0) {
-                    <span class="sheet-badge">{{ orderService.activeOrderCount() }}</span>
-                  }
-                </a>
-                <a routerLink="/profile" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">manage_accounts</span>
-                  Profile
-                </a>
-              }
-              @if (dashboardLink()) {
-                <a [routerLink]="dashboardLink()" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
-                  <span class="material-symbols-rounded">dashboard</span>
-                  Dashboard
-                </a>
-              }
-
-              <div class="sheet-divider"></div>
-
-              <button class="sheet-item sheet-item--danger" (click)="logout()" role="menuitem">
-                <span class="material-symbols-rounded">logout</span>
-                Sign out
-              </button>
+            <div class="avatar-sheet" role="menu">
+              <ng-container *ngTemplateOutlet="avatarSheetContent"></ng-container>
             </div>
           }
         </div>
@@ -185,4 +144,58 @@
       }
     </nav>
   }
+
+  <!-- ── Mobile Avatar sheet — Surfaces from bottom on small screens ── -->
+  @if (dropdownOpen() && isMobile()) {
+    <div class="mobilenav-backdrop" (click)="dropdownOpen.set(false)" aria-hidden="true"></div>
+
+    <div class="avatar-sheet is-mobile-sheet" role="menu">
+      <ng-container *ngTemplateOutlet="avatarSheetContent"></ng-container>
+    </div>
+  }
 </div>
+
+<ng-template #avatarSheetContent>
+  <div class="sheet-handle" aria-hidden="true"></div>
+
+  <div class="sheet-identity">
+    <div class="sheet-avatar">{{ userInitial() }}</div>
+    <div>
+      <p class="sheet-name">{{ displayName() }}</p>
+      <p class="sheet-role">{{ roleLabel() }}</p>
+    </div>
+  </div>
+
+  <div class="sheet-divider"></div>
+
+  @if (auth.isCustomer()) {
+    <a routerLink="/" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+      <span class="material-symbols-rounded">storefront</span>
+      Restaurants
+    </a>
+    <a routerLink="/orders" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+      <span class="material-symbols-rounded">receipt_long</span>
+      My Orders
+      @if (orderService.activeOrderCount() > 0) {
+        <span class="sheet-badge">{{ orderService.activeOrderCount() }}</span>
+      }
+    </a>
+    <a routerLink="/profile" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+      <span class="material-symbols-rounded">manage_accounts</span>
+      Profile
+    </a>
+  }
+  @if (dashboardLink()) {
+    <a [routerLink]="dashboardLink()" class="sheet-item" (click)="dropdownOpen.set(false)" role="menuitem">
+      <span class="material-symbols-rounded">dashboard</span>
+      Dashboard
+    </a>
+  }
+
+  <div class="sheet-divider"></div>
+
+  <button class="sheet-item sheet-item--danger" (click)="logout()" role="menuitem">
+    <span class="material-symbols-rounded">logout</span>
+    Sign out
+  </button>
+</ng-template>

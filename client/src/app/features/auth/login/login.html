@@ -37,10 +37,10 @@
       <form (ngSubmit)="submit()" class="login-form" novalidate appScrollReveal>
 
         <mat-form-field appearance="outline" class="full-width dark-field">
-          <mat-label>Email address</mat-label>
-          <span matPrefix class="field-icon material-symbols-rounded">mail</span>
-          <input matInput type="email" [(ngModel)]="email" name="email"
-            autocomplete="email" required />
+          <mat-label>Email or username</mat-label>
+          <span matPrefix class="field-icon material-symbols-rounded">person</span>
+          <input matInput type="text" [(ngModel)]="email" name="email"
+            autocomplete="username" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width dark-field">

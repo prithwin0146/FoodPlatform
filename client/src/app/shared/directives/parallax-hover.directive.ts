@@ -37,6 +37,19 @@ export class ParallaxHoverDirective implements OnInit {
   @Input() parallaxLayerSelector = '[data-parallax-depth]';
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  /**
+   * Parallax-on-pointer is a hover concept — it means nothing on touch and,
+   * critically, touch input never reliably fires `pointerleave` (there is no
+   * real "leave" event for a lifted finger on most mobile browsers). That
+   * left `active` stuck `true` forever after the first touch, which combined
+   * with the settle-check bug below caused an INFINITE requestAnimationFrame
+   * loop that ran for the rest of the page's life — permanently saturating
+   * the main thread and making the whole page feel frozen on mobile. Gating
+   * the entire directive to fine-pointer + hover-capable devices removes the
+   * bug class entirely (mobile gets zero parallax cost, not just a fixed one).
+   */
+  private readonly hoverCapable =
+    this.isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   private rafId = 0;
   private currentX = 0;
   private currentY = 0;
@@ -48,7 +61,7 @@ export class ParallaxHoverDirective implements OnInit {
   constructor(private elRef: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || !this.hoverCapable) return;
     const host = this.elRef.nativeElement;
     host.style.perspective = `${this.parallaxPerspective}px`;
     host.style.transformStyle = 'preserve-3d';
@@ -65,7 +78,8 @@ export class ParallaxHoverDirective implements OnInit {
 
   @HostListener('pointermove', ['$event'])
   onPointerMove(ev: PointerEvent): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || !this.hoverCapable) return;
+    if (ev.pointerType !== 'mouse') return; // extra safety: never engage for touch/pen
     const host = this.elRef.nativeElement;
     const rect = host.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
@@ -78,8 +92,10 @@ export class ParallaxHoverDirective implements OnInit {
   }
 
   @HostListener('pointerleave')
+  @HostListener('pointercancel')
+  @HostListener('pointerup')
   onPointerLeave(): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || !this.hoverCapable) return;
     this.targetX = 0;
     this.targetY = 0;
     this.active = false;
@@ -98,10 +114,18 @@ export class ParallaxHoverDirective implements OnInit {
       layer.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
     }
 
+    // Stop purely on convergence, regardless of `active`. Depending on
+    // `!this.active` here was the original bug: if a pointerleave/up/cancel
+    // event is ever missed (routine on touch, and possible on desktop with
+    // fast pointer capture edge-cases), `active` never resets to false and
+    // this rAF loop runs forever, once per frame, for the rest of the page's
+    // life. Settling is a self-sufficient stop condition — once the values
+    // stop changing there's nothing left to animate, whether or not we
+    // still technically think the pointer is "active".
     const settled =
       Math.abs(this.targetX - this.currentX) < 0.002 &&
       Math.abs(this.targetY - this.currentY) < 0.002;
-    if (settled && !this.active) {
+    if (settled) {
       this.rafId = 0;
       return;
     }

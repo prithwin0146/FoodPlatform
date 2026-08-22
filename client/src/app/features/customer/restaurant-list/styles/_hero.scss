@@ -28,6 +28,25 @@
   pointer-events: none;
 }
 
+/* ── Poster background (always-guaranteed layer) ──
+   Plain <img>, sits behind the video at all times. Sized identically to
+   .hero-video (object-fit: cover) so the video fading in on top is a
+   seamless crossfade rather than a layout jump. */
+.hero-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+  @media (max-width: 600px) and (orientation: portrait) {
+    object-position: 60% 25%;
+  }
+}
+
 /* ── Video background ── */
 .hero-video {
   position: absolute;
@@ -44,15 +63,14 @@
   z-index: 0;
   pointer-events: none;
   display: block;
-  /* Matches .hero's own fallback colour. z-index alone doesn't guarantee
-     occlusion — stacking order only matters for elements that actually
-     paint pixels. Before the poster/first-frame decodes (autoplay delay,
-     slow network, browser policy), <video> paints nothing and is fully
-     transparent, letting .mesh-bg (technically behind it, z-index:-1)
-     bleed straight through — that's the "glitchy half-gradient" look.
-     An opaque background on the video's own box closes that gap entirely,
-     independent of load timing. */
-  background: #111;
+  /* Starts fully transparent — the poster <img> underneath is the real
+     background from first paint. The video only crossfades in once
+     `.is-visible` is applied (JS sets this the moment playback genuinely
+     starts), so a slow/blocked/failed video request never shows as a
+     broken or half-loaded state — worst case, the poster just stays. */
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  &.is-visible { opacity: 1; }
   /* Portrait mobile: shift focus to centre-right where food typically is */
   @media (max-width: 600px) and (orientation: portrait) {
     object-position: 60% 25%;
@@ -132,6 +150,21 @@
   0%   { transform: translate3d(0,0,0) scale(1); }
   50%  { transform: translate3d(4vw,-3vw,0) scale(1.1); }
   100% { transform: translate3d(-3vw,4vw,0) scale(0.95); }
+}
+// Mobile: these blobs run a 3-layer, 140px-blur, infinite compositing
+// animation for the entire time the hero is mounted. Blur cost scales
+// sharply with radius, and continuous animation means the browser can never
+// cache/rasterize a static result — on mid/low-end mobile GPUs this alone
+// was enough to compound with everything else on the page (video decode,
+// backdrop-filter, SVG animation) into visible jank/freezing. Cut blur
+// radius drastically and stop the animation outright on small screens; the
+// blobs still render as a static ambient wash, just without the per-frame
+// GPU cost.
+@media (max-width: 768px) {
+  .mesh-blob {
+    filter: blur(48px);
+    animation: none;
+  }
 }
 /* Parallax depth layer 3/3 — fine-grain noise. High blur + low opacity =
    perceived texture without competing with content. z-index bumped to 2
@@ -349,6 +382,12 @@
     box-shadow 0.3s ease,
     background 0.3s ease;
 
+  @media (max-width: 768px) {
+    background: rgba(20, 10, 6, 0.55);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+
   &.is-focused {
     border-color: rgba(255, 107, 26, 0.8);
     box-shadow:
@@ -356,6 +395,11 @@
       0 8px 32px -8px rgba(0, 0, 0, 0.28);
     background: rgba(255, 255, 255, 0.28);
     animation: spotlightGlow 2s ease-in-out infinite;
+
+    @media (max-width: 768px) {
+      animation: none;
+      background: rgba(20, 10, 6, 0.6);
+    }
   }
 }
 @keyframes spotlightGlow {

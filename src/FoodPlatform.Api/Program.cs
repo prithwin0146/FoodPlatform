@@ -132,11 +132,11 @@ app.MapHealthChecks("/healthz", new HealthCheckOptions
 if (app.Environment.IsDevelopment())
 {
     app.UseHangfireDashboard("/hangfire");
-
-    // Runtime seed of demo accounts \u2014 Development only, never in production.
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    await DevDataSeeder.SeedDevUsersAsync(app.Services, logger);
 }
+
+// Runtime seed of demo accounts \u2014 Now runs in all environments per user request
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+await DevDataSeeder.SeedDevUsersAsync(app.Services, logger);
 
 app.Run();
 
