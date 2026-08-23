@@ -126,18 +126,10 @@
 .cinematic-story-card {
   grid-area: 1 / 1;
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
   pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  &.is-active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
 
   &.cta-card {
     width: 100%;
@@ -155,7 +147,7 @@
     .brand-reveal-title {
       color: #ffffff;
       font-family: var(--font-serif, 'Fraunces', serif);
-      font-size: clamp(3.2rem, 7vw, 5.8rem);
+      font-size: clamp(2.4rem, 8vw, 5.8rem);
       font-weight: 700;
       line-height: 1.08;
       letter-spacing: -0.03em;
@@ -189,18 +181,23 @@
 
 .story-headline {
   font-family: var(--font-serif, 'Fraunces', serif);
-  font-size: clamp(2.8rem, 6.5vw, 5.5rem);
+  font-size: clamp(2.2rem, 7vw, 5.5rem);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;
   margin: 0 0 1rem;
   color: #fff;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
 }
 
 .story-accent {
   color: #ff6b1a;
   font-style: italic;
+}
+
+.story-text {
+  display: block;
 }
 
 .story-body {
@@ -211,6 +208,7 @@
   max-width: 580px;
   margin: 0;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
 }
 
 .cinematic-scroll-cue {

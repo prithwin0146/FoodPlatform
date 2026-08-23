@@ -1,5 +1,9 @@
 import { Component, ElementRef, HostListener, AfterViewInit, OnInit, OnDestroy, ViewChild, signal, computed, inject, PLATFORM_ID, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { retry } from 'rxjs/operators';
@@ -52,9 +56,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   readonly cinematicScene = signal(0);
   readonly activePromise = signal(0);
 
-  private readonly scene1Images: HTMLImageElement[] = [];
-  private readonly scene2Images: HTMLImageElement[] = [];
-  private readonly scene3Images: HTMLImageElement[] = [];
+  private readonly sequenceImages: HTMLImageElement[] = [];
   private lastDrawnFrameKey = '';
 
   /** Lightweight restaurant list — powers Spotlight count + preview only. */
@@ -238,6 +240,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
 
     this.preloadFrameSequences();
     this.setupCinematicScroll();
+    this.setupGSAPAnimations();
     this.startPromiseCarousel();
   }
 
@@ -247,6 +250,61 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
     cancelAnimationFrame(this.cinematicRaf);
+  }
+
+  private setupGSAPAnimations(): void {
+    const stage = this.cinematicStage?.nativeElement;
+    if (!stage) return;
+
+    const cards = gsap.utils.toArray<HTMLElement>('.cinematic-story-card', stage);
+    if (cards.length < 4) return;
+
+    this.animationZone.runOutsideAngular(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: stage,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+        }
+      });
+
+      // Scene 0: Fancy a meal
+      tl.set(cards[0], { opacity: 1 }, 0);
+      tl.fromTo(cards[0].querySelectorAll('.story-text'), 
+        { y: 40, opacity: 0, filter: 'blur(10px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05, stagger: 0.05 }, 0
+      );
+      tl.to(cards[0], { opacity: 0, duration: 0.05 }, 0.305);
+
+      // Scene 1: See the preparation
+      tl.set(cards[1], { opacity: 1 }, 0.355);
+      tl.fromTo(cards[1].querySelectorAll('.story-text'), 
+        { y: 40, opacity: 0, filter: 'blur(10px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05, stagger: 0.05 }, 0.355
+      );
+      tl.to(cards[1], { opacity: 0, duration: 0.05 }, 0.655);
+
+      // Scene 2: Trust every bite
+      tl.set(cards[2], { opacity: 1 }, 0.705);
+      tl.fromTo(cards[2].querySelectorAll('.story-text'), 
+        { y: 40, opacity: 0, filter: 'blur(10px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05, stagger: 0.05 }, 0.705
+      );
+      tl.to(cards[2], { opacity: 0, duration: 0.05 }, 0.830);
+
+      // Scene 3: CTA Search Bar
+      tl.set(cards[3], { opacity: 1, pointerEvents: 'auto' }, 0.880);
+      tl.fromTo(cards[3].querySelectorAll('.brand-reveal-title'), 
+        { y: 40, opacity: 0, filter: 'blur(10px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05 }, 0.880
+      );
+      // Simplify search bar: clean fade-in
+      tl.fromTo(cards[3].querySelectorAll('.kitchen-spotlight'), 
+        { opacity: 0 },
+        { opacity: 1, duration: 0.05 }, 0.900
+      );
+    });
   }
 
   private async preloadFrameSequences(): Promise<void> {
@@ -268,14 +326,10 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
         }
       };
 
-      // Load scene 1 fully first, since it's the first thing seen
-      await loadScene('scene1', this.scene1Images);
+      // Load the single 300-frame sequence fully
+      await loadScene('sequence', this.sequenceImages);
       // Kick off the first render immediately in case they already scrolled
       this.forceRender();
-      
-      // Then load the rest quietly in the background
-      await loadScene('scene2', this.scene2Images);
-      await loadScene('scene3', this.scene3Images);
     });
   }
 
@@ -344,17 +398,13 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   private updateCinematicScroll(): void {
     const currentP = this.currentProgress;
 
-    // Active scene determination:
-    // Scene 0: 0.0 - 0.28 (Scene 1 frames 1..300)
-    // Scene 1: 0.28 - 0.58 (Scene 2 frames 1..300)
-    // Scene 2: 0.58 - 0.85 (Scene 3 frames 1..300)
-    // Scene 3: 0.85 - 1.0 (CTA Search stage - holds final frame)
+    // Active scene determination based on strict 10s video timeline cuts
     let activeSceneIndex = 0;
-    if (currentP >= 0.85) {
+    if (currentP >= 0.88) {
       activeSceneIndex = 3;
-    } else if (currentP >= 0.58) {
+    } else if (currentP >= 0.705) {
       activeSceneIndex = 2;
-    } else if (currentP >= 0.28) {
+    } else if (currentP >= 0.355) {
       activeSceneIndex = 1;
     } else {
       activeSceneIndex = 0;
@@ -364,35 +414,13 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
       this.cinematicScene.set(activeSceneIndex);
     }
 
-    // Calculate exact 1..300 frame index relative to scroll progress
-    let sceneProgress = 0;
-    let targetImages: HTMLImageElement[] = this.scene1Images;
-    let sceneKey = '1';
-
-    if (activeSceneIndex === 0) {
-      sceneProgress = Math.max(0, Math.min(1, currentP / 0.28));
-      targetImages = this.scene1Images;
-      sceneKey = '1';
-    } else if (activeSceneIndex === 1) {
-      sceneProgress = Math.max(0, Math.min(1, (currentP - 0.28) / 0.30));
-      targetImages = this.scene2Images;
-      sceneKey = '2';
-    } else if (activeSceneIndex === 2) {
-      sceneProgress = Math.max(0, Math.min(1, (currentP - 0.58) / 0.27));
-      targetImages = this.scene3Images;
-      sceneKey = '3';
-    } else {
-      sceneProgress = 1;
-      targetImages = this.scene3Images;
-      sceneKey = '3';
-    }
-
-    const frameIdx = Math.max(1, Math.min(300, Math.round(1 + sceneProgress * 299)));
-    const drawKey = `${sceneKey}_${frameIdx}`;
+    // Map scroll progress directly to frame 1 - 300
+    const frameIdx = Math.max(1, Math.min(300, Math.round(1 + currentP * 299)));
+    const drawKey = `seq_${frameIdx}`;
 
     if (this.lastDrawnFrameKey !== drawKey) {
       this.lastDrawnFrameKey = drawKey;
-      this.renderFrameToCanvas(targetImages[frameIdx]);
+      this.renderFrameToCanvas(this.sequenceImages[frameIdx]);
     }
   }
 

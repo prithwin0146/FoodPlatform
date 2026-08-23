@@ -21,34 +21,31 @@
     <div class="cinematic-content-container">
 
       <!-- Scene 1 Text -->
-      <article class="cinematic-story-card" [class.is-active]="cinematicScene() === 0">
-        <h1 class="story-headline">Choose a <span class="story-accent">kitchen</span></h1>
+      <article class="cinematic-story-card">
+        <h1 class="story-headline"><span class="story-text">Fancy a <span class="story-accent">meal</span></span></h1>
         <p class="story-body">
-          Browse FSA 5-star verified kitchens near you. Independent restaurants only — watch real chefs work in real
-          time with total transparency.
+          <span class="story-text">Homework’s done, now go on and place your order at an FSA-verified, independent, and highly rated restaurant.</span>
         </p>
       </article>
 
       <!-- Scene 2 Text -->
-      <article class="cinematic-story-card" [class.is-active]="cinematicScene() === 1">
-        <h1 class="story-headline">Watch it <span class="story-accent">cook</span></h1>
+      <article class="cinematic-story-card">
+        <h1 class="story-headline"><span class="story-text">See the <span class="story-accent">preparation</span></span></h1>
         <p class="story-body">
-          The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating
-          and dispatch.
+          <span class="story-text">The second your order’s accepted, step into the live kitchen. Watch your chef bring it to life!</span>
         </p>
       </article>
 
       <!-- Scene 3 Text -->
-      <article class="cinematic-story-card" [class.is-active]="cinematicScene() === 2">
-        <h1 class="story-headline">Track to the <span class="story-accent">door</span></h1>
+      <article class="cinematic-story-card">
+        <h1 class="story-headline"><span class="story-text">Trust every <span class="story-accent">bite</span></span></h1>
         <p class="story-body">
-          Live ETA from the kitchen to your address. Watch your food arrive fresh, hot, and prepared with complete
-          integrity.
+          <span class="story-text">What you watched is what you get. No plot twists. Enjoy every single bite.</span>
         </p>
       </article>
 
       <!-- Scene 4 / CTA Transition (Matches exact serif font & white color of scenes above) -->
-      <article class="cinematic-story-card cta-card" [class.is-active]="cinematicScene() === 3">
+      <article class="cinematic-story-card cta-card">
         <h1 class="story-headline brand-reveal-title">
           See the prep<br>
           Trust <span class="story-accent">every</span> bite
