@@ -435,6 +435,7 @@ $h: 76px; // vertical space the host occupies
 }
 
 .avatar-sheet {
+  pointer-events: auto;
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
