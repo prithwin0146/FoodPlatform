@@ -16,7 +16,9 @@ public record CreatePaymentIntentRequest(
     /// <summary>Optional platform promo code to apply.</summary>
     [MaxLength(50)] string? PromoCode = null,
     /// <summary>Optional gift card code to redeem.</summary>
-    [MaxLength(20)] string? GiftCardCode = null);
+    [MaxLength(20)] string? GiftCardCode = null,
+    /// <summary>Whether to apply available SeeThePrep Rewards account credit.</summary>
+    bool UseAccountCredit = false);
 
 /// <summary>Returned to the frontend so Stripe.js can confirm the payment.</summary>
 public record CreatePaymentIntentResponse(

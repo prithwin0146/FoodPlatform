@@ -18,17 +18,20 @@ public class OrderPricingService : IOrderPricingService
     private readonly IPromoCodeService _promoCodes;
     private readonly IGiftCardService _giftCards;
     private readonly ISubscriptionService _subscriptions;
+    private readonly ILoyaltyService _loyalty;
 
     public OrderPricingService(
         FoodPlatformDbContext db,
         IPromoCodeService promoCodes,
         IGiftCardService giftCards,
-        ISubscriptionService subscriptions)
+        ISubscriptionService subscriptions,
+        ILoyaltyService loyalty)
     {
         _db = db;
         _promoCodes = promoCodes;
         _giftCards = giftCards;
         _subscriptions = subscriptions;
+        _loyalty = loyalty;
     }
 
     public async Task<ServiceResult<OrderPricing>> CalculateAsync(
@@ -37,7 +40,8 @@ public class OrderPricingService : IOrderPricingService
         string orderType,
         string? promoCode,
         string? giftCardCode,
-        int userId)
+        int userId,
+        bool useAccountCredit = false)
     {
         var isCollection = string.Equals(orderType, "Collection", StringComparison.OrdinalIgnoreCase);
 
@@ -108,7 +112,18 @@ public class OrderPricingService : IOrderPricingService
             }
         }
 
-        var finalTotal = Math.Max(0m, subtotal + deliveryFee - promoDiscount - plusDiscount - giftCardDiscount);
+        var finalTotalBeforeCredit = Math.Max(0m, subtotal + deliveryFee - promoDiscount - plusDiscount - giftCardDiscount);
+
+        // ── Account credit (free loyalty rewards) — applied last, only when the customer opts in ──
+        decimal creditApplied = 0m;
+        if (useAccountCredit)
+        {
+            var availableCredit = await _loyalty.GetAvailableCreditAsync(userId);
+            if (availableCredit > 0)
+                creditApplied = Math.Min(availableCredit, finalTotalBeforeCredit);
+        }
+
+        var finalTotal = Math.Max(0m, finalTotalBeforeCredit - creditApplied);
 
         return ServiceResult<OrderPricing>.Ok(new OrderPricing(
             lineItems,
@@ -121,6 +136,7 @@ public class OrderPricingService : IOrderPricingService
             GiftCardCodeText: giftCardCodeText,
             FinalTotal: finalTotal,
             PlusDiscount: plusDiscount,
-            IsPlusMember: isPlus));
+            IsPlusMember: isPlus,
+            CreditApplied: creditApplied));
     }
 }

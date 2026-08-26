@@ -15,6 +15,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         e.Property(o => o.TotalAmount).HasColumnType("decimal(10,2)");
         e.Property(o => o.DeliveryFee).HasColumnType("decimal(10,2)");
         e.Property(o => o.PlusDiscount).HasColumnType("decimal(10,2)");
+        e.Property(o => o.CreditApplied).HasColumnType("decimal(10,2)");
         e.Property(o => o.StripePaymentIntentId).HasMaxLength(200);
         e.Property(o => o.IdempotencyKey).HasMaxLength(200).IsRequired();
         e.Property(o => o.DeliveryAddressLine1).HasMaxLength(300).IsRequired();

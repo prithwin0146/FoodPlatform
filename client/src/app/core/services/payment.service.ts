@@ -10,6 +10,7 @@ export interface CreatePaymentIntentRequest {
   orderType?: string;
   promoCode?: string | null;
   giftCardCode?: string | null;
+  useAccountCredit?: boolean;
 }
 
 export interface CreatePaymentIntentResponse {

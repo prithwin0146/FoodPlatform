@@ -45,7 +45,8 @@ public class PaymentController : RestaurantScopedController
             request.OrderType,
             request.PromoCode,
             request.GiftCardCode,
-            CurrentUserId);
+            CurrentUserId,
+            request.UseAccountCredit);
 
         if (!pricing.IsSuccess)
             return BadRequest(new { error = pricing.ErrorMessage });

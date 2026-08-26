@@ -117,6 +117,8 @@ export interface Order {
   giftCardDiscount: number;
   /** Delivery fee charged on this order (£). Zero for collection and Plus members. */
   deliveryFee: number;
+  /** SeeThePrep Rewards account credit applied to this order (£). */
+  creditApplied?: number;
 }
 
 export interface OrderItem {
@@ -205,6 +207,8 @@ export interface PlaceOrderRequest {
   promoCode?: string | null;
   /** Gift card code to redeem at checkout. */
   giftCardCode?: string | null;
+  /** Whether to apply available SeeThePrep Rewards account credit at checkout. */
+  useAccountCredit?: boolean;
 }
 
 export interface AcceptOrderRequest {

@@ -481,6 +481,29 @@
   }
 }
 
+.credit-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: .85rem;
+  color: #b45309;
+  margin-bottom: 12px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #f59e0b;
+  }
+
+  .material-symbols-rounded { font-size: 1.05rem; }
+  span:last-child { flex: 1; font-weight: 600; }
+}
+
 /* ── Discount price rows ── */
 .discount-price-row {
   color: #22c55e !important;

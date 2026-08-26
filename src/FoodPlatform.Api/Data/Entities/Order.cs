@@ -39,6 +39,9 @@ public class Order
     public decimal DeliveryFee { get; set; }
     /// <summary>SeeThePrep Plus member discount applied to this order (£). Zero for non-members.</summary>
     public decimal PlusDiscount { get; set; }
+
+    /// <summary>Free loyalty (SeeThePrep Rewards) account credit applied to this order, if any.</summary>
+    public decimal CreditApplied { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation

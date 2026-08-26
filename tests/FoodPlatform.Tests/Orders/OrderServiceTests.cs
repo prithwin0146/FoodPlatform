@@ -43,7 +43,9 @@ public class OrderServiceTests
         subscriptions.GetStatusAsync(Arg.Any<int>())
                      .Returns(new SubscriptionStatusDto(false, null, null, null));
         var inventory = Substitute.For<IInventoryService>();
-        var pricing = new OrderPricingService(db, promoCodes, giftCards, subscriptions);
+        var loyalty = Substitute.For<ILoyaltyService>();
+        loyalty.GetAvailableCreditAsync(Arg.Any<int>()).Returns(0m);
+        var pricing = new OrderPricingService(db, promoCodes, giftCards, subscriptions, loyalty);
 
         // SignalR hub mock — Clients.Group(...).SendCoreAsync(...) must resolve to a completed task.
         var hub = Substitute.For<IHubContext<OrderHub>>();
@@ -56,8 +58,6 @@ public class OrderServiceTests
 
         var urlEncryption = Substitute.For<IUrlEncryptionService>();
         urlEncryption.Encrypt(Arg.Any<int>()).Returns(ci => $"hash-{ci.Arg<int>()}");
-
-        var loyalty = Substitute.For<ILoyaltyService>();
 
         return new OrderService(db, stripe, jobs, NullLogger<OrderService>.Instance,
             promoCodes, giftCards, inventory, pricing, hub, urlEncryption, loyalty);

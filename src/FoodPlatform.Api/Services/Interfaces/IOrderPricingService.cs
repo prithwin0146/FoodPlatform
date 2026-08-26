@@ -24,7 +24,8 @@ public record OrderPricing(
     string? GiftCardCodeText,
     decimal FinalTotal,
     decimal PlusDiscount = 0m,
-    bool IsPlusMember = false);
+    bool IsPlusMember = false,
+    decimal CreditApplied = 0m);
 
 /// <summary>
 /// Computes the authoritative price of an order (items + delivery − promo − gift card).
@@ -49,5 +50,6 @@ public interface IOrderPricingService
         string orderType,
         string? promoCode,
         string? giftCardCode,
-        int userId);
+        int userId,
+        bool useAccountCredit = false);
 }

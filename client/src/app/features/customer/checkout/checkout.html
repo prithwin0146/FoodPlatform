@@ -256,6 +256,15 @@
               </div>
             }
 
+            <!-- SeeThePrep Rewards account credit -->
+            @if (availableCredit() > 0) {
+              <label class="credit-toggle">
+                <input type="checkbox" [checked]="useAccountCredit()" (change)="toggleAccountCredit()">
+                <span class="material-symbols-rounded">redeem</span>
+                <span>Use {{ availableCredit() | currency:'GBP' }} Rewards credit</span>
+              </label>
+            }
+
             <!-- Price Rows -->
             <div class="price-rows">
               <div class="price-row">
@@ -280,6 +289,12 @@
                 <div class="price-row discount-price-row">
                   <span>Gift card</span>
                   <span>−{{ giftCardDiscount | currency:'GBP' }}</span>
+                </div>
+              }
+              @if (creditApplied > 0) {
+                <div class="price-row discount-price-row">
+                  <span>Rewards credit</span>
+                  <span>−{{ creditApplied | currency:'GBP' }}</span>
                 </div>
               }
               <mat-divider class="summary-divider"></mat-divider>

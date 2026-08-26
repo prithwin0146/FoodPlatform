@@ -31,7 +31,9 @@ public record PlaceOrderRequest(
     /// <summary>Optional platform-wide promo code to apply at checkout.</summary>
     [MaxLength(50)] string? PromoCode = null,
     /// <summary>Optional gift card code to redeem at checkout.</summary>
-    [MaxLength(20)] string? GiftCardCode = null);
+    [MaxLength(20)] string? GiftCardCode = null,
+    /// <summary>Whether to apply available SeeThePrep Rewards account credit at checkout.</summary>
+    bool UseAccountCredit = false);
 
 public record OrderItemRequest(
     int MenuItemId,
@@ -68,7 +70,8 @@ public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     string? PromoCode = null, decimal DiscountAmount = 0m,
     string? GiftCardCode = null, decimal GiftCardDiscount = 0m,
     decimal DeliveryFee = 0m,
-    decimal PlusDiscount = 0m)
+    decimal PlusDiscount = 0m,
+    decimal CreditApplied = 0m)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;

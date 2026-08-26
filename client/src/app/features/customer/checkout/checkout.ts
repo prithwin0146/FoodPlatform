@@ -20,6 +20,7 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { PromoCodeService } from '../../../core/services/promo-code.service';
 import { GiftCardService } from '../../../core/services/gift-card.service';
 import { SubscriptionService } from '../../../core/services/subscription.service';
+import { LoyaltyService } from '../../../core/services/loyalty.service';
 import { ukPostcodeValidator } from '../../../shared/validators/uk-postcode.validator';
 import { environment } from '../../../../environments/environment';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -73,6 +74,10 @@ export class Checkout implements AfterViewInit, OnDestroy {
   // ── SeeThePrep Plus ──
   readonly isPlus = signal(false);
 
+  // ── SeeThePrep Rewards account credit ──
+  readonly availableCredit = signal(0);
+  readonly useAccountCredit = signal(false);
+
   addressLine1 = '';
   city = '';
   specialInstructions = '';
@@ -96,10 +101,15 @@ export class Checkout implements AfterViewInit, OnDestroy {
     private readonly promoCodeService: PromoCodeService,
     private readonly giftCardService: GiftCardService,
     private readonly subscriptionService: SubscriptionService,
+    private readonly loyaltyService: LoyaltyService,
   ) {
     if (this.auth.isLoggedIn()) {
       this.subscriptionService.getStatus().subscribe({
         next: (s) => this.isPlus.set(s.isActive),
+        error: () => {},
+      });
+      this.loyaltyService.getStatus().subscribe({
+        next: (s) => this.availableCredit.set(s.accountCreditBalance),
         error: () => {},
       });
     }
@@ -143,8 +153,15 @@ export class Checkout implements AfterViewInit, OnDestroy {
     return Math.min(r.remainingBalance ?? 0, this.cart.total() + this.effectiveDeliveryFee - this.promoDiscount);
   }
 
+  get creditApplied(): number {
+    if (!this.useAccountCredit() || this.availableCredit() <= 0) return 0;
+    const owedBeforeCredit = Math.max(0,
+      this.cart.total() + this.effectiveDeliveryFee - this.promoDiscount - this.giftCardDiscount);
+    return Math.min(this.availableCredit(), owedBeforeCredit);
+  }
+
   get grandTotal(): number {
-    return Math.max(0, this.cart.total() + this.effectiveDeliveryFee - this.promoDiscount - this.giftCardDiscount);
+    return Math.max(0, this.cart.total() + this.effectiveDeliveryFee - this.promoDiscount - this.giftCardDiscount - this.creditApplied);
   }
 
   applyPromo(): void {
@@ -203,6 +220,10 @@ export class Checkout implements AfterViewInit, OnDestroy {
     this.giftCardInput = '';
   }
 
+  toggleAccountCredit(): void {
+    this.useAccountCredit.update(v => !v);
+  }
+
   get stepLabel(): string {
     switch (this.paymentStep()) {
       case 'confirming': return 'Confirming payment…';
@@ -255,6 +276,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
         scheduledFor: this.scheduledForIso,
         promoCode: this.promoResult()?.isValid ? this.promoCodeInput.trim().toUpperCase() : null,
         giftCardCode: this.giftCardResult()?.isValid ? this.giftCardInput.trim().toUpperCase() : null,
+        useAccountCredit: this.useAccountCredit(),
       }).subscribe({
         next: (order) => {
           this.cart.clear();
@@ -280,6 +302,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
       orderType: this.orderType(),
       promoCode: this.promoResult()?.isValid ? this.promoCodeInput.trim().toUpperCase() : null,
       giftCardCode: this.giftCardResult()?.isValid ? this.giftCardInput.trim().toUpperCase() : null,
+      useAccountCredit: this.useAccountCredit(),
     }).subscribe({
       next: async ({ clientSecret }) => {
         // ── Step 2: Confirm card payment (Stripe.js handles 3DS automatically) ──
@@ -307,6 +330,7 @@ export class Checkout implements AfterViewInit, OnDestroy {
           scheduledFor: this.scheduledForIso,
           promoCode: this.promoResult()?.isValid ? this.promoCodeInput.trim().toUpperCase() : null,
           giftCardCode: this.giftCardResult()?.isValid ? this.giftCardInput.trim().toUpperCase() : null,
+          useAccountCredit: this.useAccountCredit(),
         }).subscribe({
           next: (order) => {
             this.cart.clear();

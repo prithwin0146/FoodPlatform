@@ -106,7 +106,7 @@ public class OrderService : IOrderService
         // the order total, and the verified amount can never diverge.
         var pricingResult = await _pricing.CalculateAsync(
             request.RestaurantId, deduplicatedItems, request.OrderType,
-            request.PromoCode, request.GiftCardCode, userId);
+            request.PromoCode, request.GiftCardCode, userId, request.UseAccountCredit);
 
         if (!pricingResult.IsSuccess)
             return ServiceResult<OrderDto>.Fail(pricingResult.Error!.Value, pricingResult.ErrorMessage!);
@@ -153,6 +153,7 @@ public class OrderService : IOrderService
             GiftCardDiscount = pricing.GiftCardDiscount,
             DeliveryFee = pricing.DeliveryFee,
             PlusDiscount = pricing.PlusDiscount,
+            CreditApplied = pricing.CreditApplied,
             Items = orderItems
         };
 
@@ -193,6 +194,10 @@ public class OrderService : IOrderService
         // Redeem gift card balance after successful order save
         if (!string.IsNullOrEmpty(pricing.GiftCardCodeText) && pricing.GiftCardDiscount > 0)
             await _giftCards.RedeemAsync(pricing.GiftCardCodeText, pricing.GiftCardDiscount, order.Id);
+
+        // Consume SeeThePrep Rewards account credit after successful order save
+        if (pricing.CreditApplied > 0)
+            await _loyalty.ConsumeCreditAsync(userId, pricing.CreditApplied, order.Id);
 
         // Phase 3: decrement stock for tracked items
         foreach (var item in deduplicatedItems)
@@ -517,5 +522,6 @@ public class OrderService : IOrderService
         o.PromoCode, o.DiscountAmount,
         o.GiftCardCode, o.GiftCardDiscount,
         o.DeliveryFee,
-        o.PlusDiscount);
+        o.PlusDiscount,
+        o.CreditApplied);
 }

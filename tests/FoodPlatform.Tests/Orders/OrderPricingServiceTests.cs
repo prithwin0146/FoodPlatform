@@ -22,7 +22,8 @@ public class OrderPricingServiceTests
         out FoodPlatformDbContext db,
         decimal? promoDiscount = null,
         decimal? giftCardBalance = null,
-        bool isPlus = false)
+        bool isPlus = false,
+        decimal availableCredit = 0m)
     {
         db = DbFactory.Create();
 
@@ -42,7 +43,10 @@ public class OrderPricingServiceTests
         subscriptions.GetStatusAsync(Arg.Any<int>())
             .Returns(new SubscriptionStatusDto(isPlus, isPlus ? "Active" : null, null, null));
 
-        return new OrderPricingService(db, promoCodes, giftCards, subscriptions);
+        var loyalty = Substitute.For<ILoyaltyService>();
+        loyalty.GetAvailableCreditAsync(Arg.Any<int>()).Returns(availableCredit);
+
+        return new OrderPricingService(db, promoCodes, giftCards, subscriptions, loyalty);
     }
 
     private static async Task<MenuItem> SeedItemAsync(FoodPlatformDbContext db, decimal price)
@@ -141,6 +145,48 @@ public class OrderPricingServiceTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(17.50m, result.Value!.GiftCardDiscount);
+        Assert.Equal(0m, result.Value.FinalTotal);
+    }
+
+    [Fact]
+    public async Task AccountCredit_NotAppliedUnlessRequested()
+    {
+        // Customer has £5 available credit but did not opt in — must not be deducted.
+        var svc = Build(out var db, availableCredit: 5m);
+        var item = await SeedItemAsync(db, price: 10m);
+
+        var result = await svc.CalculateAsync(1, [new(item.Id, 2)], "Delivery", null, null, userId: 1, useAccountCredit: false);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(0m, result.Value!.CreditApplied);
+        Assert.Equal(22.50m, result.Value.FinalTotal);
+    }
+
+    [Fact]
+    public async Task AccountCredit_AppliedWhenRequested_NeverExceedsAmountOwed()
+    {
+        // £20 items + £2.50 delivery = £22.50 owed; £5 credit reduces it to £17.50.
+        var svc = Build(out var db, availableCredit: 5m);
+        var item = await SeedItemAsync(db, price: 10m);
+
+        var result = await svc.CalculateAsync(1, [new(item.Id, 2)], "Delivery", null, null, userId: 1, useAccountCredit: true);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(5m, result.Value!.CreditApplied);
+        Assert.Equal(17.50m, result.Value.FinalTotal);
+    }
+
+    [Fact]
+    public async Task AccountCredit_CannotMakeTotalNegative()
+    {
+        // £20 items, Collection (no delivery fee) = £20 owed; £50 credit can only cover £20.
+        var svc = Build(out var db, availableCredit: 50m);
+        var item = await SeedItemAsync(db, price: 10m);
+
+        var result = await svc.CalculateAsync(1, [new(item.Id, 2)], "Collection", null, null, userId: 1, useAccountCredit: true);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(20m, result.Value!.CreditApplied);
         Assert.Equal(0m, result.Value.FinalTotal);
     }
 
