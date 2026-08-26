@@ -151,6 +151,9 @@ public static class ServiceCollectionExtensions
         // Platform settings (homepage video, etc.)
         services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
 
+        // Free loyalty program (stamps + account credit)
+        services.AddScoped<ILoyaltyService, LoyaltyService>();
+
         // Infrastructure services
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IEmailService, ResendEmailService>();

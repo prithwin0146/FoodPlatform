@@ -1,0 +1,59 @@
+<section class="rewards-page">
+  <div class="rewards-hero">
+    <h1>SeeThePrep Rewards</h1>
+    <p>Free to join. Earn a stamp on every delivered order — no subscription needed.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (status(); as s) {
+    <div class="rewards-card">
+      <h2>Your stamp card</h2>
+      <div class="stamp-row" aria-label="Stamp progress">
+        @for (filled of stampsArray; track $index) {
+          <span class="stamp" [class.filled]="filled">
+            <span class="material-symbols-rounded">local_cafe</span>
+          </span>
+        }
+      </div>
+      <p class="stamp-caption">
+        {{ s.stampCount }} / {{ s.stampsRequiredForReward }} stamps collected
+      </p>
+
+      <button mat-flat-button color="primary"
+        [disabled]="s.stampCount < s.stampsRequiredForReward || redeeming()"
+        (click)="redeem()">
+        @if (redeeming()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          Redeem full card for £5 credit
+        }
+      </button>
+    </div>
+
+    <div class="rewards-card credit-card">
+      <h2>Account credit</h2>
+      <p class="credit-amount">£{{ s.accountCreditBalance | number: '1.2-2' }}</p>
+      <p class="credit-caption">Automatically applied at your next checkout.</p>
+    </div>
+
+    @if (s.recentTransactions.length > 0) {
+      <div class="rewards-card">
+        <h2>Recent activity</h2>
+        <ul class="activity-list">
+          @for (t of s.recentTransactions; track t.id) {
+            <li>
+              <span class="activity-note">{{ t.note ?? t.type }}</span>
+              <span class="activity-amount" [class.negative]="t.amount < 0">
+                {{ t.amount > 0 ? '+' : '' }}{{ t.amount }}
+              </span>
+              <span class="activity-date">{{ t.createdAt | date: 'mediumDate' }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</section>

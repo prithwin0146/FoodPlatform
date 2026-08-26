@@ -1,0 +1,18 @@
+@if (visible()) {
+  <div class="interstitial-backdrop" (click)="dismiss()">
+    <div class="interstitial-card" (click)="$event.stopPropagation()">
+      <button class="interstitial-close" aria-label="Close" (click)="dismiss()">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+
+      <div class="interstitial-badge">SeeThePrep Plus</div>
+      <h2>Free delivery on every order</h2>
+      <p>Plus 10% off orders over £15 — no free trial, just straightforward value from £3.99/month.</p>
+
+      <button mat-flat-button color="primary" class="interstitial-cta" (click)="joinNow()">
+        Join Plus
+      </button>
+      <button class="interstitial-dismiss" (click)="dismiss()">Not now</button>
+    </div>
+  </div>
+}

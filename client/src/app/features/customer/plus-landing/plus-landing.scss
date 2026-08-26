@@ -1,0 +1,125 @@
+:host {
+  display: block;
+}
+
+.plus-hero {
+  text-align: center;
+  padding: 4rem 1.25rem 3rem;
+  background: linear-gradient(180deg, #fff7ed 0%, transparent 100%);
+
+  &__badge {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: #111827;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.25rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 800;
+    max-width: 720px;
+    margin: 0 auto 1rem;
+  }
+
+  &__sub {
+    max-width: 560px;
+    margin: 0 auto 2rem;
+    color: var(--text-secondary, #6b7280);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+}
+
+.plus-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.plus-cta {
+  min-width: 220px;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.plus-fineprint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.plus-benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.25rem 3rem;
+}
+
+.benefit-card {
+  background: var(--surface, #fff);
+  border-radius: 1rem;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  text-align: center;
+
+  .material-symbols-rounded {
+    font-size: 2.25rem;
+    color: #f59e0b;
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--text-secondary, #6b7280);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+}
+
+.plus-faq {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    text-align: center;
+  }
+
+  details {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.9rem 0;
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    p {
+      margin-top: 0.6rem;
+      color: var(--text-secondary, #6b7280);
+      line-height: 1.55;
+    }
+  }
+}

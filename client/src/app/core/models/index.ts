@@ -407,3 +407,28 @@ export interface ValidateGiftCardResponse {
   message: string;
   remainingBalance: number | null;
 }
+
+// === Free loyalty program (stamps + account credit) ===
+export interface LoyaltyTransactionDto {
+  id: number;
+  type: string;
+  amount: number;
+  orderId: number | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface LoyaltyStatusDto {
+  stampCount: number;
+  stampsRequiredForReward: number;
+  accountCreditBalance: number;
+  recentTransactions: LoyaltyTransactionDto[];
+}
+
+export interface RedeemStampRewardResponse {
+  success: boolean;
+  message: string;
+  creditAwarded: number;
+  newAccountCreditBalance: number;
+}
+

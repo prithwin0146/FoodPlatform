@@ -1,0 +1,61 @@
+<section class="plus-hero">
+  <div class="plus-hero__badge">SeeThePrep Plus</div>
+  <h1>Free delivery. 10% off. No trial games.</h1>
+  <p class="plus-hero__sub">
+    £3.99/month — unlimited free delivery on every order, plus 10% off whenever you spend {{ minSpend }} or more.
+    No free-trial bait, no surprise renewal price. Cancel anytime.
+  </p>
+
+  @if (loadingStatus()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else if (status()?.isActive) {
+    <div class="plus-active-badge">
+      <span class="material-symbols-rounded">verified</span>
+      You're already a Plus member
+    </div>
+    <a routerLink="/profile" mat-stroked-button>Manage membership</a>
+  } @else {
+    <button mat-flat-button color="primary" class="plus-cta" [disabled]="subscribing()" (click)="subscribe()">
+      @if (subscribing()) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        Join Plus — {{ price }}
+      }
+    </button>
+    <p class="plus-fineprint">Billed monthly. No trial period. Cancel anytime from your profile.</p>
+  }
+</section>
+
+<section class="plus-benefits">
+  <div class="benefit-card">
+    <span class="material-symbols-rounded">local_shipping</span>
+    <h2>Unlimited free delivery</h2>
+    <p>Every order, every restaurant, zero delivery fee — for as long as you're a member.</p>
+  </div>
+  <div class="benefit-card">
+    <span class="material-symbols-rounded">percent</span>
+    <h2>{{ discountRate }} off orders over {{ minSpend }}</h2>
+    <p>Automatically applied at checkout on qualifying orders — no codes to remember.</p>
+  </div>
+  <div class="benefit-card">
+    <span class="material-symbols-rounded">cancel</span>
+    <h2>Cancel anytime</h2>
+    <p>No lock-in contracts. Manage or cancel your membership from your profile in one click.</p>
+  </div>
+</section>
+
+<section class="plus-faq">
+  <h2>Frequently asked questions</h2>
+  <details>
+    <summary>Is there a free trial?</summary>
+    <p>No — SeeThePrep Plus is £3.99/month from day one, so you always know exactly what you're paying. No surprise renewal charges after a "free" trial ends.</p>
+  </details>
+  <details>
+    <summary>How is the 10% discount applied?</summary>
+    <p>Automatically at checkout, whenever your item subtotal is {{ minSpend }} or more. No promo code needed.</p>
+  </details>
+  <details>
+    <summary>Can I cancel anytime?</summary>
+    <p>Yes. Cancel from your profile page whenever you like — you'll keep Plus benefits until the end of your current billing period.</p>
+  </details>
+</section>

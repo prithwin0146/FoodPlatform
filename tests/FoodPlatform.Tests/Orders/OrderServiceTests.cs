@@ -57,8 +57,10 @@ public class OrderServiceTests
         var urlEncryption = Substitute.For<IUrlEncryptionService>();
         urlEncryption.Encrypt(Arg.Any<int>()).Returns(ci => $"hash-{ci.Arg<int>()}");
 
+        var loyalty = Substitute.For<ILoyaltyService>();
+
         return new OrderService(db, stripe, jobs, NullLogger<OrderService>.Instance,
-            promoCodes, giftCards, inventory, pricing, hub, urlEncryption);
+            promoCodes, giftCards, inventory, pricing, hub, urlEncryption, loyalty);
     }
 
     /// <summary>The standard delivery fee applied to non-collection, non-Plus orders.</summary>

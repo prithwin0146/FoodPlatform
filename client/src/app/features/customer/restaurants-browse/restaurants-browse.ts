@@ -24,6 +24,7 @@ import { MagneticDirective } from '../../../shared/directives/magnetic.directive
 import { ParallaxHoverDirective } from '../../../shared/directives/parallax-hover.directive';
 import { RadialSelectDirective } from '../../../shared/directives/radial-select.directive';
 import { ImageFallback } from '../../../shared/components/image-fallback/image-fallback';
+import { PlusInterstitial } from '../../../shared/components/plus-interstitial/plus-interstitial';
 
 /**
  * RestaurantsBrowse — /restaurants
@@ -41,6 +42,7 @@ import { ImageFallback } from '../../../shared/components/image-fallback/image-f
     TiltDirective, ScrollRevealDirective, MagneticDirective,
     ParallaxHoverDirective, RadialSelectDirective,
     ImageFallback,
+    PlusInterstitial,
     MatFormFieldModule, MatInputModule,
     MatRippleModule, MatTooltipModule, MatButtonModule,
   ],

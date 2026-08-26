@@ -23,6 +23,17 @@ export const routes: Routes = [
       import('./features/customer/auction-live/auction-live').then((m) => m.AuctionLive),
   },
   {
+    path: 'rewards',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/customer/rewards/rewards').then((m) => m.Rewards),
+  },
+  {
+    path: 'plus',
+    loadComponent: () =>
+      import('./features/customer/plus-landing/plus-landing').then((m) => m.PlusLanding),
+  },
+  {
     path: 'restaurant/:id',
     loadComponent: () =>
       import('./features/customer/restaurant-menu/restaurant-menu').then((m) => m.RestaurantMenu),

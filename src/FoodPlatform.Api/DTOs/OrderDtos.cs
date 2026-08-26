@@ -67,7 +67,8 @@ public record OrderDto(int Id, int RestaurantId, int UserId, string Status,
     DateTime? ScheduledFor = null,
     string? PromoCode = null, decimal DiscountAmount = 0m,
     string? GiftCardCode = null, decimal GiftCardDiscount = 0m,
-    decimal DeliveryFee = 0m)
+    decimal DeliveryFee = 0m,
+    decimal PlusDiscount = 0m)
 {
     /// <summary>Opaque hash of the integer Id — use this in URLs, never the raw int.</summary>
     public string HashId { get; init; } = string.Empty;

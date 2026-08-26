@@ -104,7 +104,9 @@ public class OrderPricingServiceTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(0m, result.Value!.DeliveryFee);
-        Assert.Equal(20m, result.Value.FinalTotal);
+        // Plus also gets 10% off items when subtotal >= £15: £20 - £2 = £18
+        Assert.Equal(2m, result.Value.PlusDiscount);
+        Assert.Equal(18m, result.Value.FinalTotal);
     }
 
     /// <summary>

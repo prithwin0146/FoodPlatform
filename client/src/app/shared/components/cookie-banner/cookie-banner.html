@@ -1,0 +1,16 @@
+@if (showBanner()) {
+  <div class="cookie-banner-wrapper">
+    <div class="cookie-banner-card">
+      <div class="cookie-content">
+        <h4 class="cookie-title">We value your privacy</h4>
+        <p class="cookie-desc">
+          We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.
+        </p>
+      </div>
+      <div class="cookie-actions">
+        <button class="btn-reject" (click)="managePreferences()">Manage Preferences</button>
+        <button class="btn-accept" (click)="acceptAll()">Accept All</button>
+      </div>
+    </div>
+  </div>
+}

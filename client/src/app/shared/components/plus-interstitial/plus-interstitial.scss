@@ -1,0 +1,83 @@
+.interstitial-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.interstitial-card {
+  position: relative;
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem 1.75rem 1.75rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: popIn 0.25s ease;
+
+  h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  p {
+    color: var(--text-secondary, #6b7280);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.interstitial-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.interstitial-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+}
+
+.interstitial-cta {
+  width: 100%;
+  height: 46px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.interstitial-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.4rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

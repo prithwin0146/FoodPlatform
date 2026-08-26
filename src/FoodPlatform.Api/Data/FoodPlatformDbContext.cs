@@ -36,6 +36,9 @@ public class FoodPlatformDbContext : DbContext, IDataProtectionKeyContext
     // Live auctions
     public DbSet<Auction> Auctions => Set<Auction>();
     public DbSet<Bid> Bids => Set<Bid>();
+    // Free loyalty program (SeeThePrep Rewards)
+    public DbSet<LoyaltyAccount> LoyaltyAccounts => Set<LoyaltyAccount>();
+    public DbSet<LoyaltyTransaction> LoyaltyTransactions => Set<LoyaltyTransaction>();
     // Required by IDataProtectionKeyContext — keys stored in "DataProtectionKeys" table
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 

@@ -19,6 +19,9 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'auctions', renderMode: RenderMode.Server },
   { path: 'auctions/:id', renderMode: RenderMode.Server },
 
+  // SeeThePrep Plus landing — SSR: marketing/conversion page, high SEO value
+  { path: 'plus', renderMode: RenderMode.Server },
+
   // Info / marketing pages — SSR: all publicly crawlable
   { path: 'info/:slug', renderMode: RenderMode.Server },
 

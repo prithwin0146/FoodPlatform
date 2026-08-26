@@ -1,0 +1,145 @@
+/* ═══════════════════════════════════════ MOBILE APP · COMING SOON ══ */
+.app-coming-soon {
+  position: relative;
+  overflow: hidden;
+  background: var(--c-bg); /* Match brand theme, remove blue */
+  color: var(--c-text);
+  padding-top: clamp(6rem, 10vw, 8rem);
+}
+
+.app-coming-soon-inner {
+  display: grid;
+  width: min(100% - 4rem, 1280px);
+  margin: 0 auto;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+}
+
+.app-coming-soon-copy {
+  padding-bottom: 4rem;
+}
+
+.app-coming-soon h2 {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 0 0 1rem;
+  color: var(--c-text);
+}
+
+.app-coming-soon-lead {
+  font-family: var(--font-sans);
+  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  font-weight: 600;
+  margin: 0 0 2.5rem;
+  color: var(--c-text-soft);
+}
+
+/* Official-looking App Badges */
+.app-badges {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px; /* Standard badge radius */
+  border: 1px solid #a6a6a6;
+  cursor: pointer;
+  gap: 0.75rem;
+  min-width: 160px;
+  min-height: 54px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.app-badge:hover {
+  opacity: 0.85;
+}
+
+.badge-icon {
+  display: flex;
+  align-items: center;
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.badge-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.badge-sub {
+  font-size: 0.65rem;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  margin-bottom: 0.15rem;
+}
+
+.badge-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ── CSS Device Frame ── */
+.app-phone-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Align phone to the bottom */
+}
+
+.app-phone--hero {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  width: 95%;
+  max-height: 850px;
+  object-fit: contain;
+  object-position: bottom;
+  transform: translateY(20px); /* Slightly pop out of bottom */
+  mix-blend-mode: darken; /* Ensures white backgrounds blend out if needed */
+}
+
+@media (max-width: 980px) {
+  .app-coming-soon-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .app-coming-soon-copy {
+    padding-bottom: 2rem;
+  }
+
+  .app-badges {
+    justify-content: center;
+  }
+
+  .app-phone--hero {
+    width: 60%;
+    transform: translateY(10px);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-phone--hero {
+    width: 90%;
+  }
+}

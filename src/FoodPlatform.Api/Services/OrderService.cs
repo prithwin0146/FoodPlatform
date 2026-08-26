@@ -33,12 +33,14 @@ public class OrderService : IOrderService
     private readonly IOrderPricingService _pricing;
     private readonly IHubContext<OrderHub> _hub;
     private readonly IUrlEncryptionService _urlEncryption;
+    private readonly ILoyaltyService _loyalty;
 
     public OrderService(FoodPlatformDbContext db, IStripeService stripe,
         IBackgroundJobClient jobs, ILogger<OrderService> logger,
         IPromoCodeService promoCodes, IGiftCardService giftCards,
         IInventoryService inventory, IOrderPricingService pricing,
-        IHubContext<OrderHub> hub, IUrlEncryptionService urlEncryption)
+        IHubContext<OrderHub> hub, IUrlEncryptionService urlEncryption,
+        ILoyaltyService loyalty)
     {
         _db = db;
         _stripe = stripe;
@@ -48,6 +50,7 @@ public class OrderService : IOrderService
         _giftCards = giftCards;
         _inventory = inventory;
         _pricing = pricing;
+        _loyalty = loyalty;
         _hub = hub;
         _urlEncryption = urlEncryption;
     }
@@ -149,6 +152,7 @@ public class OrderService : IOrderService
             GiftCardCode = pricing.GiftCardCodeText,
             GiftCardDiscount = pricing.GiftCardDiscount,
             DeliveryFee = pricing.DeliveryFee,
+            PlusDiscount = pricing.PlusDiscount,
             Items = orderItems
         };
 
@@ -375,6 +379,9 @@ public class OrderService : IOrderService
             if (user != null && restaurant != null)
                 _jobs.Enqueue<IEmailService>(s =>
                     s.SendOrderDeliveredAsync(user.Email, user.Username, order.Id, restaurant.Name));
+
+            // Free loyalty program: award a stamp for every completed order (idempotent per orderId)
+            await _loyalty.EarnStampAsync(order.UserId, order.Id);
         }
 
         // Phase 4: push status update to customer + staff
@@ -509,5 +516,6 @@ public class OrderService : IOrderService
         o.ScheduledFor,
         o.PromoCode, o.DiscountAmount,
         o.GiftCardCode, o.GiftCardDiscount,
-        o.DeliveryFee);
+        o.DeliveryFee,
+        o.PlusDiscount);
 }

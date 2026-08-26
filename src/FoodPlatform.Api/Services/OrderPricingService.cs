@@ -72,6 +72,11 @@ public class OrderPricingService : IOrderPricingService
         var isPlus = (await _subscriptions.GetStatusAsync(userId)).IsActive;
         var deliveryFee = isCollection || isPlus ? 0m : IOrderPricingService.StandardDeliveryFee;
 
+        // ── SeeThePrep Plus member discount (% off items subtotal, subject to a minimum spend) ──
+        var plusDiscount = isPlus && subtotal >= IOrderPricingService.PlusMinSpend
+            ? Math.Round(subtotal * IOrderPricingService.PlusDiscountRate, 2)
+            : 0m;
+
         // ── Promo code (re-validated server-side against the items subtotal) ────
         decimal promoDiscount = 0m;
         int? promoCodeId = null;
@@ -97,13 +102,13 @@ public class OrderPricingService : IOrderPricingService
             var gcResult = await _giftCards.ValidateAsync(giftCardCode);
             if (gcResult.IsValid && gcResult.RemainingBalance.HasValue)
             {
-                var owedBeforeGiftCard = Math.Max(0m, subtotal + deliveryFee - promoDiscount);
+                var owedBeforeGiftCard = Math.Max(0m, subtotal + deliveryFee - promoDiscount - plusDiscount);
                 giftCardDiscount = Math.Min(gcResult.RemainingBalance.Value, owedBeforeGiftCard);
                 giftCardCodeText = giftCardCode.ToUpperInvariant().Trim();
             }
         }
 
-        var finalTotal = Math.Max(0m, subtotal + deliveryFee - promoDiscount - giftCardDiscount);
+        var finalTotal = Math.Max(0m, subtotal + deliveryFee - promoDiscount - plusDiscount - giftCardDiscount);
 
         return ServiceResult<OrderPricing>.Ok(new OrderPricing(
             lineItems,
@@ -114,6 +119,8 @@ public class OrderPricingService : IOrderPricingService
             PromoCodeText: promoCodeText,
             GiftCardDiscount: giftCardDiscount,
             GiftCardCodeText: giftCardCodeText,
-            FinalTotal: finalTotal));
+            FinalTotal: finalTotal,
+            PlusDiscount: plusDiscount,
+            IsPlusMember: isPlus));
     }
 }

@@ -22,10 +22,10 @@ import { Auction } from '../../../core/models';
 export class AuctionsBrowse implements OnInit, OnDestroy {
   private readonly auctionService = inject(AuctionService);
   private readonly auctionHub = inject(AuctionHubService);
-  private readonly titleService = inject(Title);
-  private readonly metaService = inject(Meta);
-  private readonly canonicalService = inject(CanonicalService);
-  private readonly doc = inject(DOCUMENT);
+  private readonly titleService: Title = inject(Title);
+  private readonly metaService: Meta = inject(Meta);
+  private readonly canonicalService: CanonicalService = inject(CanonicalService);
+  private readonly doc: Document = inject(DOCUMENT);
 
   readonly auctions = signal<Auction[]>([]);
   readonly loading = signal(true);

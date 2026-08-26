@@ -37,6 +37,8 @@ public class Order
     public decimal GiftCardDiscount { get; set; }
     /// <summary>Delivery fee charged on this order (£). Zero for collection orders and Plus members.</summary>
     public decimal DeliveryFee { get; set; }
+    /// <summary>SeeThePrep Plus member discount applied to this order (£). Zero for non-members.</summary>
+    public decimal PlusDiscount { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation

@@ -22,7 +22,9 @@ public record OrderPricing(
     string? PromoCodeText,
     decimal GiftCardDiscount,
     string? GiftCardCodeText,
-    decimal FinalTotal);
+    decimal FinalTotal,
+    decimal PlusDiscount = 0m,
+    bool IsPlusMember = false);
 
 /// <summary>
 /// Computes the authoritative price of an order (items + delivery − promo − gift card).
@@ -34,6 +36,12 @@ public interface IOrderPricingService
 {
     /// <summary>Standard delivery fee (GBP). Waived for collection orders and SeeThePrep Plus members.</summary>
     const decimal StandardDeliveryFee = 2.50m;
+
+    /// <summary>SeeThePrep Plus members get this fraction off their items subtotal (e.g. 0.10 = 10% off).</summary>
+    const decimal PlusDiscountRate = 0.10m;
+
+    /// <summary>Minimum items subtotal (GBP) required for a Plus member to receive the member discount.</summary>
+    const decimal PlusMinSpend = 15.00m;
 
     Task<ServiceResult<OrderPricing>> CalculateAsync(
         int restaurantId,
