@@ -16,6 +16,11 @@
             class="nav-link">
             Restaurants
           </a>
+          <a routerLink="/auctions"
+            routerLinkActive="is-active"
+            class="nav-link">
+            Auctions
+          </a>
           <a routerLink="/orders"
             routerLinkActive="is-active"
             class="nav-link nav-link--orders">
@@ -58,8 +63,8 @@
         <a routerLink="/checkout"
           class="cart-btn"
           [class.is-bouncing]="cartBouncing()"
-          matTooltip="View cart"
-          aria-label="Open cart ({{ cart.count() }} items)"
+          matTooltip="View basket"
+          aria-label="Open basket ({{ cart.count() }} items)"
           appMagnetic>
           <span class="material-symbols-rounded">shopping_bag</span>
           <span class="cart-count" aria-hidden="true">{{ cart.count() }}</span>

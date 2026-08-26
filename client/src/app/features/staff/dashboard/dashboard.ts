@@ -22,7 +22,9 @@ import { RestaurantPromotionService } from '../../../core/services/restaurant-pr
 import { OrderHubService } from '../../../core/services/order-hub.service';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { MenuImportService } from '../../../core/services/menu-import.service';
-import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours, RestaurantPromotion, CreateRestaurantPromotionRequest, InventoryItem, MenuImportResult } from '../../../core/models';
+import { AuctionService } from '../../../core/services/auction.service';
+import { AuctionHubService } from '../../../core/services/auction-hub.service';
+import { MenuCategory, Order, nextOrderStatus, Restaurant, RestaurantHours, RestaurantPromotion, CreateRestaurantPromotionRequest, InventoryItem, MenuImportResult, Auction, Bid, CreateAuctionRequest } from '../../../core/models';
 import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { OrderStatusLabelPipe } from '../../../shared/pipes/order-status.pipe';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
@@ -160,6 +162,24 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly importLoading = signal(false);
   readonly importResult = signal<MenuImportResult | null>(null);
 
+  // ── Auctions state
+  readonly auctionsSectionOpen = signal(false);
+  readonly auctions = signal<Auction[]>([]);
+  readonly auctionsLoading = signal(false);
+  readonly auctionSaving = signal(false);
+  readonly selectedAuctionId = signal<number | null>(null);
+  readonly auctionBids = signal<Bid[]>([]);
+  readonly auctionCameraDrafts: Record<number, string> = {};
+  auctionForm: CreateAuctionRequest = this.blankAuctionForm();
+
+  private blankAuctionForm(): CreateAuctionRequest {
+    return { title: '', description: '', startingPrice: 5, bidIncrement: 1, buyNowPrice: null };
+  }
+
+  /** The auction currently expanded for camera/bid management, if any. */
+  readonly selectedAuction = computed(() =>
+    this.auctions().find(a => a.id === this.selectedAuctionId()) ?? null);
+
   private _pollSub?: Subscription;
   private _hubSubs: Subscription[] = [];
 
@@ -174,6 +194,8 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly hub: OrderHubService,
     private readonly inventoryService: InventoryService,
     private readonly menuImportService: MenuImportService,
+    private readonly auctionService: AuctionService,
+    private readonly auctionHub: AuctionHubService,
   ) {}
 
   ngOnInit(): void {
@@ -181,7 +203,21 @@ export class Dashboard implements OnInit, OnDestroy {
     this.startPolling();
     // Phase 4: connect SignalR; restaurant group join deferred until restaurant is loaded
     void this.hub.connect();
+    void this.auctionHub.connect();
     this._hubSubs.push(
+      this.auctionHub.bidPlaced$.subscribe((bid) => {
+        if (bid.auctionId === this.selectedAuctionId()) {
+          this.auctionBids.update(list => [bid, ...list]);
+        }
+        this.auctions.update(list => list.map(a => a.id === bid.auctionId
+          ? { ...a, currentBid: bid.amount, bidCount: a.bidCount + 1 } : a));
+      }),
+      this.auctionHub.auctionEnded$.subscribe((updated) => {
+        this.auctions.update(list => list.map(a => a.id === updated.id ? updated : a));
+      }),
+      this.auctionHub.auctionUpdated$.subscribe((updated) => {
+        this.auctions.update(list => list.map(a => a.id === updated.id ? updated : a));
+      }),
       this.hub.newOrder$.subscribe((order) => {
         const o = order as Order;
         if (!this._seenOrderIds.has(o.id)) {
@@ -203,7 +239,10 @@ export class Dashboard implements OnInit, OnDestroy {
     this._pollSub?.unsubscribe();
     this._hubSubs.forEach(s => s.unsubscribe());
     const r = this.myRestaurant();
-    if (r) void this.hub.leaveRestaurantGroup(r.id);
+    if (r) {
+      void this.hub.leaveRestaurantGroup(r.id);
+      void this.auctionHub.leaveRestaurantAuctionGroup(r.id);
+    }
   }
 
   // ── Restaurant / video
@@ -217,6 +256,7 @@ export class Dashboard implements OnInit, OnDestroy {
         this.initHoursForm(r);
         // Phase 4: join restaurant SignalR group now that we know the restaurantId
         void this.hub.joinRestaurantGroup(r.id);
+        void this.auctionHub.joinRestaurantAuctionGroup(r.id);
       },
     });
   }
@@ -317,13 +357,99 @@ export class Dashboard implements OnInit, OnDestroy {
     this.promotionsSectionOpen.set(false);
     this.inventorySectionOpen.set(false);
     this.importSectionOpen.set(false);
+    this.auctionsSectionOpen.set(false);
   }
 
   /** Returns true when no management panel is open (i.e. "Orders" view is active). */
   readonly isOrdersActive = computed(() =>
     !this.videoSectionOpen() && !this.liveStreamSectionOpen()
     && !this.hoursSectionOpen() && !this.menuSectionOpen()
-    && !this.promotionsSectionOpen() && !this.inventorySectionOpen() && !this.importSectionOpen());
+    && !this.promotionsSectionOpen() && !this.inventorySectionOpen() && !this.importSectionOpen()
+    && !this.auctionsSectionOpen());
+
+  // ── Auctions
+
+  toggleAuctionsSection(): void {
+    this.auctionsSectionOpen.update(v => !v);
+    if (this.auctionsSectionOpen()) this.loadAuctions();
+  }
+
+  loadAuctions(): void {
+    this.auctionsLoading.set(true);
+    this.auctionService.getAllForRestaurant().subscribe({
+      next: (data) => {
+        this.auctions.set(data);
+        data.forEach(a => { this.auctionCameraDrafts[a.id] = a.cameraId ?? ''; });
+        this.auctionsLoading.set(false);
+      },
+      error: () => { this.auctionsLoading.set(false); this.toast.error('Failed to load auctions'); },
+    });
+  }
+
+  createAuction(): void {
+    if (!this.auctionForm.title.trim() || this.auctionForm.startingPrice <= 0) return;
+    this.auctionSaving.set(true);
+    this.auctionService.create(this.auctionForm).subscribe({
+      next: (created) => {
+        this.auctions.update(list => [created, ...list]);
+        this.auctionCameraDrafts[created.id] = '';
+        this.auctionSaving.set(false);
+        this.auctionForm = this.blankAuctionForm();
+        this.toast.success('Auction created — set a camera ID, then go live!');
+      },
+      error: () => { this.auctionSaving.set(false); this.toast.error('Failed to create auction'); },
+    });
+  }
+
+  selectAuction(id: number): void {
+    const next = this.selectedAuctionId() === id ? null : id;
+    this.selectedAuctionId.set(next);
+    this.auctionBids.set([]);
+    if (next) {
+      void this.auctionHub.joinAuctionGroup(next);
+      this.auctionService.getBids(next).subscribe(bids => this.auctionBids.set(bids));
+    }
+  }
+
+  saveAuctionCamera(auction: Auction): void {
+    const cameraId = (this.auctionCameraDrafts[auction.id] ?? '').trim() || null;
+    this.auctionService.setCamera(auction.id, cameraId).subscribe({
+      next: (updated) => {
+        this.auctions.update(list => list.map(a => a.id === updated.id ? updated : a));
+        this.toast.success(cameraId ? 'Auction camera set 📹' : 'Auction camera cleared');
+      },
+      error: () => this.toast.error('Failed to update camera ID'),
+    });
+  }
+
+  startAuction(auction: Auction, durationMinutes = 10): void {
+    this.auctionService.start(auction.id, durationMinutes).subscribe({
+      next: (updated) => {
+        this.auctions.update(list => list.map(a => a.id === updated.id ? updated : a));
+        this.toast.success('🔴 Auction is LIVE! Bidders can now place bids.');
+      },
+      error: () => this.toast.error('Failed to start auction'),
+    });
+  }
+
+  endAuction(auction: Auction): void {
+    if (!confirm('End this auction now?')) return;
+    this.auctionService.end(auction.id).subscribe({
+      next: (updated) => {
+        this.auctions.update(list => list.map(a => a.id === updated.id ? updated : a));
+        this.toast.success(updated.status === 'Sold' ? '🎉 Auction sold!' : 'Auction ended — no bids received.');
+      },
+      error: () => this.toast.error('Failed to end auction'),
+    });
+  }
+
+  deleteAuction(id: number): void {
+    if (!confirm('Delete this draft auction?')) return;
+    this.auctionService.delete(id).subscribe({
+      next: () => this.auctions.update(list => list.filter(a => a.id !== id)),
+      error: () => this.toast.error('Only draft auctions can be deleted'),
+    });
+  }
 
   // ── Hours panel
 

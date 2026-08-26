@@ -41,6 +41,10 @@
         }
         <span>{{ myRestaurant()?.angelcamCameraId ? 'ON AIR' : 'Go Live' }}</span>
       </button>
+      <button class="nav-item" [class.active]="auctionsSectionOpen()" (click)="toggleAuctionsSection()">
+        <span class="material-symbols-rounded">gavel</span>
+        <span>Auctions</span>
+      </button>
       <button class="nav-item" [class.active]="hoursSectionOpen()" (click)="toggleHoursSection()">
         <span class="material-symbols-rounded">schedule</span>
         <span>Hours</span>
@@ -87,6 +91,10 @@
         @if (liveStreamSectionOpen()) {
           <span class="material-symbols-rounded">live_tv</span>
           <h2>Live Stream</h2>
+        }
+        @if (auctionsSectionOpen()) {
+          <span class="material-symbols-rounded">gavel</span>
+          <h2>Auctions</h2>
         }
         @if (hoursSectionOpen()) {
           <span class="material-symbols-rounded">schedule</span>
@@ -231,6 +239,133 @@
           <div class="panel-info-note">
             <span class="material-symbols-rounded">info</span>
             Find your Camera ID: angelcam.com → My Cameras → click your camera → number in URL (e.g. <code>/cameras/133627/</code>).
+          </div>
+        </div>
+      }
+
+      <!-- ── Auctions Panel ── -->
+      @if (auctionsSectionOpen()) {
+        <div class="content-panel glass-panel" appScrollReveal>
+          <div class="panel-header">
+            <span class="material-symbols-rounded panel-icon">gavel</span>
+            <div>
+              <h2 class="panel-title">Live Auctions</h2>
+              <p class="panel-sub">Auction off special dishes with a live video feed. Set an Angelcam Camera ID per auction, start it, and watch bids roll in real time.</p>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <!-- Create new auction -->
+            <div class="auction-create-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Title</mat-label>
+                <input matInput [(ngModel)]="auctionForm.title" placeholder="e.g. Chef's Special Tasting Platter">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Description</mat-label>
+                <input matInput [(ngModel)]="auctionForm.description" placeholder="Optional details">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Starting price (£)</mat-label>
+                <input matInput type="number" min="0.01" step="0.5" [(ngModel)]="auctionForm.startingPrice">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Bid increment (£)</mat-label>
+                <input matInput type="number" min="0.01" step="0.5" [(ngModel)]="auctionForm.bidIncrement">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Buy-now price (£, optional)</mat-label>
+                <input matInput type="number" min="0" step="0.5" [(ngModel)]="auctionForm.buyNowPrice">
+              </mat-form-field>
+              <button mat-flat-button class="save-btn" appMagnetic
+                [disabled]="auctionSaving() || !auctionForm.title.trim()" (click)="createAuction()">
+                <span class="material-symbols-rounded">add_circle</span>
+                {{ auctionSaving() ? 'Creating…' : 'Create Auction' }}
+              </button>
+            </div>
+
+            <!-- Auction list -->
+            @if (auctionsLoading()) {
+              <p class="loading-hint">Loading auctions…</p>
+            } @else if (auctions().length === 0) {
+              <div class="video-empty-hint">
+                <span class="material-symbols-rounded">gavel</span>
+                <p>No auctions yet. Create one above to start bidding.</p>
+              </div>
+            } @else {
+              <div class="auction-list">
+                @for (auction of auctions(); track auction.id) {
+                  <div class="auction-card" [class.auction-card--live]="auction.status === 'Live'">
+                    <div class="auction-card-header" (click)="selectAuction(auction.id)">
+                      <div class="auction-card-title-row">
+                        @if (auction.status === 'Live') {
+                          <span class="live-pulse-sm"></span>
+                        }
+                        <strong>{{ auction.title }}</strong>
+                        <span class="auction-status-chip" [attr.data-status]="auction.status">{{ auction.status }}</span>
+                      </div>
+                      <div class="auction-card-meta">
+                        <span>Current bid: <strong>{{ (auction.currentBid ?? auction.startingPrice) | currency:'GBP' }}</strong></span>
+                        <span>{{ auction.bidCount }} bid{{ auction.bidCount === 1 ? '' : 's' }}</span>
+                        @if (auction.endsAt && auction.status === 'Live') {
+                          <span>Ends {{ auction.endsAt | date:'shortTime' }}</span>
+                        }
+                      </div>
+                    </div>
+
+                    @if (selectedAuctionId() === auction.id) {
+                      <div class="auction-card-body">
+                        <mat-form-field appearance="outline" class="video-url-field">
+                          <mat-label>Auction Angelcam Camera ID</mat-label>
+                          <input matInput [(ngModel)]="auctionCameraDrafts[auction.id]" placeholder="e.g. 133627">
+                          <mat-hint>Separate camera to this dish's auction table — independent from your kitchen "Go Live" feed.</mat-hint>
+                        </mat-form-field>
+                        <div class="panel-actions">
+                          <button mat-stroked-button (click)="saveAuctionCamera(auction)">
+                            <span class="material-symbols-rounded">videocam</span> Save Camera
+                          </button>
+                          @if (auction.status === 'Draft' || auction.status === 'Scheduled') {
+                            <button mat-flat-button class="save-btn go-live-cta" (click)="startAuction(auction)">
+                              <span class="material-symbols-rounded">sensors</span> Start Auction (10 min)
+                            </button>
+                            <button mat-stroked-button class="danger-btn" (click)="deleteAuction(auction.id)">
+                              <span class="material-symbols-rounded">delete</span> Delete
+                            </button>
+                          }
+                          @if (auction.status === 'Live') {
+                            <button mat-stroked-button class="danger-btn" (click)="endAuction(auction)">
+                              <span class="material-symbols-rounded">stop_circle</span> End Now
+                            </button>
+                          }
+                        </div>
+
+                        @if (auction.winningUserName) {
+                          <p class="panel-success-note">
+                            <span class="material-symbols-rounded">emoji_events</span>
+                            Winning bidder: <strong>{{ auction.winningUserName }}</strong>
+                          </p>
+                        }
+
+                        <div class="auction-bid-feed">
+                          <h4>Live bid feed</h4>
+                          @if (auctionBids().length === 0) {
+                            <p class="loading-hint">No bids yet.</p>
+                          } @else {
+                            @for (bid of auctionBids(); track bid.id) {
+                              <div class="auction-bid-row">
+                                <span>{{ bid.bidderName }}</span>
+                                <strong>{{ bid.amount | currency:'GBP' }}</strong>
+                                <span class="bid-time">{{ bid.createdAt | date:'short' }}</span>
+                              </div>
+                            }
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
       }

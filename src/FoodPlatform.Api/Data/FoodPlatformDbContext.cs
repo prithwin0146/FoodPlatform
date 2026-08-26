@@ -33,6 +33,9 @@ public class FoodPlatformDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<GiftCard> GiftCards => Set<GiftCard>();
     public DbSet<GiftCardUsage> GiftCardUsages => Set<GiftCardUsage>();
+    // Live auctions
+    public DbSet<Auction> Auctions => Set<Auction>();
+    public DbSet<Bid> Bids => Set<Bid>();
     // Required by IDataProtectionKeyContext — keys stored in "DataProtectionKeys" table
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 

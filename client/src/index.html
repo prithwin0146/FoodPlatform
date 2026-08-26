@@ -168,5 +168,59 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <app-root></app-root>
+
+  <!-- Global Splash Screen (Outside app-root to survive SSR prerendering) -->
+  <style>
+    .app-splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #060608;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+    }
+    .app-splash-logo {
+      height: 52px;
+      position: relative;
+      z-index: 2;
+      animation: splash-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .app-splash-glow {
+      position: absolute;
+      width: 140px;
+      height: 60px;
+      background: #ff6b1a;
+      filter: blur(50px);
+      opacity: 0.12;
+      border-radius: 50%;
+      z-index: 1;
+      animation: splash-glow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes splash-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.96); opacity: 0.6; }
+    }
+    @keyframes splash-glow {
+      0%, 100% { transform: scale(1); opacity: 0.12; }
+      50% { transform: scale(0.8); opacity: 0.04; }
+    }
+    
+    /* Fade out the splash screen once fonts are fully loaded to reveal the prerendered app */
+    html.fonts-loaded .app-splash-screen {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+  </style>
+  <div class="app-splash-screen">
+    <div class="app-splash-glow"></div>
+    <img src="/logo.png" class="app-splash-logo" alt="Loading SeeThePrep..." />
+  </div>
 </body>
 </html>

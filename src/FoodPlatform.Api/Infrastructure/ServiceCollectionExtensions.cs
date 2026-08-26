@@ -145,6 +145,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IMenuImportService, MenuImportService>();
 
+        // Live auctions
+        services.AddScoped<IAuctionService, AuctionService>();
+
         // Platform settings (homepage video, etc.)
         services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
 

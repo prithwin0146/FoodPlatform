@@ -1,0 +1,45 @@
+<div class="auctions-page">
+  <header class="auctions-hero">
+    <span class="hero-eyebrow">
+      <span class="material-symbols-rounded">gavel</span>
+      Live Food Auctions
+    </span>
+    <h1>Bid live, win big, eat well.</h1>
+    <p>Restaurants stream a live camera feed and auction off special dishes and limited drops. Place your bid before the timer runs out.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="auctions-grid">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="auction-tile auction-tile--skeleton"></div>
+      }
+    </div>
+  } @else if (auctions().length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-rounded">live_tv</span>
+      <h2>No live auctions right now</h2>
+      <p>Check back soon — restaurants go live with new food auctions regularly.</p>
+    </div>
+  } @else {
+    <div class="auctions-grid">
+      @for (auction of auctions(); track auction.id) {
+        <a class="auction-tile" [routerLink]="['/auctions', auction.id]">
+          <div class="tile-media">
+            <img [src]="auction.imageUrl || 'assets/placeholder-food.jpg'" [alt]="auction.title"
+              onerror="this.src='assets/placeholder-food.jpg'">
+            <span class="tile-live-badge"><span class="live-dot"></span> LIVE</span>
+            <span class="tile-bid-count">{{ auction.bidCount }} bid{{ auction.bidCount === 1 ? '' : 's' }}</span>
+          </div>
+          <div class="tile-body">
+            <span class="tile-restaurant">{{ auction.restaurantName }}</span>
+            <h3>{{ auction.title }}</h3>
+            <div class="tile-price-row">
+              <span class="tile-price-label">Current bid</span>
+              <strong class="tile-price">{{ (auction.currentBid ?? auction.startingPrice) | currency:'GBP' }}</strong>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

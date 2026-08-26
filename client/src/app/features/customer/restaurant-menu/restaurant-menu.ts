@@ -226,7 +226,7 @@ export class RestaurantMenu implements OnInit {
     const r = this.restaurant();
     if (!r) return;
     this.cart.addItem(item, r.id, r.name, r.hashId, r.supportsCollection);
-    this.toast.success(`${item.name} added to cart`);
+    this.toast.success(`${item.name} added to basket`);
   }
 
   removeFromCart(item: MenuItem): void {

@@ -102,6 +102,7 @@ app.UseAuthorization();
 app.MapControllers();
 // Phase 4: SignalR hub — JWT read from ?access_token= query string for browser WebSocket clients
 app.MapHub<OrderHub>("/hubs/orders");
+app.MapHub<AuctionHub>("/hubs/auctions");
 
 // Health check endpoint — returns 200 when SQL Server is reachable, 503 otherwise.
 app.MapHealthChecks("/healthz", new HealthCheckOptions

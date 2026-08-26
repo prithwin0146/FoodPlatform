@@ -1,0 +1,131 @@
+<div class="auction-live-page">
+  @if (loading()) {
+    <p class="loading-hint">Loading auction…</p>
+  } @else if (!auction()) {
+    <div class="empty-state">
+      <h2>Auction not found</h2>
+      <a routerLink="/auctions">Back to live auctions</a>
+    </div>
+  } @else {
+    @let a = auction()!;
+
+    <a routerLink="/auctions" class="back-link">
+      <span class="material-symbols-rounded">arrow_back</span> All auctions
+    </a>
+
+    <div class="auction-live-layout">
+      <!-- ── Video + item info ── -->
+      <div class="auction-media-col">
+        <div class="video-wrap">
+          @if (a.status === 'Live' && liveStreamUrl()) {
+            <app-live-stream-player [hlsUrl]="liveStreamUrl()!" (streamOffline)="onStreamOffline()" />
+          } @else if (a.status === 'Live') {
+            <div class="video-placeholder">
+              <span class="material-symbols-rounded">sensors</span>
+              <p>Connecting to live feed…</p>
+            </div>
+          } @else {
+            <img class="video-placeholder-img" [src]="a.imageUrl || 'assets/placeholder-food.jpg'"
+              onerror="this.src='assets/placeholder-food.jpg'" [alt]="a.title">
+          }
+          @if (a.status === 'Live') {
+            <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+          }
+        </div>
+
+        <div class="item-info">
+          <span class="item-restaurant">{{ a.restaurantName }}</span>
+          <h1>{{ a.title }}</h1>
+          @if (a.description) {
+            <p class="item-desc">{{ a.description }}</p>
+          }
+        </div>
+      </div>
+
+      <!-- ── Bid panel ── -->
+      <div class="auction-bid-col">
+        <div class="bid-panel">
+          <div class="bid-panel-status" [attr.data-status]="a.status">
+            {{ a.status === 'Live' ? 'Bidding is open' : a.status }}
+          </div>
+
+          @if (isLive() && secondsLeft() !== null) {
+            <div class="countdown" [class.countdown--urgent]="secondsLeft()! <= 10">
+              <span class="material-symbols-rounded">timer</span>
+              {{ formatCountdown() }}
+            </div>
+          }
+
+          <div class="current-bid-block">
+            <span class="current-bid-label">{{ a.bidCount > 0 ? 'Current bid' : 'Starting price' }}</span>
+            <strong class="current-bid-amount">{{ (a.currentBid ?? a.startingPrice) | currency:'GBP' }}</strong>
+            <span class="bid-count-label">{{ a.bidCount }} bid{{ a.bidCount === 1 ? '' : 's' }}</span>
+          </div>
+
+          @if (isLive()) {
+            <div class="bid-actions">
+              <div class="quick-bid-row">
+                <button class="quick-bid-btn" (click)="quickBid(1)" [disabled]="bidding()">
+                  +{{ a.bidIncrement | currency:'GBP' }}
+                </button>
+                <button class="quick-bid-btn" (click)="quickBid(2)" [disabled]="bidding()">
+                  +{{ (a.bidIncrement * 2) | currency:'GBP' }}
+                </button>
+                <button class="quick-bid-btn" (click)="quickBid(5)" [disabled]="bidding()">
+                  +{{ (a.bidIncrement * 5) | currency:'GBP' }}
+                </button>
+              </div>
+              <div class="custom-bid-row">
+                <input type="number" [step]="a.bidIncrement" [min]="minNextBid()"
+                  [(ngModel)]="bidAmountInput" [placeholder]="'Min ' + (minNextBid() | number:'1.2-2')">
+                <button class="place-bid-btn" [disabled]="bidding()" (click)="placeBid()">
+                  {{ bidding() ? 'Placing…' : 'Place Bid' }}
+                </button>
+              </div>
+              @if (a.buyNowPrice) {
+                <button class="buy-now-btn" [disabled]="bidding()"
+                  (click)="bidAmountInput = a.buyNowPrice; placeBid()">
+                  <span class="material-symbols-rounded">bolt</span>
+                  Buy Now — {{ a.buyNowPrice | currency:'GBP' }}
+                </button>
+              }
+              @if (!isLoggedIn()) {
+                <p class="login-hint">
+                  <a routerLink="/login">Log in</a> to place a bid.
+                </p>
+              }
+            </div>
+          }
+
+          @if (isEnded()) {
+            <div class="ended-note" [class.ended-note--sold]="a.status === 'Sold'">
+              @if (a.status === 'Sold') {
+                <span class="material-symbols-rounded">emoji_events</span>
+                Sold{{ a.winningUserName ? ' to ' + a.winningUserName : '' }}!
+              } @else {
+                <span class="material-symbols-rounded">info</span>
+                This auction has ended.
+              }
+            </div>
+          }
+
+          <div class="bid-history">
+            <h3>Bid history</h3>
+            @if (bids().length === 0) {
+              <p class="loading-hint">No bids yet — be the first!</p>
+            } @else {
+              <div class="bid-history-list">
+                @for (bid of bids(); track bid.id) {
+                  <div class="bid-history-row">
+                    <span>{{ bid.bidderName }}</span>
+                    <strong>{{ bid.amount | currency:'GBP' }}</strong>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

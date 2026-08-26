@@ -13,6 +13,16 @@ export const routes: Routes = [
       import('./features/customer/restaurants-browse/restaurants-browse').then((m) => m.RestaurantsBrowse),
   },
   {
+    path: 'auctions',
+    loadComponent: () =>
+      import('./features/customer/auctions-browse/auctions-browse').then((m) => m.AuctionsBrowse),
+  },
+  {
+    path: 'auctions/:id',
+    loadComponent: () =>
+      import('./features/customer/auction-live/auction-live').then((m) => m.AuctionLive),
+  },
+  {
     path: 'restaurant/:id',
     loadComponent: () =>
       import('./features/customer/restaurant-menu/restaurant-menu').then((m) => m.RestaurantMenu),

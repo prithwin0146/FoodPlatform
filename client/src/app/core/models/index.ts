@@ -326,6 +326,64 @@ export interface CreateRestaurantPromotionRequest {
   isActive?: boolean;
 }
 
+// === Auctions ===
+export type AuctionStatus = 'Draft' | 'Scheduled' | 'Live' | 'Ended' | 'Sold' | 'Unsold';
+
+export interface Auction {
+  id: number;
+  restaurantId: number;
+  restaurantName: string;
+  menuItemId: number | null;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  startingPrice: number;
+  currentBid: number | null;
+  bidIncrement: number;
+  buyNowPrice: number | null;
+  /** Angelcam Camera ID for the auction live stream. */
+  cameraId: string | null;
+  status: AuctionStatus;
+  startsAt: string | null;
+  endsAt: string | null;
+  softCloseSeconds: number;
+  bidCount: number;
+  winningUserName: string | null;
+  createdAt: string;
+}
+
+export interface Bid {
+  id: number;
+  auctionId: number;
+  bidderName: string;
+  amount: number;
+  createdAt: string;
+}
+
+export interface CreateAuctionRequest {
+  menuItemId?: number | null;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  startingPrice: number;
+  bidIncrement?: number | null;
+  buyNowPrice?: number | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  softCloseSeconds?: number | null;
+}
+
+export interface UpdateAuctionRequest {
+  title?: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  startingPrice?: number;
+  bidIncrement?: number;
+  buyNowPrice?: number | null;
+  endsAt?: string | null;
+}
+
+
 // === Phase 2: Subscriptions ===
 export interface SubscriptionStatus {
   isActive: boolean;

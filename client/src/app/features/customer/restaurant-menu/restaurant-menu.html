@@ -203,7 +203,7 @@
                           class="qty-btn plus"
                           mat-icon-button
                           (click)="addToCart(item)"
-                          matTooltip="Add to cart"
+                          matTooltip="Add to basket"
                         >+</button>
                       </div>
                     </div>
@@ -338,7 +338,7 @@
           <span class="cart-total">{{ cart.total() | currency:'GBP' }}</span>
         </div>
         <a routerLink="/checkout" mat-flat-button class="cart-cta">
-          View Cart <span class="material-symbols-rounded">arrow_forward</span>
+          View Basket <span class="material-symbols-rounded">arrow_forward</span>
         </a>
       </div>
     </div>

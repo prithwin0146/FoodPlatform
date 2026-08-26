@@ -15,6 +15,10 @@ export const serverRoutes: ServerRoute[] = [
   // Restaurant pages — SSR: key for "order from X" search queries
   { path: 'restaurant/:id', renderMode: RenderMode.Server },
 
+  // Live auctions — SSR: crawlable product-style listings ("bid on X", "live food auction")
+  { path: 'auctions', renderMode: RenderMode.Server },
+  { path: 'auctions/:id', renderMode: RenderMode.Server },
+
   // Info / marketing pages — SSR: all publicly crawlable
   { path: 'info/:slug', renderMode: RenderMode.Server },
 
