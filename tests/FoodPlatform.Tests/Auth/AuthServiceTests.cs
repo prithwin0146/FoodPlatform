@@ -31,7 +31,7 @@ public class AuthServiceTests
 
         var jobs = Substitute.For<IBackgroundJobClient>();
 
-        return new AuthService(db, jwt, hasher, jobs);
+        return new AuthService(db, jwt, hasher, jobs, Substitute.For<IOAuthVerificationService>());
     }
 
     // ── LoginAsync ───────────────────────────────────────────────────────────

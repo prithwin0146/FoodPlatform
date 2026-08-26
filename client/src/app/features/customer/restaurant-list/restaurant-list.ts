@@ -269,13 +269,14 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-      // Scene 0: Fancy a meal
-      tl.set(cards[0], { opacity: 1 }, 0);
-      tl.fromTo(cards[0].querySelectorAll('.story-text'), 
-        { y: 40, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05, stagger: 0.05 }, 0
-      );
-      tl.to(cards[0], { opacity: 0, duration: 0.05 }, 0.305);
+      // Scene 0: Order Food / Search Bar
+      // Start fully visible so it's there at page load without scrolling
+      tl.set(cards[0], { opacity: 1, pointerEvents: 'auto' }, 0);
+      tl.set(cards[0].querySelectorAll('.brand-reveal-title'), { y: 0, opacity: 1, filter: 'blur(0px)' }, 0);
+      tl.set(cards[0].querySelectorAll('.kitchen-spotlight'), { opacity: 1 }, 0);
+      
+      // Animate out as we approach Scene 1
+      tl.to(cards[0], { opacity: 0, duration: 0.05, pointerEvents: 'none' }, 0.305);
 
       // Scene 1: See the preparation
       tl.set(cards[1], { opacity: 1 }, 0.355);
@@ -293,16 +294,11 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
       );
       tl.to(cards[2], { opacity: 0, duration: 0.05 }, 0.830);
 
-      // Scene 3: CTA Search Bar
-      tl.set(cards[3], { opacity: 1, pointerEvents: 'auto' }, 0.880);
+      // Scene 3: End Title
+      tl.set(cards[3], { opacity: 1 }, 0.880);
       tl.fromTo(cards[3].querySelectorAll('.brand-reveal-title'), 
         { y: 40, opacity: 0, filter: 'blur(10px)' },
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05 }, 0.880
-      );
-      // Simplify search bar: clean fade-in
-      tl.fromTo(cards[3].querySelectorAll('.kitchen-spotlight'), 
-        { opacity: 0 },
-        { opacity: 1, duration: 0.05 }, 0.900
       );
     });
   }
