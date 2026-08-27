@@ -21,16 +21,7 @@
             class="nav-link">
             Auctions
           </a>
-          <a routerLink="/rewards"
-            routerLinkActive="is-active"
-            class="nav-link">
-            Rewards
-          </a>
-          <a routerLink="/plus"
-            routerLinkActive="is-active"
-            class="nav-link">
-            Plus
-          </a>
+
           <a routerLink="/orders"
             routerLinkActive="is-active"
             class="nav-link nav-link--orders">
@@ -147,20 +138,7 @@
             </span>
           }
         </a>
-        <a routerLink="/rewards"
-          routerLinkActive="is-active"
-          class="mobilenav-link"
-          (click)="closeMobileNav()">
-          <span class="material-symbols-rounded">redeem</span>
-          Rewards
-        </a>
-        <a routerLink="/plus"
-          routerLinkActive="is-active"
-          class="mobilenav-link"
-          (click)="closeMobileNav()">
-          <span class="material-symbols-rounded">workspace_premium</span>
-          Plus
-        </a>
+
       }
       @if (dashboardLink()) {
         <a [routerLink]="dashboardLink()"

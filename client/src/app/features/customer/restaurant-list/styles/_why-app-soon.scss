@@ -6,7 +6,7 @@
    ─────────────────────────────────────────────────────────────── */
 .why {
   position: relative;
-  padding: var(--section-pad) 0;
+  padding: var(--section-pad) 0 clamp(2rem, 4vw, 4rem);
   background:
     linear-gradient(180deg, var(--c-bg) 0%, var(--c-bg-soft) 50%, var(--c-bg) 100%);
   overflow: hidden;

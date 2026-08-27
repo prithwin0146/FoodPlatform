@@ -2,7 +2,7 @@
 .more-from {
   position: relative;
   background: var(--c-bg);
-  padding: clamp(4rem, 8vw, 8rem) 0;
+  padding: clamp(2rem, 4vw, 3rem) 0;
   color: var(--c-text);
 }
 
@@ -15,14 +15,19 @@
   margin-bottom: clamp(3rem, 5vw, 5rem);
 }
 
-.more-from-kicker {
-  color: var(--c-orange);
+.more-from-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.75rem;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  margin-bottom: 1rem;
+  color: var(--c-text-muted);
+  margin-bottom: 1.5rem;
+  .eb-line {
+    width: 36px; height: 1px;
+    background: linear-gradient(90deg, var(--c-orange), var(--c-pink));
+  }
 }
 
 .more-from h2 {
