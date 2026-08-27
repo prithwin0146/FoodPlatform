@@ -1,156 +1,227 @@
-<div class="profile-page">
-  <div class="profile-bg" aria-hidden="true"></div>
+<div class="stp-profile-page">
 
-  <div class="profile-container container">
+  <div class="stp-profile-container">
 
-    <!-- Avatar card -->
-    <div class="profile-hero glass-card" appScrollReveal>
-      <div class="profile-avatar">{{ userInitial() }}</div>
-      <div class="profile-identity">
-        <h1 class="profile-username">{{ auth.username() }}</h1>
-        <span class="profile-role-badge">{{ auth.role() }}</span>
+    <!-- ── 1. YOUR SEETHEPREP ────────────────────────────── -->
+    <header class="stp-profile-header" appScrollReveal>
+      <span class="stp-profile-eyebrow">YOUR SEETHEPREP</span>
+      
+      <div class="stp-profile-avatar" aria-hidden="true">
+        {{ userInitial() }}
       </div>
-    </div>
 
-    <!-- Change password card -->
-    <div class="profile-section glass-card" appScrollReveal [revealDelay]="80">
-      <h2 class="section-title">
-        <span class="material-symbols-rounded">lock</span>
-        Change Password
-      </h2>
+      <h1 class="stp-profile-name">{{ name() }}</h1>
+      <p class="stp-profile-email">{{ email() }}</p>
 
-      <form class="password-form" (ngSubmit)="changePassword()" #pwForm="ngForm" novalidate>
+      <button type="button" class="stp-profile-edit-btn" (click)="openEditProfile()">
+        Edit profile →
+      </button>
+    </header>
 
-        <!-- Current password -->
-        <mat-form-field appearance="outline" class="dark-field full-width">
-          <mat-label>Current Password</mat-label>
-          <input matInput
-            [type]="showCurrent() ? 'text' : 'password'"
-            [ngModel]="currentPassword()"
-            (ngModelChange)="currentPassword.set($event)"
-            name="currentPassword"
-            autocomplete="current-password"
-            required />
-          <button matSuffix mat-icon-button type="button"
-            (click)="showCurrent.update(v => !v)"
-            [matTooltip]="showCurrent() ? 'Hide' : 'Show'">
-            <span class="material-symbols-rounded">{{ showCurrent() ? 'visibility_off' : 'visibility' }}</span>
-          </button>
-        </mat-form-field>
+    <div class="stp-profile-divider" aria-hidden="true"></div>
 
-        <!-- New password -->
-        <mat-form-field appearance="outline" class="dark-field full-width">
-          <mat-label>New Password</mat-label>
-          <input matInput
-            [type]="showNew() ? 'text' : 'password'"
-            [ngModel]="newPassword()"
-            (ngModelChange)="newPassword.set($event)"
-            name="newPassword"
-            autocomplete="new-password"
-            minlength="8"
-            required />
-          <mat-hint>Minimum 8 characters</mat-hint>
-          <button matSuffix mat-icon-button type="button"
-            (click)="showNew.update(v => !v)"
-            [matTooltip]="showNew() ? 'Hide' : 'Show'">
-            <span class="material-symbols-rounded">{{ showNew() ? 'visibility_off' : 'visibility' }}</span>
-          </button>
-        </mat-form-field>
+    <!-- ── 2. SAVED METHODS & ADDRESSES ────────────────────── -->
+    <section class="stp-profile-section" appScrollReveal [revealDelay]="40">
+      <h2 class="stp-section-label">SAVED METHODS & ADDRESSES</h2>
 
-        <!-- Confirm new password -->
-        <mat-form-field appearance="outline" class="dark-field full-width"
-          [class.field-mismatch]="!passwordsMatch()">
-          <mat-label>Confirm New Password</mat-label>
-          <input matInput
-            [type]="showConfirm() ? 'text' : 'password'"
-            [ngModel]="confirmPassword()"
-            (ngModelChange)="confirmPassword.set($event)"
-            name="confirmPassword"
-            autocomplete="new-password"
-            required />
-          @if (!passwordsMatch()) {
-            <mat-error>Passwords do not match</mat-error>
-          }
-          <button matSuffix mat-icon-button type="button"
-            (click)="showConfirm.update(v => !v)"
-            [matTooltip]="showConfirm() ? 'Hide' : 'Show'">
-            <span class="material-symbols-rounded">{{ showConfirm() ? 'visibility_off' : 'visibility' }}</span>
-          </button>
-        </mat-form-field>
-
-        <!-- Feedback -->
-        @if (error()) {
-          <div class="feedback feedback--error">
-            <span class="material-symbols-rounded">error</span>
-            {{ error() }}
+      <div class="stp-group-card">
+        <div class="stp-row-card stp-row-card--grouped" (click)="openAddresses()" role="button" tabindex="0" (keydown.enter)="openAddresses()">
+          <div class="stp-row-content">
+            <span class="stp-row-title">Saved addresses</span>
+            <span class="stp-row-subtitle">
+              <span class="stp-badge-mini">Home</span>
+              12 Example Street
+            </span>
           </div>
-        }
-        @if (successMsg()) {
-          <div class="feedback feedback--success">
-            <span class="material-symbols-rounded">check_circle</span>
-            {{ successMsg() }}
-          </div>
-        }
+          <span class="stp-row-chevron" aria-hidden="true">›</span>
+        </div>
 
-        <!-- Submit -->
-        <button mat-flat-button type="submit"
-          class="submit-btn"
-          [disabled]="!canSubmit()">
-          @if (saving()) {
-            <mat-spinner diameter="18" />
-            Saving…
-          } @else {
-            <span class="material-symbols-rounded">save</span>
-            Update Password
-          }
+        <div class="stp-row-divider"></div>
+
+        <div class="stp-row-card stp-row-card--grouped" (click)="openPayments()" role="button" tabindex="0" (keydown.enter)="openPayments()">
+          <div class="stp-row-content">
+            <span class="stp-row-title">Payment methods</span>
+            <span class="stp-row-subtitle">
+              Visa •••• 4821
+              <span class="stp-badge-mini">Default</span>
+            </span>
+          </div>
+          <span class="stp-row-chevron" aria-hidden="true">›</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="stp-profile-divider" aria-hidden="true"></div>
+
+    <!-- ── 3. NOTIFICATIONS ──────────────────────────────── -->
+    <section class="stp-profile-section" appScrollReveal [revealDelay]="120">
+      <h2 class="stp-section-label">NOTIFICATIONS</h2>
+
+      <div class="stp-settings-list">
+        
+        <div class="stp-toggle-row">
+          <div class="stp-toggle-info">
+            <span class="stp-toggle-label">Order updates</span>
+            <span class="stp-toggle-desc">Live status changes on your active food orders</span>
+          </div>
+          <mat-slide-toggle
+            [checked]="orderUpdates()"
+            (change)="toggleNotification('order')"
+            color="primary"
+            aria-label="Order updates toggle">
+          </mat-slide-toggle>
+        </div>
+
+        <div class="stp-toggle-row">
+          <div class="stp-toggle-info">
+            <span class="stp-toggle-label">Kitchen updates</span>
+            <span class="stp-toggle-desc">Stream alerts when your kitchen camera goes live</span>
+          </div>
+          <mat-slide-toggle
+            [checked]="kitchenUpdates()"
+            (change)="toggleNotification('kitchen')"
+            color="primary"
+            aria-label="Kitchen updates toggle">
+          </mat-slide-toggle>
+        </div>
+
+        <div class="stp-toggle-row">
+          <div class="stp-toggle-info">
+            <span class="stp-toggle-label">Offers & recommendations</span>
+            <span class="stp-toggle-desc">Exclusive discounts and chef recommendations</span>
+          </div>
+          <mat-slide-toggle
+            [checked]="offersRecommendations()"
+            (change)="toggleNotification('offers')"
+            color="primary"
+            aria-label="Offers and recommendations toggle">
+          </mat-slide-toggle>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="stp-profile-divider" aria-hidden="true"></div>
+
+    <!-- ── 4. SUPPORT & LEGAL ────────────────────────────── -->
+    <section class="stp-profile-section" appScrollReveal [revealDelay]="160">
+      <h2 class="stp-section-label">SUPPORT</h2>
+
+      <div class="stp-nav-list">
+        
+        <button type="button" class="stp-list-row" (click)="navToSupport()">
+          <span>Help</span>
+          <span class="stp-row-chevron" aria-hidden="true">›</span>
         </button>
 
-      </form>
-    </div>
+        <button type="button" class="stp-list-row" (click)="navToPrivacy()">
+          <span>Privacy</span>
+          <span class="stp-row-chevron" aria-hidden="true">›</span>
+        </button>
 
-    <!-- SeeThePrep Plus card -->
-    <div class="profile-section glass-card" appScrollReveal [revealDelay]="160">
-      <h2 class="section-title">
-        <span class="material-symbols-rounded">workspace_premium</span>
-        SeeThePrep Plus
-      </h2>
+        <button type="button" class="stp-list-row" (click)="navToTerms()">
+          <span>Terms & conditions</span>
+          <span class="stp-row-chevron" aria-hidden="true">›</span>
+        </button>
 
-      @if (subscriptionLoading()) {
-        <p class="plus-hint">Loading subscription status…</p>
-      } @else if (subscriptionStatus()?.isActive) {
-        <div class="plus-active-card">
-          <div class="plus-badge-row">
-            <span class="plus-badge"><span class="material-symbols-rounded">workspace_premium</span> Active</span>
-            @if (subscriptionStatus()!.periodEnd) {
-              <span class="plus-renews">Renews {{ subscriptionStatus()!.periodEnd | date:'dd MMM yyyy' }}</span>
-            }
-          </div>
-          <p class="plus-perks">✓ Free delivery on every order &nbsp;·&nbsp; ✓ Priority support &nbsp;·&nbsp; ✓ Exclusive subscriber offers</p>
-          <button mat-stroked-button color="warn" class="cancel-plus-btn"
-            (click)="cancelPlus()" [disabled]="cancellingSubscription()">
-            @if (cancellingSubscription()) { <mat-spinner diameter="16" /> Cancelling… }
-            @else { Cancel subscription }
-          </button>
-        </div>
-      } @else {
-        <div class="plus-upsell-card">
-          <div class="plus-upsell-icon">
-            <span class="material-symbols-rounded">workspace_premium</span>
-          </div>
-          <h3 class="plus-upsell-title">Upgrade to Plus</h3>
-          <p class="plus-upsell-desc">Free delivery on every order, priority support, and exclusive subscriber offers — all for one flat monthly fee.</p>
-          <ul class="plus-features-list">
-            <li><span class="material-symbols-rounded">check_circle</span> Free delivery on all orders</li>
-            <li><span class="material-symbols-rounded">check_circle</span> Priority customer support</li>
-            <li><span class="material-symbols-rounded">check_circle</span> Exclusive subscriber discounts</li>
-          </ul>
-          <button mat-flat-button class="subscribe-btn" (click)="subscribePlus()">
-            <span class="material-symbols-rounded">workspace_premium</span>
-            Subscribe to Plus
-          </button>
-        </div>
-      }
-    </div>
+      </div>
+    </section>
+
+    <div class="stp-profile-divider" aria-hidden="true"></div>
+
+    <!-- ── 6. SIGN OUT ────────────────────────────────────── -->
+    <footer class="stp-profile-footer" appScrollReveal [revealDelay]="200">
+      <button type="button" class="stp-signout-btn" (click)="confirmSignOut()">
+        Sign out
+      </button>
+    </footer>
 
   </div>
+
 </div>
+
+<!-- ═════════════════════════════════════════════════════════════ -->
+<!-- MODALS / SHEETS -->
+<!-- ═════════════════════════════════════════════════════════════ -->
+
+@if (activeModal()) {
+  <div class="stp-modal-backdrop" (click)="closeModal()" aria-hidden="true"></div>
+
+  <div class="stp-modal-container" role="dialog" aria-modal="true">
+    <div class="stp-modal-card">
+      <div class="stp-modal-header">
+        @if (activeModal() === 'editProfile') {
+          <h3>Edit Profile</h3>
+        } @else if (activeModal() === 'addresses') {
+          <h3>Saved Addresses</h3>
+        } @else if (activeModal() === 'payments') {
+          <h3>Payment Methods</h3>
+        } @else if (activeModal() === 'signOut') {
+          <h3>Sign Out</h3>
+        }
+        <button type="button" class="stp-modal-close" (click)="closeModal()" aria-label="Close dialog">✕</button>
+      </div>
+
+      <div class="stp-modal-body">
+        
+        @if (activeModal() === 'editProfile') {
+          <div class="stp-form-group">
+            <label>Name</label>
+            <input type="text" [value]="editName()" (input)="editName.set($any($event.target).value)" class="stp-input" />
+          </div>
+          <div class="stp-form-group">
+            <label>Email</label>
+            <input type="email" [value]="editEmail()" (input)="editEmail.set($any($event.target).value)" class="stp-input" readonly />
+          </div>
+          <div class="stp-form-group">
+            <label>Phone</label>
+            <input type="tel" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" class="stp-input" />
+          </div>
+          <button type="button" class="stp-btn-primary" (click)="saveProfile()">Save changes</button>
+        }
+
+        @if (activeModal() === 'addresses') {
+          <div class="stp-modal-list">
+            @for (addr of addresses(); track addr.label) {
+              <div class="stp-modal-item">
+                <div>
+                  <strong>{{ addr.label }}</strong>
+                  <p>{{ addr.line1 }}, {{ addr.city }} {{ addr.postcode }}</p>
+                </div>
+                @if (addr.isDefault) {
+                  <span class="stp-badge-mini">Default</span>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (activeModal() === 'payments') {
+          <div class="stp-modal-list">
+            @for (pm of paymentMethods(); track pm.last4) {
+              <div class="stp-modal-item">
+                <div>
+                  <strong>{{ pm.brand }} •••• {{ pm.last4 }}</strong>
+                  <p>Expires {{ pm.expiry }}</p>
+                </div>
+                @if (pm.isDefault) {
+                  <span class="stp-badge-mini">Default</span>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (activeModal() === 'signOut') {
+          <p class="stp-confirm-text">Are you sure you want to sign out of SeeThePrep?</p>
+          <div class="stp-modal-actions">
+            <button type="button" class="stp-btn-secondary" (click)="closeModal()">Cancel</button>
+            <button type="button" class="stp-btn-danger" (click)="executeSignOut()">Sign out</button>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}
+
