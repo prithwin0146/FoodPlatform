@@ -18,11 +18,17 @@ public static class ImageSeeder
     {
         // (id → unsplash photo URL — chosen to match the cuisine & evoke a real kitchen)
         [1] = $"{U}photo-1585937421612-70a008356fbe{Q}", // Indian thali
-        [2] = $"{U}photo-1565299624946-b28f40a0ae38{Q}", // Pizza
+        [2] = $"{U}photo-1513104890138-7c749659a591{Q}", // Pizza
         [3] = $"{U}photo-1579871494447-9811cf80d66c{Q}", // Sushi board
         [4] = $"{U}photo-1568901346375-23c9450c58cd{Q}", // Cheeseburger
         [5] = $"{U}photo-1546069901-ba9599a7e63c{Q}",   // Buddha bowl
         [6] = $"{U}photo-1563379091339-03b21ab4a4f8{Q}", // Chinese stir-fry
+        [7] = $"{U}photo-1565299585323-38d6b0865b47{Q}", // Tacos
+        [8] = $"{U}photo-1565557623262-b51c2513a641{Q}", // Indian Curry
+        [9] = $"{U}photo-1569718212165-3a8278d5f624{Q}", // Tonkotsu Ramen
+        [10] = $"{U}photo-1512621776951-a57141f2eefd{Q}",// Vegan Bowl
+        [11] = $"{U}photo-1509440159596-0249088772ff{Q}",// French Bakery
+        [12] = $"{U}photo-1574071318508-1cdbab80d002{Q}",// Pizza Slice
     };
 
     private static readonly Dictionary<int, string> MenuItemImages = new()

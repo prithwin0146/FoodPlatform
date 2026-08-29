@@ -1,246 +1,580 @@
-<div class="browse-page">
-  <app-plus-interstitial />
+<main class="page-root" id="main-content">
 
-  <!-- Decorative ambient orbs -->
-  <div class="browse-bg" aria-hidden="true">
-    <div class="bb-orb bb-orb-1"></div>
-    <div class="bb-orb bb-orb-2"></div>
-    <div class="bb-orb bb-orb-3"></div>
-  </div>
+  <!-- ══════════════════════════════════════════════════
+       SECTION 0: FILTER BAR & SEARCH BAR
+       ══════════════════════════════════════════════════ -->
+  <header class="browse-hero-header">
+    <div class="header-inner">
+      <div class="search-and-modes">
+        <!-- Search bar with predictive dropdown -->
+        <div class="search-box-container">
+          <div class="search-input-wrapper">
+            <span class="search-icon material-symbols-rounded" aria-hidden="true">search</span>
+            <input
+              type="search"
+              class="search-input"
+              placeholder="Search food, groceries, drinks & more"
+              [value]="searchQuery()"
+              (input)="onSearchInput($event)"
+              (focus)="searchFocused.set(true)"
+              aria-label="Search restaurants and cuisines"
+              id="restaurant-search-input"
+            />
+            @if (searchQuery()) {
+              <button
+                type="button"
+                class="search-clear-btn"
+                (click)="searchQuery.set('')"
+                aria-label="Clear search"
+              >
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            }
+          </div>
 
-  <!-- ════════════════════════════════════════════ PAGE HEADER ══ -->
-  <header class="browse-header">
-    <div class="container browse-header-inner">
-      <div class="browse-header-left" appScrollReveal>
-        <div class="browse-eyebrow">
-          <span class="eyebrow-line live-pulse"></span>
-          <span class="eyebrow-text">LIVE NOW</span>
+          <!-- Live Search Autocomplete Popup -->
+          @if (searchFocused() && searchQuery().length > 0) {
+            <div class="search-suggestions-dropdown" role="listbox">
+              <p class="dropdown-heading">Matching Kitchens & Dishes</p>
+              @for (item of searchSuggestions(); track item.id) {
+                <a
+                  [routerLink]="['/restaurant', item.hashId]"
+                  class="search-suggestion-item"
+                  (click)="searchFocused.set(false)"
+                  role="option"
+                  tabindex="0"
+                >
+                  <img [src]="item.imageUrl" [alt]="item.name" class="suggestion-thumb" loading="lazy" />
+                  <div class="suggestion-info">
+                    <span class="suggestion-name">{{ item.name }}</span>
+                    <span class="suggestion-meta">{{ item.cuisineType }} • {{ item.rating }}★ • {{ item.estimatedDeliveryMinutes }} min</span>
+                  </div>
+                  @if (item.isLive) {
+                    <span class="suggestion-live-tag">
+                      <span class="live-dot-pulse"></span> LIVE
+                    </span>
+                  }
+                </a>
+              }
+              @if (searchSuggestions().length === 0) {
+                <div class="no-suggestions">No kitchens found matching "{{ searchQuery() }}"</div>
+              }
+            </div>
+          }
         </div>
-        <h1 class="browse-title">
-          Live Kitchens <span class="text-gradient">near you</span>
-        </h1>
-        <p class="browse-sub">
-          {{ filteredRestaurants().length }} verified kitchens · FSA 5★ · cameras always on
-        </p>
-      </div>
-    </div>
 
-    <div class="container">
-      <div class="browse-search-wrap" appScrollReveal [revealDelay]="60">
-        <mat-form-field class="browse-search" appearance="outline">
-          <mat-label>Search by name, cuisine or postcode</mat-label>
-          <span matPrefix class="material-symbols-rounded search-prefix">search</span>
-          <input matInput
-                 [value]="searchQuery()"
-                 (input)="onSearch($event)"
-                 appRadialSelect
-                 autocomplete="off" />
-        </mat-form-field>
+        <!-- Quick Filter Pills -->
+        <div class="filter-pills-row" role="group" aria-label="Filters">
+          <button
+            type="button"
+            class="pill-btn"
+            [class.active]="filterSheetOpen() || activeFilterCount() > 0"
+            (click)="openFilterSheet()"
+            id="all-filters-btn"
+          >
+            <span class="material-symbols-rounded pill-icon">tune</span>
+            <span>Filters</span>
+            @if (activeFilterCount() > 0) {
+              <span class="filter-count-badge">{{ activeFilterCount() }}</span>
+            }
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.active]="showOffersOnly()"
+            (click)="showOffersOnly.set(!showOffersOnly())"
+            id="offers-pill-btn"
+          >
+            <span class="material-symbols-rounded pill-icon">local_offer</span>
+            <span>Offers</span>
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.active]="ratingFilter() >= 4.5"
+            (click)="ratingFilter.set(ratingFilter() >= 4.5 ? 0 : 4.5)"
+          >
+            <span>Ratings 4.5+</span>
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.active]="maxDeliveryTime() === 30"
+            (click)="maxDeliveryTime.set(maxDeliveryTime() === 30 ? null : 30)"
+          >
+            <span>Under 30 min</span>
+          </button>
+
+          <div class="sort-select-pill">
+            <span class="material-symbols-rounded sort-icon">sort</span>
+            <select (change)="onSortChange($event)" [value]="sortOption()" aria-label="Sort options">
+              <option value="rating">Top Rated</option>
+              <option value="time">Fastest Delivery</option>
+              <option value="distance">Nearest</option>
+              <option value="popular">Live Cooking First</option>
+            </select>
+          </div>
+
+          @if (activeFilterCount() > 0) {
+            <button type="button" class="pill-btn clear-all-pill" (click)="clearFilters()">
+              <span>Clear all</span>
+            </button>
+          }
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- ════════════════════════════════════════════ BROWSE BODY ══ -->
-  <div class="browse-body">
-    <div class="container">
+  <!-- ══════════════════════════════════════════════════
+       SECTION 1: HORIZONTAL CATEGORY / CUISINE ICON STRIP
+       ══════════════════════════════════════════════════ -->
+  <section class="category-strip-section" aria-label="Categories">
+    <div class="category-strip-container">
+      <div class="category-scroll-list">
+        @for (cat of CATEGORY_ICONS; track cat.label) {
+          <button
+            type="button"
+            class="category-icon-item"
+            [class.active]="cuisineFilter() === cat.filter && (activeCategoryLabel() === cat.label || cuisineFilter() !== 'All')"
+            (click)="setCategoryFilter(cat)"
+            [id]="'category-' + cat.label.toLowerCase()"
+          >
+            <div class="cat-emoji-circle">
+              <span class="cat-emoji">{{ cat.emoji }}</span>
+            </div>
+            <span class="cat-label">{{ cat.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </section>
 
-      <!-- Unified control bar: cuisine chips + sort + dietary + live count -->
-      <div class="control-bar" appScrollReveal>
-        <div class="control-bar__row control-bar__cuisines">
-          @for (c of CUISINE_OPTIONS; track c) {
-            <button class="cuisine-chip"
-              [class.chip-active]="cuisineFilter() === c"
-              (click)="cuisineFilter.set(c)"
-              appRadialSelect>{{ c }}</button>
+  <!-- ══════════════════════════════════════════════════
+       SECTION 2: PROMOTIONAL / OFFER BANNERS CAROUSEL
+       ══════════════════════════════════════════════════ -->
+  <section class="promo-banners-section" aria-label="Featured Offers">
+    <div class="promo-grid">
+      @for (banner of PROMO_BANNERS; track banner.id) {
+        <div class="promo-card" [style.background-color]="banner.bg" [style.color]="banner.textColor">
+          <div class="promo-card-content">
+            <h3 class="promo-card-title">{{ banner.title }}</h3>
+            <p class="promo-card-desc">{{ banner.desc }}</p>
+            <a
+              routerLink="/restaurants"
+              class="promo-cta-btn"
+              [style.background-color]="banner.btnBg"
+              [style.color]="banner.btnColor"
+            >
+              {{ banner.cta }}
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </a>
+          </div>
+          <div class="promo-card-img-wrapper">
+            <img [src]="banner.imageUrl" [alt]="banner.title" loading="lazy" />
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- If user is searching or filtered, show Unified Grid View -->
+  @if (searchQuery() || cuisineFilter() !== 'All' || activeFilterCount() > 0) {
+    <section class="filtered-results-section">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title">
+            @if (searchQuery()) {
+              Results for "{{ searchQuery() }}"
+            } @else if (cuisineFilter() !== 'All') {
+              {{ cuisineFilter() }} Kitchens
+            } @else {
+              Filtered Kitchens
+            }
+          </h2>
+          <p class="section-subtitle">{{ filteredRestaurants().length }} kitchens found cooking near you</p>
+        </div>
+        <button type="button" class="text-link-btn" (click)="clearFilters()">Show all categories</button>
+      </div>
+
+      @if (filteredRestaurants().length === 0) {
+        <div class="empty-state-card">
+          <span class="material-symbols-rounded empty-icon">restaurant</span>
+          <h3>No matching kitchens found</h3>
+          <p>Try clearing your filters or searching for another dish or cuisine.</p>
+          <button type="button" class="btn-primary" (click)="clearFilters()">Reset Filters</button>
+        </div>
+      } @else {
+        <div class="ubereats-cards-grid">
+          @for (restaurant of filteredRestaurants(); track restaurant.id) {
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
           }
         </div>
-        <div class="control-bar__divider"></div>
-        <div class="control-bar__row control-bar__meta">
-          <div class="sort-wrapper">
-            <span class="material-symbols-rounded sort-icon">sort</span>
-            <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
-              <option value="rating">Top rated</option>
-              <option value="time">Fastest delivery</option>
-              <option value="name">Name A–Z</option>
-            </select>
+      }
+    </section>
+  } @else {
+    <!-- ══════════════════════════════════════════════════
+         SECTION 3: FEATURED ON SEETHEPREP
+         ══════════════════════════════════════════════════ -->
+    <section class="browse-carousel-section" aria-labelledby="heading-featured">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title" id="heading-featured">Featured on SeeThePrep</h2>
+          <p class="section-subtitle">Staff picks with live transparent prep cams & verified hygiene</p>
+        </div>
+        <div class="carousel-arrows">
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-featured', -1)" aria-label="Previous">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-featured', 1)" aria-label="Next">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-scroll-container" id="carousel-featured">
+        @for (restaurant of featuredCards(); track restaurant.id) {
+          <div class="carousel-item-col">
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
           </div>
-          <div class="dietary-chips">
-            @for (d of DIETARY_OPTIONS; track d) {
-              <button class="dietary-chip"
-                [class.active]="activeDietary().includes(d)"
-                (click)="toggleDietary(d)"
-                appRadialSelect>{{ d }}</button>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 4: POPULAR NEAR YOU
+         ══════════════════════════════════════════════════ -->
+    <section class="browse-carousel-section" aria-labelledby="heading-popular">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title" id="heading-popular">Popular near you</h2>
+          <p class="section-subtitle">Top rated culinary destinations ordered frequently today</p>
+        </div>
+        <div class="carousel-arrows">
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-popular', -1)" aria-label="Previous">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-popular', 1)" aria-label="Next">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-scroll-container" id="carousel-popular">
+        @for (restaurant of popularCards(); track restaurant.id) {
+          <div class="carousel-item-col">
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 5: TOP QUALITY & EXCELLENT RATINGS
+         ══════════════════════════════════════════════════ -->
+    <section class="browse-carousel-section" aria-labelledby="heading-quality">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title" id="heading-quality">Top quality & highly rated</h2>
+          <p class="section-subtitle">Rated 4.7★+ by hundreds of local food lovers</p>
+        </div>
+        <div class="carousel-arrows">
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-quality', -1)" aria-label="Previous">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-quality', 1)" aria-label="Next">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-scroll-container" id="carousel-quality">
+        @for (restaurant of qualityCards(); track restaurant.id) {
+          <div class="carousel-item-col">
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 6: TODAY'S OFFERS & COUPONS
+         ══════════════════════════════════════════════════ -->
+    <section class="browse-carousel-section offers-highlight-section" aria-labelledby="heading-offers">
+      <div class="section-header-wrap">
+        <div>
+          <div class="badge-tag-wrap">
+            <span class="section-pill-tag"><span class="material-symbols-rounded">percent</span> SAVE BIG</span>
+          </div>
+          <h2 class="section-title" id="heading-offers">Today's Offers & Deals</h2>
+          <p class="section-subtitle">Discounts, buy 1 get 1, and free dishes available right now</p>
+        </div>
+        <div class="carousel-arrows">
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-offers', -1)" aria-label="Previous">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-offers', 1)" aria-label="Next">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-scroll-container" id="carousel-offers">
+        @for (restaurant of offersCards(); track restaurant.id) {
+          <div class="carousel-item-col">
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 7: LIVE KITCHEN LEGENDS
+         ══════════════════════════════════════════════════ -->
+    <section class="browse-carousel-section" aria-labelledby="heading-legends">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title" id="heading-legends">Live Prep Kitchens</h2>
+          <p class="section-subtitle">Watch chefs stretch dough, flame woks & plate gourmet dishes in real-time</p>
+        </div>
+        <div class="carousel-arrows">
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-legends', -1)" aria-label="Previous">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-legends', 1)" aria-label="Next">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-scroll-container" id="carousel-legends">
+        @for (restaurant of legendCards(); track restaurant.id) {
+          <div class="carousel-item-col">
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 8: GREAT VALUE UNDER £15
+         ══════════════════════════════════════════════════ -->
+    <section class="browse-carousel-section" aria-labelledby="heading-value">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title" id="heading-value">Great value delivery</h2>
+          <p class="section-subtitle">Satisfying meals with low delivery fees under 25 mins</p>
+        </div>
+        <div class="carousel-arrows">
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-value', -1)" aria-label="Previous">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button type="button" class="arrow-btn" (click)="scrollSection('carousel-value', 1)" aria-label="Next">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-scroll-container" id="carousel-value">
+        @for (restaurant of budgetCards(); track restaurant.id) {
+          <div class="carousel-item-col">
+            <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 9: ALL RESTAURANTS (MAIN GRID)
+         ══════════════════════════════════════════════════ -->
+    <section class="all-restaurants-section" aria-labelledby="heading-all">
+      <div class="section-header-wrap">
+        <div>
+          <h2 class="section-title" id="heading-all">All Kitchens on SeeThePrep</h2>
+          <p class="section-subtitle">Explore all {{ restaurants().length }} transparent kitchens ready to deliver to your doorstep</p>
+        </div>
+      </div>
+      <div class="ubereats-cards-grid">
+        @for (restaurant of restaurants(); track restaurant.id) {
+          <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ══════════════════════════════════════════════════
+       REUSABLE UBER EATS STYLE RESTAURANT CARD TEMPLATE
+       ══════════════════════════════════════════════════ -->
+  <ng-template #restaurantCardTpl let-restaurant>
+    <article class="ue-restaurant-card" [class.is-closed]="restaurant.isActive === false">
+      <a [routerLink]="['/restaurant', restaurant.hashId]" class="ue-card-link-wrapper">
+        <!-- Top Media Area -->
+        <div class="ue-card-media">
+          <img
+            [src]="restaurant.imageUrl"
+            [alt]="restaurant.name"
+            class="ue-card-img"
+            loading="lazy"
+          />
+
+          <!-- Live Badge (Top Left) -->
+          @if (restaurant.isLive) {
+            <span class="ue-badge-live">
+              <span class="pulse-indicator"></span> LIVE PREP
+            </span>
+          }
+
+          <!-- Deal / Offer Banner (Bottom Left over image) -->
+          @if (getDeal(restaurant.id)) {
+            <div class="ue-badge-deal">
+              <span class="material-symbols-rounded deal-icon">local_offer</span>
+              <span class="deal-text">{{ getDeal(restaurant.id) }}</span>
+            </div>
+          }
+
+          <!-- Favorite Button (Top Right) -->
+          <button
+            type="button"
+            class="ue-fav-btn"
+            [class.is-fav]="favourites.isFavourite(restaurant.id)"
+            [disabled]="togglingFavId() === restaurant.id"
+            (click)="toggleFavourite($event, restaurant)"
+            aria-label="Save to favourites"
+          >
+            <span class="material-symbols-rounded">
+              {{ favourites.isFavourite(restaurant.id) ? 'favorite' : 'favorite_border' }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Card Content Area -->
+        <div class="ue-card-body">
+          <!-- Row 1: Name and Rating Pill -->
+          <div class="ue-body-header">
+            <h3 class="ue-restaurant-name">{{ restaurant.name }}</h3>
+            <div class="ue-rating-pill" [attr.aria-label]="restaurant.rating + ' rating'">
+              <span class="ue-rating-score">{{ restaurant.rating || 4.8 }}</span>
+              <span class="material-symbols-rounded ue-star-icon">star</span>
+              <span class="ue-rating-count">({{ getReviewCount(restaurant.id) }})</span>
+            </div>
+          </div>
+
+          <!-- Row 2: Cuisine, Delivery Fee & ETA Meta -->
+          <div class="ue-meta-row">
+            <span class="ue-meta-item">{{ restaurant.cuisineType }}</span>
+            <span class="ue-dot">•</span>
+            <span class="ue-meta-item delivery-fee">
+              @if (getDeliveryFee(restaurant.id) === '£0.00') {
+                <strong class="free-delivery">£0 Delivery Fee</strong>
+              } @else {
+                {{ getDeliveryFee(restaurant.id) }} Delivery
+              }
+            </span>
+            <span class="ue-dot">•</span>
+            <span class="ue-meta-item eta">{{ restaurant.estimatedDeliveryMinutes }}–{{ restaurant.estimatedDeliveryMinutes + 10 }} min</span>
+          </div>
+
+          <!-- Row 3: Live Prep Status or Great Value Note -->
+          @if (restaurant.isLive && restaurant.liveMessage) {
+            <div class="ue-live-message">
+              <span class="material-symbols-rounded message-icon">videocam</span>
+              <span class="message-text">{{ restaurant.liveMessage }}</span>
+            </div>
+          } @else if (isGreatValue(restaurant.id)) {
+            <div class="ue-value-tag">
+              <span class="material-symbols-rounded">savings</span>
+              <span>Great value selection</span>
+            </div>
+          }
+        </div>
+      </a>
+    </article>
+  </ng-template>
+
+  <!-- ══════════════════════════════════════════════════
+       FILTER SLIDEOVER / MODAL SHEET
+       ══════════════════════════════════════════════════ -->
+  @if (filterSheetOpen()) {
+    <div class="filter-backdrop" (click)="closeFilterSheet()" role="presentation"></div>
+    <div class="filter-sheet" role="dialog" aria-modal="true" aria-labelledby="filter-sheet-title">
+      <div class="filter-sheet-header">
+        <h2 id="filter-sheet-title">All Filters</h2>
+        <button type="button" class="sheet-close-btn" (click)="closeFilterSheet()" aria-label="Close filters">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <div class="filter-sheet-content">
+        <!-- Cuisine Filter -->
+        <div class="sheet-section">
+          <h3>Cuisine Type</h3>
+          <div class="chips-list">
+            @for (cuisine of CUISINE_OPTIONS; track cuisine) {
+              <button
+                type="button"
+                class="chip-option"
+                [class.selected]="cuisineFilter() === cuisine"
+                (click)="cuisineFilter.set(cuisine)"
+              >
+                {{ cuisine }}
+              </button>
             }
           </div>
-          <span class="result-count">
-            <span class="result-count__dot"></span>
-            {{ filteredRestaurants().length }} kitchen{{ filteredRestaurants().length === 1 ? '' : 's' }} live now
-          </span>
+        </div>
+
+        <!-- Dietary Preferences -->
+        <div class="sheet-section">
+          <h3>Dietary</h3>
+          <div class="chips-list">
+            @for (d of DIETARY_OPTIONS; track d) {
+              <button
+                type="button"
+                class="chip-option"
+                [class.selected]="activeDietary().includes(d)"
+                (click)="toggleDietary(d)"
+              >
+                {{ d }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Rating Filter -->
+        <div class="sheet-section">
+          <h3>Rating</h3>
+          <div class="chips-list">
+            @for (r of RATING_OPTIONS; track r.value) {
+              <button
+                type="button"
+                class="chip-option"
+                [class.selected]="ratingFilter() === r.value"
+                (click)="ratingFilter.set(r.value)"
+              >
+                {{ r.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Max Delivery Time -->
+        <div class="sheet-section">
+          <h3>Max Delivery Time</h3>
+          <div class="chips-list">
+            @for (t of DELIVERY_OPTIONS; track t.label) {
+              <button
+                type="button"
+                class="chip-option"
+                [class.selected]="maxDeliveryTime() === t.value"
+                (click)="maxDeliveryTime.set(t.value)"
+              >
+                {{ t.label }}
+              </button>
+            }
+          </div>
         </div>
       </div>
 
-      @if (loading()) {
-        <div class="grid">
-          @for (i of [1,2,3,4,5,6]; track i) {
-            <div class="skeleton-card">
-              <div class="sk-img"></div>
-              <div class="sk-line w70"></div>
-              <div class="sk-line w50"></div>
-              <div class="sk-line w35"></div>
-            </div>
-          }
-        </div>
-      } @else {
-
-        <!-- Favourites section (customers only) -->
-        @if (auth.isCustomer() && favouriteRestaurants().length > 0) {
-          <div class="favourites-section" appScrollReveal>
-            <h2 class="favourites-heading">
-              <span class="material-symbols-rounded">favorite</span>
-              Your Favourites
-            </h2>
-            <div class="grid">
-              @for (restaurant of favouriteRestaurants(); track restaurant.id; let i = $index) {
-                <a [routerLink]="['/restaurant', restaurant.hashId]"
-                   class="restaurant-card tilt-card elite-card card-ripple"
-                   appTilt [tiltMax]="12"
-                   appParallaxHover [parallaxMax]="10"
-                   appScrollReveal [revealDelay]="i * 70">
-                  <div class="card-glare"></div>
-                  <div class="card-image">
-                    <div class="card-image-gradient" data-parallax-depth="0.3"></div>
-                    <div class="card-img-overlay" data-parallax-depth="0.5"></div>
-                    <span class="elite-gold-badge" aria-hidden="true" data-parallax-depth="1.4">
-                      <span class="material-symbols-rounded">workspace_premium</span>
-                      Elite
-                    </span>
-                    @if (restaurant.imageUrl) {
-                      <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
-                    } @else {
-                      <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
-                    }
-                    <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
-                      <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
-                      <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
-                    </div>
-                    <button class="fav-btn fav-btn--active"
-                      (click)="toggleFavourite($event, restaurant)"
-                      [disabled]="togglingFavId() === restaurant.id"
-                      aria-label="Remove from favourites"
-                      matTooltip="Remove from favourites"
-                      appMagnetic
-                      data-parallax-depth="1.3">
-                      <span class="material-symbols-rounded">favorite</span>
-                    </button>
-                  </div>
-                  <div class="card-body" data-parallax-depth="1.0">
-                    <div class="card-title-row">
-                      <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-                    </div>
-                    <div class="restaurant-meta">
-                      <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
-                      <span class="meta-item">
-                        <span class="material-symbols-rounded meta-icon">schedule</span>
-                        ~{{ restaurant.estimatedDeliveryMinutes }} min
-                      </span>
-                      @if (restaurant.supportsCollection) {
-                        <span class="collection-badge">
-                          <span class="material-symbols-rounded">store</span> Pickup
-                        </span>
-                      }
-                    </div>
-                  </div>
-                </a>
-              }
-            </div>
-          </div>
-          <div class="section-divider" appScrollReveal><span>All Restaurants</span></div>
-        }
-
-        <!-- ── Main grid ── -->
-        <div class="grid">
-          @for (restaurant of filteredRestaurants(); track restaurant.id; let i = $index) {
-            <a [routerLink]="['/restaurant', restaurant.hashId]"
-               class="restaurant-card tilt-card elite-card card-ripple"
-               appParallaxHover [parallaxMax]="10"
-               appScrollReveal [revealDelay]="i * 70">
-              <div class="card-glare"></div>
-              <div class="card-image">
-                <div class="card-image-gradient" data-parallax-depth="0.3"></div>
-                <div class="card-img-overlay" data-parallax-depth="0.5"></div>
-                @if (restaurant.imageUrl) {
-                  <img class="restaurant-img" [src]="restaurant.imageUrl" [alt]="restaurant.name" width="400" height="240" loading="lazy" data-parallax-depth="1.5">
-                } @else {
-                  <app-image-fallback [name]="restaurant.name" tone="auto" data-parallax-depth="1.5" />
-                }
-                <div class="hygiene-badge" [attr.data-rating]="restaurant.hygieneRating" data-parallax-depth="1.2">
-                  <span class="hygiene-stars">{{ restaurant.hygieneRating | hygieneStars }}</span>
-                  <span class="hygiene-label">{{ restaurant.hygieneRating | hygieneLabel }}</span>
-                </div>
-                <div class="live-pip"><span class="live-dot-anim"></span> LIVE</div>
-                @if (auth.isCustomer()) {
-                  <button class="fav-btn"
-                    [class.fav-btn--active]="favourites.isFavourite(restaurant.id)"
-                    (click)="toggleFavourite($event, restaurant)"
-                    [disabled]="togglingFavId() === restaurant.id"
-                    [attr.aria-label]="favourites.isFavourite(restaurant.id) ? 'Remove from favourites' : 'Add to favourites'"
-                    [attr.matTooltip]="favourites.isFavourite(restaurant.id) ? 'Saved' : 'Save restaurant'"
-                    appRadialSelect
-                    data-parallax-depth="1.3">
-                    <span class="material-symbols-rounded">
-                      {{ favourites.isFavourite(restaurant.id) ? 'favorite' : 'favorite_border' }}
-                    </span>
-                  </button>
-                }
-              </div>
-              <div class="card-body" data-parallax-depth="1.0">
-                <div class="card-title-row">
-                  <h3 class="restaurant-name">{{ restaurant.name }}</h3>
-                  @if (restaurant.isActive) {
-                    <span class="status-pill pill-open">
-                      <span class="pulse-dot"></span> Open
-                    </span>
-                  } @else {
-                    <span class="status-pill pill-closed">Closed</span>
-                  }
-                </div>
-                <p class="restaurant-address">
-                  <span class="material-symbols-rounded meta-icon">location_on</span>
-                  {{ restaurant.address }}
-                </p>
-                <div class="restaurant-meta">
-                  <span class="cuisine-tag">{{ restaurant.cuisineType }}</span>
-                  <span class="meta-item">
-                    <span class="material-symbols-rounded meta-icon">schedule</span>
-                    ~{{ restaurant.estimatedDeliveryMinutes }} min
-                  </span>
-                  <span class="meta-item">
-                    <span class="material-symbols-rounded meta-icon">pedal_bike</span>
-                    {{ restaurant.deliveryRadiusMiles }} mi
-                  </span>
-                  @if (restaurant.supportsCollection) {
-                    <span class="collection-badge">
-                      <span class="material-symbols-rounded">store</span> Pickup
-                    </span>
-                  }
-                </div>
-                <span class="card-arrow" aria-hidden="true">
-                  <span class="material-symbols-rounded">arrow_forward</span>
-                </span>
-              </div>
-            </a>
-          } @empty {
-            <div class="empty-state">
-              <div class="empty-icon">
-                <span class="material-symbols-rounded">restaurant</span>
-              </div>
-              <h3>Nothing's cooking here — yet</h3>
-              <p>Try a different name, cuisine or postcode. New kitchens go live every week.</p>
-            </div>
-          }
-        </div>
-
-      }
+      <div class="filter-sheet-footer">
+        <button type="button" class="btn-secondary" (click)="clearFilters()">Reset</button>
+        <button type="button" class="btn-primary" (click)="closeFilterSheet()">Apply Filters</button>
+      </div>
     </div>
-  </div>
-</div>
+  }
+
+</main>
