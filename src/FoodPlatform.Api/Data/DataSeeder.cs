@@ -28,7 +28,13 @@ public static class DataSeeder
             new Restaurant { Id = 3, Name = "Sakura Sushi",     Address = "7 Shoreditch High Street, London",    BasePostcode = "E1 6JE",  DeliveryRadiusMiles = 4.0, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
             new Restaurant { Id = 4, Name = "The Burger Joint", Address = "55 Camden High Street, London",       BasePostcode = "NW1 7JH", DeliveryRadiusMiles = 3.5, HygieneRating = 4, IsActive = true, CreatedAt = SeedDate },
             new Restaurant { Id = 5, Name = "Green Bowl",       Address = "12 Notting Hill Gate, London",        BasePostcode = "W11 3HR", DeliveryRadiusMiles = 3.0, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
-            new Restaurant { Id = 6, Name = "Dragon Wok",       Address = "88 Gerrard Street, Chinatown, London",BasePostcode = "W1D 5PT", DeliveryRadiusMiles = 2.5, HygieneRating = 4, IsActive = true, CreatedAt = SeedDate }
+            new Restaurant { Id = 6, Name = "Dragon Wok",       Address = "88 Gerrard Street, Chinatown, London",BasePostcode = "W1D 5PT", DeliveryRadiusMiles = 2.5, HygieneRating = 4, IsActive = true, CreatedAt = SeedDate },
+            new Restaurant { Id = 7, Name = "Taco & Cantina",   Address = "24 Marylebone High Street, London",   BasePostcode = "W1U 4PQ", DeliveryRadiusMiles = 1.9, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
+            new Restaurant { Id = 8, Name = "Bombay House",     Address = "102 Brick Lane, London",              BasePostcode = "E1 6RL",  DeliveryRadiusMiles = 3.8, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
+            new Restaurant { Id = 9, Name = "Ramen Master",     Address = "31 Brewer Street, Soho, London",      BasePostcode = "W1F 0SS", DeliveryRadiusMiles = 2.2, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
+            new Restaurant { Id = 10, Name = "Pure Vegan Kitchen", Address = "5 Islington Green, London",     BasePostcode = "N1 2XH",  DeliveryRadiusMiles = 2.9, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
+            new Restaurant { Id = 11, Name = "Le Petit Artisan",Address = "14 Covent Garden Market, London",    BasePostcode = "WC2E 8RF", DeliveryRadiusMiles = 1.4, HygieneRating = 5, IsActive = true, CreatedAt = SeedDate },
+            new Restaurant { Id = 12, Name = "La Slice Pizzeria",Address = "79 Commercial Street, London",     BasePostcode = "E1 6BD",  DeliveryRadiusMiles = 4.2, HygieneRating = 5, IsActive = false, CreatedAt = SeedDate }
         );
     }
 

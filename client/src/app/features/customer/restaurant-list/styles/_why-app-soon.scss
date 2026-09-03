@@ -6,9 +6,8 @@
    ─────────────────────────────────────────────────────────────── */
 .why {
   position: relative;
-  padding: var(--section-pad) 0 clamp(2rem, 4vw, 4rem);
-  background:
-    linear-gradient(180deg, var(--c-bg) 0%, var(--c-bg-soft) 50%, var(--c-bg) 100%);
+  padding: var(--section-pad) 0;
+  background: var(--NEW--bg, #fffcf7);
   overflow: hidden;
   isolation: isolate;
 }
@@ -18,15 +17,14 @@
   width: 520px; height: 520px;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.45;
+  opacity: 0.25;
 }
 .why-orb.orb-a {
   top: -120px; left: -120px;
   background: radial-gradient(circle, color-mix(in srgb, var(--c-orange) 35%, transparent), transparent 70%);
 }
 .why-orb.orb-b {
-  bottom: -160px; right: -120px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--c-pink) 30%, transparent), transparent 70%);
+  display: none;
 }
 
 .why-head {

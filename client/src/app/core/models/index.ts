@@ -22,6 +22,20 @@ export interface Restaurant {
   phone?: string | null;
   /** When true, customers can choose collection (pickup) instead of delivery. */
   supportsCollection: boolean;
+  /** Optional summary/tagline. */
+  description?: string | null;
+  /** Whether the kitchen is currently broadcasting live. */
+  isLive?: boolean;
+  /** Status banner when cooking live, e.g. "Preparing tandoori orders live". */
+  liveMessage?: string | null;
+  /** Featured kitchen on discovery page. */
+  featured?: boolean;
+  /** Dietary tags applicable to kitchen. */
+  dietaryTags?: string[];
+  /** Star rating out of 5 (e.g. 4.8). */
+  rating?: number;
+  /** Rating label (e.g. "Excellent", "Exceptional"). */
+  ratingLabel?: string;
 }
 
 export interface RestaurantDetail extends Restaurant {
@@ -117,8 +131,6 @@ export interface Order {
   giftCardDiscount: number;
   /** Delivery fee charged on this order (£). Zero for collection and Plus members. */
   deliveryFee: number;
-  /** SeeThePrep Rewards account credit applied to this order (£). */
-  creditApplied?: number;
 }
 
 export interface OrderItem {
