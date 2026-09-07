@@ -322,6 +322,10 @@ $radius-pill: 9999px;
 
         .cat-emoji-circle {
           background: #e9e9e9;
+
+          .cat-img {
+            transform: scale(1.08);
+          }
         }
       }
 
@@ -329,6 +333,7 @@ $radius-pill: 9999px;
         .cat-emoji-circle {
           background: $brand-primary-light;
           border-color: $brand-primary;
+          box-shadow: 0 0 0 2px rgba($brand-primary, 0.2);
         }
         .cat-label {
           color: $brand-primary;
@@ -345,7 +350,17 @@ $radius-pill: 9999px;
         align-items: center;
         justify-content: center;
         border: 2px solid transparent;
+        overflow: hidden;
         transition: all 0.2s ease;
+
+        .cat-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          display: block;
+          transition: transform 0.25s ease;
+        }
 
         .cat-emoji {
           font-size: 1.7rem;
@@ -367,13 +382,76 @@ $radius-pill: 9999px;
   max-width: 1380px;
   margin: 1rem auto 2rem;
   padding: 0 1.5rem;
+  position: relative;
 
-  .promo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  .promo-carousel-wrapper {
+    position: relative;
+  }
+
+  .promo-arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    color: #111827;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background: #ffffff;
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    &.promo-arrow-left {
+      left: -18px;
+    }
+
+    &.promo-arrow-right {
+      right: -18px;
+    }
+
+    span {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+
+  .promo-carousel, .promo-grid {
+    display: flex;
     gap: 1.25rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0.35rem 0.2rem 0.75rem 0.2rem;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     .promo-card {
+      flex: 0 0 calc(33.333% - 0.85rem);
+      min-width: 330px;
+      scroll-snap-align: start;
       border-radius: $radius-card;
       padding: 1.5rem;
       display: flex;
@@ -383,6 +461,17 @@ $radius-pill: 9999px;
       box-shadow: $shadow-sm;
       position: relative;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      @media (max-width: 1100px) {
+        flex: 0 0 calc(50% - 0.65rem);
+        min-width: 320px;
+      }
+
+      @media (max-width: 720px) {
+        flex: 0 0 86vw;
+        min-width: 280px;
+        padding: 1.25rem;
+      }
 
       &:hover {
         transform: translateY(-3px);
@@ -417,10 +506,11 @@ $radius-pill: 9999px;
           font-size: 0.82rem;
           font-weight: 700;
           text-decoration: none;
-          transition: opacity 0.15s ease;
+          transition: opacity 0.15s ease, transform 0.15s ease;
 
           &:hover {
-            opacity: 0.9;
+            opacity: 0.95;
+            transform: translateY(-1px);
           }
 
           span { font-size: 1.1rem; }
@@ -996,9 +1086,6 @@ $radius-pill: 9999px;
 
   .promo-banners-section {
     padding: 0 1rem;
-    .promo-grid {
-      grid-template-columns: 1fr;
-    }
   }
 
   .browse-carousel-section, .all-restaurants-section, .filtered-results-section {

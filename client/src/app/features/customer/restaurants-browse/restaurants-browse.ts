@@ -150,6 +150,358 @@ const DEMO_RESTAURANTS: Restaurant[] = [
     featured: false, supportsCollection: true, dietaryTags: ['Vegetarian'],
     phone: '+44 20 7946 1266',
   },
+  {
+    id: 13, hashId: 'rest-13', name: 'McDonald\'s', cuisineType: 'Burgers',
+    description: 'Iconic burgers, world-famous fries.',
+    imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1000',
+  },
+  {
+    id: 14, hashId: 'rest-14', name: 'Burger King', cuisineType: 'Burgers',
+    description: 'Home of the Whopper, flame-grilled burgers.',
+    imageUrl: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1001',
+  },
+  {
+    id: 15, hashId: 'rest-15', name: 'Five Guys', cuisineType: 'Burgers',
+    description: 'Handcrafted burgers and fresh-cut fries.',
+    imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1002',
+  },
+  {
+    id: 16, hashId: 'rest-16', name: 'Wendy\'s', cuisineType: 'Burgers',
+    description: 'Fresh, never frozen beef burgers.',
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1003',
+  },
+  {
+    id: 17, hashId: 'rest-17', name: 'KFC', cuisineType: 'Chicken',
+    description: 'Finger Lickin\' Good fried chicken.',
+    imageUrl: 'https://images.unsplash.com/photo-1626082895617-2c6e866a7b7a?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1004',
+  },
+  {
+    id: 18, hashId: 'rest-18', name: 'Pepe\'s Piri Piri', cuisineType: 'Chicken',
+    description: 'Flame grilled piri piri chicken.',
+    imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1005',
+  },
+  {
+    id: 19, hashId: 'rest-19', name: 'Popeyes', cuisineType: 'Chicken',
+    description: 'Louisiana kitchen famous fried chicken.',
+    imageUrl: 'https://images.unsplash.com/photo-1569691899455-88464f6d3310?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1006',
+  },
+  {
+    id: 20, hashId: 'rest-20', name: 'Nando\'s', cuisineType: 'Chicken',
+    description: 'Legendary flame-grilled PERi-PERi chicken.',
+    imageUrl: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1007',
+  },
+  {
+    id: 21, hashId: 'rest-21', name: 'Wingstop', cuisineType: 'Chicken',
+    description: 'Flavor cravers\' favorite chicken wings.',
+    imageUrl: 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1008',
+  },
+  {
+    id: 22, hashId: 'rest-22', name: 'Slim Chickens', cuisineType: 'Chicken',
+    description: 'Fresh, hand-breaded chicken tenders.',
+    imageUrl: 'https://images.unsplash.com/photo-1625938146369-adc83368bda7?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1009',
+  },
+  {
+    id: 23, hashId: 'rest-23', name: 'Domino\'s', cuisineType: 'Pizza',
+    description: 'Piping hot pizza delivered fresh.',
+    imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1010',
+  },
+  {
+    id: 24, hashId: 'rest-24', name: 'Papa John\'s', cuisineType: 'Pizza',
+    description: 'Better Ingredients. Better Pizza.',
+    imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1011',
+  },
+  {
+    id: 25, hashId: 'rest-25', name: 'Pizza Hut', cuisineType: 'Pizza',
+    description: 'Pan pizzas, stuffed crusts, and wings.',
+    imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1012',
+  },
+  {
+    id: 26, hashId: 'rest-26', name: 'PizzaExpress', cuisineType: 'Pizza',
+    description: 'Artisanal pizzas and dough balls.',
+    imageUrl: 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1013',
+  },
+  {
+    id: 27, hashId: 'rest-27', name: 'Taco Bell', cuisineType: 'Mexican',
+    description: 'Craveable Mexican-inspired favorites.',
+    imageUrl: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1014',
+  },
+  {
+    id: 28, hashId: 'rest-28', name: 'Chipotle', cuisineType: 'Mexican',
+    description: 'Burritos, bowls, and tacos with real ingredients.',
+    imageUrl: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1015',
+  },
+  {
+    id: 29, hashId: 'rest-29', name: 'Tortilla', cuisineType: 'Mexican',
+    description: 'Real California burritos and tacos.',
+    imageUrl: 'https://images.unsplash.com/photo-1615870216519-2f9fa575fa5c?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1016',
+  },
+  {
+    id: 30, hashId: 'rest-30', name: 'Wagamama', cuisineType: 'Asian',
+    description: 'Asian-inspired food in a bustling setting.',
+    imageUrl: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1017',
+  },
+  {
+    id: 31, hashId: 'rest-31', name: 'Yo! Sushi', cuisineType: 'Asian',
+    description: 'Fresh, flavourful Japanese street food.',
+    imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1018',
+  },
+  {
+    id: 32, hashId: 'rest-32', name: 'Wok to Walk', cuisineType: 'Asian',
+    description: 'Custom Asian noodle and rice stir-fries.',
+    imageUrl: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1019',
+  },
+  {
+    id: 33, hashId: 'rest-33', name: 'Bubbleology', cuisineType: 'Asian',
+    description: 'Deliciously refreshing bubble teas.',
+    imageUrl: 'https://images.unsplash.com/photo-1558857563-b37103ef4e55?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1020',
+  },
+  {
+    id: 34, hashId: 'rest-34', name: 'Subway', cuisineType: 'Café',
+    description: 'Freshly made subs, wraps, and salads.',
+    imageUrl: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1021',
+  },
+  {
+    id: 35, hashId: 'rest-35', name: 'Greggs', cuisineType: 'Café',
+    description: 'Freshly baked sausage rolls, bakes, and treats.',
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1022',
+  },
+  {
+    id: 36, hashId: 'rest-36', name: 'Pret a Manger', cuisineType: 'Café',
+    description: 'Handmade natural food and organic coffee.',
+    imageUrl: 'https://images.unsplash.com/photo-1550508139-83a54b38d7d9?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1023',
+  },
+  {
+    id: 37, hashId: 'rest-37', name: 'Costa Coffee', cuisineType: 'Coffee',
+    description: 'Expertly crafted coffees and sweet treats.',
+    imageUrl: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1024',
+  },
+  {
+    id: 38, hashId: 'rest-38', name: 'Starbucks', cuisineType: 'Coffee',
+    description: 'Premium roasts, frappuccinos, and bakery items.',
+    imageUrl: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1025',
+  },
+  {
+    id: 39, hashId: 'rest-39', name: 'Caffè Nero', cuisineType: 'Coffee',
+    description: 'Italian-style premium espresso blends.',
+    imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1026',
+  },
+  {
+    id: 40, hashId: 'rest-40', name: 'Krispy Kreme', cuisineType: 'Desserts',
+    description: 'Original glazed and assorted premium doughnuts.',
+    imageUrl: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1027',
+  },
+  {
+    id: 41, hashId: 'rest-41', name: 'Creams Café', cuisineType: 'Desserts',
+    description: 'Waffles, crêpes, sundaes, and shakes.',
+    imageUrl: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1028',
+  },
+  {
+    id: 42, hashId: 'rest-42', name: 'Häagen-Dazs', cuisineType: 'Desserts',
+    description: 'Luxury ice cream in extraordinary flavors.',
+    imageUrl: 'https://images.unsplash.com/photo-1570197781417-0a52375c020d?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1029',
+  },
+  {
+    id: 43, hashId: 'rest-43', name: 'Baskin-Robbins', cuisineType: 'Desserts',
+    description: '31 flavors of premium ice cream treats.',
+    imageUrl: 'https://images.unsplash.com/photo-1557142046-c704a3adf364?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1030',
+  },
+  {
+    id: 44, hashId: 'rest-44', name: 'Ben & Jerry\'s', cuisineType: 'Desserts',
+    description: 'Chunks and swirls in euphoric ice cream.',
+    imageUrl: 'https://images.unsplash.com/photo-1563805042-7684c8a9e9ce?w=800&q=80&auto=format&fit=crop',
+    rating: parseFloat((Math.random() * (4.9 - 4.1) + 4.1).toFixed(1)), ratingLabel: 'Good', hygieneRating: 5,
+    estimatedDeliveryMinutes: Math.floor(Math.random() * (45 - 15 + 1) + 15), deliveryRadiusMiles: parseFloat((Math.random() * (5.0 - 1.0) + 1.0).toFixed(1)),
+    address: 'London', basePostcode: 'W1D',
+    isActive: true, isLive: false, liveMessage: null,
+    featured: false, supportsCollection: true, dietaryTags: [],
+    phone: '+44 20 7946 1031',
+  },
 ];
 
 // Keyed by restaurant NAME (stable across demo/API merge — IDs change, names don't)
@@ -162,6 +514,38 @@ const DEAL_BADGES: Record<string, string> = {
   'Taco & Cantina':    '40% off £20+',
   'Bombay House':      'Buy 1, get a free item',
   'Pure Vegan Kitchen':'50% off select items',
+  'McDonald\'s': '20% off £15+',
+  'Burger King': '20% off £15+',
+  'Five Guys': '20% off £15+',
+  'Wendy\'s': '20% off £15+',
+  'KFC': '20% off £15+',
+  'Pepe\'s Piri Piri': '20% off £15+',
+  'Popeyes': '20% off £15+',
+  'Nando\'s': '20% off £15+',
+  'Wingstop': '20% off £15+',
+  'Slim Chickens': '20% off £15+',
+  'Domino\'s': '20% off £15+',
+  'Papa John\'s': '20% off £15+',
+  'Pizza Hut': '20% off £15+',
+  'PizzaExpress': '20% off £15+',
+  'Taco Bell': '20% off £15+',
+  'Chipotle': '20% off £15+',
+  'Tortilla': '20% off £15+',
+  'Wagamama': '20% off £15+',
+  'Yo! Sushi': '20% off £15+',
+  'Wok to Walk': '20% off £15+',
+  'Bubbleology': '20% off £15+',
+  'Subway': '20% off £15+',
+  'Greggs': '20% off £15+',
+  'Pret a Manger': '20% off £15+',
+  'Costa Coffee': '20% off £15+',
+  'Starbucks': '20% off £15+',
+  'Caffè Nero': '20% off £15+',
+  'Krispy Kreme': '20% off £15+',
+  'Creams Café': '20% off £15+',
+  'Häagen-Dazs': '20% off £15+',
+  'Baskin-Robbins': '20% off £15+',
+  'Ben & Jerry\'s': '20% off £15+',
 };
 
 const DELIVERY_FEES: Record<string, string> = {
@@ -177,6 +561,38 @@ const DELIVERY_FEES: Record<string, string> = {
   'Pure Vegan Kitchen': '£0.29',
   'Le Petit Artisan':   '£0.79',
   'La Slice Pizzeria':  '£1.29',
+  'McDonald\'s': '£1.49',
+  'Burger King': '£1.49',
+  'Five Guys': '£1.49',
+  'Wendy\'s': '£1.49',
+  'KFC': '£1.49',
+  'Pepe\'s Piri Piri': '£1.49',
+  'Popeyes': '£1.49',
+  'Nando\'s': '£1.49',
+  'Wingstop': '£1.49',
+  'Slim Chickens': '£1.49',
+  'Domino\'s': '£1.49',
+  'Papa John\'s': '£1.49',
+  'Pizza Hut': '£1.49',
+  'PizzaExpress': '£1.49',
+  'Taco Bell': '£1.49',
+  'Chipotle': '£1.49',
+  'Tortilla': '£1.49',
+  'Wagamama': '£1.49',
+  'Yo! Sushi': '£1.49',
+  'Wok to Walk': '£1.49',
+  'Bubbleology': '£1.49',
+  'Subway': '£1.49',
+  'Greggs': '£1.49',
+  'Pret a Manger': '£1.49',
+  'Costa Coffee': '£1.49',
+  'Starbucks': '£1.49',
+  'Caffè Nero': '£1.49',
+  'Krispy Kreme': '£1.49',
+  'Creams Café': '£1.49',
+  'Häagen-Dazs': '£1.49',
+  'Baskin-Robbins': '£1.49',
+  'Ben & Jerry\'s': '£1.49',
 };
 
 const REVIEW_COUNTS: Record<string, string> = {
@@ -192,9 +608,41 @@ const REVIEW_COUNTS: Record<string, string> = {
   'Pure Vegan Kitchen': '150+',
   'Le Petit Artisan':   '250+',
   'La Slice Pizzeria':  '600+',
+  'McDonald\'s': '1,000+',
+  'Burger King': '1,000+',
+  'Five Guys': '1,000+',
+  'Wendy\'s': '1,000+',
+  'KFC': '1,000+',
+  'Pepe\'s Piri Piri': '1,000+',
+  'Popeyes': '1,000+',
+  'Nando\'s': '1,000+',
+  'Wingstop': '1,000+',
+  'Slim Chickens': '1,000+',
+  'Domino\'s': '1,000+',
+  'Papa John\'s': '1,000+',
+  'Pizza Hut': '1,000+',
+  'PizzaExpress': '1,000+',
+  'Taco Bell': '1,000+',
+  'Chipotle': '1,000+',
+  'Tortilla': '1,000+',
+  'Wagamama': '1,000+',
+  'Yo! Sushi': '1,000+',
+  'Wok to Walk': '1,000+',
+  'Bubbleology': '1,000+',
+  'Subway': '1,000+',
+  'Greggs': '1,000+',
+  'Pret a Manger': '1,000+',
+  'Costa Coffee': '1,000+',
+  'Starbucks': '1,000+',
+  'Caffè Nero': '1,000+',
+  'Krispy Kreme': '1,000+',
+  'Creams Café': '1,000+',
+  'Häagen-Dazs': '1,000+',
+  'Baskin-Robbins': '1,000+',
+  'Ben & Jerry\'s': '1,000+',
 };
 
-const GREAT_VALUE_NAMES = new Set(['The Burger Joint', 'Taco & Cantina', 'Ramen Master', 'La Slice Pizzeria']);
+const GREAT_VALUE_NAMES = new Set(['The Burger Joint', 'Taco & Cantina', 'Ramen Master', 'La Slice Pizzeria', 'McDonald\'s', 'Burger King', 'Subway', 'Greggs']);
 
 @Component({
   selector: 'app-restaurants-browse',
@@ -220,7 +668,7 @@ export class RestaurantsBrowse implements OnInit {
   readonly showOffersOnly = signal(false);
   readonly activeCategoryLabel = signal('');
 
-  readonly CUISINE_OPTIONS  = ['All', 'Indian', 'Italian', 'Japanese', 'Burgers', 'Chinese', 'Healthy', 'Pizza', 'Other'];
+  readonly CUISINE_OPTIONS  = ['All', 'Indian', 'Italian', 'Japanese', 'Burgers', 'Chinese', 'Healthy', 'Pizza', 'Chicken', 'Mexican', 'Asian', 'Café', 'Coffee', 'Desserts', 'Other'];
   readonly DIETARY_OPTIONS  = ['Vegetarian', 'Vegan', 'Halal', 'Gluten-free'];
   readonly RATING_OPTIONS   = [
     { label: 'Any rating', value: 0 },
@@ -237,23 +685,22 @@ export class RestaurantsBrowse implements OnInit {
     { label: 'Under 2 miles', value: 2 },
     { label: 'Under 5 miles', value: 5 },
   ];
-  readonly POPULAR_SEARCHES = ['Pizza', 'Sushi', 'Burgers', 'Healthy', 'Indian', 'Biryani'];
+  readonly POPULAR_SEARCHES = ['Pizza', 'Sushi', 'Burgers', 'Healthy', 'Indian', 'Biryani', 'Chicken', 'Mexican', 'Coffee', 'Desserts'];
 
   readonly CATEGORY_ICONS = [
-    { emoji: '🛒', label: 'Grocery',  filter: 'All'      },
-    { emoji: '🥡', label: 'Chinese',  filter: 'Chinese'  },
-    { emoji: '🍕', label: 'Pizza',    filter: 'Pizza'    },
-    { emoji: '🍛', label: 'Indian',   filter: 'Indian'   },
-    { emoji: '🍦', label: 'Desserts', filter: 'Other'    },
-    { emoji: '🍣', label: 'Sushi',    filter: 'Japanese' },
-    { emoji: '🥙', label: 'Halal',    filter: 'All'      },
-    { emoji: '🥗', label: 'Healthy',  filter: 'Healthy'  },
-    { emoji: '🍔', label: 'Burgers',  filter: 'Burgers'  },
-    { emoji: '🍜', label: 'Noodles',  filter: 'Japanese' },
-    { emoji: '🌮', label: 'Mexican',  filter: 'Other'    },
-    { emoji: '🍞', label: 'Bakery',   filter: 'Other'    },
-    { emoji: '🌱', label: 'Vegan',    filter: 'Healthy'  },
-    { emoji: '🍱', label: 'Japanese', filter: 'Japanese' },
+    { imageUrl: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&q=80&auto=format&fit=crop', label: 'Chinese',  filter: 'Chinese'  },
+    { imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&q=80&auto=format&fit=crop', label: 'Pizza',    filter: 'Pizza'    },
+    { imageUrl: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=200&q=80&auto=format&fit=crop', label: 'Indian',   filter: 'Indian'   },
+    { imageUrl: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=200&q=80&auto=format&fit=crop', label: 'Desserts', filter: 'Other'    },
+    { imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&q=80&auto=format&fit=crop', label: 'Sushi',    filter: 'Japanese' },
+    { imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=200&q=80&auto=format&fit=crop', label: 'Halal',    filter: 'All'      },
+    { imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&q=80&auto=format&fit=crop', label: 'Healthy',  filter: 'Healthy'  },
+    { imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&q=80&auto=format&fit=crop', label: 'Burgers',  filter: 'Burgers'  },
+    { imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200&q=80&auto=format&fit=crop', label: 'Noodles',  filter: 'Japanese' },
+    { imageUrl: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=200&q=80&auto=format&fit=crop', label: 'Mexican',  filter: 'Other'    },
+    { imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&q=80&auto=format&fit=crop', label: 'Bakery',   filter: 'Other'    },
+    { imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80&auto=format&fit=crop', label: 'Vegan',    filter: 'Healthy'  },
+    { imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200&q=80&auto=format&fit=crop', label: 'Japanese', filter: 'Japanese' },
   ];
 
   readonly PROMO_BANNERS = [
@@ -264,6 +711,8 @@ export class RestaurantsBrowse implements OnInit {
       cta: 'Join now',
       bg: '#fef6e8', textColor: '#1a1410', btnBg: '#1a1410', btnColor: '#ffffff',
       imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80&auto=format&fit=crop',
+      link: '/plus',
+      queryParams: {},
     },
     {
       id: 2,
@@ -272,6 +721,8 @@ export class RestaurantsBrowse implements OnInit {
       cta: 'Order now',
       bg: '#ff6b1a', textColor: '#ffffff', btnBg: '#ffffff', btnColor: '#ff6b1a',
       imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80&auto=format&fit=crop',
+      link: '/restaurants',
+      queryParams: {},
     },
     {
       id: 3,
@@ -280,6 +731,38 @@ export class RestaurantsBrowse implements OnInit {
       cta: 'Shop now',
       bg: '#10b981', textColor: '#ffffff', btnBg: '#ffffff', btnColor: '#10b981',
       imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80&auto=format&fit=crop',
+      link: '/restaurants',
+      queryParams: { offers: 'true' },
+    },
+    {
+      id: 4,
+      title: 'Free delivery on your first 3 orders',
+      desc: 'Taste the best local kitchens with £0 delivery applied automatically.',
+      cta: 'Claim offer',
+      bg: '#4f46e5', textColor: '#ffffff', btnBg: '#ffffff', btnColor: '#4f46e5',
+      imageUrl: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80&auto=format&fit=crop',
+      link: '/restaurants',
+      queryParams: { offers: 'true' },
+    },
+    {
+      id: 5,
+      title: 'Watch chefs prep your order live in 4K',
+      desc: '100% kitchen transparency with high-definition live streaming cams.',
+      cta: 'Watch live',
+      bg: '#18181b', textColor: '#ffffff', btnBg: '#ff6b1a', btnColor: '#ffffff',
+      imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80&auto=format&fit=crop',
+      link: '/restaurants',
+      queryParams: {},
+    },
+    {
+      id: 6,
+      title: 'Late night cravings? Open past midnight',
+      desc: 'From hot smash burgers to warm churros delivered fresh to your door.',
+      cta: 'Order late',
+      bg: '#db2777', textColor: '#ffffff', btnBg: '#ffffff', btnColor: '#db2777',
+      imageUrl: 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&q=80&auto=format&fit=crop',
+      link: '/restaurants',
+      queryParams: {},
     },
   ];
 
@@ -291,21 +774,22 @@ export class RestaurantsBrowse implements OnInit {
   readonly maxDistance     = signal<number | null>(null);
   readonly filterSheetOpen = signal(false);
 
+
   /* ── Section computed signals ── */
-  readonly featuredCards  = computed(() => this.restaurants().slice(0, 4));
+  readonly featuredCards  = computed(() => this.restaurants().slice(0, 12));
   readonly popularCards   = computed(() =>
-    [...this.restaurants()].sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5)).slice(0, 4));
+    [...this.restaurants()].sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5)).slice(0, 12));
   readonly qualityCards   = computed(() =>
-    this.restaurants().filter(r => (r.rating || 4.5) >= 4.7).slice(0, 4));
+    this.restaurants().filter(r => (r.rating || 4.5) >= 4.7).slice(0, 12));
   readonly offersCards    = computed(() =>
-    this.restaurants().filter(r => !!DEAL_BADGES[r.name]).slice(0, 4));
+    this.restaurants().filter(r => !!DEAL_BADGES[r.name]).slice(0, 12));
   readonly legendCards    = computed(() =>
-    this.restaurants().filter(r => r.isLive).slice(0, 4));
+    this.restaurants().filter(r => r.isLive).slice(0, 12));
   readonly budgetCards    = computed(() =>
-    [...this.restaurants()].sort((a, b) => a.deliveryRadiusMiles - b.deliveryRadiusMiles).slice(0, 4));
-  readonly nationalCards  = computed(() => this.restaurants().slice(3, 7));
+    [...this.restaurants()].sort((a, b) => a.deliveryRadiusMiles - b.deliveryRadiusMiles).slice(0, 12));
+  readonly nationalCards  = computed(() => this.restaurants().slice(3, 12));
   readonly lovedDealsCards = computed(() =>
-    this.restaurants().filter(r => !!DEAL_BADGES[r.name]).slice(0, 4));
+    this.restaurants().filter(r => !!DEAL_BADGES[r.name]).slice(0, 12));
 
   readonly activeFilterCount = computed(() => {
     let c = 0;
@@ -377,6 +861,8 @@ export class RestaurantsBrowse implements OnInit {
     return result;
   });
 
+  readonly allKitchensCards = computed(() => this.restaurants());
+
   /* ── Helper methods — use restaurant.name as stable key (survives API ID merge) ── */
   getDeal(r: Restaurant): string | null  { return DEAL_BADGES[r.name]    || null; }
   getDeliveryFee(r: Restaurant): string  { return DELIVERY_FEES[r.name]  || '£1.29'; }
@@ -385,10 +871,14 @@ export class RestaurantsBrowse implements OnInit {
 
   scrollSection(containerId: string, direction: number): void {
     const el = document.getElementById(containerId);
-    if (el) el.scrollBy({ left: direction * 264, behavior: 'smooth' });
+    if (!el) return;
+    const distance = containerId === 'carousel-promo'
+      ? Math.max(340, Math.floor(el.clientWidth * 0.85))
+      : 264;
+    el.scrollBy({ left: direction * distance, behavior: 'smooth' });
   }
 
-  setCategoryFilter(cat: { emoji: string; label: string; filter: string }): void {
+  setCategoryFilter(cat: { imageUrl?: string; emoji?: string; label: string; filter: string }): void {
     this.cuisineFilter.set(cat.filter);
     this.activeCategoryLabel.set(cat.label);
   }

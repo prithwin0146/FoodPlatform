@@ -143,7 +143,7 @@
             [id]="'category-' + cat.label.toLowerCase()"
           >
             <div class="cat-emoji-circle">
-              <span class="cat-emoji">{{ cat.emoji }}</span>
+              <img [src]="cat.imageUrl" [alt]="cat.label" class="cat-img" loading="lazy" />
             </div>
             <span class="cat-label">{{ cat.label }}</span>
           </button>
@@ -156,28 +156,48 @@
        SECTION 2: PROMOTIONAL / OFFER BANNERS CAROUSEL
        ══════════════════════════════════════════════════ -->
   <section class="promo-banners-section" aria-label="Featured Offers">
-    <div class="promo-grid">
-      @for (banner of PROMO_BANNERS; track banner.id) {
-        <div class="promo-card" [style.background-color]="banner.bg" [style.color]="banner.textColor">
-          <div class="promo-card-content">
-            <h3 class="promo-card-title">{{ banner.title }}</h3>
-            <p class="promo-card-desc">{{ banner.desc }}</p>
-            <a
-              [routerLink]="banner.id === 1 ? '/plus' : '/restaurants'"
-              [queryParams]="banner.id === 3 ? { offers: 'true' } : {}"
-              class="promo-cta-btn"
-              [style.background-color]="banner.btnBg"
-              [style.color]="banner.btnColor"
-            >
-              {{ banner.cta }}
-              <span class="material-symbols-rounded">arrow_forward</span>
-            </a>
+    <div class="promo-carousel-wrapper">
+      <button
+        type="button"
+        class="promo-arrow-btn promo-arrow-left"
+        (click)="scrollSection('carousel-promo', -1)"
+        aria-label="Previous offers"
+      >
+        <span class="material-symbols-rounded">chevron_left</span>
+      </button>
+
+      <div class="promo-carousel" id="carousel-promo">
+        @for (banner of PROMO_BANNERS; track banner.id) {
+          <div class="promo-card" [style.background-color]="banner.bg" [style.color]="banner.textColor">
+            <div class="promo-card-content">
+              <h3 class="promo-card-title">{{ banner.title }}</h3>
+              <p class="promo-card-desc">{{ banner.desc }}</p>
+              <a
+                [routerLink]="banner.link || '/restaurants'"
+                [queryParams]="banner.queryParams || {}"
+                class="promo-cta-btn"
+                [style.background-color]="banner.btnBg"
+                [style.color]="banner.btnColor"
+              >
+                {{ banner.cta }}
+                <span class="material-symbols-rounded">arrow_forward</span>
+              </a>
+            </div>
+            <div class="promo-card-img-wrapper">
+              <img [src]="banner.imageUrl" [alt]="banner.title" loading="lazy" />
+            </div>
           </div>
-          <div class="promo-card-img-wrapper">
-            <img [src]="banner.imageUrl" [alt]="banner.title" loading="lazy" />
-          </div>
-        </div>
-      }
+        }
+      </div>
+
+      <button
+        type="button"
+        class="promo-arrow-btn promo-arrow-right"
+        (click)="scrollSection('carousel-promo', 1)"
+        aria-label="Next offers"
+      >
+        <span class="material-symbols-rounded">chevron_right</span>
+      </button>
     </div>
   </section>
 
@@ -380,19 +400,18 @@
         }
       </div>
     </section>
-
     <!-- ══════════════════════════════════════════════════
-         SECTION 9: ALL RESTAURANTS (MAIN GRID)
+         SECTION 9: ALL KITCHENS ON SEETHEPREP
          ══════════════════════════════════════════════════ -->
-    <section class="all-restaurants-section" aria-labelledby="heading-all">
+    <section class="browse-carousel-section" aria-labelledby="heading-all">
       <div class="section-header-wrap">
         <div>
           <h2 class="section-title" id="heading-all">All Kitchens on SeeThePrep</h2>
-          <p class="section-subtitle">Explore all {{ restaurants().length }} transparent kitchens ready to deliver to your doorstep</p>
+          <p class="section-subtitle">Explore every verified kitchen on our platform</p>
         </div>
       </div>
-      <div class="ubereats-cards-grid">
-        @for (restaurant of restaurants(); track restaurant.id) {
+      <div class="ubereats-cards-grid" id="grid-all">
+        @for (restaurant of allKitchensCards(); track restaurant.id) {
           <ng-container *ngTemplateOutlet="restaurantCardTpl; context: { $implicit: restaurant }"></ng-container>
         }
       </div>
