@@ -90,46 +90,7 @@
     </div>
   </header>
 
-  <!-- ══════════════════════════════════════════════════
-       SECTION 1: HORIZONTAL STATUS ICON STRIP (SVGs)
-       ══════════════════════════════════════════════════ -->
-  <section class="category-strip-section" aria-label="Status Filters">
-    <div class="category-strip-container">
-      <div class="category-scroll-list">
-        @for (s of STATUS_FILTERS; track s.value) {
-          <button
-            type="button"
-            class="category-icon-item"
-            [class.active]="activeStatus() === s.value"
-            (click)="setStatus(s.value)"
-            [id]="'auction-status-' + s.value"
-          >
-            <div class="cat-emoji-circle">
-              <!-- Using pure SVGs instead of emojis or material symbols -->
-              @switch (s.value) {
-                @case ('all') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
-                }
-                @case ('Live') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ef4444"/></svg>
-                }
-                @case ('ending') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                }
-                @case ('buynow') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                }
-                @case ('Sold') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                }
-              }
-            </div>
-            <span class="cat-label">{{ s.label }}</span>
-          </button>
-        }
-      </div>
-    </div>
-  </section>
+
 
   <!-- ══════════════════════════════════════════════════
        SECTION 2: AUCTION RESULTS
