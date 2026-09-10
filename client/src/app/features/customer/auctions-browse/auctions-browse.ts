@@ -37,12 +37,14 @@ export class AuctionsBrowse implements OnInit, OnDestroy {
   readonly showEndingSoon = signal(false);
   readonly showBuyNow     = signal(false);
 
+  readonly sortOption   = signal<string>('live');
+
   readonly STATUS_FILTERS = [
-    { emoji: '🔥', label: 'All',          value: 'all'     },
-    { emoji: '🔴', label: 'Live Now',     value: 'Live'    },
-    { emoji: '⏳', label: 'Ending Soon',  value: 'ending'  },
-    { emoji: '⚡', label: 'Buy Now',      value: 'buynow'  },
-    { emoji: '🏆', label: 'Just Sold',    value: 'Sold'    },
+    { icon: 'local_fire_department', label: 'All',         value: 'all'    },
+    { icon: 'sensors',               label: 'Live Now',    value: 'Live'   },
+    { icon: 'timer',                 label: 'Ending Soon', value: 'ending' },
+    { icon: 'bolt',                  label: 'Buy Now',     value: 'buynow' },
+    { icon: 'emoji_events',          label: 'Just Sold',   value: 'Sold'   },
   ];
 
   readonly filteredAuctions = computed(() => {
@@ -103,6 +105,12 @@ export class AuctionsBrowse implements OnInit, OnDestroy {
   }
 
   setStatus(value: string): void { this.activeStatus.set(value); }
+
+  onSearchChange(): void { /* triggers filteredAuctions computed */ }
+
+  onSortChange(event: Event): void {
+    this.sortOption.set((event.target as HTMLSelectElement).value);
+  }
 
   clearFilters(): void {
     this.searchQuery = '';
