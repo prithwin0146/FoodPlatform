@@ -1,45 +1,83 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import {
+  Component, ChangeDetectionStrategy, OnInit, OnDestroy,
+  inject, signal, computed, DOCUMENT,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Title, Meta } from '@angular/platform-browser';
 import { AuctionService } from '../../../core/services/auction.service';
 import { AuctionHubService } from '../../../core/services/auction-hub.service';
 import { CanonicalService } from '../../../core/services/canonical.service';
 import { Auction } from '../../../core/models';
 
-/**
- * AuctionsBrowse — /auctions
- * Live-shopping style grid of currently-live restaurant food auctions.
- * (SRP: browse/listing only — bidding happens on AuctionLive)
- */
 @Component({
   selector: 'app-auctions-browse',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './auctions-browse.html',
   styleUrl: './auctions-browse.scss',
 })
 export class AuctionsBrowse implements OnInit, OnDestroy {
-  private readonly auctionService = inject(AuctionService);
-  private readonly auctionHub = inject(AuctionHubService);
-  private readonly titleService: Title = inject(Title);
-  private readonly metaService: Meta = inject(Meta);
-  private readonly canonicalService: CanonicalService = inject(CanonicalService);
-  private readonly doc: Document = inject(DOCUMENT);
+  private readonly auctionService  = inject(AuctionService);
+  private readonly auctionHub      = inject(AuctionHubService);
+  private readonly titleService    = inject(Title);
+  private readonly metaService     = inject(Meta);
+  private readonly canonicalService= inject(CanonicalService);
+  private readonly doc             = inject(DOCUMENT);
 
-  readonly auctions = signal<Auction[]>([]);
-  readonly loading = signal(true);
+  readonly auctions      = signal<Auction[]>([]);
+  readonly loading       = signal(true);
+
+  // filter state
+  searchQuery   = '';
+  readonly searchFocused  = signal(false);
+  readonly activeStatus   = signal<string>('all');
+  readonly showLiveOnly   = signal(false);
+  readonly showEndingSoon = signal(false);
+  readonly showBuyNow     = signal(false);
+
+  readonly STATUS_FILTERS = [
+    { emoji: '🔥', label: 'All',          value: 'all'     },
+    { emoji: '🔴', label: 'Live Now',     value: 'Live'    },
+    { emoji: '⏳', label: 'Ending Soon',  value: 'ending'  },
+    { emoji: '⚡', label: 'Buy Now',      value: 'buynow'  },
+    { emoji: '🏆', label: 'Just Sold',    value: 'Sold'    },
+  ];
+
+  readonly filteredAuctions = computed(() => {
+    let list = this.auctions();
+    const q = this.searchQuery.toLowerCase().trim();
+    const status = this.activeStatus();
+
+    if (status === 'Live')   list = list.filter(a => a.status === 'Live');
+    if (status === 'Sold')   list = list.filter(a => a.status === 'Sold');
+    if (status === 'ending') list = list.filter(a => this.isUrgent(a));
+    if (status === 'buynow') list = list.filter(a => !!a.buyNowPrice);
+
+    if (this.showLiveOnly())   list = list.filter(a => a.status === 'Live');
+    if (this.showEndingSoon()) list = list.filter(a => this.isUrgent(a));
+    if (this.showBuyNow())     list = list.filter(a => !!a.buyNowPrice);
+
+    if (q) list = list.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.restaurantName.toLowerCase().includes(q) ||
+      (a.description ?? '').toLowerCase().includes(q)
+    );
+
+    return list;
+  });
 
   private static readonly PAGE_TITLE = 'Live Food Auctions — Bid on Restaurant Specials | SeeThePrep';
-  private static readonly PAGE_DESC =
+  private static readonly PAGE_DESC  =
     'Watch restaurants auction off chef\'s specials and limited dishes live on camera. Place real-time bids, buy now, and win exclusive food drops on SeeThePrep.';
-  private static readonly PAGE_URL = 'https://seetheprep.com/auctions';
+  private static readonly PAGE_URL   = 'https://seetheprep.com/auctions';
 
   ngOnInit(): void {
     this.setStaticSeo();
     this.load();
     void this.auctionHub.connect().then(() => {
-      this.auctionHub.auctionStarted$.subscribe(a => this.auctions.update(list => [a, ...list]));
+      this.auctionHub.auctionStarted$.subscribe(a  => this.auctions.update(list => [a, ...list]));
       this.auctionHub.auctionEnded$.subscribe(ended =>
         this.auctions.update(list => list.filter(a => a.id !== ended.id)));
       this.auctionHub.auctionUpdated$.subscribe(updated =>
@@ -50,9 +88,7 @@ export class AuctionsBrowse implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    void this.auctionHub.disconnect();
-  }
+  ngOnDestroy(): void { void this.auctionHub.disconnect(); }
 
   load(): void {
     this.loading.set(true);
@@ -66,7 +102,30 @@ export class AuctionsBrowse implements OnInit, OnDestroy {
     });
   }
 
-  /** Static per-page SEO: title, meta description, canonical, Open Graph, Twitter Card. */
+  setStatus(value: string): void { this.activeStatus.set(value); }
+
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.activeStatus.set('all');
+    this.showLiveOnly.set(false);
+    this.showEndingSoon.set(false);
+    this.showBuyNow.set(false);
+  }
+
+  isUrgent(auction: Auction): boolean {
+    if (!auction.endsAt) return false;
+    const secsLeft = (new Date(auction.endsAt).getTime() - Date.now()) / 1000;
+    return secsLeft > 0 && secsLeft <= 120;
+  }
+
+  formatTimeLeft(auction: Auction): string {
+    if (!auction.endsAt) return '';
+    const secs = Math.max(0, Math.floor((new Date(auction.endsAt).getTime() - Date.now()) / 1000));
+    if (secs >= 3600) return `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`;
+    if (secs >= 60)   return `${Math.floor(secs / 60)}m ${secs % 60}s`;
+    return `${secs}s`;
+  }
+
   private setStaticSeo(): void {
     this.titleService.setTitle(AuctionsBrowse.PAGE_TITLE);
     this.metaService.updateTag({ name: 'description', content: AuctionsBrowse.PAGE_DESC });
@@ -79,7 +138,6 @@ export class AuctionsBrowse implements OnInit, OnDestroy {
     this.metaService.updateTag({ name: 'twitter:description', content: AuctionsBrowse.PAGE_DESC });
     this.canonicalService.set(AuctionsBrowse.PAGE_URL);
 
-    // Breadcrumb JSON-LD
     const breadcrumb = this.doc.createElement('script');
     breadcrumb.type = 'application/ld+json';
     breadcrumb.text = JSON.stringify({
@@ -93,7 +151,6 @@ export class AuctionsBrowse implements OnInit, OnDestroy {
     this.doc.head.appendChild(breadcrumb);
   }
 
-  /** Dynamic ItemList JSON-LD reflecting the currently-live auctions (re-run whenever the list changes). */
   private setListJsonLd(auctions: Auction[]): void {
     this.doc.getElementById('auctions-itemlist-jsonld')?.remove();
     if (auctions.length === 0) return;

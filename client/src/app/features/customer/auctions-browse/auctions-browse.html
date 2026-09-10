@@ -1,45 +1,196 @@
-<div class="auctions-page">
-  <header class="auctions-hero">
-    <span class="hero-eyebrow">
-      <span class="material-symbols-rounded">gavel</span>
-      Live Food Auctions
-    </span>
-    <h1>Bid live, win big, eat well.</h1>
-    <p>Restaurants stream a live camera feed and auction off special dishes and limited drops. Place your bid before the timer runs out.</p>
-  </header>
+<div class="ab-page">
 
-  @if (loading()) {
-    <div class="auctions-grid">
-      @for (i of [1,2,3,4,5,6]; track i) {
-        <div class="auction-tile auction-tile--skeleton"></div>
+  <!-- ══ HERO ══════════════════════════════════════════════════════ -->
+  <section class="ab-hero">
+    <div class="ab-hero-inner">
+      <div class="ab-hero-eyebrow">
+        <span class="material-symbols-rounded">gavel</span>
+        Live Food Auctions
+      </div>
+      <h1 class="ab-hero-title">Bid live,<br>win big, eat well.</h1>
+      <p class="ab-hero-sub">Restaurants stream live and auction off chef's specials &amp; limited drops.<br>Place your bid before the timer runs out.</p>
+
+      <!-- Search bar -->
+      <div class="ab-search-bar" [class.focused]="searchFocused()">
+        <span class="material-symbols-rounded ab-search-icon">search</span>
+        <input
+          id="auction-search-input"
+          type="search"
+          class="ab-search-input"
+          placeholder="Search auctions by dish or restaurant…"
+          [(ngModel)]="searchQuery"
+          (focus)="searchFocused.set(true)"
+          (blur)="searchFocused.set(false)"
+          autocomplete="off"
+        />
+        @if (searchQuery) {
+          <button class="ab-search-clear" (click)="searchQuery = ''" aria-label="Clear search">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- decorative orbs -->
+    <div class="ab-orb ab-orb-a"></div>
+    <div class="ab-orb ab-orb-b"></div>
+  </section>
+
+  <!-- ══ STATUS FILTER STRIP ═══════════════════════════════════════ -->
+  <section class="ab-strip-section">
+    <div class="ab-strip-scroll">
+      @for (s of STATUS_FILTERS; track s.value) {
+        <button
+          type="button"
+          class="ab-strip-item"
+          [class.active]="activeStatus() === s.value"
+          (click)="setStatus(s.value)"
+          [id]="'auction-status-' + s.value"
+        >
+          <span class="ab-strip-icon">{{ s.emoji }}</span>
+          <span class="ab-strip-label">{{ s.label }}</span>
+        </button>
       }
     </div>
-  } @else if (auctions().length === 0) {
-    <div class="empty-state">
-      <span class="material-symbols-rounded">live_tv</span>
-      <h2>No live auctions right now</h2>
-      <p>Check back soon — restaurants go live with new food auctions regularly.</p>
+  </section>
+
+  <!-- ══ QUICK FILTER PILLS ════════════════════════════════════════ -->
+  <section class="ab-pills-section">
+    <div class="ab-pills-inner">
+      <div class="ab-pills-row">
+        <button type="button" class="ab-pill" [class.active]="showLiveOnly()" (click)="showLiveOnly.set(!showLiveOnly())" id="auction-filter-live">
+          <span class="live-dot-pill"></span>Live Now
+        </button>
+        <button type="button" class="ab-pill" [class.active]="showEndingSoon()" (click)="showEndingSoon.set(!showEndingSoon())" id="auction-filter-ending">
+          <span class="material-symbols-rounded">timer</span>Ending Soon
+        </button>
+        <button type="button" class="ab-pill" [class.active]="showBuyNow()" (click)="showBuyNow.set(!showBuyNow())" id="auction-filter-buynow">
+          <span class="material-symbols-rounded">bolt</span>Buy Now Available
+        </button>
+        @if (showLiveOnly() || showEndingSoon() || showBuyNow() || searchQuery || activeStatus() !== 'all') {
+          <button type="button" class="ab-pill ab-pill--clear" (click)="clearFilters()" id="auction-filter-clear">
+            <span class="material-symbols-rounded">close</span>Clear
+          </button>
+        }
+      </div>
+
+      <div class="ab-results-count">
+        {{ filteredAuctions().length }} auction{{ filteredAuctions().length === 1 ? '' : 's' }}
+      </div>
     </div>
-  } @else {
-    <div class="auctions-grid">
-      @for (auction of auctions(); track auction.id) {
-        <a class="auction-tile" [routerLink]="['/auctions', auction.id]">
-          <div class="tile-media">
-            <img [src]="auction.imageUrl || 'assets/placeholder-food.jpg'" [alt]="auction.title"
-              onerror="this.src='assets/placeholder-food.jpg'">
-            <span class="tile-live-badge"><span class="live-dot"></span> LIVE</span>
-            <span class="tile-bid-count">{{ auction.bidCount }} bid{{ auction.bidCount === 1 ? '' : 's' }}</span>
-          </div>
-          <div class="tile-body">
-            <span class="tile-restaurant">{{ auction.restaurantName }}</span>
-            <h3>{{ auction.title }}</h3>
-            <div class="tile-price-row">
-              <span class="tile-price-label">Current bid</span>
-              <strong class="tile-price">{{ (auction.currentBid ?? auction.startingPrice) | currency:'GBP' }}</strong>
+  </section>
+
+  <!-- ══ AUCTION GRID ═══════════════════════════════════════════════ -->
+  <section class="ab-grid-section">
+    <div class="ab-grid-inner">
+
+      @if (loading()) {
+        <!-- Skeleton loaders -->
+        <div class="ab-grid">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="ab-card ab-card--skeleton">
+              <div class="ab-card-img-skeleton"></div>
+              <div class="ab-card-body-skeleton">
+                <div class="skel-line skel-line--short"></div>
+                <div class="skel-line"></div>
+                <div class="skel-line skel-line--narrow"></div>
+              </div>
             </div>
-          </div>
-        </a>
+          }
+        </div>
+
+      } @else if (filteredAuctions().length === 0) {
+        <!-- Empty state -->
+        <div class="ab-empty">
+          <span class="material-symbols-rounded ab-empty-icon">live_tv</span>
+          <h2>{{ searchQuery || activeStatus() !== 'all' ? 'No auctions match your filters' : 'No live auctions right now' }}</h2>
+          <p>{{ searchQuery || activeStatus() !== 'all' ? 'Try clearing your filters.' : 'Check back soon — restaurants go live with new auctions regularly.' }}</p>
+          @if (searchQuery || activeStatus() !== 'all') {
+            <button class="ab-reset-btn" (click)="clearFilters()">Reset Filters</button>
+          }
+        </div>
+
+      } @else {
+        <div class="ab-grid">
+          @for (auction of filteredAuctions(); track auction.id) {
+            <a class="ab-card" [routerLink]="['/auctions', auction.id]" [id]="'auction-card-' + auction.id">
+
+              <!-- Image / Media -->
+              <div class="ab-card-img-wrap">
+                <img
+                  [src]="auction.imageUrl || 'assets/placeholder-food.jpg'"
+                  [alt]="auction.title"
+                  loading="lazy"
+                  onerror="this.src='assets/placeholder-food.jpg'"
+                  class="ab-card-img"
+                />
+
+                <!-- Live badge -->
+                @if (auction.status === 'Live') {
+                  <span class="ab-live-badge">
+                    <span class="live-dot"></span>LIVE
+                  </span>
+                }
+
+                <!-- Bid count pill -->
+                <span class="ab-bid-count-pill">
+                  <span class="material-symbols-rounded">gavel</span>
+                  {{ auction.bidCount }} bid{{ auction.bidCount === 1 ? '' : 's' }}
+                </span>
+
+                <!-- Buy Now chip -->
+                @if (auction.buyNowPrice) {
+                  <span class="ab-buynow-chip">
+                    <span class="material-symbols-rounded">bolt</span>Buy Now
+                  </span>
+                }
+
+                <!-- Countdown overlay -->
+                @if (auction.status === 'Live' && auction.endsAt) {
+                  <span class="ab-countdown-overlay" [class.urgent]="isUrgent(auction)">
+                    <span class="material-symbols-rounded">timer</span>
+                    {{ formatTimeLeft(auction) }}
+                  </span>
+                }
+              </div>
+
+              <!-- Card Body -->
+              <div class="ab-card-body">
+                <span class="ab-card-restaurant">{{ auction.restaurantName }}</span>
+                <h3 class="ab-card-title">{{ auction.title }}</h3>
+
+                <div class="ab-card-price-row">
+                  <div class="ab-card-price-block">
+                    <span class="ab-price-label">{{ auction.bidCount > 0 ? 'Current bid' : 'Starting at' }}</span>
+                    <strong class="ab-price">{{ (auction.currentBid ?? auction.startingPrice) | currency:'GBP' }}</strong>
+                  </div>
+                  @if (auction.buyNowPrice) {
+                    <div class="ab-card-buynow-block">
+                      <span class="ab-price-label">Buy Now</span>
+                      <span class="ab-buynow-price">{{ auction.buyNowPrice | currency:'GBP' }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="ab-card-meta-row">
+                  <span class="ab-card-meta-item">
+                    <span class="material-symbols-rounded">restaurant</span>
+                    {{ auction.restaurantName }}
+                  </span>
+                  @if (auction.status === 'Live') {
+                    <span class="ab-card-status ab-card-status--live">● Live</span>
+                  } @else {
+                    <span class="ab-card-status">{{ auction.status }}</span>
+                  }
+                </div>
+              </div>
+
+            </a>
+          }
+        </div>
       }
+
     </div>
-  }
+  </section>
+
 </div>
