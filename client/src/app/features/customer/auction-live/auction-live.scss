@@ -9,6 +9,10 @@
   padding: 28px 24px 80px;
   max-width: 1280px;
   margin: 0 auto;
+
+  @media (max-width: 600px) {
+    padding: 16px 16px 80px;
+  }
 }
 
 /* ── Back link ── */
@@ -143,6 +147,11 @@
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 4px 24px -8px rgba(0,0,0,0.1);
+
+  @media (max-width: 600px) {
+    padding: 16px;
+    border-radius: 16px;
+  }
 }
 
 .bid-panel-status {
