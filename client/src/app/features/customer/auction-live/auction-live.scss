@@ -6,12 +6,12 @@
 .auction-live-page {
   min-height: 100vh;
   background: var(--c-bg, #faf9f7);
-  padding: 28px 24px 80px;
+  padding: 104px 24px 80px;
   max-width: 1280px;
   margin: 0 auto;
 
   @media (max-width: 600px) {
-    padding: 16px 16px 80px;
+    padding: 86px 16px 80px;
   }
 }
 
