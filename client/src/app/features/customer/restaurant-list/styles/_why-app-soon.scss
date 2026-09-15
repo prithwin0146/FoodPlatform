@@ -6,7 +6,7 @@
    ─────────────────────────────────────────────────────────────── */
 .why {
   position: relative;
-  padding: var(--section-pad) 0;
+  padding: clamp(2rem, 5vw, 4rem) 0;
   background: var(--NEW--bg, #fffcf7);
   overflow: hidden;
   isolation: isolate;

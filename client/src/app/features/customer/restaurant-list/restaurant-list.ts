@@ -38,7 +38,6 @@ interface WhyPromise {
   imports: [
     RouterLink,
     ScrollRevealDirective,
-    ImageFallback,
     MatRippleModule, MatButtonModule,
   ],
   templateUrl: './restaurant-list.html',
@@ -65,12 +64,20 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   /** Live kitchen count displayed inside the Spotlight CTA button. */
   readonly liveKitchenCount = computed(() => this.allRestaurants().length);
 
-  /** Matching restaurants shown in the independently scrolling Spotlight dropdown. */
-  readonly spotlightPreview = computed(() => {
+  /** Mock locations for Mapbox-style autocomplete */
+  private readonly mockLocations = [
+    { id: '1', place_name: 'Chester, Cheshire, UK', text: 'Chester' },
+    { id: '2', place_name: 'Chesterfield, Derbyshire, UK', text: 'Chesterfield' },
+    { id: '3', place_name: 'Chester-le-Street, County Durham, UK', text: 'Chester-le-Street' },
+    { id: '4', place_name: 'London, Greater London, UK', text: 'London' },
+    { id: '5', place_name: 'Manchester, Greater Manchester, UK', text: 'Manchester' }
+  ];
+
+  /** Matching locations shown in the independently scrolling Spotlight dropdown. */
+  readonly locationSuggestions = computed(() => {
     const q = this.postcodeQuery().trim().toLowerCase();
-    if (!q) return this.allRestaurants();
-    return this.allRestaurants()
-      .filter(r => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q));
+    if (!q) return [];
+    return this.mockLocations.filter(loc => loc.place_name.toLowerCase().includes(q));
   });
 
   private readonly sanitizer = inject(DomSanitizer);

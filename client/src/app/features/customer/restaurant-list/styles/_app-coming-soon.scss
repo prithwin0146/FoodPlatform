@@ -1,12 +1,11 @@
 /* ═══════════════════════════════════════ MOBILE APP · COMING SOON ══ */
 .app-coming-soon {
   position: relative;
-  overflow: visible; /* Allow phone image to bleed/overlap past section boundary */
+  overflow: hidden; /* Prevent ugly bleeds on mobile */
   background: #634d49; /* Muted pastel blue-green/slate matching reference image */
   color: #1a2529;
-  padding-top: clamp(1.75rem, 3.5vw, 2.5rem);
-  padding-bottom: clamp(1rem, 2vw, 1.5rem);
-  max-height: 380px;
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  padding-bottom: clamp(2.5rem, 5vw, 4rem);
   display: flex;
   align-items: center;
 }
@@ -137,24 +136,23 @@
   .app-coming-soon-inner {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: 3rem;
   }
   
   .app-coming-soon-copy {
-    padding-bottom: 2rem;
+    padding-bottom: 0;
   }
 
   .app-badges {
     justify-content: center;
   }
 
-  .app-phone--hero {
-    width: 60%;
-    transform: translateY(10px);
+  .app-phone-stage {
+    align-items: center;
   }
-}
 
-@media (max-width: 600px) {
   .app-phone--hero {
-    width: 90%;
+    width: min(85%, 380px);
+    transform: none;
   }
 }

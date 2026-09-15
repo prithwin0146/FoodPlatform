@@ -18,7 +18,7 @@
 @use './styles/cta-footer' as *;
 @use './styles/responsive-dark' as *;
 @use './styles/more-from-seetheprep' as *;
-@use './styles/app-coming-soon' as *;
+
 
 /* Integrated single cinematic scroll hero section */
 .cinematic-hero-section {
@@ -64,9 +64,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background:
-    radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.75) 100%),
-    linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.85) 100%);
+  background: transparent;
   pointer-events: none;
 }
 
