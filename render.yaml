@@ -29,14 +29,14 @@ services:
         value: SeeThePrep <orders@seetheprep.com>
       # ── Secrets — set values in Render dashboard (sync: false = not in YAML) ─
       - key: ConnectionStrings__DefaultConnection
-        sync: false   # postgresql://user:pass@host/neondb?sslmode=require
+        value: "Host=localhost;Database=FoodPlatform;Username=postgres;" # Temporary dummy value so it boots
       - key: Jwt__Key
-        sync: false   # min 32 chars, e.g. openssl rand -base64 48
+        generateValue: true   # Auto-generates a secure secret
       - key: Stripe__SecretKey
-        sync: false
+        value: sk_test_dummy
       - key: Stripe__WebhookSecret
-        sync: false
+        value: whsec_dummy
       - key: Resend__ApiKey
-        sync: false
+        value: re_dummy12345
       - key: Angelcam__AccessToken
-        sync: false   # PersonalAccessToken from angelcam.com → Account → API Tokens
+        value: dummy_token
