@@ -23,8 +23,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDatabase(
         this IServiceCollection services, IConfiguration config)
     {
+        var connectionString = GetNpgsqlConnectionString(config);
         services.AddDbContext<FoodPlatformDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("DefaultConnection"),
+            options.UseNpgsql(connectionString,
                 npgsqlOptionsAction: sqlOptions =>
                 {
                     sqlOptions.EnableRetryOnFailure(
@@ -88,11 +89,12 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHangfireJobs(
         this IServiceCollection services, IConfiguration config)
     {
+        var connectionString = GetNpgsqlConnectionString(config);
         services.AddHangfire(cfg => cfg
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
-            .UsePostgreSqlStorage(o => o.UseNpgsqlConnection(config.GetConnectionString("DefaultConnection")!)));
+            .UsePostgreSqlStorage(o => o.UseNpgsqlConnection(connectionString)));
         services.AddHangfireServer();
         return services;
     }
@@ -261,8 +263,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApiHealthChecks(
         this IServiceCollection services, IConfiguration config)
     {
-        var connectionString = config.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("DefaultConnection is not configured.");
+        var connectionString = GetNpgsqlConnectionString(config);
 
         services.AddHealthChecks()
             .AddNpgSql(connectionString, name: "npgsql", tags: ["db", "ready"]);
@@ -280,5 +281,30 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddScoped<IMemoryCacheService, MemoryCacheService>();
         return services;
+    }
+
+    private static string GetNpgsqlConnectionString(IConfiguration config)
+    {
+        var connStr = config.GetConnectionString("DefaultConnection") 
+            ?? throw new InvalidOperationException("DefaultConnection is not configured.");
+
+        if (connStr.StartsWith("postgres://") || connStr.StartsWith("postgresql://"))
+        {
+            var uri = new Uri(connStr);
+            var userInfo = uri.UserInfo.Split(':');
+            var builder = new Npgsql.NpgsqlConnectionStringBuilder
+            {
+                Host = uri.Host,
+                Port = uri.Port > 0 ? uri.Port : 5432,
+                Database = uri.LocalPath.TrimStart('/'),
+                Username = userInfo[0],
+                Password = userInfo.Length > 1 ? userInfo[1] : string.Empty,
+                SslMode = Npgsql.SslMode.Prefer,
+                TrustServerCertificate = true
+            };
+            return builder.ToString();
+        }
+
+        return connStr;
     }
 }
