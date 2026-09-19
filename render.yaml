@@ -29,7 +29,9 @@ services:
         value: SeeThePrep <orders@seetheprep.com>
       # ── Secrets — set values in Render dashboard (sync: false = not in YAML) ─
       - key: ConnectionStrings__DefaultConnection
-        value: "Host=localhost;Database=FoodPlatform;Username=postgres;" # Temporary dummy value so it boots
+        fromDatabase:
+          name: seetheprep-db
+          property: connectionString
       - key: Jwt__Key
         generateValue: true   # Auto-generates a secure secret
       - key: Stripe__SecretKey
@@ -40,3 +42,9 @@ services:
         value: re_dummy12345
       - key: Angelcam__AccessToken
         value: dummy_token
+
+databases:
+  - name: seetheprep-db
+    databaseName: foodplatform
+    user: admin
+    plan: free
