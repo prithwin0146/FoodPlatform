@@ -43,7 +43,7 @@
           @if (spotlightFocused() && locationSuggestions().length > 0) {
           <div class="spotlight-dropdown">
             @for (loc of locationSuggestions(); track loc.id) {
-            <button type="button" class="spi-row" (click)="navigateToRestaurants()" style="cursor: pointer; text-align: left;">
+            <button type="button" class="spi-row" (click)="selectSuggestion(loc.text)" style="cursor: pointer; text-align: left;">
               <div class="spi-thumb" style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05); color: #666; border-radius: 50%; width: 36px; height: 36px;">
                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">place</span>
               </div>
@@ -54,7 +54,7 @@
             </button>
             }
             <div class="spi-footer" style="padding: 10px 15px; text-align: right; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.75rem; color: #888;">
-              <strong>Powered by Mapbox</strong>
+              <strong>Powered by Postcodes.io (Open Data)</strong>
             </div>
           </div>
           }
@@ -96,6 +96,86 @@
   </div>
 </section>
 
+
+<!-- ════════════════════════════════════════════ APP FEATURES ══ -->
+<section class="app-features">
+  <!-- Static decorative line blob — background only -->
+  <img class="af-blob-bg" src="/food-line-bg.png" alt="" aria-hidden="true">
+
+  <div class="af-inner">
+    <!-- Heading block — centred -->
+    <header class="af-head">
+      <h2 class="af-title">What's waiting for you</h2>
+      <h2 class="af-title af-title--accent">on the app?</h2>
+      <p class="af-lead">
+        Our app is packed with features that enable you to experience food delivery like never before.
+        Track, chat, and watch every order live.
+      </p>
+    </header>
+
+    <!-- Stage: food images orbit the phone -->
+    <div class="af-stage">
+      <!-- LEFT food image -->
+      <img
+        class="food-float-img food-burger"
+        src="/food-burger.png"
+        alt="Burger"
+        data-from-x="-120"
+        data-from-y="60"
+        data-delay="0"
+      >
+
+      <!-- RIGHT food images -->
+      <img
+        class="food-float-img food-dumplings"
+        src="/food-dumplings.png"
+        alt="Dumplings"
+        data-from-x="120"
+        data-from-y="-40"
+        data-delay="0.15"
+      >
+      <img
+        class="food-float-img food-pizza"
+        src="/food-pizza.png"
+        alt="Pizza slice"
+        data-from-x="100"
+        data-from-y="80"
+        data-delay="0.3"
+      >
+
+      <!-- Phone Mockup — centred -->
+      <div class="phone-mockup-wrapper">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="mockup-ui">
+              <div class="mockup-header">
+                <span class="mockup-time">19:41</span>
+                <div class="mockup-status-bar">
+                  <span class="material-symbols-rounded">signal_cellular_4_bar</span>
+                  <span class="material-symbols-rounded">wifi</span>
+                  <span class="material-symbols-rounded">battery_full</span>
+                </div>
+              </div>
+              <div class="mockup-order-badge">
+                <span class="pulse-dot"></span>
+                Order #8492 — Searing Steak
+              </div>
+            </div>
+            @if (heroVideoUrl) {
+              <video class="mockup-video" autoplay loop muted playsinline [src]="safeVideoUrl(heroVideoUrl)"></video>
+            } @else {
+              <div class="mockup-placeholder">
+                <span class="material-symbols-rounded">videocam</span>
+                <p>Live stream starts here</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ═════════════════════════════════════ MORE FROM SEETHEPREP ══ -->
 <section class="more-from" aria-labelledby="more-from-title">
@@ -220,5 +300,135 @@
       </p>
       <span class="pq-attr">— SeeThePrep kitchen onboarding agreement, clause 1</span>
     </aside>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ DOWNLOAD APP ══ -->
+<section class="download-app">
+  <div class="da-bg-orb da-orb-1"></div>
+  <div class="da-bg-orb da-orb-2"></div>
+
+  <div class="da-inner">
+
+    <!-- LEFT: copy + badges -->
+    <div class="da-copy" id="da-copy">
+      <p class="da-eyebrow">
+        <span class="da-eyebrow-dot"></span>
+        Available on iOS &amp; Android
+      </p>
+      <h2 class="da-title">Take the kitchen<br><span class="da-title-accent">wherever you go.</span></h2>
+      <p class="da-lead">Watch your food cook live, chat with the chef, and track every order to your door — only on the SeeThePrep app.</p>
+
+      <div class="da-badges">
+        <a href="#" aria-label="Get it on Google Play">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" height="48">
+        </a>
+        <a href="#" aria-label="Download on the App Store">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store" height="48">
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT: SeeThePrep app demo phone -->
+    <div class="da-phone-wrap" id="da-phone">
+      <div class="da-phone">
+        <div class="da-phone-notch"></div>
+        <div class="da-phone-screen">
+
+          <!-- Status bar -->
+          <div class="dap-status">
+            <span class="dap-time">19:41</span>
+            <div class="dap-icons">
+              <span class="material-symbols-rounded">signal_cellular_4_bar</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Header -->
+          <div class="dap-header">
+            <div class="dap-address-block">
+              <span class="dap-delivering-to">Delivering to</span>
+              <span class="dap-address">Home · Shoreditch <span class="material-symbols-rounded">expand_more</span></span>
+            </div>
+            <div class="dap-profile">
+              <span class="material-symbols-rounded">person</span>
+            </div>
+          </div>
+
+          <div class="dap-content">
+            <!-- Search Bar -->
+            <div class="dap-search-bar">
+              <span class="material-symbols-rounded">search</span>
+              <span class="placeholder">Restaurants, groceries, dishes</span>
+            </div>
+
+            <!-- Categories -->
+            <div class="dap-categories">
+              <div class="dap-category-pill active">All</div>
+              <div class="dap-category-pill">Offers</div>
+              <div class="dap-category-pill">Top Rated</div>
+              <div class="dap-category-pill">Healthy</div>
+            </div>
+
+            <!-- Active Live Order Widget -->
+            <div class="dap-live-widget">
+              <div class="dap-live-widget-header">
+                <span class="dap-live-pulse-dot"></span>
+                <span>LIVE PREP</span>
+              </div>
+              
+              <div class="dap-live-video-area">
+                <img src="/hero-kitchen-poster.jpg" alt="Kitchen live stream" class="dap-video-poster">
+                <div class="dap-play-overlay">
+                  <span class="material-symbols-rounded">play_arrow</span>
+                </div>
+              </div>
+
+              <div class="dap-widget-info">
+                <div class="dap-widget-text">
+                  <h3>The Grill House</h3>
+                  <p>Searing Ribeye Steak</p>
+                </div>
+                <div class="dap-widget-eta">
+                  <span class="time">18<span class="unit">min</span></span>
+                </div>
+              </div>
+
+              <!-- Sleek tracker -->
+              <div class="dap-modern-tracker">
+                <div class="step-line done"></div>
+                <div class="step-line active"></div>
+                <div class="step-line"></div>
+                <div class="step-line"></div>
+              </div>
+              <p class="dap-tracker-status">Chef is cooking your order</p>
+            </div>
+          </div>
+
+          <!-- Bottom tab bar -->
+          <div class="dap-tabs">
+            <div class="dap-tab dap-tab--active">
+              <span class="material-symbols-rounded">home</span>
+              <span>Home</span>
+            </div>
+            <div class="dap-tab">
+              <span class="material-symbols-rounded">search</span>
+              <span>Browse</span>
+            </div>
+            <div class="dap-tab">
+              <span class="material-symbols-rounded">receipt_long</span>
+              <span>Orders</span>
+            </div>
+            <div class="dap-tab">
+              <span class="material-symbols-rounded">person</span>
+              <span>Profile</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>

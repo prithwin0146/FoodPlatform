@@ -1,0 +1,486 @@
+/* ═══════════════════════════════════════ DOWNLOAD APP SECTION ══ */
+
+/* ── Brand tokens ── */
+$brand-orange: #E8560A;
+$brand-orange-light: #FF6B1A;
+$brand-gold: #F5A623;
+
+.download-app {
+  position: relative;
+  background: #0d0d0d;
+  padding: 8rem 2rem 10rem;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+
+  /* ── Two ambient radial glows ── */
+  .da-bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(120px);
+  }
+  .da-orb-1 {
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(232, 86, 10, 0.35) 0%, transparent 65%);
+    top: -25%;
+    left: -15%;
+  }
+  .da-orb-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(245, 166, 35, 0.18) 0%, transparent 65%);
+    bottom: -20%;
+    right: 0;
+  }
+
+  /* ── Split inner ── */
+  .da-inner {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1180px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6rem;
+
+    @media (max-width: 960px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4rem;
+    }
+  }
+
+  /* ══════════════════════════ LEFT COPY ══ */
+  .da-copy {
+    flex: 1;
+    max-width: 520px;
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  .da-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 1.75rem;
+
+    .da-eyebrow-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: $brand-orange;
+      box-shadow: 0 0 10px $brand-orange;
+      animation: da-pulse 2s ease-out infinite;
+    }
+  }
+
+  .da-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: #fff;
+    margin: 0 0 1.5rem;
+
+    .da-title-accent {
+      color: $brand-orange;
+    }
+  }
+
+  .da-lead {
+    font-size: clamp(0.95rem, 1.5vw, 1.125rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    margin-bottom: 2.75rem;
+  }
+
+  /* ── Store badges ── */
+  .da-badges {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .da-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 0.75rem 1.4rem;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.25s, border-color 0.25s, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      min-width: 165px;
+
+      &:hover {
+        background: rgba(232, 86, 10, 0.15);
+        border-color: rgba(232, 86, 10, 0.5);
+        transform: translateY(-3px);
+      }
+
+      .da-badge-icon {
+        font-size: 1.75rem;
+        flex-shrink: 0;
+        color: #fff;
+      }
+
+      .da-badge-text {
+        display: flex;
+        flex-direction: column;
+
+        .da-badge-sub {
+          font-size: 0.65rem;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.5);
+          letter-spacing: 0.04em;
+        }
+        .da-badge-name {
+          font-size: 1rem;
+          font-weight: 700;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  /* ══════════════════════════ RIGHT PHONE ══ */
+  .da-phone-wrap {
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateX(70px) translateY(15px);
+  }
+
+  /* ── Outer phone shell ── */
+  .da-phone {
+    width: 275px;
+    height: 570px;
+    background: #1c1c1c;
+    border-radius: 3.2rem;
+    padding: 0.7rem;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(255,255,255,0.1),
+      0 0 0 1px #000,
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 80px rgba(232,86,10,0.1);
+
+    /* Side button detail */
+    &::before {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 30%;
+      width: 3px;
+      height: 60px;
+      background: #2a2a2a;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .da-phone-notch {
+      position: absolute;
+      top: 0.7rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95px;
+      height: 25px;
+      background: #1c1c1c;
+      border-radius: 0 0 1rem 1rem;
+      z-index: 30;
+    }
+
+    .da-phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 2.6rem;
+      background: #f5f4f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+  }
+
+  /* ══ App UI ══ */
+
+  /* Status bar */
+  .dap-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.25rem 0.4rem;
+    background: #fff;
+
+    .dap-time {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.01em;
+    }
+
+    .dap-icons {
+      display: flex;
+      gap: 0.25rem;
+      .material-symbols-rounded { font-size: 0.85rem; color: #111; }
+    }
+  }
+
+  /* App Header */
+  .dap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.25rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+
+    .dap-address-block {
+      display: flex;
+      flex-direction: column;
+
+      .dap-delivering-to {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: $brand-orange;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.15rem;
+      }
+      .dap-address {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #111;
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        letter-spacing: -0.01em;
+
+        .material-symbols-rounded { font-size: 1rem; color: #111; }
+      }
+    }
+
+    .dap-profile {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .material-symbols-rounded { font-size: 1.1rem; color: #555; }
+    }
+  }
+
+  /* Content Area */
+  .dap-content {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Search Bar */
+  .dap-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fff;
+    padding: 0.6rem 0.85rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    
+    .material-symbols-rounded { font-size: 1.1rem; color: #111; }
+    .placeholder { font-size: 0.7rem; color: #888; font-weight: 500; }
+  }
+
+  /* Categories */
+  .dap-categories {
+    display: flex;
+    gap: 0.4rem;
+    overflow: hidden;
+
+    .dap-category-pill {
+      background: #fff;
+      padding: 0.4rem 0.8rem;
+      border-radius: 100px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #555;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      white-space: nowrap;
+
+      &.active {
+        background: #111;
+        color: #fff;
+      }
+    }
+  }
+
+  /* Live Widget */
+  .dap-live-widget {
+    background: #fff;
+    border-radius: 16px;
+    padding: 0.85rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .dap-live-widget-header {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: 0.05em;
+
+      .dap-live-pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: #ff3b30;
+        border-radius: 50%;
+        animation: da-pulse 1.2s ease-out infinite;
+      }
+    }
+
+    .dap-live-video-area {
+      width: 100%;
+      height: 100px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      background: #111;
+
+      .dap-video-poster {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.7;
+      }
+
+      .dap-play-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .material-symbols-rounded {
+          font-size: 2rem;
+          color: rgba(255,255,255,0.9);
+          background: rgba(0,0,0,0.3);
+          border-radius: 50%;
+          padding: 0.2rem;
+          backdrop-filter: blur(4px);
+        }
+      }
+    }
+
+    .dap-widget-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+
+      .dap-widget-text {
+        h3 {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: #111;
+          margin: 0 0 0.15rem;
+          letter-spacing: -0.01em;
+        }
+        p {
+          font-size: 0.65rem;
+          color: #666;
+          margin: 0;
+          font-weight: 500;
+        }
+      }
+
+      .dap-widget-eta {
+        background: rgba(232,86,10,0.1);
+        padding: 0.3rem 0.6rem;
+        border-radius: 8px;
+        .time {
+          font-size: 0.9rem;
+          font-weight: 800;
+          color: $brand-orange;
+          .unit { font-size: 0.6rem; margin-left: 0.1rem; }
+        }
+      }
+    }
+
+    .dap-modern-tracker {
+      display: flex;
+      gap: 0.2rem;
+      margin-top: 0.2rem;
+
+      .step-line {
+        flex: 1;
+        height: 4px;
+        background: #eee;
+        border-radius: 2px;
+
+        &.done { background: #34c759; }
+        &.active { background: $brand-orange; box-shadow: 0 0 6px rgba(232,86,10,0.4); }
+      }
+    }
+
+    .dap-tracker-status {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #444;
+      margin: 0;
+      text-align: center;
+    }
+  }
+
+  /* Bottom tab bar */
+  .dap-tabs {
+    margin-top: auto;
+    display: flex;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    background: #fff;
+    padding: 0.3rem 0;
+
+    .dap-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.4rem 0;
+      color: #bbb;
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+
+      .material-symbols-rounded { font-size: 1rem; }
+
+      &--active {
+        color: $brand-orange;
+        .material-symbols-rounded { color: $brand-orange; }
+      }
+    }
+  }
+}
+
+@keyframes da-pulse {
+  0%   { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}

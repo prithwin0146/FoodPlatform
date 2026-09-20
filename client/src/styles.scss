@@ -28,7 +28,7 @@ $food-theme: mat.define-theme((
   @include mat.all-component-themes($food-theme);
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=JetBrains+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 // ═══════════════════════════════════════════════════════════════════
 //  PREMIUM DESIGN SYSTEM — SeeThePrep Redesign
@@ -91,8 +91,8 @@ $food-theme: mat.define-theme((
 
   // ── Premium Typography Scale ──────────────────────────────────
   --NEW--font-sans:   'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --NEW--font-display:'Fraunces', 'Plus Jakarta Sans', Georgia, serif;
-  --NEW--font-mono:   'JetBrains Mono', ui-monospace, monospace;
+  --NEW--font-display:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --NEW--font-mono:   ui-monospace, monospace;
 
   --NEW--text-xs:    0.75rem;    // 12px — captions
   --NEW--text-sm:    0.875rem;   // 14px — small labels
@@ -126,9 +126,9 @@ $food-theme: mat.define-theme((
 
   // ── Premium Transitions ──────────────────────────────────────
   --NEW--ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
-  --NEW--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --NEW--ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --NEW--ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
-  --NEW--ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --NEW--ease-bounce: cubic-bezier(0.16, 1, 0.3, 1);
 
   --NEW--duration-instant: 100ms;
   --NEW--duration-fast:    200ms;
@@ -159,7 +159,7 @@ $food-theme: mat.define-theme((
 
   // ── Premium Gradients ───────────────────────────────────────
   --NEW--gradient-hero:       linear-gradient(135deg, #0f0b08 0%, #1a0f06 40%, #2d1508 100%);
-  --NEW--gradient-primary:    linear-gradient(135deg, var(--NEW--primary), var(--NEW--primary-dark));
+  --NEW--gradient-primary:    linear-gradient(135deg, var(--NEW--primary), var(--NEW--accent));
   --NEW--gradient-accent:     linear-gradient(135deg, var(--NEW--accent), var(--NEW--accent-light));
   --NEW--gradient-live:       linear-gradient(135deg, #00d4aa, #00a896);
   --NEW--gradient-surface:    linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,246,236,0.95));
@@ -168,7 +168,7 @@ $food-theme: mat.define-theme((
   --NEW--gradient-radial:    radial-gradient(ellipse at 50% 0%, rgba(255,107,26,0.15) 0%, transparent 70%);
   --NEW--gradient-shimmer:   linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
   --NEW--gradient-card-hover: linear-gradient(145deg, #ffffff 0%, #fff6ec 100%);
-  --NEW--gradient-badge:     linear-gradient(135deg, #ff6b1a, #ff8a4a);
+  --NEW--gradient-badge:     linear-gradient(135deg, var(--NEW--primary), var(--NEW--accent));
 
   // ── Multi-layer Glass Tokens ────────────────────────────────
   // Three stacked semitransparent surfaces that compose into a
@@ -195,7 +195,7 @@ $food-theme: mat.define-theme((
     0 16px 64px rgba(0, 212, 170, 0.15);
 
   // ── Physics-Based Easing & Damping ──────────────────────────
-  --NEW--ease-physics-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --NEW--ease-physics-bounce:   cubic-bezier(0.16, 1, 0.3, 1);
   --NEW--ease-physics-glide:    cubic-bezier(0.22, 1, 0.36, 1);
   --NEW--ease-physics-settle:   cubic-bezier(0.16, 0.68, 0.32, 1);
   --NEW--ease-physics-momentum: cubic-bezier(0.83, 0, 0.17, 1);
@@ -239,10 +239,10 @@ $food-theme: mat.define-theme((
   --NEW--stagger-max:  320ms;
 
   // ── Physics Easings - Premium Variants ───────────────────────────
-  --NEW--ease-spring-premium:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --NEW--ease-spring-premium:  cubic-bezier(0.16, 1, 0.3, 1);
   --NEW--ease-glide-premium:   cubic-bezier(0.22, 1, 0.36, 1);
   --NEW--ease-settle-premium:  cubic-bezier(0.33, 0, 0.67, 1);
-  --NEW--ease-bounce-premium:  cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --NEW--ease-bounce-premium:  cubic-bezier(0.16, 1, 0.3, 1);
   --NEW--ease-expo-out:        cubic-bezier(0.19, 1, 0.22, 1);
 
   // ── Image-Forward Card Tokens ────────────────────────────────────

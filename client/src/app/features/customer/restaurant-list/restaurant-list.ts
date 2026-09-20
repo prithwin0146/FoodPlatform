@@ -6,9 +6,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 import { Title, Meta, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { retry } from 'rxjs/operators';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { retry, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { CanonicalService } from '../../../core/services/canonical.service';
+import { PostcodeService, LocationSuggestion } from '../../../core/services/postcode.service';
 import { environment } from '../../../../environments/environment';
 import { MatRippleModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -64,21 +66,20 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   /** Live kitchen count displayed inside the Spotlight CTA button. */
   readonly liveKitchenCount = computed(() => this.allRestaurants().length);
 
-  /** Mock locations for Mapbox-style autocomplete */
-  private readonly mockLocations = [
-    { id: '1', place_name: 'Chester, Cheshire, UK', text: 'Chester' },
-    { id: '2', place_name: 'Chesterfield, Derbyshire, UK', text: 'Chesterfield' },
-    { id: '3', place_name: 'Chester-le-Street, County Durham, UK', text: 'Chester-le-Street' },
-    { id: '4', place_name: 'London, Greater London, UK', text: 'London' },
-    { id: '5', place_name: 'Manchester, Greater Manchester, UK', text: 'Manchester' }
-  ];
+  private readonly postcodeService = inject(PostcodeService);
 
   /** Matching locations shown in the independently scrolling Spotlight dropdown. */
   readonly locationSuggestions = computed(() => {
-    const q = this.postcodeQuery().trim().toLowerCase();
-    if (!q) return [];
-    return this.mockLocations.filter(loc => loc.place_name.toLowerCase().includes(q));
+    return this.postcodeResults(); // Already structured as LocationSuggestion[]
   });
+
+  private readonly postcodeQuery$ = toObservable(this.postcodeQuery).pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    switchMap(query => this.postcodeService.autocomplete(query))
+  );
+
+  private readonly postcodeResults = toSignal(this.postcodeQuery$, { initialValue: [] as LocationSuggestion[] });
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly platformSettings = inject(PlatformSettingsService);
@@ -248,6 +249,8 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     this.preloadFrameSequences();
     this.setupCinematicScroll();
     this.setupGSAPAnimations();
+    this.setupFoodFloatAnimations();
+    this.setupDownloadAnimations();
     this.startPromiseCarousel();
   }
 
@@ -258,6 +261,90 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener('resize', this.onResize);
     cancelAnimationFrame(this.cinematicRaf);
   }
+
+  private setupDownloadAnimations(): void {
+    setTimeout(() => {
+      const section = document.querySelector('.download-app') as HTMLElement;
+      if (!section) return;
+
+      this.animationZone.runOutsideAngular(() => {
+        const copy  = section.querySelector('#da-copy')  as HTMLElement;
+        const phone = section.querySelector('#da-phone') as HTMLElement;
+        if (!copy || !phone) return;
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 70%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+
+        // Copy slides in from left with a spring-like ease
+        tl.to(copy, {
+          opacity: 1,
+          x: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+        }, 0);
+
+        // Phone slides in from right, slightly delayed for stagger
+        tl.to(phone, {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 1.1,
+          ease: 'power3.out',
+        }, 0.15);
+      });
+    }, 200);
+  }
+
+  private setupFoodFloatAnimations(): void {
+    // Small defer ensures Angular has fully rendered the new section
+    setTimeout(() => {
+      const section = document.querySelector('.app-features') as HTMLElement;
+      if (!section) return;
+
+      this.animationZone.runOutsideAngular(() => {
+        const foodItems = gsap.utils.toArray<HTMLElement>('.food-float-img', section);
+        if (!foodItems.length) return;
+
+        foodItems.forEach((el, i) => {
+          const fromX = el.dataset['fromX'] ? parseFloat(el.dataset['fromX']) : 0;
+          const fromY = el.dataset['fromY'] ? parseFloat(el.dataset['fromY']) : 80;
+          const delay  = el.dataset['delay']  ? parseFloat(el.dataset['delay'])  : 0;
+
+          gsap.fromTo(
+            el,
+            { x: fromX, y: fromY, opacity: 0, scale: 0.85 },
+            {
+              x: 0, y: 0, opacity: 1, scale: 1,
+              duration: 1,
+              ease: 'power3.out',
+              delay,
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 80%',
+                toggleActions: 'play none none reverse',
+              },
+              onComplete: () => {
+                // Start gentle perpetual float ONLY after the scroll-in finishes
+                gsap.to(el, {
+                  y: '+=14',
+                  duration: 2.4 + i * 0.5,
+                  ease: 'sine.inOut',
+                  yoyo: true,
+                  repeat: -1,
+                });
+              },
+            }
+          );
+        });
+      });
+    }, 200);
+  }
+
 
   private setupGSAPAnimations(): void {
     const stage = this.cinematicStage?.nativeElement;
@@ -499,6 +586,11 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   onSpotlightBlur(): void {
     // Small delay allows click events on preview items to fire before hiding dropdown.
     setTimeout(() => this.spotlightFocused.set(false), 200);
+  }
+
+  selectSuggestion(postcode: string): void {
+    this.postcodeQuery.set(postcode);
+    this.navigateToRestaurants();
   }
 
   /** Navigate to /restaurants, carrying the postcode query as ?q= if present. */

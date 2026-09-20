@@ -42,10 +42,10 @@ export class MagneticDirective implements OnInit, OnDestroy {
 
   /** Transition used for hover in/out */
   private readonly HOVER_TRANSITION =
-    'transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease';
+    'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease';
   /** Faster transition for the press-down feel */
   private readonly PRESS_TRANSITION =
-    'transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.08s ease';
+    'transform 0.08s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.08s ease';
 
   constructor(private elRef: ElementRef<HTMLElement>, private renderer: Renderer2) {}
 

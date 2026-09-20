@@ -58,10 +58,13 @@
 .why-title-em {
   display: inline;
   font-style: italic;
-  font-weight: 500;
-  background: linear-gradient(120deg, var(--c-orange) 0%, var(--c-pink) 60%, var(--c-purple) 100%);
+  font-weight: 700;
+  background: var(--NEW--gradient-primary);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
+  padding: 0.05em 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .why-lead {
   font-family: var(--font-sans);

@@ -44,7 +44,7 @@
                   role="option"
                   tabindex="0"
                 >
-                  <img [src]="item.imageUrl" [alt]="item.name" class="suggestion-thumb" loading="lazy" />
+                  <img [src]="item.imageUrl" [alt]="item.name" class="suggestion-thumb" loading="lazy" appImageFallback />
                   <div class="suggestion-info">
                     <span class="suggestion-name">{{ item.name }}</span>
                     <span class="suggestion-meta">{{ item.cuisineType }} • {{ item.rating }}★ • {{ item.estimatedDeliveryMinutes }} min</span>
@@ -143,7 +143,7 @@
             [id]="'category-' + cat.label.toLowerCase()"
           >
             <div class="cat-emoji-circle">
-              <img [src]="cat.imageUrl" [alt]="cat.label" class="cat-img" loading="lazy" />
+              <img [src]="cat.imageUrl" [alt]="cat.label" class="cat-img" loading="lazy" appImageFallback />
             </div>
             <span class="cat-label">{{ cat.label }}</span>
           </button>
@@ -184,7 +184,7 @@
               </a>
             </div>
             <div class="promo-card-img-wrapper">
-              <img [src]="banner.imageUrl" [alt]="banner.title" loading="lazy" />
+              <img [src]="banner.imageUrl" [alt]="banner.title" loading="lazy" appImageFallback />
             </div>
           </div>
         }
@@ -431,6 +431,7 @@
             [alt]="restaurant.name"
             class="ue-card-img"
             loading="lazy"
+            appImageFallback
           />
 
           <!-- Live Badge (Top Left) -->

@@ -15,6 +15,7 @@ import { RestaurantService } from '../../../core/services/restaurant.service';
 import { FavouritesService } from '../../../core/services/favourites.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Restaurant } from '../../../core/models';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 
 /** High-quality realistic demo dataset of 12 kitchens across London */
 const DEMO_RESTAURANTS: Restaurant[] = [
@@ -650,6 +651,7 @@ const GREAT_VALUE_NAMES = new Set(['The Burger Joint', 'Taco & Cantina', 'Ramen 
   imports: [
     CommonModule, RouterLink, NgTemplateOutlet,
     MatRippleModule, MatTooltipModule, MatButtonModule,
+    ImageFallbackDirective
   ],
   templateUrl: './restaurants-browse.html',
   styleUrl: './restaurants-browse.scss',
