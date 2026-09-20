@@ -1,642 +1,370 @@
-/* ════════════════════════════════════════════════ HERO ═══ */
-.hero {
-  /* Override light-theme text vars for the dark video hero */
-  --c-text:      #f5ede8;
-  --c-text-soft: #d4b8ae;
-  --c-text-muted:#a08880;
-  --c-surface:   rgba(20, 10, 6, 0.65);
-  --c-border:    rgba(255, 255, 255, 0.14);
+/* ════════════════════════════════════════ BOLD HUB HERO ═══ */
 
+.hub-hero {
   position: relative;
-  height: 100svh;
-  min-height: 560px;
-  padding: 7rem 0 5rem;
-  /* overflow: clip removed to fix Safari 3D hit-testing bug; .hero-visuals handles clipping */
-  isolation: isolate;
-  z-index: 1;
-  background: #111;     /* dark fallback only while video loads */
+  min-height: 100vh;
+  /* Massive brand orange background like Swiggy/Just Eat */
+  background: var(--c-orange, #ff6b1a);
+  background: linear-gradient(135deg, #ff7a33 0%, #ff5200 100%);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem 0 3rem;
+  z-index: 1;
+
+  /* Subtle texture/glow */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+  }
 }
 
-.hero-visuals {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* ── Poster background (always-guaranteed layer) ──
-   Plain <img>, sits behind the video at all times. Sized identically to
-   .hero-video (object-fit: cover) so the video fading in on top is a
-   seamless crossfade rather than a layout jump. */
-.hero-poster {
+/* ── Floating Background Elements (Cutouts) ── */
+.hub-floating-stage {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
-  z-index: 0;
   pointer-events: none;
-  display: block;
-  @media (max-width: 600px) and (orientation: portrait) {
-    object-position: 60% 25%;
+  z-index: 2;
+
+  .hub-float {
+    position: absolute;
+    filter: drop-shadow(0 32px 48px rgba(0,0,0,0.25));
+  }
+
+  .hub-groceries {
+    bottom: -2%;
+    left: 0;
+    height: auto;
+    width: 20vw;
+    min-width: 220px;
+    object-fit: contain;
+    object-position: bottom left;
+    animation: fadeUp 1s ease forwards 0.2s;
+    opacity: 0;
+  }
+
+  .hub-sushi {
+    top: -2%;
+    right: 0;
+    height: auto;
+    width: 20vw;
+    min-width: 220px;
+    object-fit: contain;
+    object-position: top right;
+    animation: fadeUp 1s ease forwards 0.3s;
+    opacity: 0;
   }
 }
 
-/* ── Video background ── */
-.hero-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* min-width + min-height guarantees zero letterbox gaps at any aspect ratio */
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: cover;
-  object-position: center 30%;
-  z-index: 0;
-  pointer-events: none;
-  display: block;
-  /* Starts fully transparent — the poster <img> underneath is the real
-     background from first paint. The video only crossfades in once
-     `.is-visible` is applied (JS sets this the moment playback genuinely
-     starts), so a slow/blocked/failed video request never shows as a
-     broken or half-loaded state — worst case, the poster just stays. */
-  opacity: 0;
-  transition: opacity 0.8s ease;
-  &.is-visible { opacity: 1; }
-  /* Portrait mobile: shift focus to centre-right where food typically is */
-  @media (max-width: 600px) and (orientation: portrait) {
-    object-position: 60% 25%;
-  }
-}
-.hero-video-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  /* Minimal scrim: text legibility comes from text-shadow, not a heavy wash.
-     Brand-orange warm gradient (bottom-left) keeps food imagery vibrant.
-     Removed the moody radial vignette entirely. */
-  background:
-    linear-gradient(180deg,
-      rgba(0,0,0,0.18) 0%,
-      rgba(0,0,0,0.04) 28%,
-      rgba(0,0,0,0.04) 62%,
-      rgba(0,0,0,0.16) 100%),
-    linear-gradient(135deg,
-      rgba(255,107,26,0.08) 0%,
-      transparent 55%);
-  pointer-events: none;
-  @media (max-width: 600px) {
-    background:
-      linear-gradient(180deg,
-        rgba(0,0,0,0.24) 0%,
-        rgba(0,0,0,0.06) 28%,
-        rgba(0,0,0,0.06) 62%,
-        rgba(0,0,0,0.20) 100%),
-      linear-gradient(135deg,
-        rgba(255,107,26,0.10) 0%,
-        transparent 55%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-video { display: none; }
-}
-
-.hero-spotlight {
-  position: absolute; inset: 0; z-index: 1;
-  pointer-events: none;
-  transition: background 0.3s ease-out;
-}
-
-/* z-index: -1 (was 0, same as .hero-video). Both shared z-index:0 meant
-   this, painted later in the DOM, rendered ON TOP of the video — 3 giant
-   140px-blurred, 55%-opacity colour blobs washing over the footage,
-   which is exactly the "glitchy / video not properly placed" look. Now
-   sits behind the (always fully-covering) video as an ambient colour
-   layer for the brief moment before the video paints, or as a graceful
-   fallback if it fails to load — never fighting the footage once playing. */
-.mesh-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-/* Parallax depth layer 2/3 — gradient mesh. The directive translates these
-   via [data-parallax-depth]; SCSS only owns colour, size and float. */
-.mesh-blob {
-  position: absolute; width: 60vw; height: 60vw;
-  border-radius: 50%; filter: blur(140px); opacity: 0.55;
-  animation: blobFloat 18s ease-in-out infinite alternate;
-  will-change: transform;
-}
-.blob-1 {
-  top: -10%; left: -10%;
-  background: radial-gradient(circle, var(--NEW--primary) 0%, transparent 65%);
-}
-.blob-2 {
-  top: 30%; right: -20%;
-  background: radial-gradient(circle, var(--NEW--accent) 0%, transparent 60%);
-  animation-duration: 22s;
-}
-.blob-3 {
-  bottom: -15%; left: 20%;
-  background: radial-gradient(circle, var(--NEW--live) 0%, transparent 65%);
-  width: 50vw; height: 50vw;
-  animation-duration: 26s;
-}
-@keyframes blobFloat {
-  0%   { transform: translate3d(0,0,0) scale(1); }
-  50%  { transform: translate3d(4vw,-3vw,0) scale(1.1); }
-  100% { transform: translate3d(-3vw,4vw,0) scale(0.95); }
-}
-// Mobile: these blobs run a 3-layer, 140px-blur, infinite compositing
-// animation for the entire time the hero is mounted. Blur cost scales
-// sharply with radius, and continuous animation means the browser can never
-// cache/rasterize a static result — on mid/low-end mobile GPUs this alone
-// was enough to compound with everything else on the page (video decode,
-// backdrop-filter, SVG animation) into visible jank/freezing. Cut blur
-// radius drastically and stop the animation outright on small screens; the
-// blobs still render as a static ambient wash, just without the per-frame
-// GPU cost.
-@media (max-width: 768px) {
-  .mesh-blob {
-    filter: blur(48px);
-    animation: none;
-  }
-}
-/* Parallax depth layer 3/3 — fine-grain noise. High blur + low opacity =
-   perceived texture without competing with content. z-index bumped to 2
-   (above .hero-video-overlay's 1) so the grain consistently reads over
-   the video + scrim rather than sitting underneath them. */
-.hero-noise {
-  position: absolute; inset: 0; z-index: 2;
-  pointer-events: none;
-  opacity: 0.10;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/</filter><rect width='100%' height='100%' filter='url(%23n)'/</svg>");
-  background-size: 180px 180px;
-}
-
-.hero-ribbon {
-  position: absolute; top: 5%; right: -10%;
-  width: 70%; height: 70%;
-  z-index: 3; pointer-events: none; opacity: 0.4;
-}
-.ribbon-path {
-  stroke-dasharray: 2000;
-  stroke-dashoffset: 2000;
-  animation: drawRibbon 4s ease-out forwards 0.5s, ribbonFloat 12s ease-in-out infinite 4.5s;
-  &.delay { animation-delay: 1s, 5s; }
-}
-@keyframes drawRibbon { to { stroke-dashoffset: 0; } }
-@keyframes ribbonFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-20px); }
-}
-
-.hero-grid {
-  position: relative; z-index: 5;
+/* ── Container & Central Content ── */
+.hub-container {
+  position: relative;
+  z-index: 10;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  flex: 1;      /* expands to fill hero, pushing scroll-cue to the bottom */
-  padding: 0;
-}
-@media (max-width: 1024px) {
-  .hero-ribbon { display: none; }
 }
 
-.live-badge {
-  display: inline-flex; align-items: center; gap: 0.6rem;
-  padding: 0.55rem 1.1rem;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 99px;
-  font-size: 0.82rem; color: var(--c-text-soft);
-  box-shadow: var(--shadow-soft);
-  margin-bottom: 1.75rem;
-  animation: badgeFloat 4s ease-in-out infinite;
-  strong { color: var(--c-text); font-weight: 700; }
-}
-.live-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--NEW--live);
-  box-shadow: 0 0 0 0 var(--NEW--live-glow);
-  animation: livePulseNew 1.6s infinite;
-}
-.live-dot-anim {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--NEW--live);
-  box-shadow: 0 0 0 0 var(--NEW--live-glow);
-  animation: livePulseNew 1.6s infinite;
-}
-@keyframes livePulseNew {
-  0%   { box-shadow: 0 0 0 0 var(--NEW--live-glow); }
-  70%  { box-shadow: 0 0 0 10px transparent; }
-  100% { box-shadow: 0 0 0 0 transparent; }
-}
-@keyframes badgeFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-3px); }
+.hub-content {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
-.hero-headline {
-  /* Bold & Playful direction: Plus Jakarta Sans 800 — confident, energetic,
-     not editorial serif. Fraunces reserved for section headings only. */
-  font-family: var(--NEW--font-sans);
-  font-size: clamp(3.4rem, 8vw, 7rem);
+.hub-title {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(2rem, 3.2vw, 3rem);
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  margin: 0 0 1.75rem;
-  color: var(--c-text);
-  /* Legibility safety net: the overlay is now intentionally light over the
-     centred text band so the video reads clearly, so contrast comes from
-     this shadow instead of a dark scrim crushing the footage. */
-  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.40);
-  perspective: 800px;
-  .line { display: block; }
-  .word {
-    display: inline-block; margin-right: 0.22em;
-    opacity: 0;
-    transform: translateY(60px) rotateX(-50deg);
-    animation: wordIn 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    transform-origin: 50% 100%;
-  }
-  .w1 { animation-delay: 0.1s; } .w2 { animation-delay: 0.2s; } .w3 { animation-delay: 0.3s; }
-  .w4 { animation-delay: 0.5s; } .w5 { animation-delay: 0.6s; position: relative; } .w6 { animation-delay: 0.7s; }
-}
-@keyframes wordIn { to { opacity: 1; transform: translateY(0) rotateX(0); } }
-.grad-underline {
-  position: absolute; left: 0; right: 0; bottom: -0.05em;
-  width: 100%; height: 12px;
-  stroke-dasharray: 250; stroke-dashoffset: 250;
-  animation: drawUnderline 1s ease-out forwards 1.5s;
-}
-@keyframes drawUnderline { to { stroke-dashoffset: 0; } }
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 1.5rem;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  animation: fadeUp 0.8s ease forwards;
+  max-width: 750px;
 
-.hero-subtitle {
-  font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.65;
-  color: var(--c-text-soft);
-  max-width: 640px;
-  margin: 0 auto 2rem;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
-  opacity: 0; animation: fadeInUp 0.8s ease forwards 1.1s;
-  strong { color: var(--c-text); font-weight: 700; }
-  em { color: var(--c-orange); font-style: normal; font-weight: 600; }
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.hero-ctas {
-  display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
-  margin-bottom: 2.25rem;
-  opacity: 0; animation: fadeInUp 0.8s ease forwards 1.3s;
-}
-::ng-deep .cta-primary.mat-mdc-unelevated-button {
-  position: relative;
-  background: linear-gradient(135deg, var(--c-orange) 0%, var(--NEW--primary-dark) 100%) !important;
-  color: #fff !important;
-  padding: 0 2.25rem !important;
-  height: 62px !important;
-  border-radius: 18px !important;
-  font-size: 1.1rem !important; font-weight: 800 !important; letter-spacing: -0.01em !important;
-  box-shadow:
-    var(--NEW--shadow-sm),
-    0 16px 40px -8px var(--NEW--primary-glow),
-    inset 0 0 0 1px rgba(255,255,255,0.20) !important;
-  animation: ctaGlowPulseNew 2.8s ease-in-out infinite !important;
-  overflow: hidden;
-  .material-symbols-rounded { margin-right: 0.55rem; font-size: 1.35rem; }
-  .cta-shine {
-    position: absolute; top: 0; left: -150%;
-    width: 80%; height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
-    transform: skewX(-20deg);
-    animation: shine 3.5s ease-in-out infinite;
+  .hub-accent {
+    font-style: normal;
+    color: #fff;
   }
 }
-@keyframes ctaGlowPulseNew {
-  0%, 100% { box-shadow: var(--NEW--shadow-sm), 0 16px 40px -8px var(--NEW--primary-glow), inset 0 0 0 1px rgba(255,255,255,0.20); }
-  50%      { box-shadow: 0 0 0 10px transparent, 0 16px 40px -8px var(--NEW--primary-glow), inset 0 0 0 1px rgba(255,255,255,0.20); }
-}
-::ng-deep .cta-secondary.mat-mdc-outlined-button {
-  height: 56px !important;
-  padding: 0 1.5rem !important;
-  border-radius: 16px !important;
-  border-color: var(--c-border-strong) !important;
-  color: var(--c-text) !important;
-  background: var(--c-surface) !important;
-  font-weight: 600 !important;
-  box-shadow: var(--shadow-soft);
-  .material-symbols-rounded { margin-right: 0.5rem; font-size: 1.25rem; color: var(--c-orange); }
-  /* Hover is pinned to a theme-stable light chip (--NEW--primary-subtle
-     never flips in dark mode) rather than the flipping --c-bg-soft. The
-     hero never re-themes (no [data-theme="dark"] .hero override exists),
-     so this button must always get the same light hover treatment —
-     previously in dark theme --c-bg-soft resolved dark too, making the
-     hardcoded near-black hover text invisible against its own background. */
-  &:hover { background: var(--NEW--primary-subtle) !important; border-color: var(--c-orange) !important; color: #1a0e08 !important; }
-  &:hover .material-symbols-rounded { color: var(--c-orange) !important; }
-}
-@keyframes shine {
-  0%, 60% { left: -150%; }
-  100%    { left: 150%; }
-}
 
-/* ═══════════════════════════════ KITCHEN SPOTLIGHT ═══
-   Signature hero CTA — replaces the old "Order & Watch Live" button.
-   A pill-shaped search bar that surfaces live kitchen count + preview.
-   ─────────────────────────────────────────────────────────────────── */
+
+
+/* ── Massive Search Bar (Swiggy/Deliveroo style) ── */
 .kitchen-spotlight {
   position: relative;
-  width: min(100%, 660px);
-  max-width: 660px;
-  margin: 0 auto 2.5rem;
+  width: 100%;
+  max-width: 700px;
+  animation: fadeUp 0.8s ease forwards 0.2s;
   opacity: 0;
-  animation: fadeInUp 0.8s ease forwards 1.3s;
-  /* Own stacking context — dropdown always floats above every hero sibling */
-  z-index: 20;
-  isolation: isolate;
-}
 
-.spotlight-pill {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  border-radius: 9999px;
-  padding: 6px 6px 6px 18px;
-  gap: 0;
-  box-shadow:
-    0 8px 32px -8px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    background 0.3s ease;
+  .spotlight-pill {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 9999px;
+    padding: 8px 8px 8px 24px;
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 3px solid transparent;
 
-  @media (max-width: 768px) {
-    background: rgba(20, 10, 6, 0.55);
-    backdrop-filter: blur(10px) saturate(140%);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    &.is-focused {
+      box-shadow: 0 32px 64px -12px rgba(0,0,0,0.35);
+      transform: scale(1.02);
+    }
   }
 
-  &.is-focused {
-    border-color: rgba(255, 107, 26, 0.8);
-    box-shadow:
-      0 0 0 4px rgba(255, 107, 26, 0.22),
-      0 8px 32px -8px rgba(0, 0, 0, 0.28);
-    background: rgba(255, 255, 255, 0.28);
-    animation: spotlightGlow 2s ease-in-out infinite;
+  .spotlight-icon {
+    font-size: 1.4rem;
+    color: #ff6b1a;
+    margin-right: 0.8rem;
+  }
 
-    @media (max-width: 768px) {
-      animation: none;
-      background: rgba(20, 10, 6, 0.6);
+  .spotlight-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111;
+
+    &::placeholder {
+      color: #aaa;
+      font-weight: 600;
+    }
+  }
+
+  .spotlight-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 2rem;
+    border-radius: 9999px;
+    background: #111;
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      background: #000;
+      transform: scale(1.04);
     }
   }
 }
-@keyframes spotlightGlow {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(255,107,26,.22), 0 8px 32px -8px rgba(0,0,0,.28); }
-  50%       { box-shadow: 0 0 0 8px rgba(255,107,26,.14), 0 8px 32px -8px rgba(0,0,0,.28); }
-}
 
-.spotlight-icon {
-  font-size: 1.25rem;
-  color: rgba(255, 107, 26, 0.9);
-  flex-shrink: 0;
-  margin-right: 0.6rem;
-  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-}
-
-.spotlight-input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: #fff;
-  caret-color: var(--c-orange, #ff6b1a);
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.65);
-  }
-}
-
-.spotlight-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0 1.5rem;
-  height: 52px;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #ff6b1a 0%, #ff3d8a 100%);
-  border: none;
-  color: #fff;
-  font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  box-shadow: 0 8px 24px -8px rgba(255, 107, 26, 0.65);
-  transition: transform 0.2s var(--NEW--ease-physics-bounce, cubic-bezier(.22,1,.36,1)),
-              box-shadow 0.2s ease;
-
-  &:hover {
-    transform: scale(1.04);
-    box-shadow: 0 12px 32px -8px rgba(255, 107, 26, 0.8);
-  }
-  &:active { transform: scale(0.97); }
-
-  .material-symbols-rounded { font-size: 1.15rem; flex-shrink: 0; }
-}
-
-.spotlight-cta-count {
-  font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  font-size: 1.15rem;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-}
-.spotlight-cta-label {
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-/* ── Preview dropdown ── */
+/* Dropdown */
 .spotlight-dropdown {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 16px);
   left: 0; right: 0;
   background: #fff;
-  border: 1px solid rgba(255, 107, 26, 0.22);
-  border-radius: 20px;
-  padding: 0.5rem;
-  box-shadow:
-    0 24px 64px -16px rgba(0, 0, 0, 0.24),
-    0 4px 16px -4px rgba(255, 107, 26, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 28px;
+  padding: 1rem;
+  box-shadow: 0 32px 80px -16px rgba(0, 0, 0, 0.3);
   z-index: 999;
-  max-height: min(460px, calc(100dvh - 120px));
+  max-height: 400px;
   overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-  animation: dropdownIn 0.18s ease-out forwards;
+  animation: dropFade 0.2s ease forwards;
+  text-align: left;
 }
-@keyframes dropdownIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+
+@keyframes dropFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .spi-row {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: 14px;
+  gap: 1.2rem;
+  padding: 1rem;
+  border-radius: 20px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #f4f4f4;
+  }
+
+  .spi-thumb {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 107, 26, 0.1);
+    color: #ff6b1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .material-symbols-rounded { font-size: 1.6rem; }
+  }
+
+  .spi-body {
+    flex: 1;
+    .spi-name { margin: 0 0 0.2rem; font-size: 1.1rem; font-weight: 800; color: #111; }
+    .spi-meta { margin: 0; font-size: 0.85rem; color: #777; font-family: var(--font-sans); font-weight: 500;}
+  }
+}
+
+.spi-footer {
+  padding: 1.2rem 0.5rem 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #999;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+/* ── Bottom Feature Cards (Overlapping) ── */
+.hub-feature-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1000px;
+  animation: fadeUp 0.8s ease forwards 0.4s;
+  opacity: 0;
+  margin-top: 3rem;
+  
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.hub-card {
   text-decoration: none;
   color: inherit;
-  transition: background 0.15s ease;
-
-  &:hover { background: rgba(255, 107, 26, 0.06); }
-}
-
-.spi-thumb {
-  width: 44px; height: 44px;
-  border-radius: 10px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 1.5rem 1.5rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
   overflow: hidden;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, rgba(255,107,26,.15), rgba(255,61,138,.12));
-
-  img {
-    width: 100%; height: 100%; object-fit: cover;
-  }
-  app-image-fallback { display: flex; width: 100%; height: 100%; }
-}
-
-.spi-body { flex: 1; min-width: 0; }
-.spi-name {
-  font-size: 0.9rem; font-weight: 700;
-  color: #1a1410; margin: 0 0 0.15rem;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.spi-meta {
-  font-size: 0.75rem; color: #9a9088; margin: 0;
-}
-
-.spi-live {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em;
-  color: #00d4aa; flex-shrink: 0;
-}
-.spi-live-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: #00d4aa;
-  animation: recBlink 1.4s ease-in-out infinite;
-}
-
-.spi-see-all {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; padding: 0.65rem;
-  background: transparent; border: none; border-top: 1px solid rgba(240, 232, 221, 0.8);
-  margin-top: 0.25rem;
-  color: #ff6b1a; font-family: var(--font-sans); font-size: 0.85rem; font-weight: 700;
-  cursor: pointer; border-radius: 0 0 14px 14px;
-  transition: background 0.15s ease;
-  &:hover { background: rgba(255, 107, 26, 0.06); }
-  .material-symbols-rounded { font-size: 1rem; }
-}
-@keyframes recBlink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-
-
-
-.hero-scroll-cue {
-  position: relative;   /* natural flex child — can never overlap content */
-  z-index: 10;
-  flex-shrink: 0;
-  align-self: center;
-  margin-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  text-align: left;
+  aspect-ratio: 1.15 / 1;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  box-shadow: var(--shadow-card);
-  animation: scrollCueBounce 2s var(--NEW--ease-physics-glide) infinite;
-  transition: opacity 0.3s, transform var(--NEW--duration-fast) var(--NEW--ease-physics-bounce),
-              background var(--NEW--duration-fast) var(--NEW--ease-out);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
   &:hover {
-    transform: translateY(-2px);
-    background: color-mix(in srgb, var(--c-orange) 14%, var(--c-surface));
-    border-color: var(--c-orange);
+    transform: scale(1.02);
   }
-  &:active { transform: translateY(0) scale(0.94); }
-  @media (max-height: 560px) { display: none; }
-  .material-symbols-rounded { font-size: 1.6rem; color: var(--c-orange); }
-}
-@keyframes scrollCueBounce {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(6px); }
+
+  .hub-card-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hc-title {
+    font-family: var(--font-sans);
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #3d4152;
+    margin: 0 0 0.2rem;
+    letter-spacing: -0.03em;
+  }
+
+  .hc-subtitle {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: #686b78;
+    font-weight: 600;
+    margin: 0 0 0.8rem;
+    letter-spacing: 0.02em;
+  }
+
+  .hc-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    background: rgba(255, 107, 26, 0.08);
+    color: #ff6b1a;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border-radius: 6px;
+  }
+
+  .hc-bottom {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+  }
+
+  .hc-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ff6b1a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255,107,26,0.3);
+    
+    .material-symbols-rounded {
+      font-size: 1.3rem;
+    }
+  }
+
+  .hub-card-cutout {
+    position: absolute;
+    bottom: -5%;
+    right: -5%;
+    width: 55%;
+    height: auto;
+    object-fit: contain;
+    z-index: 1;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.2));
+    transition: transform 0.4s ease;
+  }
+
+  &:hover .hub-card-cutout {
+    transform: scale(1.05) translate(-2%, -2%);
+  }
+  
+  @media (max-width: 900px) {
+    aspect-ratio: auto;
+    min-height: 240px;
+    
+    .hub-card-cutout {
+      width: 220px;
+      bottom: -10%;
+      right: -10%;
+    }
+  }
 }
 
-/* Hero scroll progress rail — visualises how far the user is past the
-   hero. Sits at the bottom edge of the dark video, animates from 0 → 100%
-   width through the visible hero region. Pure CSS via sticky positioning. */
-.hero-progress-rail {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 3px;
-  z-index: 4;
-  background: rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-  pointer-events: none;
-}
-.hero-progress-rail::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  background: linear-gradient(90deg,
-    var(--c-orange) 0%,
-    color-mix(in srgb, var(--c-orange) 60%, var(--c-pink)) 60%,
-    var(--c-pink) 100%);
-  transform-origin: 0 50%;
-  /* Sticks via viewport scroll: pinned to top of document via parent
-     flex container; grows from 0 → 100% as the hero scrolls out. */
-  transform: scaleX(0);
-  animation: heroFill 1ms linear forwards;
-  animation-timeline: view();
-  animation-range: 0% 100%;
-}
-@keyframes heroFill { to { transform: scaleX(1); } }
-@media (prefers-reduced-motion: reduce) {
-  .hero-progress-rail { display: none; }
-}
-
-.proof-strip {
-  list-style: none;
-  display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;
-  margin: 0; padding: 0;
-  opacity: 0; animation: fadeInUp 0.8s ease forwards 1.5s;
-}
-.proof-pill {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 99px;
-  font-size: 0.82rem; font-weight: 600;
-  color: var(--c-text-soft);
-  box-shadow: var(--shadow-soft);
-  .material-symbols-rounded { font-size: 1.05rem; color: var(--c-orange); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 }

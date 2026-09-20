@@ -46,19 +46,11 @@ interface WhyPromise {
   styleUrl: './restaurant-list.scss',
 })
 export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('cinematicStage') private cinematicStage?: ElementRef<HTMLElement>;
-  @ViewChild('cinematicCanvas') private cinematicCanvas?: ElementRef<HTMLCanvasElement>;
-
   readonly demoVideoUrl = signal<string>('');
   /** Postcode / name typed into the Kitchen Spotlight on the hero. */
   readonly postcodeQuery = signal('');
   readonly spotlightFocused = signal(false);
-  readonly cinematicProgress = signal(0);
-  readonly cinematicScene = signal(0);
   readonly activePromise = signal(0);
-
-  private readonly sequenceImages: HTMLImageElement[] = [];
-  private lastDrawnFrameKey = '';
 
   /** Lightweight restaurant list — powers Spotlight count + preview only. */
   private readonly allRestaurants = signal<Restaurant[]>([]);
@@ -85,17 +77,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   private readonly platformSettings = inject(PlatformSettingsService);
   private readonly router = inject(Router);
   private readonly animationZone = inject(NgZone);
-  private cinematicRaf = 0;
-  private isRendering = false;
-  private targetProgress = 0;
-  private currentProgress = 0;
   private promiseTimer?: number;
-
-  readonly cinematicScenes = [
-    { title: 'Choose a', accent: 'kitchen', body: 'Browse FSA-verified kitchens near you. Independent restaurants only — no dark kitchens, no white-label brands.' },
-    { title: 'Watch it', accent: 'cook', body: 'The moment your order is accepted, the kitchen camera goes live. Follow every prep stage in HD until plating.' },
-    { title: 'Track to the', accent: 'door', body: "Live ETA from the kitchen to your address. Tip the chef directly when you're happy with the food." },
-  ];
 
   /** Section: Why · four honest promises (editorial layout) */
   readonly promises: WhyPromise[] = [
@@ -246,9 +228,6 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (!this.isBrowser) return;
 
-    this.preloadFrameSequences();
-    this.setupCinematicScroll();
-    this.setupGSAPAnimations();
     this.setupFoodFloatAnimations();
     this.setupDownloadAnimations();
     this.startPromiseCarousel();
@@ -257,9 +236,6 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     if (!this.isBrowser) return;
     if (this.promiseTimer) window.clearInterval(this.promiseTimer);
-    window.removeEventListener('scroll', this.onScroll);
-    window.removeEventListener('resize', this.onResize);
-    cancelAnimationFrame(this.cinematicRaf);
   }
 
   private setupDownloadAnimations(): void {
@@ -346,218 +322,7 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  private setupGSAPAnimations(): void {
-    const stage = this.cinematicStage?.nativeElement;
-    if (!stage) return;
 
-    const cards = gsap.utils.toArray<HTMLElement>('.cinematic-story-card', stage);
-    if (cards.length < 4) return;
-
-    this.animationZone.runOutsideAngular(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: stage,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1,
-        }
-      });
-
-      // Scene 0: Order Food / Search Bar
-      // Start fully visible so it's there at page load without scrolling
-      tl.set(cards[0], { opacity: 1, pointerEvents: 'auto' }, 0);
-      tl.set(cards[0].querySelectorAll('.brand-reveal-title'), { y: 0, opacity: 1, filter: 'blur(0px)' }, 0);
-      tl.set(cards[0].querySelectorAll('.kitchen-spotlight'), { opacity: 1 }, 0);
-      
-      // Animate out as we approach Scene 1
-      tl.to(cards[0], { opacity: 0, duration: 0.05, pointerEvents: 'none' }, 0.305);
-
-      // Scene 1: See the preparation
-      tl.set(cards[1], { opacity: 1 }, 0.355);
-      tl.fromTo(cards[1].querySelectorAll('.story-text'), 
-        { y: 40, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05, stagger: 0.05 }, 0.355
-      );
-      tl.to(cards[1], { opacity: 0, duration: 0.05 }, 0.655);
-
-      // Scene 2: Trust every bite
-      tl.set(cards[2], { opacity: 1 }, 0.705);
-      tl.fromTo(cards[2].querySelectorAll('.story-text'), 
-        { y: 40, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05, stagger: 0.05 }, 0.705
-      );
-      tl.to(cards[2], { opacity: 0, duration: 0.05 }, 0.830);
-
-      // Scene 3: End Title
-      tl.set(cards[3], { opacity: 1 }, 0.880);
-      tl.fromTo(cards[3].querySelectorAll('.brand-reveal-title'), 
-        { y: 40, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.05 }, 0.880
-      );
-    });
-  }
-
-  private async preloadFrameSequences(): Promise<void> {
-    await this.animationZone.runOutsideAngular(async () => {
-      const loadScene = async (scenePath: string, targetArray: HTMLImageElement[]) => {
-        const batchSize = 50;
-        for (let i = 1; i <= 300; i += batchSize) {
-          const promises = [];
-          for (let j = i; j < i + batchSize && j <= 300; j++) {
-            promises.push(new Promise<void>((resolve) => {
-              const img = new Image();
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-              img.src = `/frames/${scenePath}/ezgif-frame-${String(j).padStart(3, '0')}.jpg`;
-              targetArray[j] = img;
-            }));
-          }
-          await Promise.all(promises);
-        }
-      };
-
-      // Load the single 300-frame sequence fully
-      await loadScene('sequence', this.sequenceImages);
-      // Kick off the first render immediately in case they already scrolled
-      this.forceRender();
-    });
-  }
-
-  private forceRender(): void {
-    if (!this.isRendering) {
-      this.isRendering = true;
-      this.cinematicRaf = requestAnimationFrame(this.renderLoop);
-    }
-  }
-
-  private stageTop = 0;
-  private stageScrollableHeight = 1;
-  private canvasRect: { width: number; height: number } = { width: 0, height: 0 };
-
-  private setupCinematicScroll(): void {
-    this.animationZone.runOutsideAngular(() => {
-      this.recalculateStageDimensions();
-      window.addEventListener('scroll', this.onScroll, { passive: true });
-      window.addEventListener('resize', this.onResize, { passive: true });
-      this.onScroll();
-    });
-  }
-
-  private readonly onResize = (): void => {
-    this.recalculateStageDimensions();
-    this.onScroll();
-  };
-
-  private recalculateStageDimensions(): void {
-    const stage = this.cinematicStage?.nativeElement;
-    if (stage) {
-      const rect = stage.getBoundingClientRect();
-      this.stageTop = rect.top + window.scrollY;
-      this.stageScrollableHeight = Math.max(1, stage.offsetHeight - window.innerHeight);
-    }
-    const canvas = this.cinematicCanvas?.nativeElement;
-    if (canvas) {
-      this.canvasRect = canvas.getBoundingClientRect();
-    }
-  }
-
-  private readonly onScroll = (): void => {
-    const scrollY = window.scrollY;
-    this.targetProgress = Math.max(0, Math.min(1, (scrollY - this.stageTop) / this.stageScrollableHeight));
-    
-    if (!this.isRendering) {
-      this.isRendering = true;
-      this.cinematicRaf = requestAnimationFrame(this.renderLoop);
-    }
-  };
-
-  private readonly renderLoop = (): void => {
-    const lerpFactor = 0.08; // The "shock absorber" easing factor
-    
-    if (Math.abs(this.targetProgress - this.currentProgress) > 0.0001) {
-      this.currentProgress += (this.targetProgress - this.currentProgress) * lerpFactor;
-      this.updateCinematicScroll();
-      this.cinematicRaf = requestAnimationFrame(this.renderLoop);
-    } else {
-      this.currentProgress = this.targetProgress;
-      this.updateCinematicScroll();
-      this.isRendering = false;
-    }
-  };
-
-  private updateCinematicScroll(): void {
-    const currentP = this.currentProgress;
-
-    // Active scene determination based on strict 10s video timeline cuts
-    let activeSceneIndex = 0;
-    if (currentP >= 0.88) {
-      activeSceneIndex = 3;
-    } else if (currentP >= 0.705) {
-      activeSceneIndex = 2;
-    } else if (currentP >= 0.355) {
-      activeSceneIndex = 1;
-    } else {
-      activeSceneIndex = 0;
-    }
-
-    if (this.cinematicScene() !== activeSceneIndex) {
-      this.cinematicScene.set(activeSceneIndex);
-    }
-
-    // Map scroll progress directly to frame 1 - 300
-    const frameIdx = Math.max(1, Math.min(300, Math.round(1 + currentP * 299)));
-    const drawKey = `seq_${frameIdx}`;
-
-    if (this.lastDrawnFrameKey !== drawKey) {
-      this.lastDrawnFrameKey = drawKey;
-      this.renderFrameToCanvas(this.sequenceImages[frameIdx]);
-    }
-  }
-
-  private renderFrameToCanvas(image: HTMLImageElement | undefined): void {
-    const canvas = this.cinematicCanvas?.nativeElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const rect = this.canvasRect;
-    if (rect.width === 0 || rect.height === 0) return;
-
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const canvasWidth = Math.floor(rect.width * dpr);
-    const canvasHeight = Math.floor(rect.height * dpr);
-
-    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
-    }
-
-    if (!image || !image.complete || image.naturalWidth === 0) return;
-
-    ctx.save();
-    ctx.scale(dpr, dpr);
-
-    // Calculate object-fit: cover scaling
-    const imageRatio = image.naturalWidth / image.naturalHeight;
-    const containerRatio = rect.width / rect.height;
-
-    let drawWidth = rect.width;
-    let drawHeight = rect.height;
-    let offsetX = 0;
-    let offsetY = 0;
-
-    if (containerRatio > imageRatio) {
-      drawHeight = rect.width / imageRatio;
-      offsetY = (rect.height - drawHeight) / 2;
-    } else {
-      drawWidth = rect.height * imageRatio;
-      offsetX = (rect.width - drawWidth) / 2;
-    }
-
-    ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
-    ctx.restore();
-  }
 
   promiseTrackStyle(): string {
     return `translate3d(${-this.activePromise() * 25}%, 0, 0)`;

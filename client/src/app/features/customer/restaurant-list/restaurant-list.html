@@ -1,98 +1,89 @@
-<!-- ════════════════════════════════════════ CINEMATIC SCROLL HERO ══ -->
-<section #cinematicStage class="cinematic-hero-section" id="how-section">
-  <div class="cinematic-sticky-viewport">
+<!-- ════════════════════════════════════════ BOLD HUB HERO ══ -->
+<section class="hub-hero" id="home-hero">
+  
+  <!-- Floating cutouts behind/around central content -->
+  <div class="hub-floating-stage">
+    <img src="/swiggy-groceries.png" alt="" class="hub-float hub-groceries" aria-hidden="true">
+    <img src="/swiggy-sushi.png" alt="" class="hub-float hub-sushi" aria-hidden="true">
+  </div>
 
-    <!-- High Performance 30fps Frame Canvas Sequence Renderer -->
-    <div class="cinematic-video-wrapper" aria-hidden="true">
-      <canvas #cinematicCanvas class="cinematic-bg-canvas"></canvas>
+  <div class="hub-container">
+    <div class="hub-content">
+      <h1 class="hub-title">
+        Order food &amp; groceries. Discover<br>best restaurants. <span class="hub-accent">SeeThePrep it!</span>
+      </h1>
 
-      <div class="cinematic-overlay-scrim"></div>
-      <div class="hero-noise"></div>
-    </div>
+      <!-- ── Kitchen Spotlight — CTA ── -->
+      <div class="kitchen-spotlight" [class.is-focused]="spotlightFocused()">
+        <div class="spotlight-pill">
+          <span class="spotlight-icon material-symbols-rounded">location_on</span>
+          <input type="text" class="spotlight-input" placeholder="Enter your delivery location"
+            [value]="postcodeQuery()" (input)="onPostcodeInput($event)" (focus)="spotlightFocused.set(true)"
+            (blur)="onSpotlightBlur()" (keydown.enter)="navigateToRestaurants()" aria-label="Enter a postcode or location" />
+          <button class="spotlight-cta" (click)="navigateToRestaurants()" type="button">
+            <span class="spotlight-cta-label">Find food</span>
+          </button>
+        </div>
 
-    <!-- Progress Rail Header (Pure CSS Scroll Timeline) -->
-    <div class="cinematic-header-badge">
-      <div class="cinematic-progress-indicator">
-        <div class="progress-bar"></div>
+        @if (spotlightFocused() && locationSuggestions().length > 0) {
+        <div class="spotlight-dropdown">
+          @for (loc of locationSuggestions(); track loc.id) {
+          <button type="button" class="spi-row" (click)="selectSuggestion(loc.text)">
+            <div class="spi-thumb">
+              <span class="material-symbols-rounded">place</span>
+            </div>
+            <div class="spi-body">
+              <p class="spi-name">{{ loc.text }}</p>
+              <p class="spi-meta">{{ loc.place_name }}</p>
+            </div>
+          </button>
+          }
+          <div class="spi-footer">
+            <strong>Powered by Postcodes.io (Open Data)</strong>
+          </div>
+        </div>
+        }
       </div>
     </div>
 
-    <!-- Editorial Story Text Overlay Layers -->
-    <div class="cinematic-content-container">
-
-      <!-- Scene 1 Text & Search Bar -->
-      <article class="cinematic-story-card cta-card" style="opacity: 1; pointer-events: auto;">
-        <h1 class="story-headline brand-reveal-title" style="transform: translateY(0); opacity: 1; filter: blur(0px);">
-          Order food.<br>
-          Watch it cook <span class="story-accent">live.</span>
-        </h1>
-
-        <!-- ── Kitchen Spotlight — CTA ── -->
-        <div class="kitchen-spotlight" style="opacity: 1;">
-          <div class="spotlight-pill" [class.is-focused]="spotlightFocused()">
-            <span class="spotlight-icon material-symbols-rounded">near_me</span>
-            <input type="text" class="spotlight-input" placeholder="Chuck in your postcode"
-              [value]="postcodeQuery()" (input)="onPostcodeInput($event)" (focus)="spotlightFocused.set(true)"
-              (blur)="onSpotlightBlur()" (keydown.enter)="navigateToRestaurants()" aria-label="Enter a postcode or location" />
-            <button class="spotlight-cta" (click)="navigateToRestaurants()" type="button">
-              <span class="spotlight-cta-label">Search</span>
-              <span class="material-symbols-rounded">arrow_forward</span>
-            </button>
-          </div>
-
-          @if (spotlightFocused() && locationSuggestions().length > 0) {
-          <div class="spotlight-dropdown">
-            @for (loc of locationSuggestions(); track loc.id) {
-            <button type="button" class="spi-row" (click)="selectSuggestion(loc.text)" style="cursor: pointer; text-align: left;">
-              <div class="spi-thumb" style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05); color: #666; border-radius: 50%; width: 36px; height: 36px;">
-                <span class="material-symbols-rounded" style="font-size: 1.1rem;">place</span>
-              </div>
-              <div class="spi-body">
-                <p class="spi-name">{{ loc.text }}</p>
-                <p class="spi-meta">{{ loc.place_name }}</p>
-              </div>
-            </button>
-            }
-            <div class="spi-footer" style="padding: 10px 15px; text-align: right; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.75rem; color: #888;">
-              <strong>Powered by Postcodes.io (Open Data)</strong>
-            </div>
-          </div>
-          }
+    <!-- Feature Cards overlapping hero bottom -->
+    <div class="hub-feature-cards">
+      <a routerLink="/restaurants" class="hub-card">
+        <div class="hub-card-content">
+          <h3 class="hc-title">KITCHENS</h3>
+          <p class="hc-subtitle">DISCOVER LIVE FOOD</p>
+          <div class="hc-badge">100% LIVE STREAMED</div>
         </div>
-      </article>
+        <div class="hc-bottom">
+          <button class="hc-arrow" tabindex="-1"><span class="material-symbols-rounded">arrow_forward</span></button>
+        </div>
+        <img src="/food-pizza.png" alt="" class="hub-card-cutout">
+      </a>
+      
+      <a routerLink="/auctions" class="hub-card">
+        <div class="hub-card-content">
+          <h3 class="hc-title">AUCTIONS</h3>
+          <p class="hc-subtitle">LIVE BIDDING</p>
+          <div class="hc-badge">EXCLUSIVE OFFERS</div>
+        </div>
+        <div class="hc-bottom">
+          <button class="hc-arrow" tabindex="-1"><span class="material-symbols-rounded">arrow_forward</span></button>
+        </div>
+        <img src="/food-burger.png" alt="" class="hub-card-cutout">
+      </a>
 
-      <!-- Scene 2 Text -->
-      <article class="cinematic-story-card">
-        <h1 class="story-headline"><span class="story-text">See the <span class="story-accent">preparation</span></span></h1>
-        <p class="story-body">
-          <span class="story-text">The second your order’s accepted, step into the live kitchen. Watch your chef bring it to life!</span>
-        </p>
-      </article>
-
-      <!-- Scene 3 Text -->
-      <article class="cinematic-story-card">
-        <h1 class="story-headline"><span class="story-text">Trust every <span class="story-accent">bite</span></span></h1>
-        <p class="story-body">
-          <span class="story-text">What you watched is what you get. No plot twists. Enjoy every single bite.</span>
-        </p>
-      </article>
-
-      <!-- Scene 4 / End (Matches exact serif font & white color of scenes above) -->
-      <article class="cinematic-story-card">
-        <h1 class="story-headline brand-reveal-title">
-          See the prep<br>
-          Trust <span class="story-accent">every</span> bite
-        </h1>
-      </article>
-
+      <a routerLink="/info/contact" class="hub-card">
+        <div class="hub-card-content">
+          <h3 class="hc-title">CORPORATE</h3>
+          <p class="hc-subtitle">ORDER FOR THE TEAM</p>
+          <div class="hc-badge">BULK ORDERS</div>
+        </div>
+        <div class="hc-bottom">
+          <button class="hc-arrow" tabindex="-1"><span class="material-symbols-rounded">arrow_forward</span></button>
+        </div>
+        <img src="/food-dumplings.png" alt="" class="hub-card-cutout">
+      </a>
     </div>
-
-    <!-- Scroll Navigation Cue -->
-    <div class="cinematic-scroll-cue" [class.is-hidden]="cinematicScene() === 3">
-      <span>Scroll to explore</span>
-      <span class="material-symbols-rounded cue-arrow">keyboard_arrow_down</span>
-    </div>
-
   </div>
 </section>
 
