@@ -96,6 +96,13 @@
     width: clamp(120px, 14vw, 180px);
     left: 2%;
     top: 5%;
+    z-index: 2; /* Behind phone */
+    
+    @media (max-width: 768px) {
+      width: 100px;
+      left: -5%;
+      top: 0%;
+    }
   }
 
   /* Bottom Left — Chicken Bowl */
@@ -103,13 +110,27 @@
     width: clamp(140px, 16vw, 220px);
     left: -2%;
     bottom: 8%;
+    z-index: 10; /* In front of phone for depth */
+
+    @media (max-width: 768px) {
+      width: 130px;
+      left: -8%;
+      bottom: 2%;
+    }
   }
 
-  /* Top Right — Pasta */
+  /* Top Right — Burger */
   .food-top-right {
     width: clamp(120px, 14vw, 180px);
     right: 0;
     top: 5%;
+    z-index: 10; /* In front of phone */
+
+    @media (max-width: 768px) {
+      width: 110px;
+      right: -5%;
+      top: 10%;
+    }
   }
 
   /* Bottom Right — Dumplings */
@@ -117,6 +138,13 @@
     width: clamp(120px, 14vw, 180px);
     right: 2%;
     bottom: 8%;
+    z-index: 2; /* Behind phone */
+
+    @media (max-width: 768px) {
+      width: 100px;
+      right: -5%;
+      bottom: -2%;
+    }
   }
 
   /* ── Phone Mockup ── */
