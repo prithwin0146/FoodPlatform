@@ -12,7 +12,7 @@
   /* ── Pink blob: completely static, decorative ── */
   .af-blob-bg {
     position: absolute;
-    top: 68%;        /* shifted lower to match food images */
+    top: 60%;        /* shifted slightly higher per user request */
     left: 50%;
     transform: translate(-50%, -50%);
     width: 95%;
