@@ -229,51 +229,12 @@ export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isBrowser) return;
 
     this.setupFoodFloatAnimations();
-    this.setupDownloadAnimations();
     this.startPromiseCarousel();
   }
 
   ngOnDestroy(): void {
     if (!this.isBrowser) return;
     if (this.promiseTimer) window.clearInterval(this.promiseTimer);
-  }
-
-  private setupDownloadAnimations(): void {
-    setTimeout(() => {
-      const section = document.querySelector('.download-app') as HTMLElement;
-      if (!section) return;
-
-      this.animationZone.runOutsideAngular(() => {
-        const copy  = section.querySelector('#da-copy')  as HTMLElement;
-        const phone = section.querySelector('#da-phone') as HTMLElement;
-        if (!copy || !phone) return;
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
-          },
-        });
-
-        // Copy slides in from left with a spring-like ease
-        tl.to(copy, {
-          opacity: 1,
-          x: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-        }, 0);
-
-        // Phone slides in from right, slightly delayed for stagger
-        tl.to(phone, {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          duration: 1.1,
-          ease: 'power3.out',
-        }, 0.15);
-      });
-    }, 200);
   }
 
   private setupFoodFloatAnimations(): void {
