@@ -91,24 +91,30 @@
     will-change: transform, opacity;
   }
 
-  /* Burger — left centre */
-  .food-burger {
-    width: clamp(140px, 16vw, 220px);
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
+  /* Top Left — Salad */
+  .food-top-left {
+    width: clamp(120px, 14vw, 180px);
+    left: 2%;
+    top: 5%;
   }
 
-  /* Dumplings — top right */
-  .food-dumplings {
+  /* Bottom Left — Chicken Bowl */
+  .food-bottom-left {
+    width: clamp(140px, 16vw, 220px);
+    left: -2%;
+    bottom: 8%;
+  }
+
+  /* Top Right — Pasta */
+  .food-top-right {
     width: clamp(120px, 14vw, 180px);
     right: 0;
     top: 5%;
   }
 
-  /* Pizza — bottom right */
-  .food-pizza {
-    width: clamp(110px, 12vw, 160px);
+  /* Bottom Right — Dumplings */
+  .food-bottom-right {
+    width: clamp(120px, 14vw, 180px);
     right: 2%;
     bottom: 8%;
   }
