@@ -11,7 +11,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 6rem 0 3rem;
+  padding: clamp(3rem, 6vw, 6rem) 0 clamp(2rem, 4vw, 3rem);
   z-index: 1;
 
   /* Subtle texture/glow */

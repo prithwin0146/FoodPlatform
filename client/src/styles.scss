@@ -890,7 +890,7 @@ $food-theme: mat.define-theme((
   --header-height: 72px;
   --max-width: 1280px;
   --gutter: 24px;
-  --section-pad: clamp(5rem, 9vw, 8rem);
+  --section-pad: clamp(3rem, 8vw, 8rem);
 
   // Typography
   --font-sans:    var(--NEW--font-sans);

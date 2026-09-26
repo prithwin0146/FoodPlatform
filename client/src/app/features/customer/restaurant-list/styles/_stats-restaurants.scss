@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════ STATS BANNER ═══ */
 .stats-banner {
   position: relative;
-  padding: 5rem 0;
+  padding: clamp(2.5rem, 6vw, 5rem) 0;
   background: var(--c-stats-gradient);
   overflow: hidden;
   isolation: isolate;

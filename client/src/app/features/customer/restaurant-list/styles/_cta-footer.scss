@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════ FINAL CTA ═══ */
 .final-cta {
   position: relative;
-  padding: 6rem 0 8rem;
+  padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 10vw, 8rem);
   background: var(--c-bg);
   overflow: hidden;
 }
@@ -76,7 +76,7 @@
     radial-gradient(600px circle at 92% 0%, color-mix(in srgb, var(--c-pink) 10%, transparent), transparent 55%),
     var(--c-bg-soft);
   color: var(--c-text-soft);
-  padding: 5rem 0 0;
+  padding: clamp(3.5rem, 6vw, 5rem) 0 0;
   overflow: hidden;
   isolation: isolate;
 }
