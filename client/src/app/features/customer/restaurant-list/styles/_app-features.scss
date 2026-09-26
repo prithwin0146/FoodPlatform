@@ -242,38 +242,92 @@
           }
         }
 
-        .mockup-order-badge {
-          margin: 0 0.85rem 1.75rem;
-          background: rgba(0, 0, 0, 0.55);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 0.875rem;
-          padding: 0.85rem 1rem;
+        .mockup-feed-container {
+          position: absolute;
+          inset: 0;
+          z-index: 5;
+          pointer-events: auto; /* Allow interactions if any */
+        }
+
+        .mockup-video-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          padding: 3rem 1rem 1.5rem;
+          background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
           color: #fff;
-          font-weight: 600;
-          font-size: 0.82rem;
+        }
+
+        .mockup-live-badge {
+          align-self: flex-start;
+          background: rgba(230, 57, 70, 0.9);
+          backdrop-filter: blur(8px);
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 0.65rem;
+          font-weight: 800;
+          letter-spacing: 0.05em;
           display: flex;
           align-items: center;
-          gap: 0.65rem;
-
+          gap: 6px;
+          
           .pulse-dot {
-            flex-shrink: 0;
-            width: 8px;
-            height: 8px;
-            background: var(--stp-brand-red, #E63946);
+            width: 6px;
+            height: 6px;
+            background: #fff;
             border-radius: 50%;
-            position: relative;
-
-            &::after {
-              content: '';
-              position: absolute;
-              inset: -4px;
-              border-radius: 50%;
-              background: var(--stp-brand-red, #E63946);
-              animation: af-pulse 1.5s ease-out infinite;
-            }
+            animation: af-pulse 1.5s ease-out infinite;
           }
+        }
+
+        .mockup-restaurant-info {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .mockup-avatar-wrap {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: #E8560A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          
+          .material-symbols-rounded {
+            font-size: 1.1rem;
+            color: #fff;
+          }
+        }
+
+        .mockup-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .mockup-name {
+          font-weight: 700;
+          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          .verified {
+            font-size: 0.8rem;
+            color: #4CAF50;
+          }
+        }
+
+        .mockup-desc {
+          font-size: 0.7rem;
+          color: rgba(255,255,255,0.75);
         }
       }
     }

@@ -156,19 +156,29 @@
                   <span class="material-symbols-rounded">battery_full</span>
                 </div>
               </div>
-              <div class="mockup-order-badge">
-                <span class="pulse-dot"></span>
-                Order #8492 — Searing Steak
+              <div class="mockup-feed-container">
+                <video 
+                  class="mockup-video" 
+                  autoplay 
+                  muted 
+                  playsinline 
+                  [src]="currentFeedVideo()"
+                  (ended)="onFeedVideoEnded()">
+                </video>
+                <div class="mockup-video-overlay">
+                  <div class="mockup-live-badge"><span class="pulse-dot"></span>LIVE PREP</div>
+                  <div class="mockup-restaurant-info">
+                    <div class="mockup-avatar-wrap">
+                      <span class="material-symbols-rounded">restaurant</span>
+                    </div>
+                    <div class="mockup-text">
+                      <span class="mockup-name">The Grill House <span class="material-symbols-rounded verified">check_circle</span></span>
+                      <span class="mockup-desc">Searing Steak — Order #8492</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            @if (heroVideoUrl) {
-              <video class="mockup-video" autoplay loop muted playsinline [src]="safeVideoUrl(heroVideoUrl)"></video>
-            } @else {
-              <div class="mockup-placeholder">
-                <span class="material-symbols-rounded">videocam</span>
-                <p>Live stream starts here</p>
-              </div>
-            }
           </div>
         </div>
       </div>

@@ -47,6 +47,15 @@ interface WhyPromise {
 })
 export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   readonly demoVideoUrl = signal<string>('');
+  
+  readonly feedVideos = ['/live-video-1.mp4', '/live-video-2.mp4'];
+  readonly activeFeedIndex = signal(0);
+  readonly currentFeedVideo = computed(() => this.feedVideos[this.activeFeedIndex()]);
+
+  onFeedVideoEnded() {
+    this.activeFeedIndex.update(i => (i + 1) % this.feedVideos.length);
+  }
+
   /** Postcode / name typed into the Kitchen Spotlight on the hero. */
   readonly postcodeQuery = signal('');
   readonly spotlightFocused = signal(false);
