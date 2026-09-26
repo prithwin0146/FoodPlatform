@@ -160,7 +160,7 @@
                 <video 
                   class="mockup-video" 
                   autoplay 
-                  muted 
+                  [muted]="true" 
                   playsinline 
                   [src]="currentFeedVideo()"
                   (ended)="onFeedVideoEnded()">
