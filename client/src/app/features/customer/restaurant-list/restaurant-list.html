@@ -147,8 +147,9 @@
         <div class="phone-frame">
           <div class="phone-notch"></div>
           <div class="phone-screen">
-            <div class="mockup-ui">
-              <div class="mockup-header">
+            <div class="mockup-ui-app">
+              <!-- iOS Status Bar -->
+              <div class="mockup-app-header">
                 <span class="mockup-time">19:41</span>
                 <div class="mockup-status-bar">
                   <span class="material-symbols-rounded">signal_cellular_4_bar</span>
@@ -156,26 +157,68 @@
                   <span class="material-symbols-rounded">battery_full</span>
                 </div>
               </div>
-              <div class="mockup-feed-container">
-                <video 
-                  class="mockup-video" 
-                  autoplay 
-                  [muted]="true" 
-                  playsinline 
-                  [src]="currentFeedVideo()"
-                  (ended)="onFeedVideoEnded()">
-                </video>
-                <div class="mockup-video-overlay">
-                  <div class="mockup-live-badge"><span class="pulse-dot"></span>LIVE PREP</div>
-                  <div class="mockup-restaurant-info">
-                    <div class="mockup-avatar-wrap">
-                      <span class="material-symbols-rounded">restaurant</span>
+
+              <!-- App TopBar -->
+              <div class="mockup-app-topbar">
+                <span class="material-symbols-rounded back-btn">arrow_back_ios_new</span>
+                <span class="topbar-title">Track Order</span>
+                <span class="topbar-help">Help</span>
+              </div>
+
+              <!-- Content Scroll Area -->
+              <div class="mockup-app-content">
+                
+                <!-- Live Video Section -->
+                <div class="mockup-video-wrapper">
+                  <video 
+                    class="mockup-video" 
+                    autoplay 
+                    [muted]="true" 
+                    playsinline 
+                    [src]="currentFeedVideo()"
+                    (ended)="onFeedVideoEnded()">
+                  </video>
+                  <div class="mockup-live-tag">
+                    <span class="pulse-dot"></span> LIVE PREP
+                  </div>
+                </div>
+
+                <!-- ETA & Status Card -->
+                <div class="mockup-status-card">
+                  <div class="status-time">
+                    <h2>20:05</h2>
+                    <p>Estimated Arrival</p>
+                  </div>
+                  <div class="status-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill"></div>
                     </div>
-                    <div class="mockup-text">
-                      <span class="mockup-name">The Grill House <span class="material-symbols-rounded verified">check_circle</span></span>
-                      <span class="mockup-desc">Searing Steak — Order #8492</span>
+                    <div class="progress-steps">
+                      <span class="step active">Placed</span>
+                      <span class="step active current">Prep</span>
+                      <span class="step">On the way</span>
                     </div>
                   </div>
+                </div>
+
+                <!-- Restaurant Info -->
+                <div class="mockup-restaurant-card">
+                  <div class="res-icon">
+                    <span class="material-symbols-rounded">restaurant_menu</span>
+                  </div>
+                  <div class="res-details">
+                    <h3>The Grill House</h3>
+                    <p>Order #8492 • 3 items</p>
+                  </div>
+                  <div class="res-call">
+                    <span class="material-symbols-rounded">call</span>
+                  </div>
+                </div>
+                
+                <!-- Skeleton Map -->
+                <div class="mockup-map-placeholder">
+                  <div class="map-bg"></div>
+                  <div class="map-pin material-symbols-rounded">location_on</div>
                 </div>
               </div>
             </div>
