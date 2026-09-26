@@ -147,9 +147,23 @@
         <div class="phone-frame">
           <div class="phone-notch"></div>
           <div class="phone-screen">
-            <div class="mockup-ui-app">
-              <!-- iOS Status Bar -->
-              <div class="mockup-app-header">
+            <div class="mockup-ui-app live-mode">
+              <!-- Edge-to-Edge Video -->
+              <div class="live-video-layer">
+                <video 
+                  class="mockup-video" 
+                  autoplay 
+                  [muted]="true" 
+                  playsinline 
+                  [src]="currentFeedVideo()"
+                  (ended)="onFeedVideoEnded()">
+                </video>
+                <div class="video-overlay-top"></div>
+                <div class="video-overlay-bottom"></div>
+              </div>
+
+              <!-- iOS Status Bar (Overlay) -->
+              <div class="mockup-app-header overlay">
                 <span class="mockup-time">19:41</span>
                 <div class="mockup-status-bar">
                   <span class="material-symbols-rounded">signal_cellular_4_bar</span>
@@ -158,53 +172,63 @@
                 </div>
               </div>
 
-              <!-- App TopBar -->
-              <div class="mockup-app-topbar">
-                <span class="material-symbols-rounded back-btn">arrow_back_ios_new</span>
-                <span class="topbar-title">Track Order</span>
-                <span class="topbar-help">Help</span>
+              <!-- Live Header (Host Info & Close) -->
+              <div class="live-top-bar">
+                <div class="host-pill">
+                  <div class="host-avatar">
+                    <span class="material-symbols-rounded">restaurant</span>
+                  </div>
+                  <div class="host-info">
+                    <span class="host-name">The Grill House</span>
+                    <span class="live-badge"><span class="pulse-dot"></span> LIVE</span>
+                  </div>
+                </div>
+                <div class="live-actions">
+                  <div class="viewer-count">
+                    <span class="material-symbols-rounded">visibility</span> 12
+                  </div>
+                  <span class="material-symbols-rounded close-btn">close</span>
+                </div>
               </div>
 
-              <!-- Content Area -->
-              <div class="mockup-app-content no-scroll">
-                
-                <!-- Live Video Section (Tall) -->
-                <div class="mockup-video-wrapper tall">
-                  <video 
-                    class="mockup-video" 
-                    autoplay 
-                    [muted]="true" 
-                    playsinline 
-                    [src]="currentFeedVideo()"
-                    (ended)="onFeedVideoEnded()">
-                  </video>
-                  <div class="mockup-live-tag">
-                    <span class="pulse-dot"></span> LIVE PREP
-                  </div>
-                  <div class="mockup-video-gradient"></div>
+              <!-- Floating Comments Stream -->
+              <div class="live-comments">
+                <div class="comment">
+                  <span class="comment-user">Chef John</span>
+                  <span class="comment-text">Firing up the grill now! 🔥</span>
                 </div>
+                <div class="comment">
+                  <span class="comment-user">System</span>
+                  <span class="comment-text">Order is being prepped.</span>
+                </div>
+              </div>
 
-                <!-- Bottom UI Sheet -->
-                <div class="mockup-bottom-sheet">
-                  <div class="sheet-header">
-                    <div class="sheet-title">
-                      <h3>Preparing your food</h3>
-                      <p>Arriving at 20:05</p>
-                    </div>
-                    <div class="res-icon">
-                      <span class="material-symbols-rounded">restaurant_menu</span>
-                    </div>
+              <!-- Floating Reactions -->
+              <div class="live-reactions">
+                <div class="reaction r-1">❤️</div>
+                <div class="reaction r-2">🔥</div>
+                <div class="reaction r-3">🍔</div>
+              </div>
+
+              <!-- Floating Tracking Card -->
+              <div class="live-tracking-card">
+                <div class="card-header">
+                  <div class="eta-info">
+                    <h3>Preparing your food</h3>
+                    <p>Arriving at 20:05</p>
                   </div>
-                  
-                  <div class="status-progress compact">
-                    <div class="progress-bar">
-                      <div class="progress-fill"></div>
-                    </div>
-                    <div class="progress-steps">
-                      <span class="step active">Placed</span>
-                      <span class="step active current">Prep</span>
-                      <span class="step">On the way</span>
-                    </div>
+                  <div class="card-icon">
+                    <span class="material-symbols-rounded">moped</span>
+                  </div>
+                </div>
+                <div class="status-progress compact">
+                  <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                  </div>
+                  <div class="progress-steps">
+                    <span class="step active">Placed</span>
+                    <span class="step active current">Prep</span>
+                    <span class="step">On the way</span>
                   </div>
                 </div>
               </div>
