@@ -256,3 +256,56 @@
     }
   }
 }
+
+/* =================================================================
+   STACKED DECK SCROLL EFFECT (Zomato-style Sticky Cards)
+   ================================================================= */
+.stacked-deck {
+  position: relative;
+  /* Optional: we don't strictly need scroll-snap for sticky, 
+     but keeping it clean works nicely. */
+}
+
+.deck-card {
+  position: sticky;
+  top: 0;
+  /* Lock height to viewport to prevent bottom-clipping */
+  height: 100vh;
+  /* Enable scrolling inside the card if content is too tall */
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fff; 
+  z-index: 1;
+  box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.08);
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hide scrollbar for cleaner look (WebKit) */
+.deck-card::-webkit-scrollbar {
+  display: none;
+}
+.deck-card {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* The first card (Hero) should not have the rounded top or shadow */
+.deck-card:first-child {
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 0;
+}
+
+/* Subsequent cards stack progressively higher */
+.deck-card:nth-child(2) { z-index: 10; }
+.deck-card:nth-child(3) { z-index: 20; }
+.deck-card:nth-child(4) { z-index: 30; }
+
+/* Ensure the footer also stacks correctly if it's after the deck */
+:host ::ng-deep app-footer {
+  position: relative;
+  z-index: 40;
+}
