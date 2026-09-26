@@ -109,6 +109,7 @@
 /* ── Massive Search Bar (Swiggy/Deliveroo style) ── */
 .kitchen-spotlight {
   position: relative;
+  z-index: 50;
   width: 100%;
   max-width: 700px;
   animation: fadeUp 0.8s ease forwards 0.2s;
