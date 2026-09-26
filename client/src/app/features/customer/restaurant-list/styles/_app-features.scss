@@ -89,6 +89,11 @@
     /* GSAP sets opacity: 0 initially, then animates in */
     opacity: 0;
     will-change: transform, opacity;
+
+    /* Completely hide floating food on mobile for a cleaner UI */
+    @media (max-width: 768px) {
+      display: none !important;
+    }
   }
 
   /* Top Left — Salad */
@@ -97,12 +102,6 @@
     left: 2%;
     top: 5%;
     z-index: 2; /* Behind phone */
-    
-    @media (max-width: 768px) {
-      width: 100px;
-      left: -5%;
-      top: 0%;
-    }
   }
 
   /* Bottom Left — Chicken Bowl */
@@ -111,12 +110,6 @@
     left: -2%;
     bottom: 8%;
     z-index: 10; /* In front of phone for depth */
-
-    @media (max-width: 768px) {
-      width: 130px;
-      left: -8%;
-      bottom: 2%;
-    }
   }
 
   /* Top Right — Burger */
@@ -125,12 +118,6 @@
     right: 0;
     top: 5%;
     z-index: 10; /* In front of phone */
-
-    @media (max-width: 768px) {
-      width: 110px;
-      right: -5%;
-      top: 10%;
-    }
   }
 
   /* Bottom Right — Dumplings */
@@ -139,12 +126,6 @@
     right: 2%;
     bottom: 8%;
     z-index: 2; /* Behind phone */
-
-    @media (max-width: 768px) {
-      width: 100px;
-      right: -5%;
-      bottom: -2%;
-    }
   }
 
   /* ── Phone Mockup ── */

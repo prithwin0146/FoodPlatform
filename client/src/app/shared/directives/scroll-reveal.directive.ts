@@ -27,9 +27,9 @@ export class ScrollRevealDirective implements OnInit {
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Start hidden
+    // Start hidden with a slight scale down for a premium "pop-in" effect
     el.style.opacity = '0';
-    el.style.transform = `translateY(${this.revealY}px)`;
+    el.style.transform = `translateY(${this.revealY}px) scale(0.96)`;
     el.style.willChange = 'opacity, transform';
 
     const delay = this.revealDelay;
@@ -37,17 +37,24 @@ export class ScrollRevealDirective implements OnInit {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          // Buttery smooth Apple-like bezier curve for premium feel
           el.style.transition = [
-            `opacity 0.65s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
-            `transform 0.65s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+            `opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+            `transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
           ].join(', ');
           el.style.opacity = '1';
-          el.style.transform = 'translateY(0)';
-          el.style.willChange = 'auto';
+          el.style.transform = 'translateY(0) scale(1)';
+          
+          // Cleanup
+          setTimeout(() => {
+            el.style.willChange = 'auto';
+          }, delay + 800);
+
           observer.disconnect();
         }
       },
-      { threshold: 0.1, rootMargin: '0px 0px -32px 0px' },
+      // Lower threshold and adjusted rootMargin so it triggers reliably on mobile screens
+      { threshold: 0.05, rootMargin: '0px 0px -15% 0px' },
     );
 
     observer.observe(el);
