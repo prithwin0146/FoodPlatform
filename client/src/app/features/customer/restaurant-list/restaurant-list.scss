@@ -297,6 +297,8 @@
   border-radius: 0;
   box-shadow: none;
   z-index: 0;
+  /* Allow the hero section to keep its beautiful orange gradient */
+  background: transparent;
 }
 
 /* Subsequent cards stack progressively higher */
