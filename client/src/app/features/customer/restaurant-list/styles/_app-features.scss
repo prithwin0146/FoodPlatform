@@ -263,20 +263,20 @@
           .topbar-help { font-size: 0.85rem; font-weight: 600; color: #E8560A; }
         }
 
-        /* Content Scroll Area */
+        /* Content Area */
         .mockup-app-content {
           flex: 1;
           display: flex;
           flex-direction: column;
-          overflow-y: auto;
-          background: #f8f9fa;
+          overflow: hidden;
+          background: #fff;
         }
 
-        /* Live Video Section */
-        .mockup-video-wrapper {
+        /* Live Video Section (Tall) */
+        .mockup-video-wrapper.tall {
           position: relative;
           width: 100%;
-          aspect-ratio: 4 / 3;
+          flex: 1; /* Takes up all available space */
           background: #000;
           overflow: hidden;
         }
@@ -302,6 +302,7 @@
           display: flex;
           align-items: center;
           gap: 4px;
+          z-index: 2;
           
           .pulse-dot {
             width: 6px;
@@ -312,41 +313,67 @@
           }
         }
 
-        /* ETA & Status Card */
-        .mockup-status-card {
+        .mockup-video-gradient {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 80px;
+          background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        /* Bottom UI Sheet */
+        .mockup-bottom-sheet {
           background: #fff;
-          margin: 1rem 1rem 0;
-          padding: 1.25rem;
-          border-radius: 20px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+          padding: 1.25rem 1.5rem 2rem;
+          border-top-left-radius: 24px;
+          border-top-right-radius: 24px;
+          margin-top: -20px; /* Overlaps video slightly */
+          z-index: 10;
+          box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
           
-          .status-time {
-            text-align: center;
-            margin-bottom: 1rem;
+          .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
             
-            h2 {
-              font-size: 2.2rem;
+            .sheet-title h3 {
+              margin: 0 0 0.15rem;
+              font-size: 1.15rem;
               font-weight: 800;
-              margin: 0;
               color: #111;
-              letter-spacing: -0.02em;
+              letter-spacing: -0.01em;
             }
-            p {
-              margin: 0.25rem 0 0;
+            .sheet-title p {
+              margin: 0;
               font-size: 0.85rem;
-              color: #777;
-              font-weight: 600;
+              color: #E8560A;
+              font-weight: 700;
+            }
+            
+            .res-icon {
+              width: 44px;
+              height: 44px;
+              border-radius: 12px;
+              background: rgba(232, 86, 10, 0.1);
+              color: #E8560A;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              .material-symbols-rounded { font-size: 1.4rem; }
             }
           }
           
-          .status-progress {
+          .status-progress.compact {
             position: relative;
-            margin-top: 1.5rem;
             
             .progress-bar {
-              height: 4px;
+              height: 5px;
               background: #f0f0f0;
-              border-radius: 4px;
+              border-radius: 5px;
               overflow: hidden;
               margin-bottom: 0.75rem;
               
@@ -354,7 +381,7 @@
                 width: 50%; /* Prep step */
                 height: 100%;
                 background: #E8560A;
-                border-radius: 4px;
+                border-radius: 5px;
               }
             }
             
@@ -376,77 +403,6 @@
                 }
               }
             }
-          }
-        }
-
-        /* Restaurant Info */
-        .mockup-restaurant-card {
-          background: #fff;
-          margin: 1rem 1rem 0;
-          padding: 1rem;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-
-          .res-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: rgba(232, 86, 10, 0.1);
-            color: #E8560A;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            .material-symbols-rounded { font-size: 1.25rem; }
-          }
-          
-          .res-details {
-            flex: 1;
-            h3 { margin: 0 0 0.1rem; font-size: 0.95rem; font-weight: 800; color: #111; }
-            p { margin: 0; font-size: 0.75rem; color: #777; font-weight: 500; }
-          }
-          
-          .res-call {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f4f4f4;
-            color: #111;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            .material-symbols-rounded { font-size: 1.1rem; }
-          }
-        }
-
-        /* Skeleton Map */
-        .mockup-map-placeholder {
-          margin: 1rem;
-          height: 120px;
-          border-radius: 16px;
-          background: #e2e8f0;
-          position: relative;
-          overflow: hidden;
-          
-          /* Checkered or slight gradient to look like map skeleton */
-          .map-bg {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 12px 12px;
-            opacity: 0.6;
-          }
-          
-          .map-pin {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            color: #475569;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
           }
         }
       }
