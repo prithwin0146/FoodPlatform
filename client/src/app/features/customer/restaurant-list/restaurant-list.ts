@@ -48,7 +48,7 @@ interface WhyPromise {
 export class RestaurantList implements OnInit, AfterViewInit, OnDestroy {
   readonly demoVideoUrl = signal<string>('');
   
-  readonly feedVideos = ['/live-video-1.mp4', '/live-video-2.mp4'];
+  readonly feedVideos = ['/live-video-1.mp4', '/live-video-2.mp4', '/live-video-3.mp4', '/live-video-4.mp4', '/live-video-5.mov'];
   readonly activeFeedIndex = signal(0);
   readonly currentFeedVideo = computed(() => this.feedVideos[this.activeFeedIndex()]);
 
